@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.22 1998/09/16 14:16:12 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.23 1998/09/18 14:44:15 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,11 @@ $Header: /cvsroot/arsperl/ARSperl/support.c,v 1.22 1998/09/16 14:16:12 jcmurphy 
     LOG:
 
 $Log: support.c,v $
+Revision 1.23  1998/09/18 14:44:15  jcmurphy
+reworked joinschema entry-id handling. added my_strtok routine
+so we can split() the entry-id into the appropriate number of
+parts regardless of whether it is an inner or outter join.
+
 Revision 1.22  1998/09/16 14:16:12  jcmurphy
 fixed bug in perl_ARIndexStruct
 
@@ -1275,6 +1280,53 @@ perl_ARPermissionList(ARPermissionList *in, int permType) {
 #if AR_EXPORT_VERSION >= 3
 
 /* ROUTINE
+ *   my_strtok(string, token-buffer, token-buffer-length, separator)
+ *
+ * DESCRIPTION
+ *   since strtok doesn't handle things like:
+ *     "a||b" -> "a" "" "b"
+ *   well, i wrote this tokenizer which behaves more like
+ *   the perl "split" command.
+ *
+ * RETURNS
+ *   non-NULL char pointer on success (more string to process)
+ *   NULL char ptr on end-of-string
+ *  
+ * AUTHOR
+ *   jeff murphy
+ */
+
+static char *
+my_strtok(char *str, char *tok, int tlen, char sep)
+{
+  char *p = str;
+  int i;
+
+  /* str is NULL, we're done */
+
+  if(!str && !*str) return NULL;
+
+  for(i = 0; i < tlen ; i++) *(tok + i) = 0;
+
+  /* if p is sep, then tok is null */
+
+  if(*p == sep) {
+    *tok = 0;
+    return p;
+  }
+
+  /* else copy p to tok until end of string or sep */
+  
+  while(*p && (*p != sep)) {
+    *tok = *p;
+    p++; tok++;
+  }
+  
+  *(tok) = 0;
+  return p;
+}
+
+/* ROUTINE
  *   perl_BuildEntryList(eList, entry_id)
  *
  * DESCRIPTION
@@ -1301,33 +1353,51 @@ perl_BuildEntryList(AREntryIdList *entryList, char *entry_id)
   
     if(strlen(entry_id) > AR_MAX_ENTRYID_SIZE) {
       char *eid_dup, *eid_orig, *tok;
-      char  eidSep[2] = {AR_ENTRY_ID_SEPARATOR, 0};
-      int   tn;
+      int   tn = 0, len = 0;
+
+      if(strchr(entry_id, AR_ENTRY_ID_SEPARATOR) == (char *) NULL) {
+	ARError_add( AR_RETURN_ERROR, AP_ERR_EID_SEP);
+	return -1;
+      }
 
       eid_dup  = strdup(entry_id);
       eid_orig = eid_dup; /* remember who we are */
-      
-      entryList->numItems = strsrch(eid_dup, AR_ENTRY_ID_SEPARATOR) + 1; 
-      entryList->entryIdList = (AREntryIdType *) MALLOCNN(sizeof(AREntryIdType) * entryList->numItems);
+      tok      = strdup(entry_id);
+      len      = strlen(tok);
 
-      if((tok = strtok(eid_dup, eidSep))) {
-	for(tn = 0; tn < entryList->numItems ; tn++) {
-	  /* patch by Ulrich Pfeifer <pfeifer@wait.de> */
-	  strncpy(entryList->entryIdList[tn], tok, sizeof(AREntryIdType));
-	  *(entryList->entryIdList[tn]+AR_MAX_ENTRYID_SIZE+1) = '\0';
-	  tok = strtok((char *)NULL, eidSep);
-	}
-	FREE(eid_orig);
-	return 0;
-      } else {
-	ARError_add( AR_RETURN_ERROR, AP_ERR_EID_SEP);
-	FREE(eid_orig);
-	return -1;
-      }    
+      if(!eid_dup || !tok)
+	croak("perl_BuildEntryList out of memory: can't strdup entry-id buffer.");
+
+      entryList->numItems = strsrch(eid_dup, AR_ENTRY_ID_SEPARATOR) + 1; 
+      entryList->entryIdList = (AREntryIdType *) MALLOCNN(sizeof(AREntryIdType) * 
+							  entryList->numItems);
+
+      if(! entryList->entryIdList) 
+	croak("perl_BuildEntryList out of memory: can't allocate entryIdList buffer(s).");
+
+      /* now, foreach separate entry-id in the conglomerate
+       * entry-id, stick them into the entryIdList fields.
+       */
+
+      tn      = 0;
+      eid_dup = my_strtok(eid_dup, tok, len, AR_ENTRY_ID_SEPARATOR);
+      while(*eid_dup) {
+	(void) strncpy(entryList->entryIdList[tn], tok, sizeof(AREntryIdType));
+	*(entryList->entryIdList[tn++]+AR_MAX_ENTRYID_SIZE+1) = 0;
+	eid_dup = my_strtok(eid_dup+1, tok, len, AR_ENTRY_ID_SEPARATOR);
+      }
+
+      (void) strncpy(entryList->entryIdList[tn], tok, sizeof(AREntryIdType));
+      *(entryList->entryIdList[tn++]+AR_MAX_ENTRYID_SIZE+1) = 0;
+
+      FREE(eid_orig);
+      FREE(tok);
+      return 0;
     } else { /* "normal" entry-id */
       entryList->numItems = 1;
       entryList->entryIdList = MALLOCNN(sizeof(AREntryIdType) * 1);
       strcpy(entryList->entryIdList[0], entry_id);
+
       return 0;
     }
   } else
