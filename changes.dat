@@ -1,3 +1,6 @@
+released=9/21/2000 version=1.70
+JCM modified support-h.template to compile against api3.x
+
 released=8/31/2000 version=1.69
 JCM added ars_SetServerInfo() call
 JCM added infra/pcpp.pl which is used to convert the xs
