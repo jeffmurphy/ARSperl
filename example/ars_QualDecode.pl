@@ -1,5 +1,5 @@
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/ars_QualDecode.pl,v 1.3 1997/02/20 20:17:27 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/ars_QualDecode.pl,v 1.4 1998/01/07 15:07:00 jcmurphy Exp $
 #
 # MODULE
 #   ars_QualDecode.pl
@@ -14,6 +14,9 @@
 #   jeff murphy
 #
 # $Log: ars_QualDecode.pl,v $
+# Revision 1.4  1998/01/07 15:07:00  jcmurphy
+# modifications by dave adams to arith printing stuff
+#
 # Revision 1.3  1997/02/20 20:17:27  jcmurphy
 # added more descriptive comments and also handled keywords correctly.
 #
@@ -179,7 +182,9 @@ sub Decode_FVoAS {
     # demo.
 
     elsif($h->{arith}) {
-	$e = "arithOp";
+	# addition by "David Adams" <D.J.Adams@soton.ac.uk>
+	local($ar) = $h->{arith};
+	$e .= "(".Decode_FVoAS($ar->{left}, $fids)." ".$ar->{oper}." ".Decode_FVoAS($ar->{right}, $fids).")";
     }
 
     # a set of values (used for the "IN" operator)
