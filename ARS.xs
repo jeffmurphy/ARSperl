@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.17 1997/02/17 16:21:12 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.18 1997/02/17 16:53:35 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -27,6 +27,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.17 1997/02/17 16:21:12 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.18  1997/02/17 16:53:35  jcmurphy
+commented ARTermination back out for a little bit longer.
+
 Revision 1.17  1997/02/17 16:21:12  jcmurphy
 uncommented ARTermintation(), added GetListServer to ars_Login incase
 no server is specified. added ars_GetCurrentServer so you can determine
@@ -1800,9 +1803,11 @@ ars_Logoff(ctrl,a=0,b=0,c=1)
 	    if (!ctrl) return;
 	    ret = XARReleaseCurrentUser(ctrl, ctrl->user, &status, a, b, c);
 	    ARError(ret, status);
+	/*
 	    ret = ARTermination(&status);
 	    ARError(ret, status);
 	    free(ctrl);
+	*/
 	}
 
 void
