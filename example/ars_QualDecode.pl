@@ -1,5 +1,5 @@
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/ars_QualDecode.pl,v 1.4 1998/01/07 15:07:00 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/ars_QualDecode.pl,v 1.5 1998/02/25 19:21:14 jcmurphy Exp $
 #
 # MODULE
 #   ars_QualDecode.pl
@@ -14,6 +14,9 @@
 #   jeff murphy
 #
 # $Log: ars_QualDecode.pl,v $
+# Revision 1.5  1998/02/25 19:21:14  jcmurphy
+# minor corrections
+#
 # Revision 1.4  1998/01/07 15:07:00  jcmurphy
 # modifications by dave adams to arith printing stuff
 #
@@ -124,7 +127,7 @@ sub Decode_FVoAS {
 
     # a field is referenced
 
-    if($h->{fieldId}) {
+    if(defined($h->{fieldId})) {
 	print "\tfieldId: $h->{fieldId}\n" if $debug;
 	if($fids{$h->{fieldId}} ne "") {
 	    $e = "'".$fids{$h->{fieldId}}."'";
@@ -135,21 +138,21 @@ sub Decode_FVoAS {
 
     # a transaction field reference
 
-    elsif($h->{TR_fieldId}) {
+    elsif(defined($h->{TR_fieldId})) {
 	print "\tTR_fieldId: $h->{TR_fieldId}\n" if $debug;
 	$e = "'TR.".$fids{$h->{TR_fieldId}}."'";
     }
 
     # a database value field reference
 
-    elsif($h->{DB_fieldId}) {
+    elsif(defined($h->{DB_fieldId})) {
 	print "\tDB_fieldId: $h->{DB_fieldId}\n" if $debug;
 	$e = "'DB.".$fids{$h->{DB_fieldId}}."'";
     }
 
     # a value
 
-    elsif($h->{value}) {
+    elsif(defined($h->{value})) {
 	if($h->{value} =~ /^\000/) {
 
 	    # this is a keyword
@@ -181,7 +184,7 @@ sub Decode_FVoAS {
     # give an error) so this is irrelevant to this
     # demo.
 
-    elsif($h->{arith}) {
+    elsif(defined($h->{arith})) {
 	# addition by "David Adams" <D.J.Adams@soton.ac.uk>
 	local($ar) = $h->{arith};
 	$e .= "(".Decode_FVoAS($ar->{left}, $fids)." ".$ar->{oper}." ".Decode_FVoAS($ar->{right}, $fids).")";
@@ -192,7 +195,7 @@ sub Decode_FVoAS {
     # either.. so i'll just flag it and dump something
     # semi-appropriate.
 
-    elsif($h->{valueSet}) {
+    elsif(defined($h->{valueSet})) {
 	$e = "valueSet(".join(',', @{$h->{valueSet}}).")";
     }
 
@@ -200,7 +203,7 @@ sub Decode_FVoAS {
     # it's a real feature that is available.. perhaps
     # something that remedy is working on? hmm..
 
-    elsif($h->{variable}) {
+    elsif(defined($h->{variable})) {
 	$e = "variable($h->{variable})";
     }
 
@@ -211,7 +214,7 @@ sub Decode_FVoAS {
     # stuff at remedy? either that or this structure is also
     # used for query menus maybe..
 
-    elsif($h->{queryValue}) {
+    elsif(defined($h->{queryValue})) {
 	$e = "external_query";
     }
 
@@ -225,24 +228,24 @@ sub Decode_FVoAS {
     # "Closed" or whatever). USER or TIME keywords are
     # determined from the userOrTime value (1 or 2).
 
-    elsif($h->{statHistory}) {
+    elsif(defined($h->{statHistory})) {
 	$e = "[statusHistory]";
     }
 
     # a query against a value of a field in 
     # the current schema
 
-    elsif($h->{queryCurrent}) {
+    elsif(defined($h->{queryCurrent})) {
 	if($fids{$h->{queryCurrent}} ne "") {
 	    $e = "current('".$fids{$h->{queryCurrent}}."')";
 	} else {
 	    $e = "current('".$h->{queryCurrent}."')";
 	}
     } 
+
     else {
 	print "WARNING: unknown FieldValueOrArithStruct hash key\n";
-	print keys %h;
-	print "\n";
+	printf ("{%s}\n", keys %{$h});
     }
     return $e;
 }
