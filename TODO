@@ -21,8 +21,10 @@ ARSetSchema
 ARSetServerInfo
 ARSetVUI
 
-   o finish cleaning code (use VNAME all over and compile
-     with strict compiler settings).
+   o clean up verbose warning output (mostly 
+     unused variables due to the 2.x/3.0 intermixed
+     code)
 
    o update doc for GetField
+
 
