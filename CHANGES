@@ -1,10 +1,24 @@
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.5 1997/02/17 15:05:16 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.6 1997/02/18 18:47:09 jcmurphy Exp $
 
 CHANGES for ARSperl
 
 Revision history for ARSperl.
 
 MM/DD/YY
+=======================================================================
+#######################################################################
+=======================================================================
+02/18/97        (1.42)
+
+  o  (JWM) added destructors for the ARS package that will correctly
+           call ARTermination when the package is unloaded (when your
+           script exits).
+
+  o  (JWM) fixed minor type casting problem that prevented compilation
+           on HP-UX
+
+  o  (JCM) compiled with -Wall and cleaned up some suspicious code.
+
 =======================================================================
 #######################################################################
 =======================================================================

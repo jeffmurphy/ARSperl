@@ -18,12 +18,20 @@
 
  <H2> Version </H2>
 
- The current release it Version 1.41 and will compile against ARS 2.0, 2.1 and 3.0
+ The current release it Version 1.42 and will compile against ARS 2.0, 2.1 and 3.0
  API libraries.
 
  <H2> Release Notes </H2>
 
  <DL>
+    <DT> 1.42 <DD>
+    <UL>
+      <LI> Minor bug fix for HP-UX
+      <LI> Compiled with -Wall and cleaned up quite a few questionable
+           pieces of code.
+      <LI> Added destructors for the package that will correctly call
+           ARTermination() when the script exits.
+    </UL>
     <DT> 1.41 <DD>
     <UL>
       <LI> Bug fixes to 1.4
