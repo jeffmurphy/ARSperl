@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.5 1999/03/12 07:27:16 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.6 1999/10/03 04:00:27 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -24,6 +24,9 @@ $Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.5 1999/03/12 07:27:16 j
     LOG:
 
 $Log: support-h.template,v $
+Revision 1.6  1999/10/03 04:00:27  jcmurphy
+various
+
 Revision 1.5  1999/03/12 07:27:16  jcmurphy
 1.6400 BETA - OO layer and attachments
 
@@ -135,9 +138,41 @@ typedef struct {
 
 #define TYPEMAP_LAST 0xFFFFFFFFL
 
-struct TypeMapStruct {
+typedef struct {
   unsigned int  number;
   char         *name;
+} TypeMapStruct;
+
+static struct {
+	unsigned int  number;
+	char         *name;
+} ComParmTypeMap[] = {
+/*COMPARMTYPEMAP*/
+	{ TYPEMAP_LAST, "" }
+};
+
+static struct {
+	unsigned int  number;
+	char         *name;
+} ComMethodTypeMap[] = {
+/*COMMETHODTYPEMAP*/
+	{ TYPEMAP_LAST, "" }
+};
+
+static struct {
+	unsigned int  number;
+	char         *name;
+} ActiveLinkActionTypeMap[] = {
+/*ACTIVELINKACTIONTYPEMAP*/
+	{ TYPEMAP_LAST, "" }
+};
+
+static struct {
+	unsigned int  number;
+	char         *name;
+} FilterActionTypeMap[] = {
+/*FILTERACTIONTYPEMAP*/
+	{ TYPEMAP_LAST, "" }
 };
 
 static struct {
@@ -237,6 +272,8 @@ static struct {
 /*SERVERINFOMAP*/
   { TYPEMAP_LAST, NULL }
 };
+
+EXTERN char *lookUpTypeName(TypeMapStruct *t, unsigned int v);
 
 /* typedef SV* (*ARS_fn)(void *); */
 typedef void *(*ARS_fn)(ARControlStruct *ctrl, void *b);
@@ -340,7 +377,23 @@ EXTERN SV *perl_ARCoordStruct(ARControlStruct *ctrl,  ARCoordStruct *);
 EXTERN int perl_BuildEntryList(ARControlStruct *ctrl,  AREntryIdList *entryList, 
 				char *entry_id);
 EXTERN SV *perl_ARAssignSQLStruct(ARControlStruct *ctrl,  ARAssignSQLStruct *in);
+#endif
+
+#if AR_EXPORT_VERSION >= 4
+EXTERN SV *perl_ARSQLStruct(ARControlStruct *ctrl, ARSQLStruct *in);
 EXTERN SV *perl_ARAttach(ARControlStruct *ctrl,  ARAttachStruct *in);
+EXTERN SV *perl_ARPushFieldsStruct(ARControlStruct *ctrl, 
+				   ARPushFieldsStruct *in);
+EXTERN SV *perl_ARAutomationStruct(ARControlStruct *ctrl,
+				   ARAutomationStruct *in);
+EXTERN SV *perl_ARCOMMethodStruct(ARControlStruct *ctrl,
+				  ARCOMMethodStruct *in);
+EXTERN SV *perl_ARCOMMethodParmStruct(ARControlStruct *ctrl,
+				      ARCOMMethodParmStruct *in);
+EXTERN SV *perl_ARCOMValueStruct(ARControlStruct * ctrl,
+				 ARCOMValueStruct * in);
+EXTERN SV *perl_AROpenDlgStruct(ARControlStruct * ctrl,
+				AROpenDlgStruct * in);
 #endif
 
 #ifndef BSD
@@ -413,5 +466,7 @@ int  copymem(MEMCAST *m1, MEMCAST *m2, int size);
 #define AP_ERR_NEEDKEYSKEYS 80023 /* specify what keys */
 #define AP_ERR_PREREVFAIL   80024, "Failed to convert some perl structures to ars structures. Create/Set operation aborted."
 #define AP_ERR_ATTACH       80025  /* roll your own text */
+#define AP_ERR_INV_ARGS     80026 /* roll your own - invalid argument(s) */
+
 
 #endif /* __support_h_ */

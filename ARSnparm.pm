@@ -31,6 +31,7 @@ sub make_attributes {
     return () unless $attr && ref($attr) && ref($attr) eq 'HASH';
     my(@att);
     foreach (keys %{$attr}) {
+        #print "attr=$_\n";
         my($key) = $_;
         $key=~s/^\-//;     # get rid of initial - if present
         $key=~tr/a-z_/A-Z-/; # parameters are upper case, use dashes
@@ -39,10 +40,28 @@ sub make_attributes {
     return @att;
 }
 
+# rearrange(order, params)
+#  order will be an array reference (might contain other array refs)
+#  that lists the order we want the params returned in.
+# 
+#  param is the actual params, probably as (-key, value) pairs.
+
 sub rearrange {
   my($order,@param) = @_;
   return () unless @param;
-  my($param);
+  my($param, @possibilities);
+
+  foreach (@$order) {
+    if(ref($_) && (ref($_) eq "ARRAY")) {
+      foreach my $P (@{$_}) {
+	push @possibilities, $P;
+      }
+    } else {
+      push @possibilities, $_;
+    }
+  }
+
+  #print "possibilities=".join(',', @possibilities)."\n";
 
   unless (ref($param[0]) eq 'HASH') {
     return @param unless (defined($param[0]) && substr($param[0],0,1) eq '-');
@@ -50,6 +69,8 @@ sub rearrange {
   } else {
     $param = $param[0];
   }
+
+  my($key)='';
   
   foreach (keys %{$param}) {
     my $old = $_;
@@ -59,10 +80,20 @@ sub rearrange {
     $param->{$_} = $param->{$old};
     delete $param->{$old};
   }
-  
+
+  # scan the keys in param and make sure they are valid. 
+
+  foreach my $key (keys %$param) {
+    #print "validating: $key\n";
+    my (@t) = grep(/^$key$/, @possibilities);
+    Carp::confess "invalid named parameter \"$key\"" if $#t == -1;
+  }  
+
   my(@return_array);
-  my($key)='';
+
   foreach $key (@$order) {
+    #print "key=$key\n";
+
     my($value);
     # this is an awful hack to fix spurious warnings when the
     # -w switch is set.

@@ -44,10 +44,15 @@ sub new {
   # check ->hasErrors(), etc. 
   # this should be a hash ref.
 
-  $self->{'.catch'} = $catch if (defined($catch));
   if(defined($catch) && ref($catch) ne "HASH") {
-    die "catch parameter to 'new ARS' should be a HASH reference. (you gave me ".ref($catch)." reference)";
+      $self->pushMessage(&ARS::AR_RETURN_ERROR,
+			  81000,
+			  "catch parameter should be a HASH reference. (you gave me ".ref($catch)." reference)"
+			 );
   }
+
+  $self->{'.catch'} = $catch if (defined($catch));
+
 
   # if we've received a ctrl parameter, then we'll used that
   # and ignore the other three parameters. in addition, we'll
@@ -57,16 +62,23 @@ sub new {
   # routines with greater ease.
 
   if(defined($ctrl)) {
-    print "new connection object: reusing existing ctrl struct.\n"
-      if $self->{'.debug'};
-    $self->{'ctrl'} = $ctrl;
-    $self->{'.nologoff'} = 1;
+      print "new connection object: reusing existing ctrl struct.\n"
+	  if $self->{'.debug'};
+      if(ref($ctrl) ne "ARControlStructPtr") {
+	  $self->pushMessage(&ARS::AR_RETURN_ERROR,
+			     81000,
+			     "ctrl parameter should be an ARControlStructPtr reference. you passed a ".ref($ctrl)." reference."
+			     );
+
+      }
+      $self->{'ctrl'} = $ctrl;
+      $self->{'.nologoff'} = 1;
   } else {
-    print "new connection object: ($server, $username, $password)\n" 
-      if $self->{'.debug'};
-    $self->{'ctrl'} = ars_Login($server, $username, $password);
-    $self->{'.nologoff'} = 0;
-    $self->tryCatch();
+      print "new connection object: ($server, $username, $password)\n" 
+	  if $self->{'.debug'};
+      $self->{'ctrl'} = ars_Login($server, $username, $password);
+      $self->{'.nologoff'} = 0;
+      $self->tryCatch();
   }
 
   return $blessed;
@@ -75,7 +87,7 @@ sub new {
 sub DESTROY {
   my ($self) = shift;
   print "destroying connection object: " if $self->{'.debug'};
-  if($self->{'.nologoff'} == 0) {
+  if(defined($self->{'.nologoff'}) && $self->{'.nologoff'} == 0) {
     print "ars_Logoff called.\n" if $self->{'.debug'};
     ars_Logoff($self->{'ctrl'}) if defined($self->{'ctrl'});
   } else {
@@ -122,13 +134,15 @@ sub openForm {
   my $this = shift;
   my($form, $vui) = rearrange([FORM,VUI], @_);
 
-  if(defined($form) && ($form ne "")) {
-    my $so = new ARS::form(-form => $form,
-			   -vui => $vui,
-			   -connection => $this);
-    return $so;
-  }
-  return undef;
+  $this->pushMessage(&ARS::AR_RETURN_ERROR,
+		     81000,
+		     "usage: c->openForm(-form => name, -vui => vui)\nform parameter is required.")    
+      if(!defined($form) || ($form eq ""));
+  $this->tryCatch();
+
+  return new ARS::form(-form => $form,
+		       -vui => $vui,
+		       -connection => $this);
 }
 
 1;

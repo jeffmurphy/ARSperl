@@ -1,4 +1,4 @@
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.29 1999/03/12 07:27:16 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.30 1999/10/03 04:00:27 jcmurphy Exp $
 
 CHANGES for ARSperl
 
@@ -13,6 +13,24 @@ previous versions of arsperl and may require altering of some arsperl
 scripts.
 
 MM/DD/YY
+=======================================================================
+#######################################################################
+=======================================================================
+04/7/99        (1.6403 BETA)
+
+  o (JCM)  tested/fixed compiling against pre-4.0 apis. 
+  o (JCM)  OO: now checks named params to ensure you don't
+           mis-spell them.
+  o (JCM)  attachment allows specify a 'name' hash key so you can
+           customize the name that appears in the attachment field
+           in the usertool.  Nick Stoughton <NickS@ISRWORLD.com>
+  o (JCM)  OO: form->setSort method added
+  o (JCM)  OO: better error handling/catching
+  o (JCM)  OO: fixed bug in value2internal
+  o (JCM)  fixed NTRegisterServer(), fixed example/3.x/Notifier.pl
+  o (JCM)  OO: fixed ARS::AR_RETURN_* bugs (erik.dorfman@intelsat.int)
+  o (JCM)  fixed bug in ars_GetListServer() for api >= 4.0
+
 =======================================================================
 #######################################################################
 =======================================================================

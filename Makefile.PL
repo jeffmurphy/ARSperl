@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.7 1999/03/12 07:28:19 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.8 1999/10/03 04:00:27 jcmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -13,6 +13,9 @@
 #    run with "perl Makefile.PL" then type "make"
 #
 # $Log: Makefile.PL,v $
+# Revision 1.8  1999/10/03 04:00:27  jcmurphy
+# various
+#
 # Revision 1.7  1999/03/12 07:28:19  jcmurphy
 # revised and simplified
 #
@@ -36,7 +39,9 @@ $debug = 0;
 
 # STEP 1 -> Set the path to your ARS API directory
 
-$ARSAPI     = "/usr/ar/api";
+$ARSAPI     = "/usr/ars/api";
+#$ARSAPI     = "/u1/project/ARSperl/api/sol2/api4.0";
+#$ARSAPI     = "/u1/project/ARSperl/api/linux/4.0";
 
 # STEP 2 -> Choose your version of ARS
 #           example: 2.0 2.1 3.0 3.1 3.2 4.0
@@ -60,6 +65,7 @@ $AUTODEFINES = "-D_WIN32" if($WINDOWS);
 if($ARSVERSION >= 4.0) {
   $ARS_LIBS = "-lar -lnsl -lnts";
   $ARS_LIBS .= " -lpthread" unless $WINDOWS;
+  $AUTODEFINES .= " -DARS32 ";	
 }
 
 elsif($ARSVERSION >= 3.0 && $ARSVERSION < 4.0) {
@@ -75,8 +81,6 @@ elsif($ARSVERSION >= 2.0 && $ARSVERSION < 3.0) {
 
 push(@extras, CAPI => 'TRUE') if ($] >= 5.005 and $^O eq 'MSWin32'
 				  and $Config{archname} =~ /-object\b/i);
-
-#$ARSAPI     = "/u1/project/ARSperl/api/sol2/api3.2";
 
 $ARS_LDPATH = "-L$ARSAPI/lib";
 $INCLUDES   = "-I$ARSAPI/include";
@@ -297,6 +301,54 @@ sub GenerateSupportDotH {
 		print "\t\t$code\n" if $debug;
 		$code =~ /^AR_SERVER_INFO_(\w+)/;
 		print FD "  { $code, \t\"$1\" },\n";
+	    }
+	}
+	elsif(/ACTIVELINKACTIONTYPEMAP/) {
+	    print "\tProcessing AR_ACTIVE_LINK_ACTION codes..\n";
+	    my($code, $line);
+	    foreach $line (grep (/^\#define\s+AR_ACTIVE_LINK_ACTION.*/, @arh))
+            {
+		$code = (split(/\s/, $line))[1];
+
+		print "\t\t$code\n" if $debug;
+		$code =~ /^AR_ACTIVE_LINK_ACTION_(\w+)/;
+		print FD "  { $code, \t\"\L$1\E\" },\n";
+	    }
+	}
+	elsif(/COMPARMTYPEMAP/) {
+	    print "\tProcessing AR_COM_PARM codes..\n";
+	    my($code, $line);
+	    foreach $line (grep (/^\#define\s+AR_COM_PARM.*/, @arh))
+	    {
+		$code = (split(/\s/, $line))[1];
+
+		print "\t\t$code\n" if $debug;
+		$code =~ /^AR_COM_PARM_(\w+)/;
+		print FD "  { $code, \t\"\L$1\E\" },\n";
+	    }
+	}
+	elsif(/COMMETHODTYPEMAP/) {
+	    print "\tProcessing AR_COM_METHOD codes..\n";
+	    my($code, $line);
+	    foreach $line (grep (/^\#define\s+AR_COM_METHOD.*/, @arh))
+	    {
+		$code = (split(/\s/, $line))[1];
+
+		print "\t\t$code\n" if $debug;
+		$code =~ /^AR_COM_METHOD_(\w+)/;
+		print FD "  { $code, \t\"\L$1\E\" },\n";
+	    }
+	}
+	elsif(/FILTERACTIONTYPEMAP/) {
+	    print "\tProcessing AR_FILTER_ACTION codes..\n";
+	    my($code, $line);
+	    foreach $line (grep (/^\#define\s+AR_FILTER_ACTION.*/, @arh))
+	    {
+		$code = (split(/\s/, $line))[1];
+
+		print "\t\t$code\n" if $debug;
+		$code =~ /^AR_FILTER_ACTION_(\w+)/;
+		print FD "  { $code, \t\"\L$1\E\" },\n";
 	    }
 	} else {
 	    print FD $_;

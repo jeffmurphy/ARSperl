@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.58 1999/03/12 07:27:16 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.59 1999/10/03 04:00:27 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -21,6 +21,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.58 1999/03/12 07:27:16 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.59  1999/10/03 04:00:27  jcmurphy
+various
+
 Revision 1.58  1999/03/12 07:27:16  jcmurphy
 1.6400 BETA - OO layer and attachments
 
@@ -723,8 +726,10 @@ ars_GetEntryBLOB(ctrl,schema,entry_id,field_id,locType,locFile=NULL)
 	{
 		ARStatusList    status;
 		AREntryIdList   entryList;
+#if AR_EXPORT_VERSION >= 4
 		ARLocStruct     loc;
 		ARBufStruct     buf;
+#endif
 		int		ret;
 
 		(void) ARError_reset();
@@ -1021,18 +1026,25 @@ ars_GetListSchema(ctrl,changedsince=0,schemaType=AR_LIST_SCHEMA_ALL,name=NULL)
 	}
 
 void
-ars_GetListServer(ctrl=NULL)
-	ARControlStruct * 	ctrl
+ars_GetListServer()
 	PPCODE:
 	{
 	  ARServerNameList serverList;
 	  ARStatusList     status;
 	  int              i, ret;
+	  ARControlStruct  ctrl;
 
 	  (void) ARError_reset();  
 	  Zero(&status, 1, ARStatusList);
+	  Zero(&ctrl, 1, ARControlStruct);
 #if AR_EXPORT_VERSION >= 4
-	  ret = ARGetListServer(ctrl, &serverList, &status);
+	  /* this function can be called without a control struct 
+	   * (or even before a control struct is available).
+	   * we will create a bogus control struct, initialize it
+	   * and execute the function. this seems to work fine.
+	   */
+	  ARInitialization(&ctrl, &status);
+	  ret = ARGetListServer(&ctrl, &serverList, &status);
 #else
 	  ret = ARGetListServer(&serverList, &status);
 #endif
@@ -2741,7 +2753,7 @@ ars_GetListSQL(ctrl, sqlCommand, maxRetrieve=AR_NO_MAX_LIST_RETRIEVE)
 	  int             ret;
 
 	  (void) ARError_reset();
-	  RETVAL = newHV();
+	  RETVAL = NULL;
 	  Zero(&status, 1, ARStatusList);
 #ifndef ARS20
 	  ret = ARGetListSQL(ctrl, sqlCommand, maxRetrieve, &valueListList, 
@@ -2752,11 +2764,14 @@ ars_GetListSQL(ctrl, sqlCommand, maxRetrieve=AR_NO_MAX_LIST_RETRIEVE)
 	  if(!ARError( ret, status)) {
 	     int  row, col;
 	     AV  *ra = newAV(), *ca;
+	     RETVAL = newHV();
 
 	     hv_store(RETVAL, VNAME("numMatches"), newSViv(numMatches), 0);
 	     for(row = 0; row < valueListList.numItems ; row++) {
 		ca = newAV();
-		for(col = 0; col < valueListList.valueListList[row].numItems; col++) {
+		for(col = 0; col < valueListList.valueListList[row].numItems;
+		    col++) 
+		{
 		   av_push(ca, perl_ARValueStruct(ctrl,
 			&(valueListList.valueListList[row].valueList[col])));
 		}
@@ -3410,12 +3425,13 @@ ars_NTRegisterServer(serverHost, user, password, ...)
 	  (void) ARError_reset();
 	  RETVAL = 0;
 	  if(serverHost && user && password && items == 3) {
-	    ret = NTRegisterServer(serverHost, user, password, &status);
-	    if(!NTError(ret, status)) {
-		RETVAL = 1;
-	    }
+		ret = NTRegisterServer(serverHost, user, password, &status);
+		if(!NTError(ret, status)) {
+			RETVAL = 1;
+		}
 	  } else {
-	    (void) ARError_add(AR_RETURN_ERROR, AP_ERR_USAGE, "usage: ars_NTRegisterServer(serverHost, user, password)");
+		(void) ARError_add(AR_RETURN_ERROR, AP_ERR_USAGE,
+			"usage: ars_NTRegisterServer(serverHost, user, password)");
 	  }
 #else
 	  NTPortAddr    clientPort;
@@ -3426,35 +3442,46 @@ ars_NTRegisterServer(serverHost, user, password, ...)
 	  (void) ARError_reset();
 	  Zero(&status, 1, NTStatusList);
 	  RETVAL = 0;
+	
           if (items < 4 || items > 7) {
-	    (void) ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
+		(void) ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
+		goto ntregserver_end;
 	  }
+	
 	  clientPort = (unsigned int)SvIV(ST(3));
+	
 	  if (items < 5) {
-	    clientCommunication = 2;
+		clientCommunication = NT_CLIENT_COMMUNICATION_SOCKET;
 	  } else {
-	    clientCommunication = (unsigned int)SvIV(ST(4));
+		clientCommunication = (unsigned int)SvIV(ST(4));
 	  }
+	
 	  if (items < 6) {
-	    protocol = 1;
+		protocol = NT_PROTOCOL_TCP;
 	  } else {
-	    protocol = (unsigned int)SvIV(ST(5));
+		protocol = (unsigned int)SvIV(ST(5));
 	  }
+	
 	  if (items < 7) {
-	    multipleClients = 1;
+		multipleClients = 1;
 	  } else {
-	    multipleClients = (unsigned int)SvIV(ST(6));
+		multipleClients = (unsigned int)SvIV(ST(6));
 	  }
-	  
+
 	  if(clientCommunication == NT_CLIENT_COMMUNICATION_SOCKET) {
-	    if(protocol == NT_PROTOCOL_TCP) {
-		ret = NTRegisterServer(serverHost, user, password, clientCommunication, clientPort, protocol, multipleClients, &status);
-	      if(!NTError(ret, status)) {
-		RETVAL = 1;
-	      }
-	    } else (void) ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
-      } else (void) ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
+		if(protocol == NT_PROTOCOL_TCP) {
+			ret = NTRegisterServer(serverHost, user, password, clientCommunication, clientPort, protocol, multipleClients, &status);
+			if(!NTError(ret, status)) {
+				RETVAL = 1;
+			}
+		} else 
+			(void) ARError_add(AR_RETURN_ERROR, AP_ERR_INV_ARGS,
+				"protocol arg invalid.");
+	  } else 
+		(void) ARError_add(AR_RETURN_ERROR, AP_ERR_INV_ARGS,
+				"clientCommunication arg invalid.");
 #endif
+	ntregserver_end:;
 	}
 	OUTPUT:
 	RETVAL
@@ -3478,7 +3505,7 @@ ars_NTTerminationServer()
 	RETVAL
 
 int
-ars_NTDeregisterServer(serverHost, user, password, port)
+ars_NTDeregisterServer(serverHost, user, password, port=0)
 	char *		serverHost
 	char *		user
 	char *		password

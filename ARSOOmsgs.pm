@@ -18,35 +18,41 @@
 #    arsperl@arsinfo.cit.buffalo.edu
 #
 
-# .catch is a hash ref
-
 sub internalDie {
-  my $this = shift;
-  my $msg = shift;
-
-  if(defined(&Carp::confess)) {
-    Carp::confess($msg."\n");
-  } 
-  die $msg;
+    my ($this, $msg, $trace) = (shift, shift, shift);
+    
+    $msg = "[no message available]" unless (defined($msg) && ($msg ne ""));
+    $trace = "[no traceback available]" 
+	unless (defined($trace) && ($trace ne ""));
+    
+    die "$msg\n\nTRACEBACK:\n\n$trace\n";
 }
 
 sub internalWarn {
-  my $this = shift;
-  my $msg = shift;
+    my ($this, $msg, $trace) = (shift, shift, shift);
 
-  if(defined(&Carp::confess)) {
-    Carp::cluck($msg."\n");
-  } else {
-    warn $msg;
-  }
+    $msg = "[no message available]" unless (defined($msg) && ($msg ne ""));
+    $trace = "[no traceback available]" 
+	unless (defined($trace) && ($trace ne ""));
+    
+    warn "$msg\n\nTRACEBACK:\n\n$trace\n";
 }
+
+# 81000 = Usage Errors
+# 81001 = Field Name Not In VUI
+# 81002 = Invalid Field ID
+# 81003 = Unknown Field Data Type
+# 81004 = Unable to Xlate Enum Value
+# 81005 = misspelled/invalid parameter
+
+# .catch is a hash ref
 
 sub initCatch {
   my $this = shift;
 
-  $this->setCatch(ARS::AR_RETURN_WARNING => "internalWarn");
-  $this->setCatch(ARS::AR_RETURN_ERROR   => "internalDie");
-  $this->setCatch(ARS::AR_RETURN_FATAL   => "internalDie");
+  $this->setCatch(&ARS::AR_RETURN_WARNING => "internalWarn");
+  $this->setCatch(&ARS::AR_RETURN_ERROR   => "internalDie");
+  $this->setCatch(&ARS::AR_RETURN_FATAL   => "internalDie");
 }
 
 sub setCatch {
@@ -57,17 +63,32 @@ sub setCatch {
   $this->{'.catch'}->{$type} = $func;
 }
 
-sub tryCatch {
-  my $this = shift;
+# this routine is periodically called to see if any exceptions
+# have occurred. if they have, and an exception handler is specified,
+# we will call the handler and pass it the exception.
 
-  if(defined($this->{'.catch'}) && ref($this->{'.catch'}) eq "HASH") {
-    foreach (ARS::AR_RETURN_WARNING, ARS::AR_RETURN_ERROR, 
-	     ARS::AR_RETURN_FATAL) {
-      if(defined($this->{'.catch'}->{$_}) && $this->hasMessageType($_)) {
-	&{$this->{'.catch'}->{$_}}($_, $this->messages());
-      }
+sub tryCatch {
+    my $this = shift;
+    
+    if(defined($this->{'.catch'}) && ref($this->{'.catch'}) eq "HASH") {
+	foreach (&ARS::AR_RETURN_WARNING, &ARS::AR_RETURN_ERROR, 
+	         &ARS::AR_RETURN_FATAL) {
+	    if(defined($this->{'.catch'}->{$_}) && $this->hasMessageType($_)) {
+		my $stackTrace = Carp::longmess("exception generated");
+		&{$this->{'.catch'}->{$_}}($_, $this->messages(), 
+					   $stackTrace);
+	    }
+	}
     }
-  }
+}
+
+sub pushMessage {
+    my ($this, $type, $num, $text) = (shift, shift, shift, shift);
+    $ARS::ars_errhash{numItems}++;
+    push @{$ARS::ars_errhash{messageType}}, $type;
+    push @{$ARS::ars_errhash{messageNum}}, $num;
+    push @{$ARS::ars_errhash{messageText}}, $text;
+    $this->tryCatch();
 }
 
 sub messages {
