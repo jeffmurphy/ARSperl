@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.7 1997/10/09 15:21:33 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.8 1997/10/13 12:24:54 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,10 @@ $Header: /cvsroot/arsperl/ARSperl/support.c,v 1.7 1997/10/09 15:21:33 jcmurphy E
     LOG:
 
 $Log: support.c,v $
+Revision 1.8  1997/10/13 12:24:54  jcmurphy
+cd ..
+removed debugging line
+
 Revision 1.7  1997/10/09 15:21:33  jcmurphy
 code cleaning.
 
@@ -761,8 +765,6 @@ perl_ARFilterActionNotify(ARFilterActionNotify *in) {
 SV *
 perl_ARFilterActionStruct(ARFilterActionStruct *in) {
   HV *hash=newHV();
-
-  printf("action: %d\n", in->action);
 
   switch (in->action) {
   case AR_FILTER_ACTION_NOTIFY:
