@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.68 2000/07/06 02:47:03 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.69 2000/07/21 01:38:21 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -198,9 +198,8 @@ ars_Login(server,username,password)
 	  RETVAL = NULL;
 	  Zero(&status, 1, ARStatusList);
 	  (void) ARError_reset();  
-	  /* this gets freed below in the ARControlStructPTR package */
-	  /* XXX */
-	  /* 
+#ifdef PROFILE
+	  /* XXX
 	     This is something of a hack... a safemalloc will always
 	     complain about differing structures.  However, it's 
 	     pretty deep into the code.  Perhaps a static would be cleaner?
@@ -210,6 +209,10 @@ ars_Login(server,username,password)
 	  ((ars_ctrl *)ctrl)->queries = 0;
 	  ((ars_ctrl *)ctrl)->startTime = 0;
 	  ((ars_ctrl *)ctrl)->endTime = 0;
+#else
+	  ctrl = (ARControlStruct *)safemalloc(sizeof(ARControlStruct));
+	  Zero(ctrl, 1, ARControlStruct);
+#endif
 #ifdef PROFILE
 	  if (gettimeofday(&tv, 0) != -1)
 		((ars_ctrl *)ctrl)->startTime = tv.tv_sec;
@@ -329,6 +332,7 @@ ars_Logoff(ctrl)
 	    (void) ARError_reset();
 	    if (!ctrl) return;
 #if AR_EXPORT_VERSION >= 4
+	    /*printf("ctrl=0x%x\n", &ctrl);*/
 	    ret = ARTermination(ctrl, &status);
 #else
 	    ret = ARTermination(&status);
@@ -658,7 +662,7 @@ ars_GetEntryBLOB(ctrl,schema,entry_id,field_id,locType,locFile=NULL)
 #else /* pre ARS-4.0 */
 		(void) ARError_add(AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
 			"NTTerminationClient() is only available > ARS4.x");
-		XPUSHs(&sv_undef);
+		XPUSHs(&PL_sv_undef);
 #endif
 	get_entryblob_end:;
 	}
@@ -1930,7 +1934,7 @@ ars_Import(ctrl,importOption=AR_IMPORT_OPT_CREATE,importBuf,...)
 		(void) ARError_reset();	  
 		Zero(&status, 1,ARStatusList);
 		RETVAL = 0;
-		if (items % 2) {
+		if ((items-3) % 2) {
 			(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
 		} else {
 			if (c > 0) {

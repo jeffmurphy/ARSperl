@@ -85,19 +85,19 @@ sub new {
 }
 
 sub DESTROY {
-  my ($self) = shift;
-  print "destroying connection object: " if $self->{'.debug'};
-  if(defined($self->{'.nologoff'}) && $self->{'.nologoff'} == 0) {
-    print "ars_Logoff called.\n" if $self->{'.debug'};
-    ars_Logoff($self->{'ctrl'}) if defined($self->{'ctrl'});
-  } else {
-    print "ars_Logoff suppressed.\n" if $self->{'.debug'};
-  }
+	my ($self) = shift;
+	print "destroying connection object: " if $self->{'.debug'};
+	if(defined($self->{'.nologoff'}) && $self->{'.nologoff'} == 0) {
+		print "ars_Logoff called.\n" if $self->{'.debug'};
+		ars_Logoff($self->{'ctrl'}) if defined($self->{'ctrl'});
+	} else {
+		print "ars_Logoff suppressed.\n" if $self->{'.debug'};
+	}
 }
 
 sub ctrl {
-  my $this = shift;
-  return $this->{'ctrl'};
+	my $this = shift;
+	return $this->{'ctrl'};
 }
 
 sub print {

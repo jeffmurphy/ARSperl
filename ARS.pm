@@ -104,6 +104,16 @@ ars_decodeStatusHistory ars_APIVersion
 $ARS::VERSION   = '1.69';
 $ARS::DEBUGGING = 0;
 
+# definitions required for backwards compatibility
+
+if (!defined &ARS::AR_IMPORT_OPT_CREATE) {
+	eval 'sub AR_IMPORT_OPT_CREATE { 0; }';
+}
+
+if (!defined &ARS::AR_IMPORT_OPT_OVERWRITE) {
+	eval 'sub AR_IMPORT_OPT_OVERWRITE { 1; }';
+}
+
 bootstrap ARS $ARS::VERSION;
 tie $ARS::ars_errstr, ARS::ERRORSTR;
 

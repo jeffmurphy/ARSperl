@@ -31,8 +31,9 @@ my $c = new ARS(-server => $SERVER, -username => $USERNAME,
 		-catch => { ARS::AR_RETURN_ERROR => undef,
 			    ARS::AR_RETURN_WARNING => undef,
 			    ARS::AR_RETURN_FATAL => undef
-			  });
-if($c->hasErrors() || $c->hasFatals() || $c->hasWarnings) {
+			  },
+	       -debug => 1);
+if($c->hasErrors() || $c->hasFatals() || $c->hasWarnings()) {
   print "not ok\n";
 } else {
   print "ok\n";

@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.20 2000/07/06 02:47:03 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.21 2000/07/21 01:38:22 jcmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -44,7 +44,7 @@ $WINDOWS = ($^O eq 'MSWin32');
 #        Windows NT: no "-lpthread"
 #        NCR UNIX: add "-lc -lnet"
 
-$AUTODEFINES = "-DPROFILE -g ";
+$AUTODEFINES = " -DPROFILE -g ";
 $AUTODEFINES = "-D_WIN32" if($WINDOWS);
 
 if($ARSVERSION >= 4.0) {
@@ -160,11 +160,13 @@ WriteMakefile(
 # if you have trouble under solaris when linking (bfd assertion 
 # failures) try uncommenting the following:
 #
-#	      'LD' => "/usr/ccs/bin/ld"
+#	      'LD' => "/usr/ccs/bin/ld",
 
 # don't fiddle with this
 
-              'realclean' => { 'FILES' => 'support.h ARSar-h.pm ARSarerrno-h.pm ARSnt-h.pm ARSnterrno-h.pm' }   
+              'realclean' => {
+		 'FILES' => 'support.h ARSar-h.pm ARSarerrno-h.pm ARSnt-h.pm ARSnterrno-h.pm' 
+	      } 
 );
 
 print "\nNote: if you want to do a \"make test\" you should first 
@@ -228,6 +230,16 @@ sub GenerateSupportDotH {
 		$code = (split(/\s/, $line))[1];
 		print "\t\t$code\n" if $debug;
 		$code =~ /^AR_RETURN_(\w+)/;
+		print FD "  { $code, \t\t\"\L$1\E\" },\n";
+	    }
+	}
+	elsif(/SERVERSTATTYPEMAP/) {
+	    print "\tProcessing AR_SERVER_STAT codes..\n";
+	    my($code, $line);
+	    foreach $line (grep (/^\#define\s+AR_SERVER_STAT.*/, @arh)) {
+		$code = (split(/\s/, $line))[1];
+		print "\t\t$code\n" if $debug;
+		$code =~ /^AR_SERVER_STAT_(\w+)/;
 		print FD "  { $code, \t\t\"\L$1\E\" },\n";
 	    }
 	}

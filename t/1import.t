@@ -11,7 +11,7 @@ print "1..1\n";
 
 my($ctrl) = ars_Login($SERVER, $USERNAME, $PASSWORD);
 if(!defined($ctrl)) {
-  print "not ok\n";
+  print "not ok (login $ars_errstr)\n";
   exit 0;
 }
 
@@ -40,7 +40,9 @@ close(FD);
 
 # import it
 
-ars_Import($ctrl, $buf, "Schema", "ARSperl Test") || die "not ok\n";
+ars_Import($ctrl,
+	   &ARS::AR_IMPORT_OPT_CREATE,
+	   $buf, "Schema", "ARSperl Test") || die "not ok (import $ars_errstr)\n";
 
 ars_Logoff($ctrl);
 

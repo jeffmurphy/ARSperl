@@ -4,7 +4,7 @@
 </HEAD>
 <BODY BGCOLOR="#FFFFFF">
 
-   <H2><CODE>ars_Import(ctrl, importBuf, type, name, ...)</CODE></H2>
+   <H2><CODE>ars_Import(ctrl, importOption, importBuf, type, name, ...)</CODE></H2>
 
 	Import objects of type <CODE>type</CODE> and name <CODE>name</CODE>
 	from the importBuf.
@@ -20,10 +20,26 @@
 
       <PRE>
         $buf = `cat /tmp/importfile.arx`;
-	($a = ars_Import($ctrl, $buf, "Schema", "HD:HelpDesk", 
-			"Active_Link", "AL-FooBar")) || 
+	($a = ars_Import($ctrl, 
+			 &ARS::AR_IMPORT_OPTION_CREATE,
+                         $buf, "Schema", "HD:HelpDesk", 
+			 "Active_Link", "AL-FooBar")) || 
 		die "$ars_errstr";
       </PRE>
+
+	<P>
+	<code>importOption</code> is one of:<P>
+	<blockquote>
+		&ARS::AR_IMPORT_OPTION_CREATE <BR>
+		&ARS::AR_IMPORT_OPTION_OVERWRITE <BR>
+	</blockquote>
+	When compiling against an API version previous to 4.5, this
+	option has no effect on the import operation but must still
+	be specified. When compiled against an API version greater
+	or equal to 4.5, this option specifies what to do if the 
+	object already exists (generate an error, or overwrite the
+	existing object).
+	<P>
 
 	The above example will read an AR Export file (text file) into 
 	a scalar and will import Schemas and Active Links from that file

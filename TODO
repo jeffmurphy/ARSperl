@@ -1,10 +1,8 @@
 Container Calls
-
-ARSperl todo list:
-
+-----------------------------------------------
   o active link decoding
 	decode DDE
-
+-----------------------------------------------
   o implement remaining functions:
 
 ars_GetListContainer
@@ -26,19 +24,20 @@ ARSetFullTextInfo
 ARSetSchema
 ARSetServerInfo
 ARSetVUI
+-----------------------------------------------
 
    o clean up verbose warning output (mostly 
      unused variables due to the 2.x/3.0 intermixed
      code)
-
+-----------------------------------------------
    o join schema entry-id handling needs a thorough
      going-over. specifically, BUGS/00001 needs to be
      worked in (partial fix) and outter join handling
      needs to be fixed up. 
-
+-----------------------------------------------
    o clean up documentation (replace numbers with symbolic
      constants).
-
+-----------------------------------------------
    o add additional OO support.
 
    o add sort order option to OO
@@ -48,7 +47,7 @@ ARSetVUI
    o status history conversion?
    o allow for either/or enumer text or enum value in set/create
    o if unknown param, error
-
+-----------------------------------------------
 
 
 
@@ -66,6 +65,12 @@ and:
    @SYBASE_QUERY would be something like this:
    select Ticket_No from Schema_Name
    WHERE Field = '$value'
+
+-----------------------------------------------
+
+allow substitution of current transaction values
+in qual and recompilation of qual. this facilitates
+the retrieval of dynamic query menu items
 
 
 

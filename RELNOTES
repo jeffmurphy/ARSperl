@@ -1,4 +1,4 @@
-$Header: /cvsroot/arsperl/ARSperl/RELNOTES,v 1.8 2000/06/01 13:45:20 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/RELNOTES,v 1.9 2000/07/21 01:38:22 jcmurphy Exp $
 
 Release Notes for ARSperl
 
@@ -43,6 +43,11 @@ ARSperl against the 4.5 (or later) libraries.
 The majority of users should be unaffected by this since most probably
 don't retrieve the actual definitions of these objects in their
 scripts. 
+
+In addition, ars_Import() has changed. It now has a different 
+parameter list. This means that existing scripts will need to 
+be updated. See the documentation on this function for details.
+
 
 When compiling against an API revision prior to ARS4.5, the hashes returned 
 by the above functions include a "schema" key which denotes which schema

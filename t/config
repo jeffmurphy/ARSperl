@@ -7,8 +7,32 @@
 # NOTE: THIS ACCOUNT MUST HAVE ADMINISTRATOR PRIVS ON THE GIVEN
 # SERVER FOR THE TESTS TO SUCCEED.
 
-$SERVER   = "localhost";
-$USERNAME = "jcmurphy";
-$PASSWORD = "panacea";
+if(! -e "./t/config.cache") {
+	print "ARSperl 'make test' configuration.
+
+Please enter the following information. This information will be
+recorded in ./t/config.cache
+";
+	
+	print "Server Name: ";
+	$SERVER = <STDIN>;
+
+	print "Admin Username: ";
+	$USERNAME = <STDIN>;
+
+	print "Admin Password: ";
+	$PASSWORD = <STDIN>;
+
+	print "Storing $SERVER / $USERNAME / $PASSWORD ..\n";
+	open (FD, "> ./t/config.cache") || die "open failed: $!";
+	print FD "sub SERVER { \"$SERVER\" ; }\n";
+	print FD "sub SERVER { \"$USERNAME\" ; }\n";
+	print FD "sub SERVER { \"$PASSWORD\" ; }\n";
+	close(FD);
+} else {
+	do './t/config.cache';
+}
+
+
 
 1;
