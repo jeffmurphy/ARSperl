@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.57 2004/09/23 17:34:23 jmccarrell Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.58 2004/09/28 14:18:18 jeffmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -29,7 +29,7 @@ $debug = 0;
 #$ARSAPI     = "/u1/project/ARSperl/api/sol2/api5.1.1";
 #$ARSAPI     = "/u1/project/ARSperl/api/linux/4.5";
 #$ARSAPI     = "/u1/project/ARSperl/api/linux/4.0";
-#$ARSAPI     = "/u1/project/ARSperl/api/linux/5.1.1";
+$ARSAPI     = "/u1/project/ARSperl/api/linux/5.1.1";
 # $ARSAPI     = "/home/jcmurphy/arsperl/api/5.1";
 # $ARSAPI     = q{\\\\ess7\devkits\ars\4.5\drops\drop4.5FCS\winnt};
 # $ARSAPI     = q{\\\\ess7\devkits\ars\4.5\drops\drop4.5.1FCS\winnt};
@@ -40,7 +40,7 @@ $debug = 0;
 # $ARSAPI     = q{\\\\ess7\devkits\ars\5.1.1\fcs\winnt};
 # $ARSAPI     = q{\\\\ess7\devkits\ars\5.1.2\fcs\winnt};
 # $ARSAPI     = q{\\\\ess7\devkits\ars\6.0\fcs\winnt};
-$ARSAPI      = q{c:\Progra~1\ARSystem6.0.1\Arserver\Api};
+#$ARSAPI      = q{c:\Progra~1\ARSystem6.0.1\Arserver\Api};
 # $ARSAPI      = q{c:\Program Files\ARSystem6.0.1\Arserver\Api};
 # $ARSAPI      = q{c:\Progra~1\ARSystem6.3\Arserver\Api};
 # $ARSAPI     = q{\\\\ess7\devkits\ars\6.3\current\winnt};

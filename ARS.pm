@@ -436,7 +436,6 @@ sub ars_GetCharMenuItems {
 		}
 		return ars_ExpandCharMenu2($ctrl, $menuName, $qual);
 	}
-	print "calling ECM2\n";
 	return ars_ExpandCharMenu2($ctrl, $menuName);
 }
 
