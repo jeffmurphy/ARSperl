@@ -1265,15 +1265,19 @@ perl_ARActiveLinkActionStruct(ARControlStruct * ctrl, ARActiveLinkActionStruct *
 		       perl_ARActiveLinkMacroStruct(ctrl, &in->u.macro), 0);
 		break;
 	case AR_ACTIVE_LINK_ACTION_FIELDS:
+          {
+          ARList *fieldList = NULL;
+#if AR_EXPORT_VERSION >= 8L
+          fieldList = (ARList *) & in->u.setFields;
+#else
+          fieldList = (ARList *) & in->u.fieldList;
+#endif
 		hv_store(hash,  "assign_fields", strlen("assign_fields") ,
 			 perl_ARList(ctrl,
-#if AR_EXPORT_VERSION >= 8L
-				     (ARList *) & in->u.setFields,
-#else
-				     (ARList *) & in->u.fieldList,
-#endif
+                                     fieldList,
 				     (ARS_fn) perl_ARFieldAssignStruct,
 				     sizeof(ARFieldAssignStruct)), 0);
+          }
 		break;
 	case AR_ACTIVE_LINK_ACTION_PROCESS:
 		hv_store(hash,  "process", strlen("process") , newSVpv(in->u.process, 0), 0);
@@ -1297,16 +1301,21 @@ perl_ARActiveLinkActionStruct(ARControlStruct * ctrl, ARActiveLinkActionStruct *
 		break;
 #if AR_EXPORT_VERSION >= 4
         case AR_ACTIVE_LINK_ACTION_FIELDP:
+          {
+            ARList *pushFields = NULL;
+#if AR_EXPORT_VERSION >= 8L
+            pushFields = (ARList *)& in->u.pushFields;
+#else
+            pushFields = (ARList *)& in->u.pushFieldsList;
+#endif
+
 		/*ARPushFieldsList;*/
 		hv_store(hash,  "fieldp", strlen("fieldp") ,
 			 perl_ARList(ctrl, 
-#if AR_EXPORT_VERSION >= 8L
-				     (ARList *)& in->u.pushFields,
-#else
-				     (ARList *)& in->u.pushFieldsList,
-#endif
+                                     pushFields,
 				     (ARS_fn) perl_ARPushFieldsStruct,
 				     sizeof(ARPushFieldsStruct)), 0);
+          }
 		break;
         case AR_ACTIVE_LINK_ACTION_SQL:
 		/*ARSQLStruct;*/
@@ -1409,15 +1418,19 @@ perl_ARFilterActionStruct(ARControlStruct * ctrl, ARFilterActionStruct * in)
 		hv_store(hash,  "log", strlen("log") , newSVpv(in->u.logFile, 0), 0);
 		break;
 	case AR_FILTER_ACTION_FIELDS:
+          {
+            ARList *setFields = NULL;
+#if AR_EXPORT_VERSION >= 8L
+            setFields = (ARList *) & in->u.setFields;
+#else
+            setFields = (ARList *) & in->u.fieldList;
+#endif
 		hv_store(hash,  "assign_fields", strlen("assign_fields") ,
 			 perl_ARList(ctrl,
-#if AR_EXPORT_VERSION >= 8L
-				     (ARList *) & in->u.setFields,
-#else
-				     (ARList *) & in->u.fieldList,
-#endif
+                                     setFields,
 				     (ARS_fn) perl_ARFieldAssignStruct,
 				     sizeof(ARFieldAssignStruct)), 0);
+          }
 		break;
 	case AR_FILTER_ACTION_PROCESS:
 		hv_store(hash,  "process", strlen("process") , newSVpv(in->u.process, 0), 0);
@@ -1426,16 +1439,20 @@ perl_ARFilterActionStruct(ARControlStruct * ctrl, ARFilterActionStruct * in)
  /* added cases for new ACTIONS in ARS v4.0 API, Geoff Endresen, 6/28/2000
     copied from AR_ACTIVE_LINK_ACTION_FIELP */
          case AR_FILTER_ACTION_FIELDP:
+           {
+             ARList *pushFields = NULL;
+#if AR_EXPORT_VERSION >= 8L
+             pushFields = (ARList *)& in->u.pushFields;
+#else
+             pushFields = (ARList *)& in->u.pushFieldsList;
+#endif
                  /*ARPushFieldsList;*/
                  hv_store(hash,  "fieldp", strlen("fieldp") ,
                           perl_ARList(ctrl,
-#if AR_EXPORT_VERSION >= 8L
-                                      (ARList *)& in->u.pushFields,
-#else
-                                      (ARList *)& in->u.pushFieldsList,
-#endif
+                                      pushFields,
                                       (ARS_fn) perl_ARPushFieldsStruct,
                                       sizeof(ARPushFieldsStruct)),0);
+           }
                  break;
          case AR_FILTER_ACTION_SQL:
                  /*ARSQLStruct;*/
