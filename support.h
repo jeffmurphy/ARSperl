@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.12 1998/05/19 13:10:26 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.13 1998/08/07 16:21:27 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.12 1998/05/19 13:10:26 jcm
     LOG:
 
 $Log: support.h,v $
+Revision 1.13  1998/08/07 16:21:27  jcmurphy
+added ars3.2 def's to ServerInfoMap list
+
 Revision 1.12  1998/05/19 13:10:26  jcmurphy
 fixed strstr/substr typo
 
@@ -352,20 +355,37 @@ static struct {
   { "G_CACHE_CHANGE", 52 },
   { "STRUCT_CHANGE", 53 },
   { "CASE_SENSITIVE", 54 }
+#define SERVERINFOMAPMAX 54
+#ifdef ARS32
+  ,
+  { "SERVER_LANG", 55 },
+  { "ADMIN_ONLY", 56 },
+  { "CACHE_LOG_FILE", 57 },
+  { "FLASH_DAEMON", 58 },
+  { "THREAD_LOG_FILE", 59 },
+  { "ADMIN_TCP_PORT", 60 },
+  { "ESCL_TCP_PORT", 61 },
+  { "FAST_TCP_PORT", 62 },
+  { "LIST_TCP_PORT", 63 },
+  { "FLASH_TCP_PORT", 64 },
+  { "TCD_TCP_PORT", 65 },
+  { "DSO_DEST_PORT", 66 },
+  { "INFORMIX_DBN", 67 },
+  { "INFORMIX_TBC", 68 },
+  { "INGRES_VNODE", 69 },
+  { "ORACLE_SID", 70 },
+  { "ORACLE_TWO_T", 71 },
+  { "SYBASE_CHARSET", 72 },
+  { "SYBASE_SERV", 73 },
+  { "SHARED_MEM", 74 },
+  { "SHARED_CACHE", 75 },
+  { "CACHE_SEG_SIZE", 76 },
+  { "DB_USER", 77 },
+  { "NFY_TCP_PORT", 78 }
+#undefine SERVERINFOMAPMAX
+#define SERVERINFOMAPMAX 78
+#endif
 };
-
-/* lame Win32 stuff 
- *   FIX - can't we just use the CPERLarg stuff in perl's config.h
- *         file?
- *
- *   use in function declarations:
- *      AWP  - arsperl windows paramter
- *      AWPC - same thing, but with a comma
- *   use in function calls:
- *      PPERL  - pPerl argument for no-arg functions
- *      PPERLC - pPerl arg + comma for arg functions
- */
-
 
 /* typedef SV* (*ARS_fn)(void *); */
 typedef void *(*ARS_fn)( void *b);
