@@ -9,6 +9,54 @@
  <P>
  <DL>
 
+   <DT> 1.6400 beta <DD>
+    <UL>
+
+  <LI>  added new LIBS line to Makefile.PL to cover NCR Unix
+           ("Hill, David K" <david.k.hill@intel.com>)
+  <LI>  added ars_GetEntryBLOB (attachment field handling) 
+           thanks to  "Kaelin Colclasure" <kaelin@talarian.com>
+           for supplying part of the code for the BLOB functions.
+  <LI>  simplified Makefile.PL configuration steps
+  <LI>  added attachment example scripts
+  <LI>  added basic OO layer
+  <LI>  added small test suite
+  <LI>  fixed some broken 4.0 related conditional compilation
+           stuff
+  <LI>  makefile now automatically converts C header files into
+           perl files so that all constants (C 'defines') are
+           available.
+
+</UL>
+
+    <DT> 1.63 <DD>
+    <UL>
+  <LI>  fixed some missing conditional compilation #if's in code
+  <LI>  changes "require Config" to "use Config" in Makefile.PL
+           at the request of activestate
+  <LI>  added MANIFEST file to distribution
+	</UL>
+
+    <DT> 1.62 <DD>
+    <UL>
+  <LI>  added extra decoding code to GetFilter.pl example script
+  <LI>  syntax errors fixed in some example scripts
+  <LI>  added bug fix to NTRegisterServer from  G David Frye &lt;gdf@uiuc.edu&gt;
+  <LI>  ars4.0 integration (see RELNOTES for important compatibility
+           information)
+  <LI>  perl_qualifier now takes a control struct 
+  <LI>  if compiled against API>=4.0 then __ars_init __ars_term
+           no longer do anything (but are still there). the functionality
+           of each of these have been rolled into ars_Login and ars_Logoff
+           respectively.
+  <LI>  added ars_APIVersion() 
+  <LI>  GetActiveLink, when compiled against 4.0 returns ARMessageStruct
+  <LI>  applied some changes contributed by Murray Nesbitt 
+           &lt;murray@ActiveState.com&gt; so that it will compile against the
+           active state version of perl more easily. 
+  <LI>  changed licensing to match that of perl itself.
+    </UL>
+
     <DT> 1.61 <DD>
     <UL>
   <LI>  new utility: example/AddUsersToGroup.pl - bulk add a bunch

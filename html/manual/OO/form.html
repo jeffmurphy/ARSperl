@@ -48,6 +48,7 @@
     This an "internal" function that is used to translate a field name to a 
     field ID. Eventually, it will obey the VUI you specified. 
 <P>
+
 <DT><A NAME="getFieldName"><B>getFieldName()</B></A>
 <PRE>
   $name = $f->getFieldName(-id =&gt; scalar string);
@@ -56,6 +57,17 @@
     This an "internal" function that is used to translate a field ID to a 
     field nameD. Eventually, it will obey the VUI you specified. 
 <P>
+
+<DT><A NAME="getEnumValues"><B>getEnumValues()</B></A>
+<PRE>
+  @vals = $f->getEnumValues(-field =&gt; scalar string);
+</PRE>
+
+   This function returns a list of enumeration values (labels)
+   for a given field. If the field is not an enumeration field,
+   an exception is thrown (type=ERROR, num=81006).
+<P>
+
 <DT><A NAME="getFieldType"><B>getFieldType()</B></A>
 <PRE>
   $type = $f->getFieldType(-name =&gt; scalar string,
