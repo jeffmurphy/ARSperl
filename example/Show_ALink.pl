@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/Show_ALink.pl,v 1.4 1998/09/11 17:49:47 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/Show_ALink.pl,v 1.5 1998/09/14 17:41:05 jcmurphy Exp $
 #
 # EXAMPLE
 #    Show_ALink.pl
@@ -25,6 +25,9 @@
 # 01/12/96
 # 
 # $Log: Show_ALink.pl,v $
+# Revision 1.5  1998/09/14 17:41:05  jcmurphy
+# added ChangeDiary decoding lines
+#
 # Revision 1.4  1998/09/11 17:49:47  jcmurphy
 # updated EXECUTE_ON definitions
 #
@@ -445,7 +448,13 @@ print  "Help Text: ".$a->{helpText}."\n";
 print  "Owner: ".$a->{owner}."\n";
 print  "Last changed by: ".$a->{lastChanged}."\n";
 print  "Last Modified: ".localtime($a->{timestamp})."\n";
-print  "Change Diary: ".$a->{changeDiary}."\n";
+print  "Change Diary: $a->{changeDiary}\n";
+
+foreach (@{$a->{changeDiary}}) {
+    print "\tTIME: ".localtime($_->{timestamp})."\n";
+    print "\tUSER: $_->{user}\n";
+    print "\tWHAT: $_->{value}\n";
+}
 
 # Log out of the server.
 
