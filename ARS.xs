@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.45 1998/04/03 16:41:25 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.46 1998/04/09 18:45:12 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.45 1998/04/03 16:41:25 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.46  1998/04/09 18:45:12  jcmurphy
+fixed typo in routine name.
+
 Revision 1.45  1998/04/03 16:41:25  jcmurphy
 added ARS32 conditional compilation for AdminExtension routines
 (AdminEx stuff was removed in 3.2)
@@ -2606,7 +2609,7 @@ ars_GetListVUI(ctrl, schema, changedSince=0)
 	    }
 	  }
 #ifdef WASTE_MEM
-	  FreeARInteralIdList(&idList, FALSE);
+	  FreeARInternalIdList(&idList, FALSE);
 #endif
 #else /* ars 2.x */
 	  (void) ARError_reset();
