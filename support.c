@@ -1149,10 +1149,11 @@ perl_ARFilterActionStruct(ARControlStruct * ctrl, ARFilterActionStruct * in)
 			 perl_ARFilterActionNotify(ctrl, &in->u.notify), 0);
 		break;
 	case AR_FILTER_ACTION_MESSAGE:
-		hv_store(hash, VNAME("message"),
 #ifdef ARS452
+		hv_store(hash, VNAME("message"),
 			 perl_ARFilterStatusStruct(ctrl, &in->u.message), 0);
 #else
+                hv_store(hash, VNAME("message"),
 			 perl_ARStatusStruct(ctrl, &in->u.message), 0);
 #endif
 		break;
@@ -2138,7 +2139,14 @@ perl_ARArithOpStruct(ARControlStruct * ctrl, ARArithOpStruct * in)
 		oper = "-";
 		break;
 	default:
-		fprintf(stderr, "unknown arithop %i\n", in->operation);
+		{
+			char _em[80];
+			(void) sprintf(_em,
+			 "Unknown arith operation in ARArithOpStruct: %8.8i\n",
+			               in->operation);
+                        (void) ARError_add(AR_RETURN_ERROR, AP_ERR_INV_ARITH, 
+					   _em);
+		}
 		break;
 	}
 	hv_store(hash, VNAME("oper"), newSVpv(oper, 0), 0);

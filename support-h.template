@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.19 2001/10/28 03:45:44 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.20 2001/10/30 14:47:02 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -584,5 +584,6 @@ int  copymem(MEMCAST *m1, MEMCAST *m2, int size);
 #define AP_ERR_PREREVFAIL   80024, "Failed to convert some perl structures to ars structures. Create/Set operation aborted."
 #define AP_ERR_ATTACH       80025  /* roll your own text */
 #define AP_ERR_INV_ARGS     80026 /* roll your own - invalid argument(s) */
+#define AP_ERR_INV_ARITH    80027 /*, "Unknown arith operation in ARArithOpStruct" */
 
 #endif /* __support_h_ */
