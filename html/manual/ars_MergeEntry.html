@@ -15,19 +15,46 @@
 
       <DL>
          <DT><B>On success</B><DD>
-		Returns the entry-id of the merged entry.
+		If a NEW entry was created: returns the entry-id of the merged entry.<BR>
+		If an EXISTING entry was over-written: returns "" and <code>$ars_errstr</code> will be "" (or, more correctly, <code>%ARS::ars_errhash</code> will not contain any FATAL or ERROR messages - but might contains WARNINGs or NOTICEs). <BR>
+		Note that this is how the C API behaves - this isn't something
+		that is unique to ARSperl. <BR>
+                <a href="#example">See examples below.</a>
          <DT><B>On failure</B><DD>
-                Returns "" (an empty string).
+                Returns "" (an empty string) and sets <code>$ars_errstr</code>
       </DL>
 
-      <P>Example:
+      <P><a name="example">Example:</a><P>
 
       <PRE>
+	# note that "4" means "overwrite existing"
 	$a = ars_MergeEntry($ctrl, "HD:HelpDesk", 4, 
+		   1 , "00000000012345",
 		   2 , "FOOBAR");
-	die "$ars_errstr" if($a eq "");
+	if(($a eq "") && ($ars_errstr eq "")) {
+		print "entry successfully over-written\n";
+	} 
+	else {
+		print "failed to merge - $ars_errstr\n";
+	}
       </PRE>
 
+	<hr width="10%">
+
+      <PRE>
+
+	# note that "2" means "create a new entry"
+	$a = ars_MergeEntry($ctrl, "HD:HelpDesk", 2, 
+		            2 , "FOOBAR");
+	if(($a ne "") && ($ars_errstr eq "")) {
+		print "entry successfully created - $a\n";
+	} 
+	else {
+		print "failed to merge - $ars_errstr\n";
+	}
+      </PRE>
+
+      <P>Notes<P>
 	<B>Note</B>: If you try to merge a diary field (to alter existing
 	diary entries) you need to pass the <I>encoded</I> diary to this
 	routine. See <A HREF="ars_EncodeDiary.html">ars_EncodeDiary</A>.
@@ -60,7 +87,7 @@
 	</TR>	
 	</TABLE>
 	<P>
-	Refer to the Remedy Programmers Manual for further details (page 6-122 in the Remedy 3 manual)
+	Refer to the Remedy Programmers Manual for further details.
 
 <P>
 <I>ars_MergeEntry was introduced in version 1.46 of ARSperl</I>
@@ -71,7 +98,7 @@
 <A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Table of Contents </A>
 <p>
 <address>
-Last changes to this page 21st July 1997 by jcmurphy@smurfland.cit.buffalo.edu<BR>
+Last changes to this page 24-Oct-2001 by jcmurphy@smurfland.cit.buffalo.edu<BR>
 &#169; J.C.Murphy, J.W.Murphy 1997 arsperl@smurfland.cit.buffalo.edu
 </address>
 </BODY>

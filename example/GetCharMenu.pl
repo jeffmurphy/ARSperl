@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/GetCharMenu.pl,v 1.6 2000/05/24 18:05:26 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/GetCharMenu.pl,v 1.7 2001/10/24 14:21:27 jcmurphy Exp $
 #
 # NAME
 #   GetCharMenu.pl
@@ -16,6 +16,9 @@
 #   jcmurphy@acsu.buffalo.edu
 #
 # $Log: GetCharMenu.pl,v $
+# Revision 1.7  2001/10/24 14:21:27  jcmurphy
+# MergeEntry doc update, minor test/example tweaks
+#
 # Revision 1.6  2000/05/24 18:05:26  jcmurphy
 # primary ars4.5 integration in this checkpoint.
 #
@@ -68,7 +71,7 @@ $ctrl = ars_Login($server, $username, $password);
     die "error in GetCharMenu: $ars_errstr";
 
 # 10005
-my ($menuItems) = undef; #ars_GetCharMenuItems($ctrl, $name);
+my ($menuItems) = ars_GetCharMenuItems($ctrl, $name);
 print "menuItems $menuItems\n";
 
 print "** Menu Info:\n";
