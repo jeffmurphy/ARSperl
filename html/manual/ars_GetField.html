@@ -33,7 +33,7 @@ labels):
 	($fh = ars_GetField($c, $S, $f{'Status'})) ||
 	    die "GetField: $ars_errstr (no Status field in this schema?)";
 
-	if($fh->{dataType} ne "ENUM") {
+	if($fh->{dataType} !~ /enum/i) { # ignore case of "enum"
 	    die "'Status' field is not an ENUM.\n";
 	}
 
