@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.83 2003/03/30 02:36:42 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.84 2003/03/30 03:18:03 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -184,10 +184,12 @@ ars_SetServerPort(ctrl, name, port, progNum)
 	RETVAL
 
 ARControlStruct *
-ars_Login(server,username,password, tcpport=0, rpcnumber=0)
+ars_Login(server, username, password, lang=NULL, authString=NULL, tcpport=0, rpcnumber=0)
 	char *		server
 	char *		username
 	char *		password
+	char *		lang
+	char *		authString
 	unsigned int  	tcpport
 	unsigned int  	rpcnumber
 	CODE:
@@ -200,10 +202,12 @@ ars_Login(server,username,password, tcpport=0, rpcnumber=0)
 		struct timeval   tv;
 #endif
 
-		DBG( ("ars_Login(%s, %s, %s, %d, %d)\n", 
+		DBG( ("ars_Login(%s, %s, %s, %s, %s, %d, %d)\n", 
 			SAFEPRT(server),
 			SAFEPRT(username),
 			SAFEPRT(password),
+			SAFEPRT(lang),
+			SAFEPRT(authString),
 			tcpport,
 			rpcnumber) 
 		    );
@@ -244,6 +248,15 @@ ars_Login(server,username,password, tcpport=0, rpcnumber=0)
 		strncpy(ctrl->password, password, sizeof(ctrl->password));
 		ctrl->password[sizeof(ctrl->password)-1] = 0;
 		ctrl->language[0] = 0;
+		if ( CVLD(lang) ) {
+			strncpy(ctrl->language, lang, AR_MAX_LANG_SIZE);
+		}
+#if AR_EXPORT_VERSION >= 7L
+		ctrl->authString[0] = 0;
+		if ( CVLD(authString) ) {
+			strncpy(ctrl->authString, authString, AR_MAX_NAME_SIZE);
+		}
+#endif
 #if AR_EXPORT_VERSION >= 4
 		/* call ARInitialization */
 		ret = ARInitialization(ctrl, &status);

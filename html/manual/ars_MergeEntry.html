@@ -13,6 +13,47 @@
 	to alter. The ellipses represent alternating fieldId/fieldValue
 	pairs.
 
+
+<P>
+There are three conditions to detect after ars_MergeEntry(...).  
+
+<ol>
+<li> A non-null value returned means that a new entry was created.
+
+<li> A null value returned, plus $ars_errstr empty, means that an existing
+   entry was replaced.
+
+<li> A null value returned, plus $ars_errstr non-empty, means there was some
+   error.
+</oL>
+
+Here's some sample code that demonstrates how to evaluate the outcome of
+	this function:
+<PRE>
+foreach $RPTID (sort keys %RPTEntryList) {
+        undef @Report;
+        ( @Report = ars_GetEntry($ctrl1, $ISS_RPT_SCHEMA, $RPTID) )
+                || arsdie("GetEntry $RPTID");
+        if ( $ret = ars_MergeEntry($ctrl2, $ISS_RPT_SCHEMA,
+                                   3075, @Report) ) {
+                print "$RPTID -&gt; new $ret\n";
+        } else {
+                arsdie("MergeEntry $RPTID $ret") if $ars_errstr;
+                print "$RPTID replaced\n";
+        }
+}
+</PRE>
+
+Note the value "3075" for mergeType.  That translates to<P>
+<PRE>
+           2048: skip field pattern checking
+           1024: allow NULL in required fields
+         +    3: delete existing entry and create new in its place
+         -------
+           3075
+</PRE>
+<P>
+
       <DL>
          <DT><B>On success</B><DD>
 		If a NEW entry was created: returns the entry-id of the merged entry.<BR>
@@ -100,8 +141,8 @@
 <A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Table of Contents </A>
 <p>
 <address>
-Last changes to this page 24-Oct-2001 by jcmurphy@smurfland.cit.buffalo.edu<BR>
-&#169; J.C.Murphy, J.W.Murphy 1997 arsperl@smurfland.cit.buffalo.edu
+Last changes to this page 29-Mar-2003 by jcmurphy<BR>
+&#169; J.C.Murphy, J.W.Murphy 1997 arsperl@arsperl.org
 </address>
 </BODY>
 </HTML>
