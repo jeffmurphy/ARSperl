@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.19 1997/02/18 16:37:32 jmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.20 1997/02/18 18:45:54 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -27,6 +27,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.19 1997/02/18 16:37:32 jmurphy Exp 
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.20  1997/02/18 18:45:54  jcmurphy
+ran thru -Wall and cleaned up some blunders and stuff
+
 Revision 1.19  1997/02/18 16:37:32  jmurphy
 a couple fixes.  added destructors for control struct, qualifier struct
 
@@ -56,6 +59,7 @@ modified comments
 #include "arerrno.h"
 #include "arextern.h"
 #include "arstruct.h"
+#include "arfree.h"
 
 #include "nt.h"
 #include "nterrno.h"
@@ -118,6 +122,7 @@ SV *perl_ARIndexStruct(ARIndexStruct *);
 SV *perl_ARFieldLimitStruct(ARFieldLimitStruct *);
 SV *perl_ARFunctionAssignStruct(ARFunctionAssignStruct *);
 SV *perl_ARArithOpAssignStruct(ARArithOpAssignStruct *);
+/* int XARReleaseCurrentUser(ARControlStruct *, char *, ARStatusStruct *, int, int, int); */
 void dup_Value(ARValueStruct *, ARValueStruct *);
 ARArithOpStruct *dup_ArithOp(ARArithOpStruct *);
 void dup_ValueList(ARValueList *, ARValueList *);
@@ -234,7 +239,7 @@ SV *perl_ARStatusStruct(ARStatusStruct *in) {
   msg = mallocnn(strlen(in->messageText) + 100);
   sprintf(msg, "Type %d Num %d Text [%s]\n",
 	  in->messageType,
-	  in->messageNum,
+	  (int)in->messageNum,
 	  in->messageText);
   ret = newSVpv(msg, 0);
 #ifndef WASTE_MEM
@@ -542,7 +547,6 @@ SV *perl_ARDDEStruct(ARDDEStruct *in) {
 
 SV *perl_ARActiveLinkActionStruct(ARActiveLinkActionStruct *in) {
   HV *hash=newHV();
-  int i;
   switch (in->action) {
   case AR_ACTIVE_LINK_ACTION_MACRO:
     hv_store(hash, "macro", strlen("macro"),
@@ -581,8 +585,6 @@ SV *perl_ARActiveLinkActionStruct(ARActiveLinkActionStruct *in) {
 
 SV *perl_ARFilterActionNotify(ARFilterActionNotify *in) {
   HV *hash=newHV();
-  AV *array=newAV();
-  int i;
   hv_store(hash, "user", strlen("user"),
  	   newSVpv(in->user, 0), 0);
   if(in->notifyText) 
@@ -608,7 +610,6 @@ SV *perl_ARFilterActionNotify(ARFilterActionNotify *in) {
 
 SV *perl_ARFilterActionStruct(ARFilterActionStruct *in) {
   HV *hash=newHV();
-  int i;
   switch (in->action) {
   case AR_FILTER_ACTION_NOTIFY:
     hv_store(hash, "notify", strlen("notify"),
@@ -963,7 +964,7 @@ SV *perl_ARPermissionList(ARPermissionList *in) {
   int i;
   
   for (i=0; i<in->numItems; i++) {
-    sprintf(groupid, "%i", in->permissionList[i].groupId);
+    sprintf(groupid, "%i", (int)in->permissionList[i].groupId);
     switch (in->permissionList[i].permissions) {
     case AR_PERMISSIONS_NONE:
       hv_store(hash, groupid, strlen(groupid),
@@ -1158,6 +1159,7 @@ ARArithOpStruct *dup_ArithOp(ARArithOpStruct *in) {
   n->operation = in->operation;
   dup_FieldValueOrArith(&n->operandLeft, &in->operandLeft);
   dup_FieldValueOrArith(&n->operandRight, &in->operandRight);
+  return n;
 }
 
 void dup_ValueList(ARValueList *n, ARValueList *in) {
@@ -1499,7 +1501,7 @@ ARGetFieldCached(ARControlStruct *ctrl, ARNameType schema, ARInternalId id,
 	 SvTYPE(fields = (HV *)SvRV(*schema_fields)) == SVt_PVHV))
     goto cache_fail;
   /* dereference with field id */
-  sprintf(field_string, "%i", id);
+  sprintf(field_string, "%i", (int)id);
   field = hv_fetch(fields, field_string, strlen(field_string), TRUE);
   if (! (field && SvROK(*field) && SvTYPE(base = (HV *)SvRV(*field))))
     goto cache_fail;
@@ -1578,7 +1580,7 @@ ARGetFieldCached(ARControlStruct *ctrl, ARNameType schema, ARInternalId id,
       fields = (HV *)SvRV(*schema_fields);
     }
     /* dereference hash with field id */
-    sprintf(field_string, "%i", id);
+    sprintf(field_string, "%i", (int)id);
     field = hv_fetch(fields, field_string, strlen(field_string), TRUE);
     if (! field) return ret;
     if (! SvROK(*field) ||
@@ -2070,7 +2072,7 @@ ars_DeleteEntry(ctrl,schema,entry_id)
 	  AREntryIdList entryList;
 	  AV *input_list;
 	  int i;
-	  
+	  RETVAL=-1; /* assume error */
 	  /* build entryList */
 	  if (SvROK(entry_id)) {
 	    if (SvTYPE(input_list = (AV *)SvRV(entry_id)) == SVt_PVAV) {
@@ -2112,6 +2114,7 @@ ars_DeleteEntry(ctrl,schema,entry_id)
 	  free(entryList.entryIdList);
 #endif
 #else /* ARS 2 */
+	  RETVAL=-1; /* assume error */
 	  entryId = SvPV(entry_id, na);
 	  ret = ARDeleteEntry(ctrl, schema, entryId, &status);
 #endif
@@ -2137,10 +2140,8 @@ ars_GetEntry(ctrl,schema,entry_id,...)
 	{
 	  int c = items - 3, i, ret;
 	  ARInternalIdList  idList;
-	  int id_len;
 	  ARFieldValueList  fieldList;
 	  ARStatusList      status;
-	  ARTimestamp       v;
 	  char *entryId;
 #if AR_EXPORT_VERSION >= 3
 	  SV **fetch_entry;
@@ -2242,7 +2243,6 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,...)
 	  unsigned int num_matches;
 	  ARStatusList status;
 	  int ret;
-	  unsigned long field_id;
 #if AR_EXPORT_VERSION >= 3
 	  AREntryListFieldList getListFields, *getList = NULL;
 	  AV *getListFields_array;
@@ -2272,7 +2272,8 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,...)
 #endif
 		    goto getlistentry_end;
 		  }
-		  printf("field_id: %i\n", getListFields.fieldsList[i].fieldId = SvIV(*hash_entry));
+		  getListFields.fieldsList[i].fieldId = SvIV(*hash_entry);
+		  /* printf("field_id: %i\n", getListFields.fieldsList[i].fieldId); */ /* DEBUG */
 		  if (! (hash_entry = hv_fetch(field_hash, "columnWidth", 11, 0))) {
 		    ars_errstr = "bad getListFields";
 #ifndef WASTE_MEM
@@ -2314,7 +2315,7 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,...)
 	    sortList.sortList[i].sortOrder = SvIV(ST(i*2+field_off+1));
 	  }
 #if AR_EXPORT_VERSION >= 3
-	  printf("getlist: %x\n", getList);
+	  /* printf("getlist: %x\n", getList); */ /* DEBUG */
 	  ret = ARGetListEntry(ctrl, schema, qualifier, getList, &sortList, maxRetrieve, &entryList, &num_matches, &status);
 #else
 	  ret = ARGetListEntry(ctrl, schema, qualifier, &sortList, maxRetrieve, &entryList, &num_matches, &status);
@@ -2395,7 +2396,6 @@ ars_GetListSchema(ctrl,changedsince=0,...)
 	    FreeARNameList(&nameList,FALSE);
 #endif
 	  }
-	getListSchema_end:;
 	}
 
 void
@@ -2668,7 +2668,7 @@ ars_GetServerStatistics(ctrl,...)
 					}
 				}
 #ifndef WASTE_MEM
-				FreeARServerInfoList(serverInfo, FALSE);
+				FreeARServerInfoList(&serverInfo, FALSE);
 				free(requestList.requestList);
 #endif
 			}
@@ -2692,7 +2692,7 @@ ars_GetCharMenu(ctrl,name)
 	  ARNameType	     lastChanged;
 	  char		    *changeDiary;
 	  ARStatusList	     status;
-	  int                ret, i;
+	  int                ret;
 	  HV		    *menuDef = newHV();
 	  SV		    *ref;
 
@@ -2774,10 +2774,9 @@ ars_GetCharMenuItems(ctrl,name)
 	char *			name
 	CODE:
 	{
-	  unsigned int refreshCode;
 	  ARCharMenuStruct menuDefn;
       	  ARStatusList status;
-	  int ret, i;
+	  int ret;
 	  
 	  ret = ARGetCharMenu(ctrl, name, NULL, &menuDefn, NULL, NULL, NULL, NULL, NULL, &status);
 #ifdef PROFILE
@@ -2866,7 +2865,11 @@ ars_GetSchema(ctrl,name)
 	    hv_store(RETVAL, "sortList", 8, perl_ARSortList(&sortList), 0);
 #endif
 #ifndef WASTE_MEM
+#if AR_EXPORT_VERSION >= 3
+	    FreeARPermissionList(&groupList,FALSE);
+#else
 	    FreeARInternalIdList(&groupList,FALSE);
+#endif
 	    FreeARInternalIdList(&adminGroupList,FALSE);
 	    FreeAREntryListFieldList(&getListFields,FALSE);
 	    FreeARIndexList(&indexList,FALSE);
@@ -3039,7 +3042,7 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	  SV **fetch_entry;
 	  AREntryIdList entryList;
 	  AV *input_list;
-	  
+	  RETVAL = 0; /* assume error */
 	  if ((items - 4) % 2) {
 	    option = SvIV(ST(offset));
 	    offset ++;
@@ -3049,12 +3052,12 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	    goto set_entry_exit;
 	  }
 #else
+	  RETVAL = 0; /* assume error */
 	  if (((items - 4) % 2) || c < 1) {
 	    ars_errstr = "Invalid number of arguments";
 	    goto set_entry_exit;
 	  }
 #endif
-	  RETVAL = 0;
 	  fieldList.numItems = c;
 	  fieldList.fieldValueList = mallocnn(sizeof(ARFieldValueStruct)*c);
 	  for (i=0; i<c; i++) {
@@ -3174,7 +3177,7 @@ ars_Export(ctrl,displayTag,...)
 	{
 	  int ret, i, a, c = (items - 2) / 2;
 	  ARStructItemList structItems;
-	  char *buf, *buf_copy;
+	  char *buf;
 	  ARStatusList status;
 	  
 	  if (items % 2 || c < 1) {
@@ -3492,8 +3495,9 @@ ars_NTDeregisterClient(user, password, filename)
 	char *		filename
 	CODE:
 	{
+	  RETVAL = 0;
+	  if(user && password && filename)
 		croak("NTDeregisterClient() is only available in ARS2.x");
-		RETVAL = 0;
 	}
 	OUTPUT:
 	RETVAL
@@ -3502,8 +3506,9 @@ int
 ars_NTInitializationClient()
 	CODE:
 	{
-		croak("NTInitializationClient() is only available in ARS2.x");
 		RETVAL = 0;
+		croak("NTInitializationClient() is only available in ARS2.x");
+
 	}
 	OUTPUT:
 	RETVAL
@@ -3515,8 +3520,9 @@ ars_NTRegisterClient(user, password, filename)
 	char *		filename
 	CODE:
 	{
+	 RETVAL = 0;
+	 if(user && password && filename)
 		croak("NTRegisterClient() is only available in ARS2.x");
-		RETVAL = 0;
 	}
 	OUTPUT:
 	RETVAL
