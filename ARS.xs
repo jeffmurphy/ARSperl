@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.15 1997/02/14 20:38:49 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.16 1997/02/14 20:48:06 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -27,6 +27,11 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.15 1997/02/14 20:38:49 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.16  1997/02/14 20:48:06  jcmurphy
+un-commented the ARInitialization() call. this allows
+you to write a perl script that connects to a private
+server.
+
 Revision 1.15  1997/02/14 20:38:49  jcmurphy
 fixed phantom function call. initialized some un-inited stuff
 
@@ -1673,10 +1678,10 @@ __ars_init()
 	  int ret;
 	  ARStatusList status;
 	
-	/*  ret = ARInitialization(&status);
+	  ret = ARInitialization(&status);
 	  if (ARError(ret, status)) {
 	    croak("unable to initialize ARS module");
-	  } */
+	  }
 	}
 
 ARControlStruct *
