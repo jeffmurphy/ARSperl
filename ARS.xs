@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.101 2005/04/06 18:02:26 jeffmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.102 2005/04/06 18:17:13 jeffmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -195,7 +195,7 @@ ars_Login(server, username, password, lang=NULL, authString=NULL, tcpport=0, rpc
 	unsigned int  	rpcnumber
 	CODE:
 	{
-		int              ret, s_ok = 1;
+		int              ret = 0, s_ok = 1;
 		ARStatusList     status;
 		ARServerNameList serverList;
 		ARControlStruct *ctrl;
@@ -353,9 +353,9 @@ ars_VerifyUser(ctrl)
 	CODE:
 	{
 		int ret = 0;
-		ARBoolean	adminFlag,
-				subAdminFlag,
-				customFlag;
+		ARBoolean	adminFlag    = 0,
+				subAdminFlag = 0,
+				customFlag   = 0; 
 		ARStatusList status;
 
 		(void) ARError_reset();
@@ -1510,7 +1510,7 @@ ars_GetCharMenu(ctrl,name)
 	  unsigned int       refreshCode;
 	  ARCharMenuStruct   menuDefn;
 	  char	            *helpText = CPNULL;
-	  ARTimestamp	     timestamp;
+	  ARTimestamp	     timestamp = 0;
 	  ARNameType	     owner;
 	  ARNameType	     lastChanged;
 	  char		    *changeDiary = CPNULL;
@@ -1525,6 +1525,11 @@ ars_GetCharMenu(ctrl,name)
 
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
+#if AR_EXPORT_VERSION >= 5
+	  Zero(&objPropList, 1, ARPropList);
+#endif
+	  Zero(&owner, 1, ARNameType);
+	  Zero(&lastChanged, 1, ARNameType);
 	  RETVAL = newHV();
 	  ret = ARGetCharMenu(ctrl, name, &refreshCode, &menuDefn, &helpText, 
 			      &timestamp, owner, lastChanged, &changeDiary, 
