@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.46 1998/04/09 18:45:12 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.47 1998/05/04 17:38:37 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.46 1998/04/09 18:45:12 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.47  1998/05/04 17:38:37  jcmurphy
+patch for ars_CreateEntry() by Bill Middleton <wjm@metronet.com>
+
 Revision 1.46  1998/04/09 18:45:12  jcmurphy
 fixed typo in routine name.
 
@@ -588,7 +591,7 @@ ars_CreateEntry(ctrl,schema,...)
 	      RETVAL = entryId;
 	  create_entry_end:;
 #ifndef WASTE_MEM
-	  safefree(&fieldList.fieldValueList);
+	  safefree(fieldList.fieldValueList);
 #endif
 	  }
 	}
