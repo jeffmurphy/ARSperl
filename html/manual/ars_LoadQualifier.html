@@ -1,0 +1,28 @@
+<HTML>
+<HEAD>
+<TITLE>ARSperl Programmer's Manual</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+   <H2><CODE>ars_LoadQualifier(ctrl,schema,qualstring)</CODE></H2>
+
+      Converts a qualifier string into a scalar qualifier record.<P>
+
+      <DL>
+         <DT><B>On success</B><DD>
+                Returns the qualifier record.
+         <DT><B>On failure</B><DD>
+                Returns <CODE>undef</CODE>.
+      </DL>
+
+      <P>Example:
+
+      <PRE>
+      ($q = ars_LoadQualifier($c, "User", "'Login name' = \"jmurphy\"")) ||
+	    die $ars_errstr;
+      </PRE>
+<P>
+
+<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Back to Table of Contents </A>
+</BODY>
+</HTML>

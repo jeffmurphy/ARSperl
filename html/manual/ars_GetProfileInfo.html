@@ -1,0 +1,34 @@
+<HTML>
+<HEAD>
+<TITLE>ARSperl Programmer's Manual</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+    <H2><CODE>ars_GetProfileInfo(ctrl)</CODE></H2>
+
+	<A HREF="ds_profile_hash.html">Returns a HASH</A> consisting of ARSperl profiling statistics. 
+
+	<P>
+        Here is an example:<P>
+
+        <PRE>
+	%profile = ars_GetServerStatistics($ctrl);
+        </PRE>
+
+	<PRE>
+	print "startTime= ".$profile->{startTime}." queries=".$profile->{queries}."\n";
+	</PRE>
+
+        <DL>
+          <DT><B>On success</B><DD>
+		returns a HASH
+          <DT><B>On failure</B><DD>
+		returns undef
+        </DL>
+       <P>
+
+<P>
+
+<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Back to Table of Contents </A>
+</BODY>
+</HTML>

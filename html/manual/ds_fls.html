@@ -1,0 +1,40 @@
+<HTML>
+<HEAD>
+<TITLE>ARSperl Programmer's Manual</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+<H4>Field Limit Structure</H4>
+
+<PRE>
+; integer
+{"min"			=> integer,
+ "max"			=> integer}
+	or
+; real
+{"min"			=> float,
+ "max"			=> float,
+ "precision"		=> integer}
+	or
+; char
+{"maxLength"		=> integer,
+ "menuStyle"		=> "append" or "overwrite",
+ "match"		=> "anywhere" or "leading" or "equal",
+ "charMenu"		=> string,
+ "pattern"		=> string,
+ "fullTextOptions"	=> "none" or "indexed"}
+	or
+; diary
+{"fullTextOptions"	=> "none" or "indexed"}
+	or
+; enum and bitmask
+array of strings
+	or
+undef
+</PRE>
+
+<P>
+
+<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Back to Table of Contents </A>
+</BODY>
+</HTML>

@@ -1,0 +1,33 @@
+<HTML>
+<HEAD>
+<TITLE>ARSperl Programmer's Manual</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+   <H2><CODE>ars_GetListSchema(ctrl, changedsince=0)</CODE></H2>
+
+      This function fetches the list of all schemas available to the user.
+      <CODE>changedsince</CODE> is an optional timestamp that will cause
+      only schemas newer than that time to be returned. <P>
+
+      <DL>
+          <DT><B>On success</B><DD>
+              Returns an array of schema's available. 
+          <DT><B>On failure</B><DD>
+              Returns <CODE>undef</CODE>.
+      </DL>
+
+      <P>Example:
+
+      <PRE>
+      @schemas = ars_GetListSchema($c);
+      for($i = 0; $i < $#schemas ; $i++) {
+           print "$schemas[$i]\n";
+      }
+      </PRE>
+
+<P>
+
+<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Back to Table of Contents </A>
+</BODY>
+</HTML>

@@ -1,0 +1,32 @@
+<HTML>
+<HEAD>
+<TITLE>ARSperl Programmer's Manual</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+   <H2><CODE>ars_CreateEntry(ctrl, schema, field_name1, value1, ...)</CODE></H2>
+
+      This function creates a new entry (row) in the schema. This is 
+      the same as ``submitting a new ticket''.  Pairs of field ids and
+      values should follow the schema name.  Data types are automatically
+      converted. <P>
+
+      <DL>
+          <DT><B>On success</B><DD>
+              Returns the new entry id.
+          <DT><B>On failure</B><DD>
+              Returns <CODE>undef</CODE>.
+      </DL>
+
+      <P>Example:
+
+      <PRE>
+      ($entry_id = ars_CreateEntry($c, "Schema01", $id, $val)) || 
+            die $ars_errstr;
+      </PRE>
+
+<P>
+
+<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Back to Table of Contents </A>
+</BODY>
+</HTML>

@@ -1,0 +1,18 @@
+<HTML>
+<HEAD>
+<TITLE>ARSperl Programmer's Manual</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+<H4>Value Structure</H4>
+
+ARValueStruct is just converted to the associated perl type, except for
+keywords.  Keywords are denoted by a string surrounded by nulls.  For example,
+$TIMESTAMP$ is converted to the perl string "\0timestamp\0".  C doesn't
+allow nulls in strings so this doesn't introduce any ambiguity.
+
+<P>
+
+<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Back to Table of Contents </A>
+</BODY>
+</HTML>

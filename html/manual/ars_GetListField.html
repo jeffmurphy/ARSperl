@@ -1,0 +1,29 @@
+<HTML>
+<HEAD>
+<TITLE>ARSperl Programmer's Manual</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+   <H2><CODE>ars_GetListField(control,schema,changedsince=0)</CODE></H2>
+
+      Fetches the Field ID's for all fields in the schema
+      specified. <CODE>changedsince</CODE> is an optional unix timestamp
+      and defaults to 0.<P>
+
+      <DL>
+          <DT><B>On success</B><DD>
+              Returns an array of field ids.
+          <DT><B>On failure</B><DD>
+              Returns <CODE>undef</CODE>.
+      </DL>
+
+      <P>Example:
+
+      <PRE>
+      @fields = ars_GetListField($c, "User");
+      </PRE>
+<P>
+
+<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Back to Table of Contents </A>
+</BODY>
+</HTML>

@@ -1,0 +1,68 @@
+<HTML>
+<HEAD>
+<TITLE>ARSperl Programmer's Manual</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+   <H2><CODE>ars_GetField(ctrl,schema,id)</CODE></H2>
+
+      Returns a hash reference to information about a field. The hash
+      will contain the following elements: <P>
+
+      <DL>
+        <DT> fieldId <DD>
+             the field id of the field
+        <DT> createMode <DD>
+             will be one of: <I>open</I>, <I>protected</I>
+        <DT> option <DD>
+             
+        <DT> dataType <DD>
+             will be one of: <I>keyword, integer, real, char, diary, enum,
+             time,</I> or <I>bitmask</I>.
+        <DT> defaultVal <DD>
+        <DT> limit <DD>
+             this is a hash. it's keys are (depending upon the dataType):
+             <DL>
+                <DT> min, max, precision <DD>
+                     used the integer and real types (precision is only for
+                     reals).
+                <DT> maxLength <DD>
+                     used for char type.
+                <DT> menuStyle <DD>
+                     will be either <I>append</I> or  <I>overwrite</I>
+                <DT> match <DD>
+                     will be one of: <I>anywhere, leading</I> or <I>equal</I>
+                <DT> charMenu <DD> 
+                     contains the name of the menu attached to this field.
+                <DT> pattern <DD>
+                     contains the pattern to match the field against.
+                <DT> fullTextOptions <DD>
+                     will be one either <I>none</I> or <I>indexed</I>
+              </DL>
+        <DT> displayList <DD>
+        <DT> helpText <DD>
+        <DT> timestamp <DD>
+        <DT> owner <DD>
+        <DT> lastChanged <DD>
+        <DT> changeDiary <DD>
+      </DL>
+
+      <P>
+
+      <DL>
+          <DT><B>On success</B><DD>
+              a hash
+          <DT><B>On failure</B><DD>
+              undef
+      </DL>
+
+      <P>Example:
+
+      <PRE>
+      </PRE>
+
+<P>
+
+<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Back to Table of Contents </A>
+</BODY>
+</HTML>

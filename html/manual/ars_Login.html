@@ -1,0 +1,30 @@
+<HTML>
+<HEAD>
+<TITLE>ARSperl Programmer's Manual</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+   <H2><CODE>ars_Login(server,username,password)</CODE></H2>
+
+      Returns a control structure with the spacified server username
+      and password.  Specifying a null server will use whatever the default
+      server is for your system. <P>
+
+      <DL>
+         <DT><B>On success</B><DD>
+                Returns a scalar control record.
+         <DT><B>On failure</B><DD>
+                Returns <CODE>undef</CODE> for invalid number of arguments.
+      </DL>
+
+      <P>Example:
+
+      <PRE>
+      $c = ars_Login("","jmurphy","blah")
+      </PRE>
+
+<P>
+
+<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Back to Table of Contents </A>
+</BODY>
+</HTML>
