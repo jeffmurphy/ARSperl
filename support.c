@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.20 1998/04/25 16:00:20 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.21 1998/09/11 17:52:42 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,11 @@ $Header: /cvsroot/arsperl/ARSperl/support.c,v 1.20 1998/04/25 16:00:20 jcmurphy 
     LOG:
 
 $Log: support.c,v $
+Revision 1.21  1998/09/11 17:52:42  jcmurphy
+nothing really. added some ifdef'd out code when i was
+thinking about changing the return values for {limit} key
+to GetField. but i decided against it.
+
 Revision 1.20  1998/04/25 16:00:20  jcmurphy
 removed some debugging code
 
@@ -449,7 +454,7 @@ perl_ARInternalId(ARInternalId *in) {
 
 SV *
 perl_ARNameType(ARNameType *in) {
-  return newSVpv(*in,0);
+  return newSVpv(*in, 0);
 }
 
 SV *
@@ -997,7 +1002,7 @@ perl_ARIndexStruct(ARIndexStruct *in) {
 SV *
 perl_ARFieldLimitStruct(ARFieldLimitStruct *in) {
   HV *hash = newHV();
-
+  
   switch (in->dataType) {
   case AR_DATA_TYPE_INTEGER:
     hv_store(hash, VNAME("min"), newSViv(in->u.intLimits.rangeLow), 0);
@@ -1055,13 +1060,32 @@ perl_ARFieldLimitStruct(ARFieldLimitStruct *in) {
     }
     return newRV((SV *)hash);
   case AR_DATA_TYPE_ENUM:
-    return perl_ARList(
-		       (ARList *)&in->u.enumLimits,
+    /* perl_ARList returns an array reference which isn't what everything
+     * else returns. but i guess we'll leave it this way because people
+     * are used to it at this point. i'll leave the code in here as
+     * a reference tho.
+     */
+#ifdef KEEP_LIMIT_HASH_UNIFORM
+    hv_store(hash, VNAME("enumLimits"), 
+	     perl_ARList((ARList *)&in->u.enumLimits,
+			 (ARS_fn)perl_ARNameType, sizeof(ARNameType)),
+	     0);
+    return newRV((SV *)hash);
+#else
+    return perl_ARList((ARList *)&in->u.enumLimits,
 		       (ARS_fn)perl_ARNameType, sizeof(ARNameType));
+#endif
   case AR_DATA_TYPE_BITMASK:
-    return perl_ARList( 
-		       (ARList *)&in->u.maskLimits,
+#ifdef KEEP_LIMIT_HASH_UNIFORM
+    hv_store(hash, VNAME("bitmask"), 
+	     perl_ARList((ARList *)&in->u.enumLimits,
+			 (ARS_fn)perl_ARNameType, sizeof(ARNameType)),
+	     0);
+    return newRV((SV *)hash);
+#else
+    return perl_ARList((ARList *)&in->u.maskLimits,
 		       (ARS_fn)perl_ARNameType, sizeof(ARNameType));
+#endif
   case AR_DATA_TYPE_KEYWORD:
   case AR_DATA_TYPE_TIME:
   case AR_DATA_TYPE_NULL:
