@@ -24,6 +24,9 @@ $header: /u1/project/ARSperl/ARSperl/RCS/support.c,v 1.25 1999/01/04 21:04:27 jc
     LOG:
 
 $Log: support.c,v $
+Revision 1.30  2000/02/04 16:20:44  jcmurphy
+*** empty log message ***
+
 Revision 1.29  1999/12/03 22:13:56  jcmurphy
 *** empty log message ***
 
@@ -1881,7 +1884,7 @@ perl_ARSortList(ARControlStruct * ctrl, ARSortList * in)
 	}
 	return newRV((SV *) array);
 }
-
+  
 #if AR_EXPORT_VERSION >= 4
 SV             *
 perl_ARAttach(ARControlStruct * ctrl, ARAttachStruct * in)

@@ -209,4 +209,3 @@ t/1import.t
 t/aptest.def
 t/entry.t
 t/config
-ARS.ml

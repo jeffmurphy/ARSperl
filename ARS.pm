@@ -95,11 +95,12 @@ ars_GetListGroup ars_GetListSQL ars_GetListUser
 ars_GetListVUI ars_GetServerInfo ars_GetEntryBLOB
 ars_CreateActiveLink ars_CreateAdminExtension
 ars_GetControlStructFields ars_GetVUI
+ars_GetListContainer
 $ars_errstr %ARServerStats %ars_errhash
 ars_decodeStatusHistory ars_APIVersion
 );
 
-$ARS::VERSION   = '1.66';
+$ARS::VERSION   = '1.67';
 $ARS::DEBUGGING = 0;
 
 bootstrap ARS $ARS::VERSION;

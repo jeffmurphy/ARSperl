@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.60 2000/02/03 21:29:02 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.61 2000/02/04 16:20:44 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -21,6 +21,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.60 2000/02/03 21:29:02 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.61  2000/02/04 16:20:44  jcmurphy
+*** empty log message ***
+
 Revision 1.60  2000/02/03 21:29:02  jcmurphy
 
 
@@ -1028,6 +1031,48 @@ ars_GetListSchema(ctrl,changedsince=0,schemaType=AR_LIST_SCHEMA_ALL,name=NULL)
 	    FreeARNameList(&nameList,FALSE);
 #endif
 	  }
+	}
+
+void
+ars_GetListContainer(ctrl,changedSince=0,attributes=0,...)
+	ARControlStruct *	ctrl
+	ARTimestamp		changedSince
+	unsigned int		attributes
+	PPCODE:
+	{
+	  ARStatusList 		status;
+	  int          		i, ret;
+
+	  (void) ARError_reset();	  
+	  Zero(&status, 1, ARStatusList);
+		printf("items %d\n", items);
+#if AR_EXPORT_VERSION >= 4
+	  if(items > 3) {
+		int 			i;
+	  	ARContainerTypeList	containerTypes;
+		ARContainerOwnerObj 	ownerObj;
+		ARContainerInfoList	conList;
+
+		containerTypes.numItems = items - 3;
+		Newz(777, containerTypes.type, 
+		     containerTypes.numItems, unsigned int);
+		for(i = 3 ; i < items ; i++) {
+			containerTypes.type[i-3] = SvIV(ST(i));
+		}
+
+		i = ARGetListContainer(ctrl, changedSince,
+					&containerTypes,
+					attributes,
+					&ownerObj, &conList, &status);
+		if(!ARError(i, status)) {
+			HV *r = newHV();				
+		}
+		Safefree(containerTypes.type);
+	  } else {
+		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
+	  }
+#else
+#endif
 	}
 
 void
