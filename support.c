@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.21 1998/09/11 17:52:42 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.22 1998/09/16 14:16:12 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/support.c,v 1.21 1998/09/11 17:52:42 jcmurphy 
     LOG:
 
 $Log: support.c,v $
+Revision 1.22  1998/09/16 14:16:12  jcmurphy
+fixed bug in perl_ARIndexStruct
+
 Revision 1.21  1998/09/11 17:52:42  jcmurphy
 nothing really. added some ifdef'd out code when i was
 thinking about changing the return values for {limit} key
@@ -992,7 +995,7 @@ perl_ARIndexStruct(ARIndexStruct *in) {
   
   if (in->unique)
     hv_store(hash, VNAME("unique"), newSViv(1), 0);
-  for (i=0; i < AR_MAX_INDEX_FIELDS && in->fieldIds[i] != 0; i++)
+  for (i=0; i < in->numFields; i++) 
     av_push(array, perl_ARInternalId(&(in->fieldIds[i])));
   hv_store(hash, VNAME("fieldIds"), newRV((SV *)array), 0);
   
