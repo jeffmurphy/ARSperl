@@ -1,6 +1,6 @@
-#!/oratest/perl/bin/perl
+#!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/del_all.pl,v 1.4 1997/11/12 18:39:24 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/del_all.pl,v 1.5 1998/09/14 17:39:29 jcmurphy Exp $
 #
 # NAME
 #   del_all.pl [server] [user] [password] [pattern]

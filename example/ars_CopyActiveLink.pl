@@ -1,6 +1,6 @@
-#!/oratest/perl/bin/perl
+#!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/ars_CopyActiveLink.pl,v 1.1 1997/09/04 00:16:00 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/ars_CopyActiveLink.pl,v 1.2 1998/09/14 17:38:47 jcmurphy Exp $
 #
 # NAME
 #   ars_CopyActiveLink.pl [server] [username] [password] [active link]
@@ -12,6 +12,9 @@
 #   Jeff murphy
 #
 # $Log: ars_CopyActiveLink.pl,v $
+# Revision 1.2  1998/09/14 17:38:47  jcmurphy
+# changed #!perl path
+#
 # Revision 1.1  1997/09/04 00:16:00  jcmurphy
 # Initial revision
 #

@@ -1,6 +1,6 @@
-#!/oratest/perl/bin/perl
+#!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/ars_decodeStatusHistory.pl,v 1.1 1998/09/11 15:51:42 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/ars_decodeStatusHistory.pl,v 1.2 1998/09/14 17:39:20 jcmurphy Exp $
 #
 # NAME
 #   ars_decodeStatusHistory.pl [server] [username] [password] [schema] [eid]
@@ -13,6 +13,9 @@
 #   Jeff murphy
 #
 # $Log: ars_decodeStatusHistory.pl,v $
+# Revision 1.2  1998/09/14 17:39:20  jcmurphy
+# changed #!perl path
+#
 # Revision 1.1  1998/09/11 15:51:42  jcmurphy
 # Initial revision
 #
