@@ -276,3 +276,4 @@ JCM Installation, history, and Gnu documentation added.
             Removed -lars from makefile (internal C library that wasn't
             released), not needed for arsperl.
 JCM Added example scripts and html documentation.
+

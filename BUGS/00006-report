@@ -1,0 +1,30 @@
+OS: Solaris 2.5.1
+Perl version: 5.005_03
+ARS version: 4.0
+ARSperl version: 1.66
+
+I'm trying to create a entry with an attachement.  The entry is being 
+successfully created, however, the attachment is not actually getting 
+attached.  No errors are being returned, an Entry Id is returned.  Part of 
+the issue is that I've been unable to locate the documentation for creating 
+an entry with an attachement flag.
+
+>From the examples shipped with ARSperl 1.66 I have deduced that an 
+attachement field requires its value passed as a hash of { file => "file 
+name", size => file_size }.  Is this correct and is that all that is 
+required?
+
+Additionally I have noticed the following behaviour, calling ars_CreateEntry 
+and passing the attachement data using:
+
+$AttachementID, { file => "somefile", size => file_size } OR
+$AttachementID, { 'file', "somefile", 'size', file_size } will cause a core 
+dump.  However if I create the hash
+
+%Val{ 'file', "somefile", 'size', file_size }; and then call ars_CreateEntry 
+using: $AttachementID, $Val the script runs as expected, except of course 
+that the file is not actually attached.
+
+Thanks for the help.
+
+Peter Forsythe

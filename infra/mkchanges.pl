@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/infra/mkchanges.pl,v 1.1 2000/05/24 18:05:26 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/infra/mkchanges.pl,v 1.2 2000/05/24 18:08:03 jcmurphy Exp $
 #
 # mkchanges.pl
 #
@@ -190,7 +190,7 @@ sub headerHTML {
 }
 
 sub footerHTML {
-	print "</body></html>\n";
+	print "\n<P>\n<PRE>\$Header\$</PRE></body></html>\n";
 }
 
 sub headerTXT {
@@ -204,10 +204,10 @@ JWM = Joel Murphy    <jmurphy at acsu.buffalo.edu>
 
 Note: items preceeded by a '!' denoted changes that are incompatible with
 previous versions of arsperl and may require altering of some arsperl
-scripts.
+scripts.\n\n
 ";
 }
 
 sub footerTXT {
-	print "\n\narsperl\@arsperl.org\n";
+	print "\n\narsperl\@arsperl.org\n\n\$Header\$\n\n";
 }
