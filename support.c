@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.24 1998/12/28 15:46:10 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.25 1999/01/04 21:04:27 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -24,6 +24,9 @@ $Header: /cvsroot/arsperl/ARSperl/support.c,v 1.24 1998/12/28 15:46:10 jcmurphy 
     LOG:
 
 $Log: support.c,v $
+Revision 1.25  1999/01/04 21:04:27  jcmurphy
+fixed some typos for compiling against 2.x libs
+
 Revision 1.24  1998/12/28 15:46:10  jcmurphy
 v1.62
 
@@ -2194,7 +2197,7 @@ ARGetFieldCached(ARControlStruct *ctrl, ARNameType schema, ARInternalId id,
     display_ref = newSViv(0);
 
     sv_setref_pv(display_ref, "ARDisplayListPtr",
-		 (void *)dup_DisplayList(&my_display));
+		 (void *)dup_DisplayList(ctrl, &my_display));
 
     hv_store(base, VNAME("name"), display_ref, 0);
     FreeARDisplayList(&my_display, FALSE);

@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.10 1998/12/28 15:46:10 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.11 1999/01/04 21:04:53 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -24,6 +24,9 @@ $Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.10 1998/12/28 15:46:10 jcmurp
     LOG:
 
 $Log: supportrev.c,v $
+Revision 1.11  1999/01/04 21:04:53  jcmurphy
+fixed some typos for compiling against 2.x libs
+
 Revision 1.10  1998/12/28 15:46:10  jcmurphy
 v1.62
 
@@ -2052,7 +2055,7 @@ rev_ARFieldCharacteristics(ARControlStruct *ctrl,
 	    return -1;
 #else /* 2.x */
 	  m->display = (ARDisplayStruct *)safemalloc(sizeof(ARDisplayStruct));
-	  if(rev_ARDisplayStruct_helper( a, "display", m->display) == -1)
+	  if(rev_ARDisplayStruct_helper(ctrl, a, "display", m->display) == -1)
 	    return -1;
 #endif
 	  return rv;
