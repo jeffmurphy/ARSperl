@@ -11,19 +11,30 @@
  "server"           =&gt; string,
  "schema"           =&gt; string,
  "qualifier"        =&gt; reference to qualifier,
+ "noMatchOption"    =&gt; string, <B>(3.x)</B>
+ "multiMatchOption" =&gt; string, <B>(3.x)</B>
+
+ <I>one of:</I>
+
  "fieldId"          =&gt; integer,
        or
- "statHistory"      =&gt; reference to <A HREF="ds_shv.html">Status History Value</A>
+ "statHistory"      =&gt; reference to <A HREF="ds_shv.html">Status History Value</A>,
 }
 </PRE>
 
+<DL>
+<DT><B>noMatchOption</B>(s):<DD>
+   <UL> <LI> "error" <LI> "set_null" </UL>
+<DT><B>multiMatchOption</B>(s):<DD>
+   <UL> <LI> "error" <LI> "set_null" <LI> "use_first" <LI> "picklist" </UL>
+</DL>
 <P>
 <HR WIDTH="30%">
 <P>
 <A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Table of Contents </A>
 <p>
 <address>
-Last changes to this page 26th June 1997 by d.j.adams@soton.ac.uk<br>
+Last changes to this page 4th August 1997 by jcmurphy@smurfland.cit.buffalo.edu<br>
 &#169; J.C.Murphy, J.W.Murphy 1997 arsperl@smurfland.cit.buffalo.edu
 </address>
 </BODY>
