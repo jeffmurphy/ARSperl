@@ -29,11 +29,11 @@ This will format the information for you.
 <P>
 This is the equivalent behind the scenes code.
 <PRE>
-    my(%mTypes) = ( 0 => "OK", 1 => "WARNING", 2 => "ERROR", 3 => "FATAL",
-                    4 => "INTERNAL ERROR",
-                   -1 => "TRACEBACK");
+    my(%mTypes) = ( 0 =&gt; "OK", 1 =&gt; "WARNING", 2 =&gt; "ERROR", 3 =&gt; "FATAL",
+                    4 =&gt; "INTERNAL ERROR",
+                   -1 =&gt; "TRACEBACK");
 
-    for($i = 0; $i < $ARS::ars_errhash{numItems}; $i++) {
+    for($i = 0; $i &lt; $ARS::ars_errhash{numItems}; $i++) {
         printf("[%s] %s (ARERR \#%d)\n",
                $mTypes{@{$ARS::ars_errhash{messageType}}[$i]},
                @{$ARS::ars_errhash{messageText}}[$i],
