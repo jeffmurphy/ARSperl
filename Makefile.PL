@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.63 2005/03/10 02:19:51 jeffmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.64 2005/03/11 15:54:29 jeffmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -90,7 +90,7 @@ $WINDOWS = ($^O eq 'MSWin32');
 #        Windows NT: no "-lpthread"
 #        NCR UNIX: add "-lc -lnet"
 #                -DARSPDEBUG
-$AUTODEFINES = " -g -DARSPDEBUG ";
+$AUTODEFINES = " -g ";
 $AUTODEFINES = "-D_WIN32" if($WINDOWS);
 
 
