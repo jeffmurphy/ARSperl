@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.6 1997/10/07 14:32:51 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.7 1997/10/09 15:21:33 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.6 1997/10/07 14:32:51 jcmurph
     LOG:
 
 $Log: supportrev.c,v $
+Revision 1.7  1997/10/09 15:21:33  jcmurphy
+1.5201: code cleaning
+
 Revision 1.6  1997/10/07 14:32:51  jcmurphy
 fixed some logic errors
 
@@ -83,6 +86,8 @@ static int rev_ARFunctionAssignStructStr2FCODE(char *c, unsigned int *o);
 static int rev_ARAssignStruct_helper(HV *h, ARAssignStruct *m);
 static int rev_ARActiveLinkMacroStruct_helper(HV *h, 
 					      ARActiveLinkMacroStruct *m);
+static int rev_ARAssignList_helper(HV *h, ARFieldAssignList *m, int i);
+
 #if AR_EXPORT_VERSION >= 3
 static int rev_ARByteListStr2Type(char *ts, unsigned long *tv);
 static int rev_ARCoordList_helper(HV *h, ARCoordList *m, int idx);
@@ -452,7 +457,6 @@ static int
 rev_ARDisplayStruct_helper(HV *h, char *k, ARDisplayStruct *d) 
 {
   SV **val;
-  int  i;
 
   if(! d) {
     ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, 
@@ -721,8 +725,7 @@ rev_ARActiveLinkActionList(HV *h, char *k, ARActiveLinkActionList *al)
 static int
 rev_ARActiveLinkActionList_helper(HV *h, ARActiveLinkActionList *al, int idx)
 {
-  int  rv = 0, rv2 = 0;
-  char buf[1024];
+  int  rv = 0;
 
   /* test each has value in turn, first one that is defined, copy in 
    * and return. DDE: not implemented.
@@ -839,7 +842,7 @@ rev_ARFieldAssignList(HV *h, char *k, ARFieldAssignList *m)
   return -1;
 }
 
-int
+static int
 rev_ARAssignList_helper(HV *h, ARFieldAssignList *m, int i) 
 {
   int rv = 0;
@@ -891,7 +894,7 @@ rev_ARAssignStruct(HV *h, char *k, ARAssignStruct *m)
 static int
 rev_ARAssignStruct_helper(HV *h, ARAssignStruct *m)
 {
-  int  rv = 0, rv2 = 0;
+  int  rv = 0;
 
   /* test each key in turn, first one that is defined, copy in 
    * and return. DDE: not implemented.
@@ -1033,9 +1036,7 @@ rev_ARAssignSQLStruct(HV *h, char *k, ARAssignSQLStruct *s)
 int
 rev_ARValueStruct(HV *h, char *k, char *t, ARValueStruct *m)
 {
-  int    rv = 0;
   SV   **val, **type;
-  char  *ts;
 
   if(! m || ! h || ! k || ! t) {
     ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, 
@@ -1131,10 +1132,10 @@ rev_ARValueStructStr2Type(char *type, unsigned int *n)
   int i = 0;
 
   if(type && *type) {
-    for(i = 0; DataTypeMap[i].number != -1; i++)
+    for(i = 0; DataTypeMap[i].number != TYPEMAP_LAST; i++)
       if(strncasecmp(type, VNAME(DataTypeMap[i].name)) == 0)
 	break;
-    if(DataTypeMap[i].number != -1) {
+    if(DataTypeMap[i].number != TYPEMAP_LAST) {
       *n = DataTypeMap[i].number;
       return 0;
     }
@@ -1154,11 +1155,11 @@ rev_ARValueStructKW2KN(char *keyword, unsigned int *n)
   int i;
 
   if(keyword && *keyword) {
-    for(i = 0 ; KeyWordMap[i].number != -1 ; i++) {
+    for(i = 0 ; KeyWordMap[i].number != TYPEMAP_LAST ; i++) {
       if(compmem(keyword, KeyWordMap[i].name, KeyWordMap[i].len) == 0)
 	break;
     }
-    if(KeyWordMap[i].number != -1) {
+    if(KeyWordMap[i].number != TYPEMAP_LAST) {
       *n = KeyWordMap[i].number;
       return 0;
     }
@@ -1237,7 +1238,6 @@ rev_ARByteList(HV *h, char *k, ARByteList *b)
     SV **hr = hv_fetch(h, VNAME(k), 0);
     if(hr && *hr && SvROK(*hr) && (SvTYPE(*hr) == SVt_PVHV)) {
       HV   *h2 = (HV *)SvRV(*hr);
-      char *bytes = (char *)NULL;
 
       if(!(hv_exists(h2, VNAME("type")) && hv_exists(h2, VNAME("value")))) {
 	SV **tv = hv_fetch(h2, VNAME("type"), 0);
@@ -1283,10 +1283,10 @@ rev_ARByteListStr2Type(char *ts, unsigned long *tv)
   int i = 0;
 
   if(ts && *ts && tv) {
-    for(i = 0 ; ByteListTypeMap[i].number != -1 ; i++) 
+    for(i = 0 ; ByteListTypeMap[i].number != TYPEMAP_LAST ; i++) 
       if(strncasecmp(ts, VNAME(ByteListTypeMap[i].name)) == 0)
 	break;
-    if(ByteListTypeMap[i].number != -1) {
+    if(ByteListTypeMap[i].number != TYPEMAP_LAST) {
       *tv = ByteListTypeMap[i].number;
       return 0;
     }
@@ -1397,8 +1397,6 @@ rev_ARCoordList_helper(HV *h, ARCoordList *m, int idx)
 int
 rev_ARAssignFieldStruct(HV *h, char *k, ARAssignFieldStruct *m)
 {
-  int rv = 0;
-
   if(! m || ! h || ! k) {
     ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARAssignFieldStruct: invalid (NULL) parameter");
@@ -1518,10 +1516,10 @@ rev_ARAssignFieldStructStr2NMO(char *s, unsigned int *nmo)
 {
   if(s && *s) {
     int i;
-    for(i = 0 ; NoMatchOptionMap[i].number != -1 ; i++) 
+    for(i = 0 ; NoMatchOptionMap[i].number != TYPEMAP_LAST ; i++) 
       if(strcasecmp(NoMatchOptionMap[i].name, s) == 0)
 	break;
-    if(NoMatchOptionMap[i].number != -1) {
+    if(NoMatchOptionMap[i].number != TYPEMAP_LAST) {
       *nmo = NoMatchOptionMap[i].number;
       return 0;
     }
@@ -1534,10 +1532,10 @@ rev_ARAssignFieldStructStr2MMO(char *s, unsigned int *mmo)
 {
   if(s && *s) {
     int i;
-    for(i = 0 ; MultiMatchOptionMap[i].number != -1 ; i++)
+    for(i = 0 ; MultiMatchOptionMap[i].number != TYPEMAP_LAST ; i++)
       if(strcasecmp(MultiMatchOptionMap[i].name, s) == 0)
 	break;
-    if(MultiMatchOptionMap[i].number != -1) {
+    if(MultiMatchOptionMap[i].number != TYPEMAP_LAST) {
       *mmo = MultiMatchOptionMap[i].number;
       return 0;
     }
@@ -1561,8 +1559,6 @@ rev_ARAssignFieldStructStr2MMO(char *s, unsigned int *mmo)
 int
 rev_ARStatHistoryValue(HV *h, char *k, ARStatHistoryValue *s)
 {
-  int rv = 0;
-
   if(! s || ! h || ! k) {
     ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARStatHistoryValue: invalid (NULL) parameter");
@@ -1632,8 +1628,6 @@ rev_ARStatHistoryValue_helper(HV *h, ARStatHistoryValue *s)
 int
 rev_ARArithOpAssignStruct(HV *h, char *k, ARArithOpAssignStruct *s)
 {
-  int rv = 0;
-
   if(! s || ! h || ! k) {
     ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARArithOpAssignStruct: invalid (NULL) parameter");
@@ -1722,10 +1716,10 @@ static int
 rev_ARArithOpAssignStructStr2OP(char *c, unsigned int *o)
 {
   int i;
-  for(i = 0 ; ArithOpMap[i].number != -1 ; i++) 
+  for(i = 0 ; ArithOpMap[i].number != TYPEMAP_LAST ; i++) 
     if(strcasecmp(ArithOpMap[i].name, c) == 0)
       break;
-  if(ArithOpMap[i].number == -1) {
+  if(ArithOpMap[i].number == TYPEMAP_LAST) {
     ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARArithOpAssignStructStr2OP: unknown operation word:");
     ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, c);
@@ -1751,8 +1745,6 @@ rev_ARArithOpAssignStructStr2OP(char *c, unsigned int *o)
 int
 rev_ARFunctionAssignStruct(HV *h, char *k, ARFunctionAssignStruct *s)
 {
-  int rv = 0;
-
   if(! s || ! h || ! k) {
     ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARFunctionAssignStruct: invalid (NULL) parameter");
@@ -1827,10 +1819,10 @@ static int
 rev_ARFunctionAssignStructStr2FCODE(char *c, unsigned int *o)
 {
   int i;
-  for(i = 0 ; FunctionMap[i].number != -1 ; i++) 
+  for(i = 0 ; FunctionMap[i].number != TYPEMAP_LAST ; i++) 
     if(strcasecmp(FunctionMap[i].name, c) == 0)
       break;
-  if(FunctionMap[i].number == -1) {
+  if(FunctionMap[i].number == TYPEMAP_LAST) {
     ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARFunctionAssignStructStr2FCODE: unknown function name:");
     ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, c);
@@ -2051,8 +2043,6 @@ rev_ARPropList_helper(HV *h, ARPropList *m, int idx)
 int
 rev_ARActiveLinkMacroStruct(HV *h, char *k, ARActiveLinkMacroStruct *m)
 {
-  int rv = 0;
-
   if(! m || ! h || ! k) {
     ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARActiveLinkMacroStruct: invalid (NULL) parameter");
@@ -2144,7 +2134,7 @@ rev_ARMacroParmList(HV *h, char *k, ARMacroParmList *m)
 						   * m->numItems);
 	  (void) hv_iterinit(a);
 	  i2 = 0;
-	  while(hval = hv_iternextsv(a, &hkey, &klen)) {
+	  while((hval = hv_iternextsv(a, &hkey, &klen))) {
 	    if(hval && SvPOK(hval)) {
 	      char *vv = SvPV(hval, na);
 	      int   vl = SvCUR(hval);

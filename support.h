@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.5 1997/10/09 00:49:28 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.6 1997/10/09 15:21:33 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.5 1997/10/09 00:49:28 jcmu
     LOG:
 
 $Log: support.h,v $
+Revision 1.6  1997/10/09 15:21:33  jcmurphy
+1.5201: code cleaning
+
 Revision 1.5  1997/10/09 00:49:28  jcmurphy
 1.52: uninit'd var bug fix
 
@@ -95,6 +98,8 @@ typedef struct {
   long endTime;
 } ars_ctrl;
 
+#define TYPEMAP_LAST 0xFFFFFFFFL
+
 static struct {
   unsigned int  number;
   char         *name;
@@ -116,7 +121,7 @@ static struct {
   { AR_DATA_TYPE_ULONG,    "ULONG" },
   { AR_DATA_TYPE_COORDS,   "COORDS" },
 #endif
-  { -1, "" }
+  { TYPEMAP_LAST, "" }
 };
 
 static struct {
@@ -127,7 +132,7 @@ static struct {
   { AR_BYTE_LIST_SELF_DEFINED, "self_defined" },
   { AR_BYTE_LIST_WIN30_BITMAP, "win30_bitmap" },
 #endif
-  { -1, "" }
+  { TYPEMAP_LAST, "" }
 };
 
 static struct {
@@ -138,7 +143,7 @@ static struct {
   { AR_NO_MATCH_ERROR,    "error" },
   { AR_NO_MATCH_SET_NULL, "set_null" },
 #endif
-  { -1, "" }
+  { TYPEMAP_LAST, "" }
 };
 
 static struct {
@@ -151,7 +156,7 @@ static struct {
   { AR_MULTI_MATCH_USE_FIRST, "use_first" },
   { AR_MULTI_MATCH_PICKLIST,  "picklist" },
 #endif
-  { -1, "" }
+  { TYPEMAP_LAST, "" }
 };
 
 static struct {
@@ -164,7 +169,7 @@ static struct {
   { AR_ARITH_OP_DIVIDE,   "/" },
   { AR_ARITH_OP_MODULO,   "%" },
   { AR_ARITH_OP_NEGATE,   "-" },
-  { -1, "" }
+  { TYPEMAP_LAST, "" }
 };
 
 static struct {
@@ -197,7 +202,7 @@ static struct {
   { AR_FUNCTION_STRSTR,  "substr" },
   { AR_FUNCTION_MIN,     "min" },
   { AR_FUNCTION_MAX,     "max" },
-  { -1, "" }
+  { TYPEMAP_LAST, "" }
 };
 
 static struct {
@@ -224,7 +229,7 @@ static struct {
   { AR_KEYWORD_VERSION,   "\0version\0",    9 },
   { AR_KEYWORD_VUI,       "\0vui\0",        5 },
 #endif
-  { -1, "", 0 }
+  { TYPEMAP_LAST, "", 0 }
 };
 
 static struct {
