@@ -27,6 +27,14 @@
 #include "arextern.h"
 #include "arstruct.h"
 
+#include "nt.h"
+#include "nterrno.h"
+#include "ntfree.h"
+#include "ntsextrn.h"
+#if AR_EXPORT_VERSION < 3
+#include "ntcextrn.h"
+#endif
+
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
@@ -157,6 +165,35 @@ int ARError(int returncode, ARStatusList status) {
   }
 #ifndef WASTE_MEM
   FreeARStatusList(&status, FALSE);
+#endif
+  return 1;
+}
+
+/* same as ARError, just uses the NT structures instead */
+ 
+int NTError(int returncode, NTStatusList status) {
+  char *index;         /* Index into error buffer */
+  int item;            /* Error item counter */
+  
+  ars_errstr = errbuf;
+  errbuf[0] = '\0';
+  if (returncode==0) {
+#ifndef WASTE_MEM
+/*    FreeNTStatusList(&status, FALSE); */
+#endif
+    return 0;
+  }
+  index = errbuf;
+  for ( item=0; item < status.numItems; item++ ) {
+    if ( item > 0 ) {
+      strcpy(index, "  ");
+      index += 2;
+    }
+    strcpy( index, status.statusList[item].messageText );                
+    index += strlen(index);
+  }
+#ifndef WASTE_MEM
+  FreeNTStatusList(&status, FALSE);
 #endif
   return 1;
 }
@@ -3271,4 +3308,261 @@ ars_GetListAdminExtension(control,changedsince=0)
 #endif
 	  }
 	}
+
+#if AR_EXPORT_VERSION < 3
+
+int 
+ars_NTDeregisterClient(user, password, filename)
+	char *		user
+	char *		password
+	char *		filename
+	CODE:
+	{
+	  NTStatusList status;
+	  int ret;
+	  RETVAL = 0;
+	  if(user && password && filename) {
+	    ret = NTDeregisterClient(user, password, filename, &status);
+	    if(!NTError(ret, status)) {
+	      RETVAL = 1;
+	    }
+	  }
+	}
+	OUTPUT:
+	RETVAL
+
+int
+ars_NTInitializationClient()
+	CODE:
+	{
+	  NTStatusList status;
+	  int ret;
+	  RETVAL = 0;
+	  ret = NTInitializationClient(&status);
+	  if(!NTError(ret, status)) {
+	    RETVAL = 1;
+	  }
+	}
+	OUTPUT:
+	RETVAL
+
+int
+ars_NTRegisterClient(user, password, filename)
+	char *		user
+	char *		password
+	char *		filename
+	CODE:
+	{
+	  NTStatusList status;
+	  int ret;
+	  RETVAL = 0;
+	  if(user && password && filename) {
+	    ret = NTRegisterClient(user, password, filename, &status);
+	    if(!NTError(ret, status)) {
+		RETVAL = 1;
+	    }
+	  }
+	}
+	OUTPUT:
+	RETVAL
+
+int
+ars_NTTerminationClient()
+	CODE:
+	{
+	  NTStatusList status;
+	  int ret;
+	  RETVAL = 0;
+	  ret = NTTerminationClient(&status);
+	  if(!NTError(ret, status)) {
+	    RETVAL = 1;
+	  }
+	}
+	OUTPUT:
+	RETVAL
+
+int
+ars_NTRegisterServer(serverHost, user, password)
+	char *		serverHost
+	char *		user
+	char *		password
+	CODE:
+	{
+	  NTStatusList status;
+	  int ret;
+	  RETVAL = 0;
+	  if(serverHost && user && password) {
+	    ret = NTRegisterServer(serverHost, user, password, &status);
+	    if(!NTError(ret, status)) {
+		RETVAL = 1;
+	    }
+	  }
+	}
+	OUTPUT:
+	RETVAL
+
+#else /* ARS3.x */
+
+int 
+ars_NTDeregisterClient(user, password, filename)
+	char *		user
+	char *		password
+	char *		filename
+	CODE:
+	{
+		croak("NTDeregisterClient() is only available in ARS2.x");
+	}
+	OUTPUT:
+	RETVAL
+
+int
+ars_NTInitializationClient()
+	CODE:
+	{
+		croak("NTInitializationClient() is only available in ARS2.x");
+	}
+	OUTPUT:
+	RETVAL
+
+int
+ars_NTRegisterClient(user, password, filename)
+	char *		user
+	char *		password
+	char *		filename
+	CODE:
+	{
+		croak("NTRegisterClient() is only available in ARS2.x");
+	}
+	OUTPUT:
+	RETVAL
+
+int
+ars_NTTerminationClient()
+	CODE:
+	{
+		croak("NTTerminationClient() is only available in ARS2.x");
+	}
+	OUTPUT:
+	RETVAL
+
+int
+ars_NTRegisterServer(serverHost, user, password, clientCommunication=2, clientPort, protocol=1, multipleClients=1)
+	char *		serverHost
+	char *		user
+	char *		password
+	unsigned int	clientCommunication
+	unsigned long	clientPort
+	unsigned int	protocol
+	int		multipleClients
+	CODE:
+	{
+	  NTStatusList status;
+	  int ret;
+	  RETVAL = 0;
+	  if(serverHost && user && password) {
+	    if(clientCommunication == NT_CLIENT_COMMUNICATION_SOCKET) {
+	      if(protocol == NT_PROTOCOL_TCP) {
+		ret = NTRegisterServer(serverHost, user, password, clientCommunication, clientPort, protocol, multipleClients, &status);
+		if(!NTError(ret, status)) {
+		   RETVAL = 1;
+		}
+	      }
+	    }
+	  }
+	}
+	OUTPUT:
+	RETVAL
+
+#endif /* if 2.x or 3.x */
+
+int 
+ars_NTTerminationServer()
+	CODE:
+	{
+	 int ret;
+	 NTStatusList status;
+	 RETVAL = 0;
+	 ret = NTTerminationServer(&status);
+	 if(!NTError(ret, status)) {
+	   RETVAL = 1;
+	 }
+	}
+	OUTPUT:
+	RETVAL
+
+
+int
+ars_NTDeregisterServer(serverHost, user, password)
+	char *		serverHost
+	char *		user
+	char *		password
+	CODE:
+	{
+	 int ret;
+	 NTStatusList status;
+	 RETVAL = 0; /* error */
+	 if(serverHost && user && password) {
+	    ret = NTDeregisterServer(serverHost, user, password, &status);
+	    if(!NTError(ret, status)) {
+		RETVAL = 1; /* success */
+	    }
+	 }
+	}
+	OUTPUT:
+	RETVAL
+
+void
+ars_NTGetListServer()
+	PPCODE:
+	{
+	  NTServerNameList serverList;
+	  NTStatusList status;
+	  int ret,i;
+	  ret = NTGetListServer(&serverList, &status);
+	  if(!NTError(ret, status)) {
+	     for(i=0; i<serverList.numItems; i++) {
+	        XPUSHs(sv_2mortal(newSVpv(serverList.nameList[i], 0)));
+	     }
+#ifndef WASTE_MEM
+	     FreeNTServerNameList(&serverList, FALSE);
+#endif
+	  }
+	}
+
+int
+ars_NTInitializationServer()
+	CODE:
+	{
+	  NTStatusList status;
+	  int ret;
+	  RETVAL = 0; /* error */
+	  ret = NTInitializationServer(&status);
+	  if(!NTError(ret, status)) {
+	     RETVAL = 1; /* success */
+	  }
+	}
+	OUTPUT:
+	RETVAL
+
+int
+ars_NTNotificationServer(serverHost, user, notifyText, notifyCode, notifyCodeText)
+	char *		serverHost
+	char *		user
+	char *		notifyText
+	int		notifyCode
+	char *		notifyCodeText
+	CODE:
+	{
+	  NTStatusList status;
+	  int ret;
+	  RETVAL = 0;
+	  if(serverHost && user && notifyText) {
+	     ret = NTNotificationServer(serverHost, user, notifyText, notifyCode, notifyCodeText, &status);
+	     if(!NTError(ret, status)) {
+		RETVAL = 1;
+	     }
+	  }
+	}
+	OUTPUT:
+	RETVAL
 

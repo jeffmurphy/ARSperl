@@ -1,5 +1,5 @@
 #
-#    ARSperl - An ARS2.0 / Perl5.0 Integration Kit
+#    ARSperl - An ARS2.0-3.x / Perl5.0 Integration Kit
 #
 #    Copyright (C) 1995 Joel Murphy, jmurphy@acsu.buffalo.edu
 #                       Jeff Murphy, jcmurphy@acsu.buffalo.edu
@@ -21,6 +21,9 @@
 #    Comments to: arsperl@smurfland.cit.buffalo.edu
 #
 # $Log: ARS.pm,v $
+# Revision 1.9  1997/02/13 15:06:43  jcmurphy
+# added NT* routines
+#
 # Revision 1.8  1996/11/21 20:03:42  jcmurphy
 # GetFilter(), GetServerStatistics(), GetCharMenu() added.
 # ARServerStats hash added to make using GetServerStatistics
@@ -56,7 +59,7 @@ require AutoLoader;
 require Config;
 
 @ISA = qw(Exporter DynaLoader);
-@EXPORT = qw(isa_int isa_float isa_string ars_LoadQualifier ars_Login ars_Logoff ars_GetListField ars_GetFieldByName ars_GetFieldTable ars_CreateEntry ars_DeleteEntry ars_GetEntry ars_GetListEntry ars_GetListSchema ars_GetListServer ars_GetActiveLink ars_GetCharMenuItems ars_GetSchema ars_GetField ars_simpleMenu ars_GetListActiveLink ars_SetEntry ars_perl_qualifier ars_Export ars_GetListFilter ars_GetListEscalation ars_GetListCharMenu ars_GetListAdminExtension ars_padEntryid ars_GetFilter ars_GetProfileInfo ars_Import ars_GetCharMenu ars_GetServerStatistics %ARServerStats);
+@EXPORT = qw(isa_int isa_float isa_string ars_LoadQualifier ars_Login ars_Logoff ars_GetListField ars_GetFieldByName ars_GetFieldTable ars_CreateEntry ars_DeleteEntry ars_GetEntry ars_GetListEntry ars_GetListSchema ars_GetListServer ars_GetActiveLink ars_GetCharMenuItems ars_GetSchema ars_GetField ars_simpleMenu ars_GetListActiveLink ars_SetEntry ars_perl_qualifier ars_Export ars_GetListFilter ars_GetListEscalation ars_GetListCharMenu ars_GetListAdminExtension ars_padEntryid ars_GetFilter ars_GetProfileInfo ars_Import ars_GetCharMenu ars_GetServerStatistics ars_NTDeregisterServer ars_NTGetListServer ars_NTInitializationServer ars_NTNotificationServer ars_NTTerminationServer ars_NTDeregisterClient ars_NTInitializationClient ars_NTRegisterClient ars_NTTerminationClient ars_NTRegisterServer %ARServerStats);
 
 bootstrap ARS;
 tie $main::ars_errstr, ARS::ERRORSTR;
