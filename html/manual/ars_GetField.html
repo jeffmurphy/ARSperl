@@ -4,7 +4,7 @@
 </HEAD>
 <BODY BGCOLOR="#FFFFFF">
 
-   <H2><CODE>ars_GetField(ctrl,schema,id)</CODE></H2>
+   <H2><CODE>ars_GetField(ctrl, schema, id)</CODE></H2>
 
       Returns a hash reference to information about a field. The hash
       will contain the following elements: <P>
@@ -14,6 +14,8 @@
              the field id of the field
         <DT> createMode <DD>
              will be one of: <I>open</I>, <I>protected</I>
+	<DT> permissions <DD>
+	     will be one of: <I>none</I>, <I>view</I>, <I>change</I>
         <DT> option <DD>
              
         <DT> dataType <DD>
@@ -64,5 +66,13 @@
 <P>
 
 <A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Back to Table of Contents </A>
+
+<p>
+
+<address>
+Last changes to this page 2 Nov 1997 by jeff murphy<P>
+&#169; J.C.Murphy, J.W.Murphy 1997 arsperl@smurfland.cit.buffalo.edu 
+</address>
+
 </BODY>
 </HTML>
