@@ -1,0 +1,46 @@
+<HTML>
+<HEAD>
+<TITLE>ARSperl Manual - ars_decodeStatusHistory</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+   <H2><CODE>ars_decodeStatusHistory($field_value)</CODE></H2>
+
+	Use this to decode the field value of the status history 
+	field. It will decode it into an array of hash references.
+	Each array element will correspond to the enumeration value
+	of the status field. Each hash reference will contain a
+	USER and TIME hash key. These correspond to the user and time
+	that the status field was last in a particular enumerated 
+	state. You can use ars_GetField() to map from labels (open,
+	held, closed, etc) to enumerations (0, 1, 2, etc)
+
+      <DL>
+         <DT><B>On success</B><DD>
+		Returns an array of hash references.
+         <DT><B>On failure</B><DD>
+                Returns undef.
+      </DL>
+
+      <P>Example:
+
+      <PRE>
+	$d = ars_decodeStatusHistory($fieldvalue);
+	# OPEN = 0;
+	print $d[0]->{USER}."\n";
+	print $d[0]->{TIME}."\n";
+      </PRE>
+
+<I>ars_decodeStatusHistory was introduced in version 1.52 of ARSperl</I>
+
+<P>
+<HR WIDTH="30%">
+<P>
+<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Table of Contents </A>
+<p>
+<address>
+Last changes to this page 14st July 1998 by jcmurphy@smurfland.cit.buffalo.edu<BR>
+&#169; J.C.Murphy, J.W.Murphy 1997 arsperl@smurfland.cit.buffalo.edu
+</address>
+</BODY>
+</HTML>
