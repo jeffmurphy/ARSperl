@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.7 1997/10/20 21:00:41 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.8 1997/11/04 18:16:04 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.7 1997/10/20 21:00:41 jcmu
     LOG:
 
 $Log: support.h,v $
+Revision 1.8  1997/11/04 18:16:04  jcmurphy
+1.5205: permissions list map
+
 Revision 1.7  1997/10/20 21:00:41  jcmurphy
 5203 beta. code cleanup. winnt additions. malloc/free
 debugging code.
@@ -103,6 +106,36 @@ typedef struct {
 } ars_ctrl;
 
 #define TYPEMAP_LAST 0xFFFFFFFFL
+
+struct TypeMapStruct {
+  unsigned int  number;
+  char         *name;
+};
+
+#define PERMTYPE_SCHEMA 0
+#define PERMTYPE_FIELD  1
+
+static struct {
+  unsigned int  number;
+  char         *name;
+} SchemaPermissionTypeMap[] = {
+  { AR_PERMISSIONS_NONE,    "none" },
+#if AR_EXPORT_VERSION >= 3
+  { AR_PERMISSIONS_VISIBLE, "visible" },
+  { AR_PERMISSIONS_HIDDEN,  "hidden" },
+#endif
+  { TYPEMAP_LAST, "" }
+};
+
+static struct {
+  unsigned int  number;
+  char         *name;
+} FieldPermissionTypeMap[] = {
+  { AR_PERMISSIONS_NONE,     "none" },
+  { AR_PERMISSIONS_VIEW,     "view" },
+  { AR_PERMISSIONS_CHANGE,   "change" },
+  { TYPEMAP_LAST, "" }
+};
 
 static struct {
   unsigned int  number;
@@ -336,7 +369,7 @@ EXTERN int          ARError_add(_AWPC_ unsigned int type, long num, char *text);
 EXTERN int          ARError(_AWPC_ int returncode, ARStatusList status);
 EXTERN int          NTError(_AWPC_ int returncode, NTStatusList status);
 
-EXTERN SV *perl_ARPermissionList(_AWPC_ ARPermissionList *in);
+EXTERN SV *perl_ARPermissionList(_AWPC_ ARPermissionList *in, int);
 EXTERN SV *perl_ARStatusStruct(_AWPC_ ARStatusStruct *);
 EXTERN SV *perl_ARInternalId(_AWPC_ ARInternalId *);
 EXTERN SV *perl_ARNameType(_AWPC_ ARNameType *);
@@ -390,7 +423,6 @@ EXTERN int ARGetFieldCached(_AWPC_ ARControlStruct *, ARNameType, ARInternalId,
 		     char **, ARTimestamp *,
 		     ARNameType, ARNameType, char **,
 		     ARStatusList *);
-EXTERN SV *perl_ARPermissionStruct(_AWPC_ ARPermissionStruct *);
 EXTERN int sv_to_ARValue(_AWPC_ SV *in, unsigned int dataType, ARValueStruct *out);
 #if AR_EXPORT_VERSION >= 3
 EXTERN SV *perl_ARPropStruct(_AWPC_ ARPropStruct *);
