@@ -7,19 +7,30 @@
    <H2><CODE>ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,...)</CODE></H2>
 
       This function is used to retrieve the list of <CODE>entry_id</CODE>s
-      and description strings from the specified schema.  The entries
-      are returned as an array of <I>(entry_id, short-description)</I> pairs. 
+      and description (query list) strings from the specified schema.  The entries
+      are returned as an array of <I>(entry_id, query-list)</I> pairs. 
       If you wish to retrieve all entries in the schema (upto the maximum
-      allowed, or maxRetrieve) you should load a Qualifier with something
+      allowed by the server or specified by you as the <CODE>maxRetrieve</CODE>
+      parameter) you should load a Qualifier with something
       like <CODE>(1 = 1)</CODE>. <P>
 
-      The "short-description" mentioned above is <I>not</I> the contents of
-      the "short-description" field in the schema. It is a concatenation
-      of a list of fields specified by the "Query List Fields" for this schema.
-      See <I>List_Entries.pl</I> for an example. <P>
+      <DL>
+       <DT><B>ARS3.x</B><DD>
+          In 3.x, the "..." in the above function can be one of two things:
+          <OL>
+            <LI> A Hash Reference that specifies what you want the 
+                 query list to look like, followed by (optionally) a list
+                 of field ids and sorting types to indicate how you want the
+                 query list sorted.
+            <LI> An optional list of field ids and sorting types to indicate
+                 how you want the schema's default query list to be sorted.
+          </OL>
+       <DT><B>ARS2.x</B><DD>
+          In 2.x, the "..." in the above function indicates 
+          an optional list of field ids and sorting type.
+      </DL>
 
-      An optional list of field ids and sorting type may be given after
-      maxRetrieve to specify the sorting order.  The sorting type can be
+      The sorting type can be
       1 for ascending, or 2 for descending.  Also, note that if you want to
       retain the order of the entry ids returned, then you must assign the
       list to an array, and not a hash. <P>
@@ -44,13 +55,33 @@
       }
       </PRE>
 
-      <P>Example of how to set sorting options:
+      <P>Example (2.x or 3.x) of how to set sorting options:
 
       <PRE>
       # returns entries for User schema sorted by login name
       $all = ars_LoadQualifier($c,"User","1=1");
       $login_name = ars_GetFieldByName($c,"User","Login Name");
       @a = ars_GetListEntry($c, "User", $all, 0, $login_name, 1);
+      for($i = 0 ; $i <= $#a ; $i += 2) {
+          $entry_id = $a[$i];
+          $query_list_text = $a[$i+1];
+      }
+      </PRE>
+
+      <P>Example (3.x only) of how to specify your own query list and sorting options:
+
+      <PRE>
+      $f = ars_GetFieldTable($ctrl, "User");
+      # retrieve list of matching records. query list should only
+      # contain the Login name and Full Name fields. In addtion, 
+      # query list should be reverse sorted by Login name.
+      @a = ars_GetListEntry($ctrl, "User", $qual, 0,
+                # getListFields
+	        [ {columnWidth=>5, separator=>' ', fieldId=>$f{'Login name'} },
+                  {columnWidth=>5, separator=>' ', fieldId=>$f{'Full Name'}  } 
+                ],
+                # sort Order
+                $f{'Login name'}, 1);
       </PRE>
 <P>
 
