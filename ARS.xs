@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.61 2000/02/04 16:20:44 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.62 2000/02/17 04:49:41 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -21,6 +21,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.61 2000/02/04 16:20:44 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.62  2000/02/17 04:49:41  jcmurphy
+ars_SetServerPort
+
 Revision 1.61  2000/02/04 16:20:44  jcmurphy
 *** empty log message ***
 
@@ -309,6 +312,33 @@ ars_APIVersion()
 	CODE:
 	{
 		RETVAL = AR_EXPORT_VERSION;
+	}
+	OUTPUT:
+	RETVAL
+
+int
+ars_SetServerPort(ctrl, name, port, progNum)
+	ARControlStruct *	ctrl
+	char *			name
+	int			port
+	int			progNum
+	CODE:
+	{
+		int 		ret;
+		ARStatusList	status;
+
+		RETVAL = 0;
+		Zero(&status, 1, ARStatusList);
+		(void) ARError_reset();
+#if AR_EXPORT_VERSION >= 4
+		ret = ARSetServerPort(ctrl, name, port, progNum, &status);
+		if (! ARError(ret, status)) {
+			RETVAL = 1;
+		}
+#else
+		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+		"ars_SetServerPort() is only available in ARS >= 4.x");
+#endif
 	}
 	OUTPUT:
 	RETVAL

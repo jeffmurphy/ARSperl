@@ -95,7 +95,7 @@ ars_GetListGroup ars_GetListSQL ars_GetListUser
 ars_GetListVUI ars_GetServerInfo ars_GetEntryBLOB
 ars_CreateActiveLink ars_CreateAdminExtension
 ars_GetControlStructFields ars_GetVUI
-ars_GetListContainer
+ars_GetListContainer ars_SetServerPort
 $ars_errstr %ARServerStats %ars_errhash
 ars_decodeStatusHistory ars_APIVersion
 );
