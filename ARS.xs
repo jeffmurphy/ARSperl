@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.24 1997/02/19 21:55:38 jmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.25 1997/02/19 22:39:28 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.24 1997/02/19 21:55:38 jmurphy Exp 
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.25  1997/02/19 22:39:28  jcmurphy
+fixed problem with bad free() in ars_Login
+
 Revision 1.24  1997/02/19 21:55:38  jmurphy
 fixed bug in perl_ARValueStruct
 
@@ -1734,14 +1737,15 @@ ars_Login(server,username,password)
 	char *		password
 	CODE:
 	{
-	  int ret;
+	  int ret, s_ok = 1;
 	  ARStatusList status;
 	  ARServerNameList serverList;
 	  ARControlStruct *ctrl;
 #ifdef PROFILE
 	  struct timeval tv;
 #endif
-	  
+
+	  RETVAL = NULL;	  
 	  /* this gets freed below in the ARControlStructPTR package */
 	  ctrl = (ARControlStruct *)mallocnn(sizeof(ars_ctrl));
 	  ((ars_ctrl *)ctrl)->queries = 0;
@@ -1772,14 +1776,15 @@ ars_Login(server,username,password)
 	      goto ar_login_end;
 	    }
 	    server = serverList.nameList[0];
+	    s_ok = 0;
 	  }
 	  strncpy(ctrl->server, server, sizeof(ctrl->server));
 	  ctrl->server[sizeof(ctrl->server)-1] = 0;
 	  RETVAL = ctrl;
 #ifndef WASTE_MEM
+	if(s_ok == 0)
 	  FreeARServerNameList(&serverList,FALSE);
 #endif
-	  goto ar_login_end;
 	ar_login_end:;
 	}
 	OUTPUT:
