@@ -211,6 +211,7 @@ html/manual/variables.html
 html/manual/ds_enumquerystruct.html
 html/manual/ds_enumitemstruct.html
 html/manual/ds_enumlimstruct.html
+html/manual/ds_attach_hash.html
 html/AddUsersToGroup.html
 html/DelUsersFromGroup.html
 html/DumpSetup.html
@@ -244,3 +245,4 @@ t/02export.t
 t/10alink.t
 t/10getescalation.t
 t/10getlist.t
+.#ARS.xs.1.92

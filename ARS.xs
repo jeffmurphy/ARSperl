@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.93 2003/07/03 18:33:25 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.94 2003/09/04 15:34:42 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -833,6 +833,9 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve=0,firstRetrieve=0,...)
 	
 	  (void) ARError_reset();
 	  Zero(&status, 1, ARStatusList);
+	  Zero(&entryList, 1, AREntryListList);
+	  Zero(&sortList, 1, ARSortList);
+
 	  if ((items - staticParams) % 2) {
 		/* odd number of arguments, so argument after maxRetrieve is
 		optional getListFields (an array of hash refs) */
