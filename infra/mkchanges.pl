@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/infra/mkchanges.pl,v 1.4 2000/08/31 05:18:41 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/infra/mkchanges.pl,v 1.5 2002/11/06 16:20:25 jcmurphy Exp $
 #
 # mkchanges.pl [-t] -f changes.dat
 #
@@ -182,6 +182,7 @@ sub headerHTML {
 <body bgcolor='white' text='black'><h2>Changes for ARSperl</h2>
  <table  border='0'>
  <tr><td>BM</td><td>=</td><td>Bill Middleton {wjm at metronet.com}</td></tr>
+ <tr><td>GDF</td><td>=</td><td>G. David Frye {gdf at uiuc.edu}</td></tr>
  <tr><td>JCM</td><td>=</td><td>Jeff Murphy {jcmurphy at buffalo.edu}</td></tr>
  <tr><td>JWM</td><td>=</td><td>Joel Murphy {jmurphy at buffalo.edu}</td></tr>
  </table>
@@ -206,6 +207,7 @@ sub headerTXT {
 Revision history for ARSperl.
 
 BM  = Bill Middleton <wjm at metronet.com>
+GDF = G. David Frye  <gdf at uiuc.edu>
 JCM = Jeff Murphy    <jcmurphy at buffalo.edu>
 JWM = Joel Murphy    <jmurphy at acsu.buffalo.edu>
 

@@ -1,3 +1,8 @@
+released=11/13/2002 version=1.74
+GDF added ars_GetMultipleEntries, ars_GetListEntryWithFields
+GDF remove unused num_entries parameter from ARGetListEntry
+JCM added ARTermination calls to ars_Login
+
 released=11/13/2001 version=1.73
 JCM fixed windows cpp error in support.c
 JCM fixed a leftover fprintf warning in support.c that was causing

@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.41 2001/11/13 14:24:09 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.42 2002/11/06 16:20:25 jcmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -25,7 +25,7 @@ $debug = 0;
 
 $ARSAPI     = "/usr/ar/api";
 #$ARSAPI     = "/u1/project/ARSperl/api/sol2/api4.5.2";
-#$ARSAPI     = "/u1/project/ARSperl/api/linux/4.5";
+$ARSAPI     = "/u1/project/ARSperl/api/linux/4.5";
 #$ARSAPI     = "/home/jcmurphy/arsperl/api/4.5";
 
 # STEP 2 -> Choose your version of ARS FROM THE FOLLOWING LIST
@@ -41,7 +41,7 @@ $ARSAPI     = "/usr/ar/api";
 #              your version (e.g. for 4.5 you would specify 4.0, NOT
 #	       4.52)
 #           
-$ARSVERSION = 4.52;
+$ARSVERSION = 4.0;
 
 
 
@@ -55,7 +55,7 @@ $WINDOWS = ($^O eq 'MSWin32');
 #        Windows NT: no "-lpthread"
 #        NCR UNIX: add "-lc -lnet"
 #                -DARSPDEBUG
-$AUTODEFINES = " -DARSPDEBUG  -DPROFILE -g ";
+$AUTODEFINES = " -DPROFILE -g ";
 $AUTODEFINES = "-D_WIN32" if($WINDOWS);
 
 if($ARSVERSION >= 4.0) {

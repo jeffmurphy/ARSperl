@@ -3,12 +3,23 @@ CHANGES for ARSperl
 Revision history for ARSperl.
 
 BM  = Bill Middleton <wjm at metronet.com>
+GDF = G. David Frye  <gdf at uiuc.edu>
 JCM = Jeff Murphy    <jcmurphy at buffalo.edu>
 JWM = Joel Murphy    <jmurphy at acsu.buffalo.edu>
 
 Note: items preceeded by a '!' denoted changes that are incompatible with
 previous versions of arsperl and may require altering of some arsperl
 scripts.
+
+
+Released: 11/13/2002 Version: 1.74
+
+
+(GDF)   added ars_GetMultipleEntries, ars_GetListEntryWithFields
+
+(GDF)   remove unused num_entries parameter from ARGetListEntry
+
+(JCM)   added ARTermination calls to ars_Login
 
 
 Released: 11/13/2001 Version: 1.73
@@ -571,5 +582,5 @@ Released: 01/12/96 Version: 1.0beta
 
 arsperl@arsperl.org
 
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.45 2001/11/13 14:25:22 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.46 2002/11/06 16:20:25 jcmurphy Exp $
 

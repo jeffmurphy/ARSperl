@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.79 2001/10/28 03:45:44 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.80 2002/11/06 16:20:25 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -242,6 +242,8 @@ ars_Login(server,username,password)
 
 		if(ARError(ret, status)) {
 			DBG( ("ARInitialization failed %d\n", ret) );
+			ARTermination(ctrl, &status);
+			ARError(ret, status);
 			safefree(ctrl);
 			goto ar_login_end;
 		}
@@ -255,6 +257,8 @@ ars_Login(server,username,password)
 	  		ret = ARGetListServer(&serverList, &status);
 #endif
 	  		if (ARError( ret, status)) {
+				ARTermination(ctrl, &status);
+				ARError(ret, status);
 	    			safefree(ctrl); /* invalid, cleanup */
 				DBG( ("ARGetListServer failed %d\n", ret) );
 	   			goto ar_login_end;
@@ -262,6 +266,8 @@ ars_Login(server,username,password)
 			status.numItems = 0;
 	  		if (serverList.numItems == 0) {
 	     			(void) ARError_add( AR_RETURN_ERROR, AP_ERR_NO_SERVERS);
+				ARTermination(ctrl, &status);
+				ARError(ret, status);
 	      			safefree(ctrl); /* invalid, cleanup */
 	      			goto ar_login_end;
 	    		}
@@ -278,6 +284,8 @@ ars_Login(server,username,password)
 	  	ret = ARVerifyUser(ctrl, NULL, NULL, NULL, &status);
 	  	if(ARError( ret, status)) {
 			DBG( ("ARVerifyUser failed %d\n", ret) );
+			ARTermination(ctrl, &status);
+			ARError(ret, status);
 			safefree(ctrl); /* invalid, cleanup */
 			RETVAL = NULL;
 	  	} else {
@@ -344,7 +352,7 @@ ars_GetCurrentServer(ctrl)
 	  RETVAL = NULL;
 	  (void) ARError_reset();
 	  if(ctrl && ctrl->server) {
-	    RETVAL = newSVpv(VNAME(ctrl->server));
+	    RETVAL = newSVpv( ctrl->server, strlen(ctrl->server) );
 	  } 
 	}
 	OUTPUT:
@@ -358,9 +366,9 @@ ars_GetProfileInfo(ctrl)
 	  RETVAL = newHV();
 	  (void) ARError_reset();
 #ifdef PROFILE
-	  hv_store(RETVAL, VNAME("queries"), 
+	  hv_store(RETVAL,  "queries", strlen("queries") , 
 	  	   newSViv(((ars_ctrl *)ctrl)->queries), 0);
-	  hv_store(RETVAL, VNAME("startTime"), 
+	  hv_store(RETVAL,  "startTime", strlen("startTime") , 
 		   newSViv(((ars_ctrl *)ctrl)->startTime), 0);
 #else /* profiling not compiled in */
 	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_OPT_NA, 
@@ -589,7 +597,7 @@ ars_CreateEntry(ctrl,schema,...)
 	    if(rv == 0)
 		RETVAL = newSVsv(&PL_sv_undef);
 	    else
-		RETVAL = newSVpv(VNAME(entryId));
+		RETVAL = newSVpv( entryId, strlen(entryId) );
 #ifndef WASTE_MEM
 	  safefree(fieldList.fieldValueList);
 #endif
@@ -799,7 +807,6 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,...)
 	  int              field_off = 4;
 	  ARSortList       sortList;
 	  AREntryListList  entryList;
-	  unsigned int     num_matches;
 	  ARStatusList     status;
 	  int              ret;
 #if AR_EXPORT_VERSION >= 3
@@ -826,7 +833,7 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,...)
 		    SvROK(*array_entry) &&
 		    SvTYPE(field_hash = (HV*)SvRV(*array_entry)) == SVt_PVHV) {
 		  /* get fieldId, columnWidth and separator from hash */
-		  if (! (hash_entry = hv_fetch(field_hash, VNAME("fieldId"), 0))) {
+		  if (! (hash_entry = hv_fetch(field_hash,  "fieldId", strlen("fieldId") , 0))) {
 		    (void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_LFLDS);
 #ifndef WASTE_MEM
 		      safefree(getListFields.fieldsList);
@@ -834,7 +841,7 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,...)
 		    goto getlistentry_end;
 		  }
 		  getListFields.fieldsList[i].fieldId = SvIV(*hash_entry);
-		  if (! (hash_entry = hv_fetch(field_hash, VNAME("columnWidth"), 0))) {
+		  if (! (hash_entry = hv_fetch(field_hash,  "columnWidth", strlen("columnWidth") , 0))) {
 		    (void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_LFLDS);
 #ifndef WASTE_MEM
 		      safefree(getListFields.fieldsList);
@@ -842,7 +849,7 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,...)
 		    goto getlistentry_end;
 		  }
 		  getListFields.fieldsList[i].columnWidth = SvIV(*hash_entry);
-		  if (! (hash_entry = hv_fetch(field_hash, VNAME("separator"), 0))) {
+		  if (! (hash_entry = hv_fetch(field_hash,  "separator", strlen("separator") , 0))) {
 		    (void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_LFLDS);
 #ifndef WASTE_MEM
 
@@ -878,9 +885,9 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,...)
 	    sortList.sortList[i].sortOrder = SvIV(ST(i*2+field_off+1));
 	  }
 #if AR_EXPORT_VERSION >= 3
-	  ret = ARGetListEntry(ctrl, schema, qualifier, getList, &sortList, maxRetrieve, &entryList, &num_matches, &status);
+	  ret = ARGetListEntry(ctrl, schema, qualifier, getList, &sortList, maxRetrieve, &entryList, NULL, &status);
 #else
-	  ret = ARGetListEntry(ctrl, schema, qualifier, &sortList, maxRetrieve, &entryList, &num_matches, &status);
+	  ret = ARGetListEntry(ctrl, schema, qualifier, &sortList, maxRetrieve, &entryList, NULL, &status);
 #endif
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
@@ -1099,56 +1106,56 @@ ars_GetActiveLink(ctrl,name)
 	  RETVAL = newHV();
 	  if (!ARError( ret,status)) {
 		/* store name of active link */
-		hv_store(RETVAL, VNAME("name"), newSVpv(name, 0), 0);
-		hv_store(RETVAL, VNAME("order"), newSViv(order),0);
+		hv_store(RETVAL,  "name", strlen("name") , newSVpv(name, 0), 0);
+		hv_store(RETVAL,  "order", strlen("order") , newSViv(order),0);
 #if AR_EXPORT_VERSION >= 5
-		hv_store(RETVAL, VNAME("schemaList"), /* WorkflowConnectStruct */
+		hv_store(RETVAL,  "schemaList", strlen("schemaList") , /* WorkflowConnectStruct */
 			perl_ARNameList(ctrl, schemaList.u.schemaList), 0);
-		hv_store(RETVAL, VNAME("objPropList"),
+		hv_store(RETVAL,  "objPropList", strlen("objPropList") ,
 			perl_ARPropList(ctrl, &objPropList), 0);
 #else
-		hv_store(RETVAL, VNAME("schema"), newSVpv(schema,0),0);
+		hv_store(RETVAL,  "schema", strlen("schema") , newSVpv(schema,0),0);
 #endif
-		hv_store(RETVAL, VNAME("groupList"),
+		hv_store(RETVAL,  "groupList", strlen("groupList") ,
 		     perl_ARList( ctrl, 
 				 (ARList *)&groupList,
 				 (ARS_fn)perl_ARInternalId,
 				 sizeof(ARInternalId)), 0);
-		hv_store(RETVAL, VNAME("executeMask"), newSViv(executeMask),0);
+		hv_store(RETVAL,  "executeMask", strlen("executeMask") , newSViv(executeMask),0);
 #if  AR_EXPORT_VERSION >= 3
-		hv_store(RETVAL, VNAME("focusField"), newSViv(focusField), 0);
-		hv_store(RETVAL, VNAME("controlField"), 
+		hv_store(RETVAL,  "focusField", strlen("focusField") , newSViv(focusField), 0);
+		hv_store(RETVAL,  "controlField", strlen("controlField") , 
 			newSViv(controlField), 0);
 #else
-		hv_store(RETVAL, VNAME("field"), newSViv(field), 0);
-		hv_store(RETVAL, VNAME("displayList"), 
+		hv_store(RETVAL,  "field", strlen("field") , newSViv(field), 0);
+		hv_store(RETVAL,  "displayList", strlen("displayList") , 
 		     perl_ARList( ctrl, 
 				 (ARList *)&displayList,
 				 (ARS_fn)perl_ARDisplayStruct,
 				 sizeof(ARDisplayStruct)), 0);
 #endif
-		hv_store(RETVAL, VNAME("enable"), newSViv(enable), 0);
+		hv_store(RETVAL,  "enable", strlen("enable") , newSViv(enable), 0);
 		/* a bit of a hack -- makes blessed reference to qualifier */
 		ref = newSViv(0);
 		sv_setref_pv(ref, "ARQualifierStructPtr", (void*)query);
-		hv_store(RETVAL, VNAME("query"), ref, 0);
-		hv_store(RETVAL, VNAME("actionList"),
+		hv_store(RETVAL,  "query", strlen("query") , ref, 0);
+		hv_store(RETVAL,  "actionList", strlen("actionList") ,
 		     perl_ARList(ctrl, 
 				 (ARList *)&actionList,
 				 (ARS_fn)perl_ARActiveLinkActionStruct,
 				 sizeof(ARActiveLinkActionStruct)), 0);
 #if  AR_EXPORT_VERSION >= 3
-		hv_store(RETVAL, VNAME("elseList"),
+		hv_store(RETVAL,  "elseList", strlen("elseList") ,
 		     perl_ARList(ctrl, 
 				 (ARList *)&elseList,
 				 (ARS_fn)perl_ARActiveLinkActionStruct,
 				 sizeof(ARActiveLinkActionStruct)), 0);
 #endif
 		if (helpText)
-			hv_store(RETVAL, VNAME("helpText"), newSVpv(helpText,0), 0);
-		hv_store(RETVAL, VNAME("timestamp"),  newSViv(timestamp), 0);
-		hv_store(RETVAL, VNAME("owner"), newSVpv(owner,0), 0);
-		hv_store(RETVAL, VNAME("lastChanged"), newSVpv(lastChanged,0), 0);
+			hv_store(RETVAL,  "helpText", strlen("helpText") , newSVpv(helpText,0), 0);
+		hv_store(RETVAL,  "timestamp", strlen("timestamp") ,  newSViv(timestamp), 0);
+		hv_store(RETVAL,  "owner", strlen("owner") , newSVpv(owner,0), 0);
+		hv_store(RETVAL,  "lastChanged", strlen("lastChanged") , newSVpv(lastChanged,0), 0);
 		if (changeDiary) {
 #if AR_EXPORT_VERSION >= 4
 			ret = ARDecodeDiary(ctrl, changeDiary, &diaryList, &status);
@@ -1156,7 +1163,7 @@ ars_GetActiveLink(ctrl,name)
 			ret = ARDecodeDiary(changeDiary, &diaryList, &status);
 #endif
 			if (!ARError(ret, status)) {
-				hv_store(RETVAL, VNAME("changeDiary"),
+				hv_store(RETVAL,  "changeDiary", strlen("changeDiary") ,
 					perl_ARList(ctrl, (ARList *)&diaryList,
 						    (ARS_fn)perl_diary,
 						    sizeof(ARDiaryStruct)), 0);
@@ -1276,39 +1283,39 @@ ars_GetFilter(ctrl,name)
 #endif
 	  RETVAL = newHV();
 	  if (!ARError( ret,status)) {
-	    hv_store(RETVAL, VNAME("name"), newSVpv(name, 0), 0);
-	    hv_store(RETVAL, VNAME("order"), newSViv(order), 0);
+	    hv_store(RETVAL,  "name", strlen("name") , newSVpv(name, 0), 0);
+	    hv_store(RETVAL,  "order", strlen("order") , newSViv(order), 0);
 #if AR_EXPORT_VERSION >= 5
-		hv_store(RETVAL, VNAME("schemaList"), /* WorkflowConnectStruct */
+		hv_store(RETVAL,  "schemaList", strlen("schemaList") , /* WorkflowConnectStruct */
 			perl_ARNameList(ctrl, schemaList.u.schemaList), 0);
-		hv_store(RETVAL, VNAME("objPropList"),
+		hv_store(RETVAL,  "objPropList", strlen("objPropList") ,
 			perl_ARPropList(ctrl, &objPropList), 0);
 #else
-	    hv_store(RETVAL, VNAME("schema"), newSVpv(schema, 0), 0);
+	    hv_store(RETVAL,  "schema", strlen("schema") , newSVpv(schema, 0), 0);
 #endif
-	    hv_store(RETVAL, VNAME("opSet"), newSViv(opSet), 0);
-	    hv_store(RETVAL, VNAME("enable"), newSViv(enable), 0);
+	    hv_store(RETVAL,  "opSet", strlen("opSet") , newSViv(opSet), 0);
+	    hv_store(RETVAL,  "enable", strlen("enable") , newSViv(enable), 0);
 	    /* a bit of a hack -- makes blessed reference to qualifier */
 	    ref = newSViv(0);
 	    sv_setref_pv(ref, "ARQualifierStructPtr", (void *)query);
-	    hv_store(RETVAL, VNAME("query"), ref, 0);
-	    hv_store(RETVAL, VNAME("actionList"), 
+	    hv_store(RETVAL,  "query", strlen("query") , ref, 0);
+	    hv_store(RETVAL,  "actionList", strlen("actionList") , 
 		     perl_ARList(ctrl, 
 				 (ARList *)&actionList,
 				 (ARS_fn)perl_ARFilterActionStruct,
 				 sizeof(ARFilterActionStruct)), 0);
 #if AR_EXPORT_VERSION >= 3
-	    hv_store(RETVAL, VNAME("elseList"),
+	    hv_store(RETVAL,  "elseList", strlen("elseList") ,
 		     perl_ARList(ctrl, 
 				 (ARList *)&elseList,
 				 (ARS_fn)perl_ARFilterActionStruct,
 				 sizeof(ARFilterActionStruct)), 0);
 #endif
 	    if(helpText)
-		hv_store(RETVAL, VNAME("helpText"), newSVpv(helpText, 0), 0);
-	    hv_store(RETVAL, VNAME("timestamp"), newSViv(timestamp), 0);
-	    hv_store(RETVAL, VNAME("owner"), newSVpv(owner, 0), 0);
-	    hv_store(RETVAL, VNAME("lastChanged"), newSVpv(lastChanged, 0), 0);
+		hv_store(RETVAL,  "helpText", strlen("helpText") , newSVpv(helpText, 0), 0);
+	    hv_store(RETVAL,  "timestamp", strlen("timestamp") , newSViv(timestamp), 0);
+	    hv_store(RETVAL,  "owner", strlen("owner") , newSVpv(owner, 0), 0);
+	    hv_store(RETVAL,  "lastChanged", strlen("lastChanged") , newSVpv(lastChanged, 0), 0);
 	    if (changeDiary) {
 #if AR_EXPORT_VERSION >= 4
 		ret = ARDecodeDiary(ctrl, changeDiary, &diaryList, &status);
@@ -1316,7 +1323,7 @@ ars_GetFilter(ctrl,name)
 		ret = ARDecodeDiary(changeDiary, &diaryList, &status);
 #endif
 		if (!ARError(ret, status)) {
-			hv_store(RETVAL, VNAME("changeDiary"),
+			hv_store(RETVAL,  "changeDiary", strlen("changeDiary") ,
 				perl_ARList(ctrl, (ARList *)&diaryList,
 				(ARS_fn)perl_diary,
 				sizeof(ARDiaryStruct)), 0);
@@ -1434,12 +1441,12 @@ ars_GetCharMenu(ctrl,name)
 	  ((ars_ctrl *)ctrl)->queries++;
 #endif
 	  if(!ARError( ret, status)) {
-		hv_store(RETVAL, VNAME("name"), newSVpv(name, 0), 0);
+		hv_store(RETVAL,  "name", strlen("name") , newSVpv(name, 0), 0);
 		if(helpText)
-			hv_store(RETVAL, VNAME("helpText"), newSVpv(helpText,0), 0);
-		hv_store(RETVAL, VNAME("timestamp"), newSViv(timestamp), 0);
-		hv_store(RETVAL, VNAME("owner"), newSVpv(owner, 0), 0);
-		hv_store(RETVAL, VNAME("lastChanged"), newSVpv(lastChanged, 0), 0);
+			hv_store(RETVAL,  "helpText", strlen("helpText") , newSVpv(helpText,0), 0);
+		hv_store(RETVAL,  "timestamp", strlen("timestamp") , newSViv(timestamp), 0);
+		hv_store(RETVAL,  "owner", strlen("owner") , newSVpv(owner, 0), 0);
+		hv_store(RETVAL,  "lastChanged", strlen("lastChanged") , newSVpv(lastChanged, 0), 0);
 	        if (changeDiary) {
 #if AR_EXPORT_VERSION >= 4
 			ret = ARDecodeDiary(ctrl, changeDiary, &diaryList, &status);
@@ -1447,7 +1454,7 @@ ars_GetCharMenu(ctrl,name)
 			ret = ARDecodeDiary(changeDiary, &diaryList, &status);
 #endif
 			if (!ARError(ret, status)) {
-				hv_store(RETVAL, VNAME("changeDiary"),
+				hv_store(RETVAL,  "changeDiary", strlen("changeDiary") ,
 					perl_ARList(ctrl, (ARList *)&diaryList,
 					(ARS_fn)perl_diary,
 					sizeof(ARDiaryStruct)), 0);
@@ -1458,51 +1465,51 @@ ars_GetCharMenu(ctrl,name)
 			if (CharMenuTypeMap[i].number == menuDefn.menuType)
 				break;
 		}
-		hv_store(RETVAL, VNAME("menuType"), 
+		hv_store(RETVAL,  "menuType", strlen("menuType") , 
 			   /* PRE-1.68: newSViv(menuDefn.menuType) */
-			newSVpv(VNAME(CharMenuTypeMap[i].name))
+			newSVpv( CharMenuTypeMap[i].name, strlen(CharMenuTypeMap[i].name) )
 			, 0);
-		hv_store(RETVAL, VNAME("refreshCode"), 
+		hv_store(RETVAL,  "refreshCode", strlen("refreshCode") , 
 			perl_MenuRefreshCode2Str(ctrl, refreshCode), 0);
 		switch(menuDefn.menuType) {
 		case AR_CHAR_MENU_QUERY:
-			hv_store(menuDef, VNAME("schema"), 
+			hv_store(menuDef,  "schema", strlen("schema") , 
 				newSVpv(menuDefn.u.menuQuery.schema, 0), 0);
-			hv_store(menuDef, VNAME("server"), 
+			hv_store(menuDef,  "server", strlen("server") , 
 				newSVpv(menuDefn.u.menuQuery.server, 0), 0);
-			hv_store(menuDef, VNAME("labelField"),
+			hv_store(menuDef,  "labelField", strlen("labelField") ,
 				newSViv(menuDefn.u.menuQuery.labelField), 0);
-			hv_store(menuDef, VNAME("valueField"),
+			hv_store(menuDef,  "valueField", strlen("valueField") ,
 				newSViv(menuDefn.u.menuQuery.valueField), 0);
-			hv_store(menuDef, VNAME("sortOnLabel"),
+			hv_store(menuDef,  "sortOnLabel", strlen("sortOnLabel") ,
 				newSViv(menuDefn.u.menuQuery.sortOnLabel), 0);
 			ref = newSViv(0);
 			sv_setref_pv(ref, "ARQualifierStructPtr", 
 				dup_qualifier(ctrl,
 					(void *)&(menuDefn.u.menuQuery.qualifier)));
-			hv_store(menuDef, VNAME("qualifier"), ref, 0);
-			hv_store(RETVAL, VNAME("menuQuery"), 
+			hv_store(menuDef,  "qualifier", strlen("qualifier") , ref, 0);
+			hv_store(RETVAL,  "menuQuery", strlen("menuQuery") , 
 				newRV_noinc((SV *)menuDef), 0);
 			break;
 		case AR_CHAR_MENU_FILE:
-			hv_store(menuDef, VNAME("fileLocation"), 
+			hv_store(menuDef,  "fileLocation", strlen("fileLocation") , 
 				newSViv(menuDefn.u.menuFile.fileLocation), 0);
-			hv_store(menuDef, VNAME("filename"), 
+			hv_store(menuDef,  "filename", strlen("filename") , 
 				newSVpv(menuDefn.u.menuFile.filename, 0), 0);
-			hv_store(RETVAL, VNAME("menuFile"),
+			hv_store(RETVAL,  "menuFile", strlen("menuFile") ,
 				newRV_noinc((SV *)menuDef), 0);
 			break;
 #ifndef ARS20
 		case AR_CHAR_MENU_SQL:
-			hv_store(menuDef, VNAME("server"), 
+			hv_store(menuDef,  "server", strlen("server") , 
 				newSVpv(menuDefn.u.menuSQL.server, 0), 0);
-			hv_store(menuDef, VNAME("sqlCommand"), 
+			hv_store(menuDef,  "sqlCommand", strlen("sqlCommand") , 
 				newSVpv(menuDefn.u.menuSQL.sqlCommand, 0), 0);
-			hv_store(menuDef, VNAME("labelIndex"), 
+			hv_store(menuDef,  "labelIndex", strlen("labelIndex") , 
 				newSViv(menuDefn.u.menuSQL.labelIndex), 0);
-			hv_store(menuDef, VNAME("valueIndex"), 
+			hv_store(menuDef,  "valueIndex", strlen("valueIndex") , 
 				newSViv(menuDefn.u.menuSQL.valueIndex), 0);
-			hv_store(RETVAL, VNAME("menuSQL"), 
+			hv_store(RETVAL,  "menuSQL", strlen("menuSQL") , 
 				newRV_noinc((SV *)menuDef), 0);
 			break;
 #endif
@@ -1605,35 +1612,35 @@ ars_GetSchema(ctrl,name)
 #endif
 	  if (!ARError( ret,status)) {
 #if AR_EXPORT_VERSION >= 5
-		hv_store(RETVAL, VNAME("objPropList"),
+		hv_store(RETVAL,  "objPropList", strlen("objPropList") ,
 			 perl_ARPropList(ctrl, &objPropList), 0);
 #endif
 #if AR_EXPORT_VERSION >= 3
-	    hv_store(RETVAL, VNAME("groupList"),
+	    hv_store(RETVAL,  "groupList", strlen("groupList") ,
 		     perl_ARPermissionList(ctrl, &groupList, PERMTYPE_SCHEMA), 0);
 #else
-	    hv_store(RETVAL, VNAME("groupList"),
+	    hv_store(RETVAL,  "groupList", strlen("groupList") ,
 		     perl_ARList(ctrl, (ARList *)&groupList, 
 				 (ARS_fn)perl_ARInternalId,
 				 sizeof(ARInternalId)),0);
 #endif
-	    hv_store(RETVAL, VNAME("adminList"),
+	    hv_store(RETVAL,  "adminList", strlen("adminList") ,
 		     perl_ARList(ctrl, (ARList *)&adminGroupList, 
 				 (ARS_fn)perl_ARInternalId,
 				 sizeof(ARInternalId)),0);
-	    hv_store(RETVAL, VNAME("getListFields"),
+	    hv_store(RETVAL,  "getListFields", strlen("getListFields") ,
 		     perl_ARList(ctrl, (ARList *)&getListFields,
 				 (ARS_fn)perl_AREntryListFieldStruct,
 				 sizeof(AREntryListFieldStruct)),0);
-	    hv_store(RETVAL, VNAME("indexList"),
+	    hv_store(RETVAL,  "indexList", strlen("indexList") ,
 		     perl_ARList(ctrl, (ARList *)&indexList,
 				 (ARS_fn)perl_ARIndexStruct,
 				 sizeof(ARIndexStruct)), 0);
 	    if (helpText)
-	      hv_store(RETVAL, VNAME("helpText"), newSVpv(helpText, 0), 0);
-	    hv_store(RETVAL, VNAME("timestamp"), newSViv(timestamp), 0);
-	    hv_store(RETVAL, VNAME("owner"), newSVpv(owner, 0), 0);
-	    hv_store(RETVAL, VNAME("lastChanged"),
+	      hv_store(RETVAL,  "helpText", strlen("helpText") , newSVpv(helpText, 0), 0);
+	    hv_store(RETVAL,  "timestamp", strlen("timestamp") , newSViv(timestamp), 0);
+	    hv_store(RETVAL,  "owner", strlen("owner") , newSVpv(owner, 0), 0);
+	    hv_store(RETVAL,  "lastChanged", strlen("lastChanged") ,
 		     newSVpv(lastChanged, 0), 0);
 	    if (changeDiary) {
 #if AR_EXPORT_VERSION >= 4
@@ -1642,7 +1649,7 @@ ars_GetSchema(ctrl,name)
 		ret = ARDecodeDiary(changeDiary, &diaryList, &status);
 #endif
 		if (!ARError(ret, status)) {
-			hv_store(RETVAL, VNAME("changeDiary"),
+			hv_store(RETVAL,  "changeDiary", strlen("changeDiary") ,
 				perl_ARList(ctrl, (ARList *)&diaryList,
 				(ARS_fn)perl_diary,
 				sizeof(ARDiaryStruct)), 0);
@@ -1650,9 +1657,9 @@ ars_GetSchema(ctrl,name)
 		}
 	    }
 #if AR_EXPORT_VERSION >= 3
-	    hv_store(RETVAL, VNAME("schema"), 
+	    hv_store(RETVAL,  "schema", strlen("schema") , 
 			perl_ARCompoundSchema(ctrl, &schema), 0);
-	    hv_store(RETVAL, VNAME("sortList"), 
+	    hv_store(RETVAL,  "sortList", strlen("sortList") , 
 			perl_ARSortList(ctrl, &sortList), 0);
 #endif
 #ifndef WASTE_MEM
@@ -1746,42 +1753,42 @@ ars_GetField(ctrl,schema,id)
 #endif
 	  if (! ARError( ret, Status)) {
 	    /* store field id for convenience */
-	    hv_store(RETVAL, VNAME("fieldId"), newSViv(id), 0);
+	    hv_store(RETVAL,  "fieldId", strlen("fieldId") , newSViv(id), 0);
 	    if (createMode == AR_FIELD_OPEN_AT_CREATE)
-	      hv_store(RETVAL, VNAME("createMode"), newSVpv("open",0), 0);
+	      hv_store(RETVAL,  "createMode", strlen("createMode") , newSVpv("open",0), 0);
 	    else
-	      hv_store(RETVAL, VNAME("createMode"),
+	      hv_store(RETVAL,  "createMode", strlen("createMode") ,
 		       newSVpv("protected",0), 0);
-	    hv_store(RETVAL, VNAME("option"), newSViv(option), 0);
-	    hv_store(RETVAL, VNAME("dataType"),
+	    hv_store(RETVAL,  "option", strlen("option") , newSViv(option), 0);
+	    hv_store(RETVAL,  "dataType", strlen("dataType") ,
 		     perl_dataType_names(ctrl, &dataType), 0);
-	    hv_store(RETVAL, VNAME("defaultVal"),
+	    hv_store(RETVAL,  "defaultVal", strlen("defaultVal") ,
 		     perl_ARValueStruct(ctrl, &defaultVal), 0);
 	    /* permissions below */
-	    hv_store(RETVAL, VNAME("limit"), 
+	    hv_store(RETVAL,  "limit", strlen("limit") , 
 		     perl_ARFieldLimitStruct(ctrl, &limit), 0);
 #if AR_EXPORT_VERSION >= 3
-	    hv_store(RETVAL, VNAME("fieldName"), 
+	    hv_store(RETVAL,  "fieldName", strlen("fieldName") , 
 		     newSVpv(fieldName, 0), 0);
-	    hv_store(RETVAL, VNAME("fieldMap"),
+	    hv_store(RETVAL,  "fieldMap", strlen("fieldMap") ,
 		     perl_ARFieldMappingStruct(ctrl, &fieldMap), 0);
-	    hv_store(RETVAL, VNAME("displayInstanceList"),
+	    hv_store(RETVAL,  "displayInstanceList", strlen("displayInstanceList") ,
 		     perl_ARDisplayInstanceList(ctrl, &displayList), 0);
 #else
-	    hv_store(RETVAL, VNAME("displayList"), 
+	    hv_store(RETVAL,  "displayList", strlen("displayList") , 
 		     perl_ARList(ctrl, 
 				 (ARList *)&displayList,
 				 (ARS_fn)perl_ARDisplayStruct,
 				 sizeof(ARDisplayStruct)), 0);
 #endif
 	    if (helpText)
-	      hv_store(RETVAL, VNAME("helpText"),
+	      hv_store(RETVAL,  "helpText", strlen("helpText") ,
 		       newSVpv(helpText, 0), 0);
-	    hv_store(RETVAL, VNAME("timestamp"), 
+	    hv_store(RETVAL,  "timestamp", strlen("timestamp") , 
 		     newSViv(timestamp), 0);
-	    hv_store(RETVAL, VNAME("owner"),
+	    hv_store(RETVAL,  "owner", strlen("owner") ,
 		     newSVpv(owner, 0), 0);
-	    hv_store(RETVAL, VNAME("lastChanged"),
+	    hv_store(RETVAL,  "lastChanged", strlen("lastChanged") ,
 		     newSVpv(lastChanged, 0), 0);
 	    if (changeDiary) {
 #if AR_EXPORT_VERSION >= 4
@@ -1790,7 +1797,7 @@ ars_GetField(ctrl,schema,id)
 		ret = ARDecodeDiary(changeDiary, &diaryList, &Status);
 #endif
 		if (!ARError(ret, Status)) {
-			hv_store(RETVAL, VNAME("changeDiary"),
+			hv_store(RETVAL,  "changeDiary", strlen("changeDiary") ,
 				perl_ARList(ctrl, (ARList *)&diaryList,
 				(ARS_fn)perl_diary,
 				sizeof(ARDiaryStruct)), 0);
@@ -1820,7 +1827,7 @@ ars_GetField(ctrl,schema,id)
 	    ((ars_ctrl *)ctrl)->queries++;
 #endif
 	    if (ret == 0) {
-	      hv_store(RETVAL, VNAME("permissions"), 
+	      hv_store(RETVAL,  "permissions", strlen("permissions") , 
 		       perl_ARPermissionList(ctrl, &permissions, PERMTYPE_FIELD), 0);
 #ifndef WASTE_MEM
 	      FreeARPermissionList(&permissions,FALSE);
@@ -2548,18 +2555,18 @@ ars_GetAdminExtension(ctrl, name)
 	 ((ars_ctrl *)ctrl)->queries++;
 #endif
 	 if(!ARError( ret, status)) {
-	  	hv_store(RETVAL, VNAME("name"), newSVpv(name, 0), 0);
-		hv_store(RETVAL, VNAME("groupList"),
+	  	hv_store(RETVAL,  "name", strlen("name") , newSVpv(name, 0), 0);
+		hv_store(RETVAL,  "groupList", strlen("groupList") ,
 			perl_ARList(ctrl,
 				    (ARList *)&groupList, 
 				    (ARS_fn)perl_ARInternalId,
 				    sizeof(ARInternalId)), 0);
-		hv_store(RETVAL, VNAME("command")  , newSVpv(command, 0), 0);
-		hv_store(RETVAL, VNAME("timestamp"), newSViv(timestamp), 0);
-		hv_store(RETVAL, VNAME("owner")    , newSVpv(owner, 0), 0);
-		hv_store(RETVAL, VNAME("lastChanged"), newSVpv(lastChanged, 0), 0);
+		hv_store(RETVAL,  "command", strlen("command")   , newSVpv(command, 0), 0);
+		hv_store(RETVAL,  "timestamp", strlen("timestamp") , newSViv(timestamp), 0);
+		hv_store(RETVAL,  "owner", strlen("owner")     , newSVpv(owner, 0), 0);
+		hv_store(RETVAL,  "lastChanged", strlen("lastChanged") , newSVpv(lastChanged, 0), 0);
 	        if(helpText)
-		   hv_store(RETVAL, VNAME("helpText") , newSVpv(helpText, 0), 0);
+		   hv_store(RETVAL,  "helpText", strlen("helpText")  , newSVpv(helpText, 0), 0);
 	        if (changeDiary) {
 #if AR_EXPORT_VERSION >= 4
 			ret = ARDecodeDiary(ctrl, changeDiary, &diaryList, &status);
@@ -2567,7 +2574,7 @@ ars_GetAdminExtension(ctrl, name)
 			ret = ARDecodeDiary(changeDiary, &diaryList, &status);
 #endif
 			if (!ARError(ret, status)) {
-				hv_store(RETVAL, VNAME("changeDiary"),
+				hv_store(RETVAL,  "changeDiary", strlen("changeDiary") ,
 					perl_ARList(ctrl, (ARList *)&diaryList,
 					(ARS_fn)perl_diary,
 					sizeof(ARDiaryStruct)), 0);
@@ -2644,21 +2651,21 @@ ars_GetEscalation(ctrl, name)
 	  ((ars_ctrl *)ctrl)->queries++;
 #endif
 	  if(!ARError( ret, status)) {
-	     hv_store(RETVAL, VNAME("name"), newSVpv(name, 0), 0);
+	     hv_store(RETVAL,  "name", strlen("name") , newSVpv(name, 0), 0);
 #if AR_EXPORT_VERSION >= 5
-		hv_store(RETVAL, VNAME("schemaList"), /* WorkflowConnectStruct */
+		hv_store(RETVAL,  "schemaList", strlen("schemaList") , /* WorkflowConnectStruct */
 			perl_ARNameList(ctrl, schemaList.u.schemaList), 0);
-		hv_store(RETVAL, VNAME("objPropList"),
+		hv_store(RETVAL,  "objPropList", strlen("objPropList") ,
 			perl_ARPropList(ctrl, &objPropList), 0);
 #else
-	     hv_store(RETVAL, VNAME("schema"), newSVpv(schema, 0), 0);
+	     hv_store(RETVAL,  "schema", strlen("schema") , newSVpv(schema, 0), 0);
 #endif
-	     hv_store(RETVAL, VNAME("enable"), newSViv(enable), 0);
-	     hv_store(RETVAL, VNAME("timestamp"), newSViv(timestamp), 0);
+	     hv_store(RETVAL,  "enable", strlen("enable") , newSViv(enable), 0);
+	     hv_store(RETVAL,  "timestamp", strlen("timestamp") , newSViv(timestamp), 0);
 	     if(helpText)
-	        hv_store(RETVAL, VNAME("helpText"), newSVpv(helpText, 0), 0);
-	     hv_store(RETVAL, VNAME("owner"), newSVpv(owner, 0), 0);
-	     hv_store(RETVAL, VNAME("lastChanged"), newSVpv(lastChanged, 0), 0);
+	        hv_store(RETVAL,  "helpText", strlen("helpText") , newSVpv(helpText, 0), 0);
+	     hv_store(RETVAL,  "owner", strlen("owner") , newSVpv(owner, 0), 0);
+	     hv_store(RETVAL,  "lastChanged", strlen("lastChanged") , newSVpv(lastChanged, 0), 0);
 	     if (changeDiary) {
 #if AR_EXPORT_VERSION >= 4
 		ret = ARDecodeDiary(ctrl, changeDiary, &diaryList, &status);
@@ -2666,7 +2673,7 @@ ars_GetEscalation(ctrl, name)
 		ret = ARDecodeDiary(changeDiary, &diaryList, &status);
 #endif
 		if (!ARError(ret, status)) {
-			hv_store(RETVAL, VNAME("changeDiary"),
+			hv_store(RETVAL,  "changeDiary", strlen("changeDiary") ,
 				perl_ARList(ctrl, 
 				(ARList *)&diaryList,
 				(ARS_fn)perl_diary,
@@ -2676,34 +2683,34 @@ ars_GetEscalation(ctrl, name)
 	     }
 	     ref = newSViv(0);
 	     sv_setref_pv(ref, "ARQualifierStructPtr", (void *)query);
-	     hv_store(RETVAL, VNAME("query"), ref, 0);
-	     hv_store(RETVAL, VNAME("actionList"),
+	     hv_store(RETVAL,  "query", strlen("query") , ref, 0);
+	     hv_store(RETVAL,  "actionList", strlen("actionList") ,
 			perl_ARList(ctrl,
 				(ARList *)&actionList,
 				(ARS_fn)perl_ARFilterActionStruct,
 				sizeof(ARFilterActionStruct)), 0);
 #if AR_EXPORT_VERSION >= 3
-	     hv_store(RETVAL, VNAME("elseList"), 
+	     hv_store(RETVAL,  "elseList", strlen("elseList") , 
 			perl_ARList( ctrl,
 				(ARList *)&elseList,
 				(ARS_fn)perl_ARFilterActionStruct,
 				sizeof(ARFilterActionStruct)), 0);
 #endif
-	     hv_store(RETVAL, VNAME("TmType"), 
+	     hv_store(RETVAL,  "TmType", strlen("TmType") , 
 			newSViv(escalationTm.escalationTmType), 0);
 	     switch(escalationTm.escalationTmType) {
 	     case AR_ESCALATION_TYPE_INTERVAL:
-		hv_store(RETVAL, VNAME("TmInterval"), 
+		hv_store(RETVAL,  "TmInterval", strlen("TmInterval") , 
 			newSViv(escalationTm.u.interval), 0);
 		break;
 	     case AR_ESCALATION_TYPE_TIMEMARK:
-		hv_store(RETVAL, VNAME("TmMonthDayMask"),
+		hv_store(RETVAL,  "TmMonthDayMask", strlen("TmMonthDayMask") ,
 			newSViv(escalationTm.u.date.monthday), 0);
-		hv_store(RETVAL, VNAME("TmWeekDayMask"),
+		hv_store(RETVAL,  "TmWeekDayMask", strlen("TmWeekDayMask") ,
 			newSViv(escalationTm.u.date.weekday), 0);
-		hv_store(RETVAL, VNAME("TmHourMask"),
+		hv_store(RETVAL,  "TmHourMask", strlen("TmHourMask") ,
 			newSViv(escalationTm.u.date.hourmask), 0);
-		hv_store(RETVAL, VNAME("TmMinute"),
+		hv_store(RETVAL,  "TmMinute", strlen("TmMinute") ,
 			newSViv(escalationTm.u.date.minute), 0);
 		break;
 	     }
@@ -2759,25 +2766,25 @@ ars_GetFullTextInfo(ctrl)
 		      av_push(a, perl_ARValueStruct(ctrl,
 			&(fullTextInfo.fullTextInfoList[i].u.valueList.valueList[v])));
 		   }
-		   hv_store(RETVAL, VNAME("StopWords"), newRV_noinc((SV *)a), 0);
+		   hv_store(RETVAL,  "StopWords", strlen("StopWords") , newRV_noinc((SV *)a), 0);
 		   break;
 		case AR_FULLTEXTINFO_CASE_SENSITIVE_SRCH:
-		   hv_store(RETVAL, VNAME("CaseSensitive"),
+		   hv_store(RETVAL,  "CaseSensitive", strlen("CaseSensitive") ,
 			    perl_ARValueStruct(ctrl,
 				&(fullTextInfo.fullTextInfoList[i].u.value)), 0);
 		   break;
 		case AR_FULLTEXTINFO_COLLECTION_DIR:
-		   hv_store(RETVAL, VNAME("CollectionDir"),
+		   hv_store(RETVAL,  "CollectionDir", strlen("CollectionDir") ,
 			    perl_ARValueStruct(ctrl,
 				&(fullTextInfo.fullTextInfoList[i].u.value)), 0);
 		   break;
 		case AR_FULLTEXTINFO_FTS_MATCH_OP:
-		   hv_store(RETVAL, VNAME("MatchOp"),
+		   hv_store(RETVAL,  "MatchOp", strlen("MatchOp") ,
 			    perl_ARValueStruct(ctrl,
 				&(fullTextInfo.fullTextInfoList[i].u.value)), 0);
 		   break;
 		case AR_FULLTEXTINFO_STATE:
-		   hv_store(RETVAL, VNAME("State"),
+		   hv_store(RETVAL,  "State", strlen("State") ,
 			    perl_ARValueStruct(ctrl,
 				&(fullTextInfo.fullTextInfoList[i].u.value)), 0);
 		   break;
@@ -2822,9 +2829,9 @@ ars_GetListGroup(ctrl, userName=NULL)
 		av_push(gnameListList, newRV_noinc((SV *)gnameList));
 	    }
 
-	    hv_store(RETVAL, VNAME("groupId"), newRV_noinc((SV *)gidList), 0);
-	    hv_store(RETVAL, VNAME("groupType"), newRV_noinc((SV *)gtypeList), 0);
-	    hv_store(RETVAL, VNAME("groupName"), newRV_noinc((SV *)gnameListList), 0);
+	    hv_store(RETVAL,  "groupId", strlen("groupId") , newRV_noinc((SV *)gidList), 0);
+	    hv_store(RETVAL,  "groupType", strlen("groupType") , newRV_noinc((SV *)gtypeList), 0);
+	    hv_store(RETVAL,  "groupName", strlen("groupName") , newRV_noinc((SV *)gnameListList), 0);
 #ifndef WASTE_MEM
 	    FreeARGroupInfoList(&groupList, FALSE);
 #endif
@@ -2859,7 +2866,7 @@ ars_GetListSQL(ctrl, sqlCommand, maxRetrieve=AR_NO_MAX_LIST_RETRIEVE)
 	     AV  *ra = newAV(), *ca;
 	     RETVAL = newHV();
 
-	     hv_store(RETVAL, VNAME("numMatches"), newSViv(numMatches), 0);
+	     hv_store(RETVAL,  "numMatches", strlen("numMatches") , newSViv(numMatches), 0);
 	     for(row = 0; row < valueListList.numItems ; row++) {
 		ca = newAV();
 		for(col = 0; col < valueListList.valueListList[row].numItems;
@@ -2870,7 +2877,7 @@ ars_GetListSQL(ctrl, sqlCommand, maxRetrieve=AR_NO_MAX_LIST_RETRIEVE)
 		}
 		av_push(ra, newRV_noinc((SV *)ca));
 	     }
-	     hv_store(RETVAL, VNAME("rows"), newRV_noinc((SV *)ra), 0);
+	     hv_store(RETVAL,  "rows", strlen("rows") , newRV_noinc((SV *)ra), 0);
 #ifndef WASTE_MEM
 	     FreeARValueListList(&valueListList, FALSE);
 #endif
@@ -2909,15 +2916,15 @@ ars_GetListUser(ctrl, userListType=AR_USER_LIST_MYSELF)
 		   *licenseType        = newAV(),
 		   *currentLicenseType = newAV();
 
-	        hv_store(userInfo, VNAME("userName"), 
+	        hv_store(userInfo,  "userName", strlen("userName") , 
 			newSVpv(userList.userList[i].userName, 0), 0);
-		hv_store(userInfo, VNAME("connectTime"),
+		hv_store(userInfo,  "connectTime", strlen("connectTime") ,
 			newSViv(userList.userList[i].connectTime), 0);
-		hv_store(userInfo, VNAME("lastAccess"),
+		hv_store(userInfo,  "lastAccess", strlen("lastAccess") ,
 			newSViv(userList.userList[i].lastAccess), 0);
-		hv_store(userInfo, VNAME("defaultNotifyMech"),
+		hv_store(userInfo,  "defaultNotifyMech", strlen("defaultNotifyMech") ,
 			newSViv(userList.userList[i].defaultNotifyMech), 0);
-		hv_store(userInfo, VNAME("emailAddr"),
+		hv_store(userInfo,  "emailAddr", strlen("emailAddr") ,
 			newSVpv(userList.userList[i].emailAddr, 0), 0);
 
 		for(j = 0; j < userList.userList[i].licenseInfo.numItems; j++) {
@@ -2925,9 +2932,9 @@ ars_GetListUser(ctrl, userListType=AR_USER_LIST_MYSELF)
 		   av_push(licenseType, newSViv(userList.userList[i].licenseInfo.licenseList[j].licenseType));
 		   av_push(currentLicenseType, newSViv(userList.userList[i].licenseInfo.licenseList[j].currentLicenseType));
 		}
-		hv_store(userInfo, VNAME("licenseTag"), newRV_noinc((SV *)licenseTag), 0);
-		hv_store(userInfo, VNAME("licenseType"), newRV_noinc((SV *)licenseType), 0);
-		hv_store(userInfo, VNAME("currentLicenseType"), newRV_noinc((SV *)currentLicenseType), 0);
+		hv_store(userInfo,  "licenseTag", strlen("licenseTag") , newRV_noinc((SV *)licenseTag), 0);
+		hv_store(userInfo,  "licenseType", strlen("licenseType") , newRV_noinc((SV *)licenseType), 0);
+		hv_store(userInfo,  "currentLicenseType", strlen("currentLicenseType") , newRV_noinc((SV *)currentLicenseType), 0);
 	        XPUSHs(sv_2mortal(newRV_noinc((SV *)userInfo)));
 	     }
 #ifndef WASTE_MEM
@@ -3116,13 +3123,13 @@ ars_GetVUI(ctrl, schema, vuiId)
 	  ((ars_ctrl *)ctrl)->queries++;
 #endif
 	  if(!ARError( ret, status)) {
-	     hv_store(RETVAL, VNAME("schema"), newSVpv(schema, 0), 0);
-	     hv_store(RETVAL, VNAME("vuiId"), newSViv(vuiId), 0);
-	     hv_store(RETVAL, VNAME("vuiName"), newSVpv(vuiName, 0), 0);
-	     hv_store(RETVAL, VNAME("owner"), newSVpv(owner, 0), 0);
+	     hv_store(RETVAL,  "schema", strlen("schema") , newSVpv(schema, 0), 0);
+	     hv_store(RETVAL,  "vuiId", strlen("vuiId") , newSViv(vuiId), 0);
+	     hv_store(RETVAL,  "vuiName", strlen("vuiName") , newSVpv(vuiName, 0), 0);
+	     hv_store(RETVAL,  "owner", strlen("owner") , newSVpv(owner, 0), 0);
 	     if(helpText)
-	        hv_store(RETVAL, VNAME("helpText"), newSVpv(helpText, 0), 0);
-	     hv_store(RETVAL, VNAME("lastChanged"), newSVpv(lastChanged, 0), 0);
+	        hv_store(RETVAL,  "helpText", strlen("helpText") , newSVpv(helpText, 0), 0);
+	     hv_store(RETVAL,  "lastChanged", strlen("lastChanged") , newSVpv(lastChanged, 0), 0);
 	     if (changeDiary) {
 #if AR_EXPORT_VERSION >= 4
 		ret = ARDecodeDiary(ctrl, changeDiary, &diaryList, &status);
@@ -3130,7 +3137,7 @@ ars_GetVUI(ctrl, schema, vuiId)
 		ret = ARDecodeDiary(changeDiary, &diaryList, &status);
 #endif
 		if (!ARError(ret, status)) {
-			hv_store(RETVAL, VNAME("changeDiary"),
+			hv_store(RETVAL,  "changeDiary", strlen("changeDiary") ,
 				perl_ARList(ctrl,
 				(ARList *)&diaryList,
 				(ARS_fn)perl_diary,
@@ -3138,8 +3145,8 @@ ars_GetVUI(ctrl, schema, vuiId)
 			FreeARDiaryList(&diaryList, FALSE);
 		}
 	     }
-	     hv_store(RETVAL, VNAME("timestamp"), newSViv(timestamp), 0);
-	     hv_store(RETVAL, VNAME("props"),
+	     hv_store(RETVAL,  "timestamp", strlen("timestamp") , newSViv(timestamp), 0);
+	     hv_store(RETVAL,  "props", strlen("props") ,
 		perl_ARList( ctrl,
 			    (ARList *)&dPropList,
 			    (ARS_fn)perl_ARPropStruct,
@@ -3223,17 +3230,17 @@ ars_CreateAdminExtension(ctrl, aeDefRef)
 		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_EXPECT_PVHV);
 	  } else {
 		HV *aeDef = (HV *)SvRV(aeDefRef);
-		if(hv_exists(aeDef, VNAME("name")) &&
-		   hv_exists(aeDef, VNAME("groupList")) &&
-		   hv_exists(aeDef, VNAME("command"))) {
+		if(hv_exists(aeDef,  "name", strlen("name") ) &&
+		   hv_exists(aeDef,  "groupList", strlen("groupList") ) &&
+		   hv_exists(aeDef,  "command", strlen("command") )) {
 
 		   rv += strcpyHVal( aeDef, "name", name, sizeof(ARNameType));
 		   rv += strmakHVal( aeDef, "command", &command);
-		   if(hv_exists(aeDef, VNAME("helpText"))) 
+		   if(hv_exists(aeDef,  "helpText", strlen("helpText") )) 
 			rv += strmakHVal( aeDef, "helpText", &helpText);
-		   if(hv_exists(aeDef, VNAME("changeDiary"))) 
+		   if(hv_exists(aeDef,  "changeDiary", strlen("changeDiary") )) 
 			rv += strmakHVal( aeDef, "changeDiary", &changeDiary);
-		   if(hv_exists(aeDef, VNAME("owner"))) 
+		   if(hv_exists(aeDef,  "owner", strlen("owner") )) 
 			rv += strcpyHVal( aeDef, "owner", owner, 
 					sizeof(ARNameType));
 		   else
@@ -3314,7 +3321,7 @@ ars_CreateActiveLink(ctrl, alDefRef)
 	  } else {
 		HV *alDef = (HV *)SvRV(alDefRef);
 		int rv2;
-		SV **qhv = hv_fetch(alDef, VNAME("query"), 0);
+		SV **qhv = hv_fetch(alDef,  "query", strlen("query") , 0);
 
 		/* dereference the qual pointer */
 
@@ -3335,7 +3342,7 @@ ars_CreateActiveLink(ctrl, alDefRef)
 		rv += uintcpyHVal( alDef, "executeMask", &executeMask);
 		rv += uintcpyHVal( alDef, "enable", &enable);
 
-		if(hv_exists(alDef, VNAME("owner")))
+		if(hv_exists(alDef,  "owner", strlen("owner") ))
 			rv += strcpyHVal( alDef, "owner", owner, 
 					sizeof(ARNameType));
 		else
@@ -3346,9 +3353,9 @@ ars_CreateActiveLink(ctrl, alDefRef)
 		 * we'll ignore it unless an actual failure code is returned.
 		 */
 
-		if(hv_exists(alDef, VNAME("changeDiary")))
+		if(hv_exists(alDef,  "changeDiary", strlen("changeDiary") ))
 			rv += strmakHVal( alDef, "changeDiary", &changeDiary);
-		if(hv_exists(alDef, VNAME("helpText")))
+		if(hv_exists(alDef,  "helpText", strlen("helpText") ))
 			rv += strmakHVal( alDef, "helpText", &helpText);
 
 		/* now handle the action & else (3.x) lists */
@@ -3356,7 +3363,7 @@ ars_CreateActiveLink(ctrl, alDefRef)
 		rv += rev_ARActiveLinkActionList(ctrl, alDef, "actionList", 
 						&actionList);
 #if AR_EXPORT_VERSION >= 5
-		if(hv_exists(alDef, VNAME("objPropList")))
+		if(hv_exists(alDef,  "objPropList", strlen("objPropList") ))
 			rv += rev_ARPropList(ctrl, alDef, "objPropList",
 					     &objPropList);
 #endif
@@ -3499,6 +3506,265 @@ ars_MergeEntry(ctrl, schema, mergeType, ...)
 	}
 	OUTPUT:
 	RETVAL
+
+void
+ars_GetMultipleEntries(ctrl,schema,...)
+	ARControlStruct *       ctrl
+	char *                  schema
+	PPCODE:
+	{
+#if AR_EXPORT_VERSION >= 4
+	int               c = items - 3, i, ret;
+	AREntryIdListList entryList;
+	ARInternalIdList  idList;
+	ARFieldValueListList  fieldList;
+	ARBooleanList     existList;
+	ARStatusList      status;
+	SV              **fetch_entry;
+	AV               *input_list;
+	AV               *entryList_array;
+
+	entryList.entryIdList = NULL;
+	idList.internalIdList = NULL;
+	fieldList.valueListList = NULL;
+	existList.booleanList = NULL;
+	(void) ARError_reset();
+	Zero(&status, 1, ARStatusList);
+	/*
+	 * build list of field Id's
+	 */
+	if (c < 1) {
+		idList.numItems = 0; /* get all fields */
+	} else {
+		idList.numItems = c;
+		idList.internalIdList = MALLOCNN(sizeof(ARInternalId) * c);
+		for (i=0; i<c; i++)
+			idList.internalIdList[i] = SvIV(ST(i+3));
+	}
+	/*
+	 * build list of entry Id's
+	 */
+	if ( SvROK(ST(2)) &&
+		(entryList_array = (AV *)SvRV(ST(2))) &&
+		(SvTYPE(entryList_array) == SVt_PVAV) ) {
+
+		entryList.numItems = av_len(entryList_array) + 1;
+		/* Newz(777,entryList.entryIdList,entryList.numItems,AREntryIdList); */
+		entryList.entryIdList = 
+			MALLOCNN( entryList.numItems * sizeof(AREntryIdList) );
+
+		for (i=0; i<entryList.numItems; i++) {
+			SV **array_entry;
+			if (! (array_entry = av_fetch(entryList_array, i, 0))) {
+				(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_EID);
+				FreeAREntryIdListList(&entryList,FALSE);
+				goto get_entry_cleanup;
+			}
+			if( perl_BuildEntryList(ctrl, 
+				&entryList.entryIdList[i],
+				SvPV(*array_entry, PL_na)) != 0 ) {
+
+				FreeAREntryIdListList(&entryList,FALSE);
+				goto get_entry_cleanup;
+			}
+		}
+	} else {
+		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_EID );
+		goto get_entry_cleanup;
+	}
+	/*
+	 * do API call
+	 */
+	ret = ARGetMultipleEntries(ctrl, schema, &entryList, &idList, 
+				   &existList, &fieldList, &status);
+#ifdef PROFILE
+	((ars_ctrl *)ctrl)->queries++;
+#endif
+	if (ARError( ret, status)) {
+		goto get_entry_cleanup;
+	}
+	if(fieldList.numItems < 1) {
+		goto get_entry_cleanup;
+	}
+	/*
+	 * build PERL copy of returned entries
+	 */
+	for (i=0; i < entryList.numItems; i++) {
+		HV * fieldValue_hash;
+		int field;
+		char intstr[12];
+		/*
+		 * push entryID onto list
+		 */
+		if (entryList.entryIdList[i].numItems == 1) {
+			/* only one entryId -- so just return its value to be compatible
+			with ars 2 */
+			XPUSHs(sv_2mortal(newSVpv(entryList.entryIdList[i].entryIdList[0], 0)));
+		} else {
+			/* more than one entry -- this must be a join schema. merge
+			 * the list into a single entry-id to keep things
+			 * consistent. */
+			int   entry;
+			char *joinId = (char *)NULL;
+			char  joinSep[2] = {AR_ENTRY_ID_SEPARATOR, 0};
+			for (entry=0; entry < entryList.entryIdList[i].numItems; entry++) {
+				joinId = strappend(joinId, entryList.entryIdList[i].entryIdList[entry]);
+				if(entry < entryList.entryIdList[i].numItems-1)
+				joinId = strappend(joinId, joinSep);
+			}
+			XPUSHs(sv_2mortal(newSVpv(joinId, 0)));
+		}
+		/*
+		 * push field/value hash reference onto list
+		 */
+		if ( existList.booleanList[i] ) {
+			fieldValue_hash = newHV();
+			for (field=0; field < fieldList.valueListList[i].numItems; field++) {
+				sprintf(intstr,"%ld",fieldList.valueListList[i].fieldValueList[field].fieldId);
+				hv_store( fieldValue_hash,
+					intstr, strlen(intstr),
+					perl_ARValueStruct(ctrl,&fieldList.valueListList[i].fieldValueList[field].value),
+					0 );
+			}
+			XPUSHs(newRV_noinc((SV *)fieldValue_hash));
+		} else {
+			XPUSHs(&PL_sv_undef);
+		}
+	}
+	get_entry_cleanup:;
+#ifndef WASTE_MEM
+	FreeARInternalIdList(&idList, FALSE);
+	FreeAREntryIdListList(&entryList, FALSE);
+	FreeARFieldValueListList(&fieldList, FALSE);
+	FreeARBooleanList(&existList, FALSE);
+#endif
+	get_entry_end:;
+#else /* prior to ARS 4.0 */
+	(void) ARError_reset();
+	Zero(&status, 1, ARStatusList);
+	(void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED,
+		"ars_GetMultipleEntries() is only available in ARS >= 4.x");
+#endif
+	}
+
+
+void
+ars_GetListEntryWithFields(ctrl,schema,qualifier,maxRetrieve,...)
+	ARControlStruct *       ctrl
+	char *                  schema
+	ARQualifierStruct *     qualifier
+	int                     maxRetrieve
+	PPCODE:
+	{
+	  ARStatusList     status;
+#if AR_EXPORT_VERSION >= 4
+	  int              c = (items - 4) / 2, i;
+	  int              field_off = 4;
+	  ARSortList       sortList;
+	  AREntryListFieldValueList  entryFieldValueList;
+	  int              ret;
+	  AREntryListFieldList getListFields, *getList = NULL;
+	  AV              *getListFields_array;
+
+	  (void) ARError_reset();
+	  Zero(&status, 1, ARStatusList);
+	  sortList.sortList = NULL;
+	  getListFields.fieldsList = NULL;
+	  entryFieldValueList.entryList = NULL;
+	  if ((items - 4) % 2) {
+	    /* odd number of arguments, so argument after maxRetrieve is
+	       optional getListFields (an array of hash refs) */
+	    if ( SvROK(ST(field_off)) &&
+	         (getListFields_array = (AV *)SvRV(ST(field_off))) &&
+	         (SvTYPE(getListFields_array) == SVt_PVAV) ) {
+	      getList = &getListFields;
+	      getListFields.numItems = av_len(getListFields_array) + 1;
+	      DBG( ("getListFields.numItems=%d\n", getListFields.numItems) );
+	      /* Newz(777,getListFields.fieldsList, getListFields.numItems,AREntryListFieldStruct); */
+	      getListFields.fieldsList = MALLOCNN( sizeof(AREntryListFieldStruct) * getListFields.numItems );
+	      /* set query field list */
+	      for (i=0; i<getListFields.numItems; i++) {
+	        SV **array_entry;
+	        /* get fieldID from array */
+	        if (! (array_entry = av_fetch(getListFields_array, i, 0))) {
+	          (void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_LFLDS);
+	          goto getlistentry_end;
+	        }
+	        getListFields.fieldsList[i].fieldId = SvIV(*array_entry);
+	        getListFields.fieldsList[i].columnWidth = 1;
+	        strncpy(getListFields.fieldsList[i].separator, " ", 2 );
+	        DBG( ("i=%d, fieldId=%d, columnWidth=%d, separator=\"%s\"\n", i,
+	             getListFields.fieldsList[i].fieldId,
+	             getListFields.fieldsList[i].columnWidth,
+	             getListFields.fieldsList[i].separator) );
+	      }
+	    } else {
+	      (void) ARError_add( AR_RETURN_ERROR, AP_ERR_LFLDS_TYPE);
+	      goto getlistentry_end;
+	    }
+	    /* increase the offset of the first sortList field by one */
+	    field_off ++;
+	  }
+	  /* build sortList */
+	  sortList.numItems = c;
+	  /* Newz(777,sortList.sortList, c,  ARSortStruct); */
+	  sortList.sortList = MALLOCNN( sizeof(ARSortStruct) * c );
+	  for (i=0; i<c; i++) {
+	    sortList.sortList[i].fieldId = SvIV(ST(i*2+field_off));
+	    sortList.sortList[i].sortOrder = SvIV(ST(i*2+field_off+1));
+	  }
+	  ret = ARGetListEntryWithFields(ctrl, schema, qualifier, getList, &sortList, maxRetrieve, &entryFieldValueList, NULL, &status);
+#ifdef PROFILE
+	  ((ars_ctrl *)ctrl)->queries++;
+#endif
+	  if (ARError( ret, status)) {
+	    goto getlistentry_end;
+	  }
+	  for (i=0; i < entryFieldValueList.numItems; i++) {
+	    HV * fieldValue_hash = newHV();
+	    int field;
+	    char intstr[12];
+	    if (entryFieldValueList.entryList[i].entryId.numItems == 1) {
+	      /* only one entryId -- so just return its value to be compatible
+	         with ars 2 */
+	      XPUSHs(sv_2mortal(newSVpv(entryFieldValueList.entryList[i].entryId.entryIdList[0], 0)));
+	    } else {
+	      /* more than one entry -- this must be a join schema. merge
+	       * the list into a single entry-id to keep things
+	       * consistent. */
+	      int   entry;
+	      char *joinId = (char *)NULL;
+	      char  joinSep[2] = {AR_ENTRY_ID_SEPARATOR, 0};
+	      for (entry=0; entry < entryFieldValueList.entryList[i].entryId.numItems; entry++) {
+	        joinId = strappend(joinId, entryFieldValueList.entryList[i].entryId.entryIdList[entry]);
+	        if(entry < entryFieldValueList.entryList[i].entryId.numItems-1)
+	        joinId = strappend(joinId, joinSep);
+	      }
+	      XPUSHs(sv_2mortal(newSVpv(joinId, 0)));
+	    }
+	    for (field=0; field < entryFieldValueList.entryList[i].entryValues->numItems; field++) {
+	      sprintf(intstr,"%ld",entryFieldValueList.entryList[i].entryValues->fieldValueList[field].fieldId);
+	      hv_store( fieldValue_hash,
+	                intstr, strlen(intstr),
+	                perl_ARValueStruct(ctrl,&entryFieldValueList.entryList[i].entryValues->fieldValueList[field].value),
+	                0 );
+	    }
+	    XPUSHs(newRV_noinc((SV *)fieldValue_hash));
+	  }
+	  getlistentry_end:
+#ifndef WASTE_MEM
+	  FreeAREntryListFieldValueList( &entryFieldValueList,FALSE );
+	  FreeARSortList( &sortList, FALSE );
+	  FreeAREntryListFieldList( &getListFields, FALSE );
+#endif
+#else	/* prior to ARS 4.0 */
+	  (void) ARError_reset();
+	  Zero(&status, 1, ARStatusList);
+	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED,
+	  "ars_GetListEntryWithFields() is only available in ARS >= 4.x");
+#endif
+	}
+
 
 ###################################################
 # NT (Notifier) ROUTINES

@@ -82,6 +82,7 @@ ars_GetField ars_simpleMenu ars_GetListActiveLink ars_SetEntry
 ars_perl_qualifier ars_Export ars_GetListFilter ars_GetListEscalation 
 ars_GetListCharMenu ars_GetListAdminExtension ars_padEntryid 
 ars_GetFilter ars_SetFilter
+ars_GetListEntryWithFields ars_GetMultipleEntries
 ars_GetProfileInfo ars_Import ars_GetCharMenu ars_GetServerStatistics 
 ars_NTDeregisterServer ars_NTGetListServer ars_NTInitializationServer 
 ars_NTNotificationServer ars_NTTerminationServer ars_NTDeregisterClient 
@@ -104,7 +105,7 @@ $ars_errstr %ARServerStats %ars_errhash
 ars_decodeStatusHistory ars_APIVersion
 );
 
-$ARS::VERSION   = '1.72';
+$ARS::VERSION   = '1.74';
 $ARS::DEBUGGING = 0;
 
 # definitions required for backwards compatibility

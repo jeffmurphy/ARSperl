@@ -138,29 +138,29 @@ ARError_reset()
 
 	/* if keys already exist, delete them */
 
-	if (hv_exists(err_hash, VNAME(EH_COUNT)))
-		t2 = hv_delete(err_hash, VNAME(EH_COUNT), 0);
+	if (hv_exists(err_hash,  EH_COUNT, strlen(EH_COUNT) ))
+		t2 = hv_delete(err_hash,  EH_COUNT, strlen(EH_COUNT) , 0);
 
 	/*
 	 * the following are array refs. if the _delete call returns the ref,
 	 * we should remove all entries from the array and delete it as well.
 	 */
 
-	if (hv_exists(err_hash, VNAME(EH_TYPE)))
-		t2 = hv_delete(err_hash, VNAME(EH_TYPE), 0);
+	if (hv_exists(err_hash,  EH_TYPE, strlen(EH_TYPE) ))
+		t2 = hv_delete(err_hash,  EH_TYPE, strlen(EH_TYPE) , 0);
 
-	if (hv_exists(err_hash, VNAME(EH_NUM)))
-		t2 = hv_delete(err_hash, VNAME(EH_NUM), 0);
+	if (hv_exists(err_hash,  EH_NUM, strlen(EH_NUM) ))
+		t2 = hv_delete(err_hash,  EH_NUM, strlen(EH_NUM) , 0);
 
-	if (hv_exists(err_hash, VNAME(EH_TEXT)))
-		t2 = hv_delete(err_hash, VNAME(EH_TEXT), 0);
+	if (hv_exists(err_hash,  EH_TEXT, strlen(EH_TEXT) ))
+		t2 = hv_delete(err_hash,  EH_TEXT, strlen(EH_TEXT) , 0);
 
 	/* create numItems key, set to zero */
 
 	ni = newSViv(0);
 	if (!ni)
 		return -2;
-	t1 = hv_store(err_hash, VNAME(EH_COUNT), ni, 0);
+	t1 = hv_store(err_hash,  EH_COUNT, strlen(EH_COUNT) , ni, 0);
 	if (!t1)
 		return -3;
 
@@ -169,21 +169,21 @@ ARError_reset()
 	t3 = newAV();
 	if (!t3)
 		return -4;
-	t1 = hv_store(err_hash, VNAME(EH_TYPE), newRV_noinc((SV *) t3), 0);
+	t1 = hv_store(err_hash,  EH_TYPE, strlen(EH_TYPE) , newRV_noinc((SV *) t3), 0);
 	if (!t1 || !*t1)
 		return -5;
 
 	t3 = newAV();
 	if (!t3)
 		return -6;
-	t1 = hv_store(err_hash, VNAME(EH_NUM), newRV_noinc((SV *) t3), 0);
+	t1 = hv_store(err_hash,  EH_NUM, strlen(EH_NUM) , newRV_noinc((SV *) t3), 0);
 	if (!t1 || !*t1)
 		return -7;
 
 	t3 = newAV();
 	if (!t3)
 		return -8;
-	t1 = hv_store(err_hash, VNAME(EH_TEXT), newRV_noinc((SV *) t3), 0);
+	t1 = hv_store(err_hash,  EH_TEXT, strlen(EH_TEXT) , newRV_noinc((SV *) t3), 0);
 	if (!t1 || !*t1)
 		return -9;
 
@@ -236,16 +236,16 @@ ARError_add(unsigned int type, long num, char *text)
 		if (ret != 0)
 			return -3;
 	}
-	numItems = hv_fetch(err_hash, VNAME("numItems"), FALSE);
+	numItems = hv_fetch(err_hash,  "numItems", strlen("numItems") , FALSE);
 	if (!numItems)
 		return -4;
-	messageType = hv_fetch(err_hash, VNAME("messageType"), FALSE);
+	messageType = hv_fetch(err_hash,  "messageType", strlen("messageType") , FALSE);
 	if (!messageType)
 		return -5;
-	messageNum = hv_fetch(err_hash, VNAME("messageNum"), FALSE);
+	messageNum = hv_fetch(err_hash,  "messageNum", strlen("messageNum") , FALSE);
 	if (!messageNum)
 		return -6;
-	messageText = hv_fetch(err_hash, VNAME("messageText"), FALSE);
+	messageText = hv_fetch(err_hash,  "messageText", strlen("messageText") , FALSE);
 	if (!messageText)
 		return -7;
 
@@ -451,16 +451,16 @@ perl_ARMessageStruct(ARControlStruct * ctrl, ARMessageStruct * in)
 {
 	HV             *hash = newHV();
 
-	/*hv_store(hash, VNAME("messageType"), newSViv(in->messageType), 0); */
-	hv_store(hash, VNAME("messageType"), 
+	/*hv_store(hash,  "messageType", strlen("messageType") , newSViv(in->messageType), 0); */
+	hv_store(hash,  "messageType", strlen("messageType") , 
 		 newSVpv(lookUpTypeName((TypeMapStruct *)StatusReturnTypeMap, 
 					in->messageType), 0), 0); 
-	hv_store(hash, VNAME("messageNum"), newSViv(in->messageNum), 0);
-	hv_store(hash, VNAME("messageText"), newSVpv(in->messageText, 0), 0);
+	hv_store(hash,  "messageNum", strlen("messageNum") , newSViv(in->messageNum), 0);
+	hv_store(hash,  "messageText", strlen("messageText") , newSVpv(in->messageText, 0), 0);
 	if (in->usePromptingPane)
-		hv_store(hash, VNAME("usePromptingPane"), newSViv(1), 0);
+		hv_store(hash,  "usePromptingPane", strlen("usePromptingPane") , newSViv(1), 0);
 	else
-		hv_store(hash, VNAME("usePromptingPane"), newSViv(0), 0);
+		hv_store(hash,  "usePromptingPane", strlen("usePromptingPane") , newSViv(0), 0);
 
 	return newRV_noinc((SV *) hash);
 }
@@ -474,9 +474,9 @@ perl_ARFilterStatusStruct(ARControlStruct * ctrl, ARFilterStatusStruct * in)
 
 	DBG( ("enter\n") );
 
-	hv_store(hash, VNAME("messageType"), newSViv(in->messageType), 0); 
-	hv_store(hash, VNAME("messageNum"), newSViv(in->messageNum), 0);
-	hv_store(hash, VNAME("messageText"), newSVpv(in->messageText, 0), 0);
+	hv_store(hash,  "messageType", strlen("messageType") , newSViv(in->messageType), 0); 
+	hv_store(hash,  "messageNum", strlen("messageNum") , newSViv(in->messageNum), 0);
+	hv_store(hash,  "messageText", strlen("messageText") , newSVpv(in->messageText, 0), 0);
 
 	return newRV_noinc((SV *) hash);
 }
@@ -489,9 +489,9 @@ perl_ARStatusStruct(ARControlStruct * ctrl, ARStatusStruct * in)
 
 	DBG( ("enter\n") );
 
-	hv_store(hash, VNAME("messageType"), newSViv(in->messageType), 0); 
-	hv_store(hash, VNAME("messageNum"), newSViv(in->messageNum), 0);
-	hv_store(hash, VNAME("messageText"), newSVpv(in->messageText, 0), 0);
+	hv_store(hash,  "messageType", strlen("messageType") , newSViv(in->messageType), 0); 
+	hv_store(hash,  "messageNum", strlen("messageNum") , newSViv(in->messageNum), 0);
+	hv_store(hash,  "messageText", strlen("messageText") , newSVpv(in->messageText, 0), 0);
 
 #if AR_EXPORT_VERSION >= 4
 	DBG( ("doing appendedText [0x%x : %s]\n", 
@@ -499,9 +499,9 @@ perl_ARStatusStruct(ARControlStruct * ctrl, ARStatusStruct * in)
 	      SAFEPRT(in->appendedText) ) );
 
 	if( CVLD((in->appendedText)) ) {
-	  hv_store(hash, VNAME("appendedText"), newSVpv(in->appendedText, 0), 0);
+	  hv_store(hash,  "appendedText", strlen("appendedText") , newSVpv(in->appendedText, 0), 0);
 	} else {
-	  hv_store(hash, VNAME("appendedText"), &PL_sv_undef, 0);
+	  hv_store(hash,  "appendedText", strlen("appendedText") , &PL_sv_undef, 0);
 	}
 
 	DBG( ("done appendedText\n") );
@@ -539,9 +539,9 @@ perl_diary(ARControlStruct * ctrl, ARDiaryStruct * in)
 {
 	HV             *hash = newHV();
 
-	hv_store(hash, VNAME("user"), newSVpv(in->user, 0), 0);
-	hv_store(hash, VNAME("timestamp"), newSViv(in->timeVal), 0);
-	hv_store(hash, VNAME("value"), newSVpv(in->value, 0), 0);
+	hv_store(hash,  "user", strlen("user") , newSVpv(in->user, 0), 0);
+	hv_store(hash,  "timestamp", strlen("timestamp") , newSViv(in->timeVal), 0);
+	hv_store(hash,  "value", strlen("value") , newSVpv(in->value, 0), 0);
 	return newRV_noinc((SV *) hash);
 }
 
@@ -554,9 +554,9 @@ perl_dataType_names(ARControlStruct * ctrl, unsigned int *in)
 		i++;
 
 	if (DataTypeMap[i].number != TYPEMAP_LAST)
-		return newSVpv(VNAME(DataTypeMap[i].name));
+		return newSVpv( DataTypeMap[i].name, strlen(DataTypeMap[i].name) );
 
-	return newSVpv(VNAME("NULL"));
+	return newSVpv( "NULL", strlen("NULL") );
 }
 
 /* this one is for decoding assign (set) field actions in active links
@@ -712,8 +712,8 @@ SV             *
 perl_ARStatHistoryValue(ARControlStruct * ctrl, ARStatHistoryValue * in)
 {
 	HV             *hash = newHV();
-	hv_store(hash, VNAME("userOrTime"), newSViv(in->userOrTime), 0);
-	hv_store(hash, VNAME("enumVal"), newSViv(in->enumVal), 0);
+	hv_store(hash,  "userOrTime", strlen("userOrTime") , newSViv(in->userOrTime), 0);
+	hv_store(hash,  "enumVal", strlen("enumVal") , newSViv(in->enumVal), 0);
 	return newRV_noinc((SV *) hash);
 }
 
@@ -722,9 +722,9 @@ SV             *
 perl_ARPushFieldsStruct(ARControlStruct * ctrl, ARPushFieldsStruct * in)
 {
 	HV             *hash = newHV();
-	hv_store(hash, VNAME("field"), 
+	hv_store(hash,  "field", strlen("field") , 
 		 perl_ARAssignFieldStruct(ctrl, &(in->field)), 0);
-	hv_store(hash, VNAME("assign"),
+	hv_store(hash,  "assign", strlen("assign") ,
 		 perl_ARAssignStruct(ctrl, &(in->assign)), 0);
 	return newRV_noinc((SV *) hash);
 }
@@ -733,19 +733,19 @@ SV             *
 perl_ARAutomationStruct(ARControlStruct * ctrl, ARAutomationStruct * in)
 {
 	HV            *hash = newHV();
-	hv_store(hash, VNAME("autoServerName"),
+	hv_store(hash,  "autoServerName", strlen("autoServerName") ,
 		 newSVpv(in->autoServerName, 0), 0);
-	hv_store(hash, VNAME("clsId"),
+	hv_store(hash,  "clsId", strlen("clsId") ,
 		 newSVpv(in->clsId, 0), 0);
-	hv_store(hash, VNAME("action"), 
+	hv_store(hash,  "action", strlen("action") , 
 		 newSVpv(in->action, 0), 0);
 	if(in->isVisible)
-		hv_store(hash, VNAME("isVisible"), 
+		hv_store(hash,  "isVisible", strlen("isVisible") , 
 			 newSVpv("true", 0), 0);
 	else 
-		hv_store(hash, VNAME("isVisible"), 
+		hv_store(hash,  "isVisible", strlen("isVisible") , 
 			 newSVpv("false", 0), 0);
-	hv_store(hash, VNAME("methodList"),
+	hv_store(hash,  "methodList", strlen("methodList") ,
 		 perl_ARList(ctrl, 
 			     (ARList *)& in->methodList,
 			     (ARS_fn) perl_ARCOMMethodStruct,
@@ -757,15 +757,15 @@ SV             *
 perl_ARCOMMethodStruct(ARControlStruct * ctrl, ARCOMMethodStruct * in)
 {
 	HV            *hash = newHV();
-	hv_store(hash, VNAME("methodName"),
+	hv_store(hash,  "methodName", strlen("methodName") ,
 		 newSVpv(in->methodName, 0), 0);
-	hv_store(hash, VNAME("methodIId"),
+	hv_store(hash,  "methodIId", strlen("methodIId") ,
 		 newSVpv(in->methodIId, 0), 0);
-	hv_store(hash, VNAME("methodType"),
+	hv_store(hash,  "methodType", strlen("methodType") ,
 		 newSViv(in->methodType), 0);
-	hv_store(hash, VNAME("methodValue"),
+	hv_store(hash,  "methodValue", strlen("methodValue") ,
 		 perl_ARCOMValueStruct(ctrl, &in->methodValue), 0);
-	hv_store(hash, VNAME("parameterList"),
+	hv_store(hash,  "parameterList", strlen("parameterList") ,
 		 perl_ARList(ctrl,
 			     (ARList *)& in->parameterList,
 			     (ARS_fn) perl_ARCOMMethodParmStruct,
@@ -777,21 +777,21 @@ SV              *
 perl_ARCOMValueStruct(ARControlStruct * ctrl, ARCOMValueStruct * in)
 {
 	HV           *hash = newHV();
-	hv_store(hash, VNAME("valueIId"),
+	hv_store(hash,  "valueIId", strlen("valueIId") ,
 		 newSVpv(in->valueIId, 0), 0);
-	hv_store(hash, VNAME("transId"),
+	hv_store(hash,  "transId", strlen("transId") ,
 		 newSViv(in->transId), 0);
-	hv_store(hash, VNAME("valueType"),
+	hv_store(hash,  "valueType", strlen("valueType") ,
 		 newSVpv(lookUpTypeName((TypeMapStruct *)ComParmTypeMap,
 					in->valueType), 0), 
 		 0);
 	switch(in->valueType) {
 	case AR_COM_PARM_FIELDID:
-		hv_store(hash, VNAME("fieldId"),
+		hv_store(hash,  "fieldId", strlen("fieldId") ,
 			 newSViv(in->u.fieldId), 0);
 		break;
 	case AR_COM_PARM_VALUE:
-		hv_store(hash, VNAME("value"),
+		hv_store(hash,  "value", strlen("value") ,
 			 perl_ARValueStruct(ctrl,
 					    &(in->u.value)), 0);
 		break;
@@ -803,12 +803,12 @@ SV             *
 perl_ARCOMMethodParmStruct(ARControlStruct * ctrl, ARCOMMethodParmStruct * in)
 {
 	HV           *hash = newHV();
-	hv_store(hash, VNAME("parmName"),
+	hv_store(hash,  "parmName", strlen("parmName") ,
 		 newSVpv(in->parmName, 0), 0);
-	hv_store(hash, VNAME("parmType"),
+	hv_store(hash,  "parmType", strlen("parmType") ,
 		 newSVpv(lookUpTypeName((TypeMapStruct *)ComParmTypeMap,
 					in->parmType), 0), 0);
-	hv_store(hash, VNAME("parmValue"),
+	hv_store(hash,  "parmValue", strlen("parmValue") ,
 		 perl_ARCOMValueStruct(ctrl,
 				       &in->parmValue), 0);
 	return newRV_noinc((SV *)hash);
@@ -818,24 +818,24 @@ SV             *
 perl_AROpenDlgStruct(ARControlStruct * ctrl, AROpenDlgStruct * in)
 {
 	HV          *hash = newHV();
-	hv_store(hash, VNAME("serverName"),
+	hv_store(hash,  "serverName", strlen("serverName") ,
 		 newSVpv(in->serverName, 0), 0);
-	hv_store(hash, VNAME("schemaName"),
+	hv_store(hash,  "schemaName", strlen("schemaName") ,
 		 newSVpv(in->schemaName, 0), 0);
-	hv_store(hash, VNAME("vuiLabel"),
+	hv_store(hash,  "vuiLabel", strlen("vuiLabel") ,
 		 newSVpv(in->vuiLabel, 0), 0);
 	if(in->closeBox)
-		hv_store(hash, VNAME("closeBox"),
+		hv_store(hash,  "closeBox", strlen("closeBox") ,
 			 newSVpv("true", 0), 0);
 	else 
-		hv_store(hash, VNAME("closeBox"),
+		hv_store(hash,  "closeBox", strlen("closeBox") ,
 			 newSVpv("false", 0), 0);
-	hv_store(hash, VNAME("inputValueFieldPairs"),
+	hv_store(hash,  "inputValueFieldPairs", strlen("inputValueFieldPairs") ,
 		 perl_ARList(ctrl,
 			     (ARList *)& in->inputValueFieldPairs,
 			     (ARS_fn) perl_ARFieldAssignStruct,
 			     sizeof(ARFieldAssignStruct)), 0);
-	hv_store(hash, VNAME("outputValueFieldPairs"),
+	hv_store(hash,  "outputValueFieldPairs", strlen("outputValueFieldPairs") ,
 		 perl_ARList(ctrl,
 			     (ARList *)& in->outputValueFieldPairs,
 			     (ARS_fn) perl_ARFieldAssignStruct,
@@ -852,9 +852,9 @@ perl_ARAssignFieldStruct(ARControlStruct * ctrl, ARAssignFieldStruct * in)
 	SV             *ref;
 	int             i;
 
-	hv_store(hash, VNAME("server"), newSVpv(in->server, 0), 0);
-	hv_store(hash, VNAME("schema"), newSVpv(in->schema, 0), 0);
-	hv_store(hash, VNAME("tag"), newSViv(in->tag), 0);
+	hv_store(hash,  "server", strlen("server") , newSVpv(in->server, 0), 0);
+	hv_store(hash,  "schema", strlen("schema") , newSVpv(in->schema, 0), 0);
+	hv_store(hash,  "tag", strlen("tag") , newSViv(in->tag), 0);
 
 #if AR_EXPORT_VERSION >= 3
 	/* translate the noMatchOption value into english */
@@ -872,7 +872,7 @@ perl_ARAssignFieldStruct(ARControlStruct * ctrl, ARAssignFieldStruct * in)
 	}
 	/* if we didn't find a match, store "" */
 
-	hv_store(hash, VNAME("noMatchOption"), newSVpv(NoMatchOptionMap[i].name, 0), 0);
+	hv_store(hash,  "noMatchOption", strlen("noMatchOption") , newSVpv(NoMatchOptionMap[i].name, 0), 0);
 
 	/* translate the multiMatchOption value into english */
 
@@ -887,7 +887,7 @@ perl_ARAssignFieldStruct(ARControlStruct * ctrl, ARAssignFieldStruct * in)
 		"perl_ARAssignFieldStruct: unknown multiMatchOption value");
 		ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, optnum);
 	}
-	hv_store(hash, VNAME("multiMatchOption"),
+	hv_store(hash,  "multiMatchOption", strlen("multiMatchOption") ,
 		 newSVpv(MultiMatchOptionMap[i].name, 0),
 		 0);
 #endif
@@ -895,14 +895,14 @@ perl_ARAssignFieldStruct(ARControlStruct * ctrl, ARAssignFieldStruct * in)
 	qual = dup_qualifier(ctrl, &in->qualifier);
 	ref = newSViv(0);
 	sv_setref_pv(ref, "ARQualifierStructPtr", (void *) qual);
-	hv_store(hash, VNAME("qualifier"), ref, 0);
+	hv_store(hash,  "qualifier", strlen("qualifier") , ref, 0);
 
 	switch (in->tag) {
 	case AR_FIELD:
-		hv_store(hash, VNAME("fieldId"), newSViv(in->u.fieldId), 0);
+		hv_store(hash,  "fieldId", strlen("fieldId") , newSViv(in->u.fieldId), 0);
 		break;
 	case AR_STAT_HISTORY:
-		hv_store(hash, VNAME("statHistory"),
+		hv_store(hash,  "statHistory", strlen("statHistory") ,
 		      perl_ARStatHistoryValue(ctrl, &in->u.statHistory), 0);
 		break;
 	default:
@@ -916,9 +916,9 @@ perl_ARFieldAssignStruct(ARControlStruct * ctrl, ARFieldAssignStruct * in)
 {
 	HV             *hash = newHV();
 
-	hv_store(hash, VNAME("fieldId"), newSViv(in->fieldId), 0);
+	hv_store(hash,  "fieldId", strlen("fieldId") , newSViv(in->fieldId), 0);
 
-	hv_store(hash, VNAME("assignment"),
+	hv_store(hash,  "assignment", strlen("assignment") ,
 		 perl_ARAssignStruct(ctrl, &in->assignment), 0);
 
 	return newRV_noinc((SV *) hash);
@@ -932,49 +932,49 @@ perl_ARDisplayStruct(ARControlStruct * ctrl, ARDisplayStruct * in)
 
 	/* FIX. use typeMap array? */
 	string = in->displayTag;
-	hv_store(hash, VNAME("displayTag"), newSVpv(string, 0), 0);
+	hv_store(hash,  "displayTag", strlen("displayTag") , newSVpv(string, 0), 0);
 	string = in->label;
-	hv_store(hash, VNAME("label"), newSVpv(string, 0), 0);
+	hv_store(hash,  "label", strlen("label") , newSVpv(string, 0), 0);
 	switch (in->labelLocation) {
 	case AR_DISPLAY_LABEL_LEFT:
-		hv_store(hash, VNAME("labelLocation"), newSVpv("Left", 0), 0);
+		hv_store(hash,  "labelLocation", strlen("labelLocation") , newSVpv("Left", 0), 0);
 		break;
 	case AR_DISPLAY_LABEL_TOP:
-		hv_store(hash, VNAME("labelLocation"), newSVpv("Top", 0), 0);
+		hv_store(hash,  "labelLocation", strlen("labelLocation") , newSVpv("Top", 0), 0);
 		break;
 	}
 	switch (in->type) {
 	case AR_DISPLAY_TYPE_NONE:
-		hv_store(hash, VNAME("type"), newSVpv("NONE", 0), 0);
+		hv_store(hash,  "type", strlen("type") , newSVpv("NONE", 0), 0);
 		break;
 	case AR_DISPLAY_TYPE_TEXT:
-		hv_store(hash, VNAME("type"), newSVpv("TEXT", 0), 0);
+		hv_store(hash,  "type", strlen("type") , newSVpv("TEXT", 0), 0);
 		break;
 	case AR_DISPLAY_TYPE_NUMTEXT:
-		hv_store(hash, VNAME("type"), newSVpv("NUMTEXT", 0), 0);
+		hv_store(hash,  "type", strlen("type") , newSVpv("NUMTEXT", 0), 0);
 		break;
 	case AR_DISPLAY_TYPE_CHECKBOX:
-		hv_store(hash, VNAME("type"), newSVpv("CHECKBOX", 0), 0);
+		hv_store(hash,  "type", strlen("type") , newSVpv("CHECKBOX", 0), 0);
 		break;
 	case AR_DISPLAY_TYPE_CHOICE:
-		hv_store(hash, VNAME("type"), newSVpv("CHOICE", 0), 0);
+		hv_store(hash,  "type", strlen("type") , newSVpv("CHOICE", 0), 0);
 		break;
 	case AR_DISPLAY_TYPE_BUTTON:
-		hv_store(hash, VNAME("type"), newSVpv("BUTTON", 0), 0);
+		hv_store(hash,  "type", strlen("type") , newSVpv("BUTTON", 0), 0);
 		break;
 	}
-	hv_store(hash, VNAME("length"), newSViv(in->length), 0);
-	hv_store(hash, VNAME("numRows"), newSViv(in->numRows), 0);
+	hv_store(hash,  "length", strlen("length") , newSViv(in->length), 0);
+	hv_store(hash,  "numRows", strlen("numRows") , newSViv(in->numRows), 0);
 	switch (in->option) {
 	case AR_DISPLAY_OPT_VISIBLE:
-		hv_store(hash, VNAME("option"), newSVpv("VISIBLE", 0), 0);
+		hv_store(hash,  "option", strlen("option") , newSVpv("VISIBLE", 0), 0);
 		break;
 	case AR_DISPLAY_OPT_HIDDEN:
-		hv_store(hash, VNAME("option"), newSVpv("HIDDEN", 0), 0);
+		hv_store(hash,  "option", strlen("option") , newSVpv("HIDDEN", 0), 0);
 		break;
 	}
-	hv_store(hash, VNAME("x"), newSViv(in->x), 0);
-	hv_store(hash, VNAME("y"), newSViv(in->y), 0);
+	hv_store(hash,  "x", strlen("x") , newSViv(in->x), 0);
+	hv_store(hash,  "y", strlen("y") , newSViv(in->y), 0);
 	return newRV_noinc((SV *) hash);
 }
 
@@ -985,7 +985,7 @@ perl_ARMacroParmList(ARControlStruct * ctrl, ARMacroParmList * in)
 	int             i;
 
 	for (i = 0; i < in->numItems; i++)
-		hv_store(hash, VNAME(in->parms[i].name), newSVpv(in->parms[i].value, 0), 0);
+		hv_store(hash,  in->parms[i].name, strlen(in->parms[i].name) , newSVpv(in->parms[i].value, 0), 0);
 
 	return newRV_noinc((SV *) hash);
 }
@@ -995,10 +995,10 @@ perl_ARActiveLinkMacroStruct(ARControlStruct * ctrl, ARActiveLinkMacroStruct * i
 {
 	HV             *hash = newHV();
 
-	hv_store(hash, VNAME("macroParms"),
+	hv_store(hash,  "macroParms", strlen("macroParms") ,
 		 perl_ARMacroParmList(ctrl, &in->macroParms), 0);
-	hv_store(hash, VNAME("macroText"), newSVpv(in->macroText, 0), 0);
-	hv_store(hash, VNAME("macroName"), newSVpv(in->macroName, 0), 0);
+	hv_store(hash,  "macroText", strlen("macroText") , newSVpv(in->macroText, 0), 0);
+	hv_store(hash,  "macroName", strlen("macroName") , newSVpv(in->macroName, 0), 0);
 
 	return newRV_noinc((SV *) hash);
 }
@@ -1008,23 +1008,23 @@ perl_ARFieldCharacteristics(ARControlStruct * ctrl, ARFieldCharacteristics * in)
 {
 	HV             *hash = newHV();
 
-	hv_store(hash, VNAME("accessOption"), newSViv(in->accessOption), 0);
-	hv_store(hash, VNAME("focus"), newSViv(in->focus), 0);
+	hv_store(hash,  "accessOption", strlen("accessOption") , newSViv(in->accessOption), 0);
+	hv_store(hash,  "focus", strlen("focus") , newSViv(in->focus), 0);
 #if AR_EXPORT_VERSION < 3
 	if (in->display)
-		hv_store(hash, VNAME("display"),
+		hv_store(hash,  "display", strlen("display") ,
 			 perl_ARDisplayStruct(ctrl, in->display), 0);
 #else
-	hv_store(hash, VNAME("props"),
+	hv_store(hash,  "props", strlen("props") ,
 		 perl_ARList(ctrl,
 			     (ARList *) & in->props,
 			     (ARS_fn) perl_ARPropStruct,
 			     sizeof(ARPropStruct)), 0);
 #endif
 	if (in->charMenu)
-		hv_store(hash, VNAME("charMenu"), newSVpv(in->charMenu, 0), 0);
+		hv_store(hash,  "charMenu", strlen("charMenu") , newSVpv(in->charMenu, 0), 0);
 
-	hv_store(hash, VNAME("fieldId"), newSViv(in->fieldId), 0);
+	hv_store(hash,  "fieldId", strlen("fieldId") , newSViv(in->fieldId), 0);
 
 	return newRV_noinc((SV *) hash);
 }
@@ -1043,40 +1043,40 @@ perl_ARActiveLinkActionStruct(ARControlStruct * ctrl, ARActiveLinkActionStruct *
 
 	switch (in->action) {
 	case AR_ACTIVE_LINK_ACTION_MACRO:
-		hv_store(hash, VNAME("macro"),
+		hv_store(hash,  "macro", strlen("macro") ,
 		       perl_ARActiveLinkMacroStruct(ctrl, &in->u.macro), 0);
 		break;
 	case AR_ACTIVE_LINK_ACTION_FIELDS:
-		hv_store(hash, VNAME("assign_fields"),
+		hv_store(hash,  "assign_fields", strlen("assign_fields") ,
 			 perl_ARList(ctrl,
 				     (ARList *) & in->u.fieldList,
 				     (ARS_fn) perl_ARFieldAssignStruct,
 				     sizeof(ARFieldAssignStruct)), 0);
 		break;
 	case AR_ACTIVE_LINK_ACTION_PROCESS:
-		hv_store(hash, VNAME("process"), newSVpv(in->u.process, 0), 0);
+		hv_store(hash,  "process", strlen("process") , newSVpv(in->u.process, 0), 0);
 		break;
 	case AR_ACTIVE_LINK_ACTION_MESSAGE:
 #if AR_EXPORT_VERSION >= 4
-		hv_store(hash, VNAME("message"),
+		hv_store(hash,  "message", strlen("message") ,
 			 perl_ARMessageStruct(ctrl, &(in->u.message)), 0);
 #else
-		hv_store(hash, VNAME("message"),
+		hv_store(hash,  "message", strlen("message") ,
 			 perl_ARStatusStruct(ctrl, &(in->u.message)), 0);
 #endif
 		break;
 	case AR_ACTIVE_LINK_ACTION_SET_CHAR:
-		hv_store(hash, VNAME("characteristics"),
+		hv_store(hash,  "characteristics", strlen("characteristics") ,
 			 perl_ARFieldCharacteristics(ctrl, &in->u.characteristics), 0);
 		break;
         case AR_ACTIVE_LINK_ACTION_DDE:
-	        hv_store(hash, VNAME("dde"),
+	        hv_store(hash,  "dde", strlen("dde") ,
 			 perl_ARDDEStruct(ctrl, &in->u.dde), 0);
 		break;
 #if AR_EXPORT_VERSION >= 4
         case AR_ACTIVE_LINK_ACTION_FIELDP:
 		/*ARPushFieldsList;*/
-		hv_store(hash, VNAME("fieldp"),
+		hv_store(hash,  "fieldp", strlen("fieldp") ,
 			 perl_ARList(ctrl, 
 				     (ARList *)& in->u.pushFieldsList,
 				     (ARS_fn) perl_ARPushFieldsStruct,
@@ -1084,18 +1084,18 @@ perl_ARActiveLinkActionStruct(ARControlStruct * ctrl, ARActiveLinkActionStruct *
 		break;
         case AR_ACTIVE_LINK_ACTION_SQL:
 		/*ARSQLStruct;*/
-		hv_store(hash, VNAME("sqlCommand"),
+		hv_store(hash,  "sqlCommand", strlen("sqlCommand") ,
 			 perl_ARSQLStruct(ctrl, &(in->u.sqlCommand)), 0);
 		break;
         case AR_ACTIVE_LINK_ACTION_AUTO:
 		/*ARAutomationStruct;*/
-		hv_store(hash, VNAME("automation"),
+		hv_store(hash,  "automation", strlen("automation") ,
 			 perl_ARAutomationStruct(ctrl,
 						 &in->u.automation), 0);
 		break;
         case AR_ACTIVE_LINK_ACTION_OPENDLG:
 		/*AROpenDlgStruct;*/
-		hv_store(hash, VNAME("openDlg"),
+		hv_store(hash,  "openDlg", strlen("openDlg") ,
 			 perl_AROpenDlgStruct(ctrl,
 					      &in->u.openDlg), 0);
 		break;
@@ -1115,10 +1115,10 @@ perl_ARActiveLinkActionStruct(ARControlStruct * ctrl, ARActiveLinkActionStruct *
 		/*ARGotoActionStruct;*/
 #endif
         case AR_ACTIVE_LINK_ACTION_NONE:
-		hv_store(hash, VNAME("none"), &PL_sv_undef, 0);
+		hv_store(hash,  "none", strlen("none") , &PL_sv_undef, 0);
 		break;
 	default:
-		hv_store(hash, VNAME("[unknown]"), &PL_sv_undef, 0);
+		hv_store(hash,  "[unknown]", strlen("[unknown]") , &PL_sv_undef, 0);
 		break;
 	}
 	return newRV_noinc((SV *) hash);
@@ -1131,22 +1131,22 @@ perl_ARFilterActionNotify(ARControlStruct * ctrl, ARFilterActionNotify * in)
 
 	DBG( ("enter\n") );
 
-	hv_store(hash, VNAME("user"), newSVpv(in->user, 0), 0);
+	hv_store(hash,  "user", strlen("user") , newSVpv(in->user, 0), 0);
 	if (in->notifyText)
-		hv_store(hash, VNAME("notifyText"),
+		hv_store(hash,  "notifyText", strlen("notifyText") ,
 			 newSVpv(in->notifyText, 0), 0);
-	hv_store(hash, VNAME("notifyPriority"),
+	hv_store(hash,  "notifyPriority", strlen("notifyPriority") ,
 		 newSViv(in->notifyPriority), 0);
-	hv_store(hash, VNAME("notifyMechanism"),
+	hv_store(hash,  "notifyMechanism", strlen("notifyMechanism") ,
 		 newSViv(in->notifyMechanism), 0);
-	hv_store(hash, VNAME("notifyMechanismXRef"),
+	hv_store(hash,  "notifyMechanismXRef", strlen("notifyMechanismXRef") ,
 		 newSViv(in->notifyMechanismXRef), 0);
 	if (in->subjectText)
-		hv_store(hash, VNAME("subjectText"),
+		hv_store(hash,  "subjectText", strlen("subjectText") ,
 			 newSVpv(in->subjectText, 0), 0);
-	hv_store(hash, VNAME("fieldIdListType"),
+	hv_store(hash,  "fieldIdListType", strlen("fieldIdListType") ,
 		 newSViv(in->fieldIdListType), 0);
-	hv_store(hash, VNAME("fieldList"),
+	hv_store(hash,  "fieldList", strlen("fieldList") ,
 		 perl_ARList(ctrl,
 			     (ARList *) & in->fieldIdList,
 			     (ARS_fn) perl_ARInternalId,
@@ -1165,39 +1165,39 @@ perl_ARFilterActionStruct(ARControlStruct * ctrl, ARFilterActionStruct * in)
 
 	switch (in->action) {
 	case AR_FILTER_ACTION_NOTIFY:
-		hv_store(hash, VNAME("notify"),
+		hv_store(hash,  "notify", strlen("notify") ,
 			 perl_ARFilterActionNotify(ctrl, &in->u.notify), 0);
 		break;
 	case AR_FILTER_ACTION_MESSAGE:
 #ifdef ARS452
 		DBG( ("452+ message action\n") );
-		hv_store(hash, VNAME("message"),
+		hv_store(hash,  "message", strlen("message") ,
 			 perl_ARFilterStatusStruct(ctrl, &in->u.message), 0);
 #else
 		DBG( ("pre-452 message action\n") );
-                hv_store(hash, VNAME("message"),
+                hv_store(hash,  "message", strlen("message") ,
 			 perl_ARStatusStruct(ctrl, &in->u.message), 0);
 #endif
 		break;
 	case AR_FILTER_ACTION_LOG:
-		hv_store(hash, VNAME("log"), newSVpv(in->u.logFile, 0), 0);
+		hv_store(hash,  "log", strlen("log") , newSVpv(in->u.logFile, 0), 0);
 		break;
 	case AR_FILTER_ACTION_FIELDS:
-		hv_store(hash, VNAME("assign_fields"),
+		hv_store(hash,  "assign_fields", strlen("assign_fields") ,
 			 perl_ARList(ctrl,
 				     (ARList *) & in->u.fieldList,
 				     (ARS_fn) perl_ARFieldAssignStruct,
 				     sizeof(ARFieldAssignStruct)), 0);
 		break;
 	case AR_FILTER_ACTION_PROCESS:
-		hv_store(hash, VNAME("process"), newSVpv(in->u.process, 0), 0);
+		hv_store(hash,  "process", strlen("process") , newSVpv(in->u.process, 0), 0);
 		break;
 #if AR_EXPORT_VERSION >= 4
  /* added cases for new ACTIONS in ARS v4.0 API, Geoff Endresen, 6/28/2000
     copied from AR_ACTIVE_LINK_ACTION_FIELP */
          case AR_FILTER_ACTION_FIELDP:
                  /*ARPushFieldsList;*/
-                 hv_store(hash, VNAME("fieldp"),
+                 hv_store(hash,  "fieldp", strlen("fieldp") ,
                           perl_ARList(ctrl,
                                       (ARList *)& in->u.pushFieldsList,
                                       (ARS_fn) perl_ARPushFieldsStruct,
@@ -1205,7 +1205,7 @@ perl_ARFilterActionStruct(ARControlStruct * ctrl, ARFilterActionStruct * in)
                  break;
          case AR_FILTER_ACTION_SQL:
                  /*ARSQLStruct;*/
-                 hv_store(hash, VNAME("sqlCommand"),
+                 hv_store(hash,  "sqlCommand", strlen("sqlCommand") ,
                           perl_ARSQLStruct(ctrl, &(in->u.sqlCommand)),0);
                  break;
          case AR_FILTER_ACTION_GOTOACTION:
@@ -1214,7 +1214,7 @@ perl_ARFilterActionStruct(ARControlStruct * ctrl, ARFilterActionStruct * in)
 #endif
 	case AR_FILTER_ACTION_NONE:
 	default:
-		hv_store(hash, VNAME("none"), &PL_sv_undef, 0);
+		hv_store(hash,  "none", strlen("none") , &PL_sv_undef, 0);
 		break;
 	}
 
@@ -1293,9 +1293,9 @@ perl_AREntryListFieldStruct(ARControlStruct * ctrl, AREntryListFieldStruct * in)
 {
 	HV             *hash = newHV();
 
-	hv_store(hash, VNAME("fieldId"), newSViv(in->fieldId), 0);
-	hv_store(hash, VNAME("columnWidth"), newSViv(in->columnWidth), 0);
-	hv_store(hash, VNAME("separator"), newSVpv(in->separator, 0), 0);
+	hv_store(hash,  "fieldId", strlen("fieldId") , newSViv(in->fieldId), 0);
+	hv_store(hash,  "columnWidth", strlen("columnWidth") , newSViv(in->columnWidth), 0);
+	hv_store(hash,  "separator", strlen("separator") , newSVpv(in->separator, 0), 0);
 	return newRV_noinc((SV *) hash);
 }
 
@@ -1307,10 +1307,10 @@ perl_ARIndexStruct(ARControlStruct * ctrl, ARIndexStruct * in)
 	int             i;
 
 	if (in->unique)
-		hv_store(hash, VNAME("unique"), newSViv(1), 0);
+		hv_store(hash,  "unique", strlen("unique") , newSViv(1), 0);
 	for (i = 0; i < in->numFields; i++)
 		av_push(array, perl_ARInternalId(ctrl, &(in->fieldIds[i])));
-	hv_store(hash, VNAME("fieldIds"), newRV_noinc((SV *) array), 0);
+	hv_store(hash,  "fieldIds", strlen("fieldIds") , newRV_noinc((SV *) array), 0);
 
 	return newRV_noinc((SV *) hash);
 }
@@ -1322,57 +1322,57 @@ perl_ARFieldLimitStruct(ARControlStruct * ctrl, ARFieldLimitStruct * in)
 
 	switch (in->dataType) {
 	case AR_DATA_TYPE_INTEGER:
-		hv_store(hash, VNAME("min"), newSViv(in->u.intLimits.rangeLow), 0);
-		hv_store(hash, VNAME("max"), newSViv(in->u.intLimits.rangeHigh), 0);
+		hv_store(hash,  "min", strlen("min") , newSViv(in->u.intLimits.rangeLow), 0);
+		hv_store(hash,  "max", strlen("max") , newSViv(in->u.intLimits.rangeHigh), 0);
 		return newRV_noinc((SV *) hash);
 	case AR_DATA_TYPE_REAL:
-		hv_store(hash, VNAME("min"), newSVnv(in->u.realLimits.rangeLow), 0);
-		hv_store(hash, VNAME("max"), newSVnv(in->u.realLimits.rangeHigh), 0);
-		hv_store(hash, VNAME("precision"),
+		hv_store(hash,  "min", strlen("min") , newSVnv(in->u.realLimits.rangeLow), 0);
+		hv_store(hash,  "max", strlen("max") , newSVnv(in->u.realLimits.rangeHigh), 0);
+		hv_store(hash,  "precision", strlen("precision") ,
 			 newSViv(in->u.realLimits.precision), 0);
 		return newRV_noinc((SV *) hash);
 	case AR_DATA_TYPE_CHAR:
-		hv_store(hash, VNAME("maxLength"),
+		hv_store(hash,  "maxLength", strlen("maxLength") ,
 			 newSViv(in->u.charLimits.maxLength), 0);
 		switch (in->u.charLimits.menuStyle) {
 		case AR_MENU_APPEND:
-			hv_store(hash, VNAME("menuStyle"), newSVpv("append", 0), 0);
+			hv_store(hash,  "menuStyle", strlen("menuStyle") , newSVpv("append", 0), 0);
 			break;
 		case AR_MENU_OVERWRITE:
-			hv_store(hash, VNAME("menuStyle"), newSVpv("overwrite", 0), 0);
+			hv_store(hash,  "menuStyle", strlen("menuStyle") , newSVpv("overwrite", 0), 0);
 			break;
 		}
 		switch (in->u.charLimits.qbeMatchOperation) {
 		case AR_QBE_MATCH_ANYWHERE:
-			hv_store(hash, VNAME("match"), newSVpv("anywhere", 0), 0);
+			hv_store(hash,  "match", strlen("match") , newSVpv("anywhere", 0), 0);
 			break;
 		case AR_QBE_MATCH_LEADING:
-			hv_store(hash, VNAME("match"), newSVpv("leading", 0), 0);
+			hv_store(hash,  "match", strlen("match") , newSVpv("leading", 0), 0);
 			break;
 		case AR_QBE_MATCH_EQUAL:
-			hv_store(hash, VNAME("match"), newSVpv("equal", 0), 0);
+			hv_store(hash,  "match", strlen("match") , newSVpv("equal", 0), 0);
 			break;
 		}
-		hv_store(hash, VNAME("charMenu"),
+		hv_store(hash,  "charMenu", strlen("charMenu") ,
 			 newSVpv(in->u.charLimits.charMenu, 0), 0);
-		hv_store(hash, VNAME("pattern"),
+		hv_store(hash,  "pattern", strlen("pattern") ,
 			 newSVpv(in->u.charLimits.pattern, 0), 0);
 		switch (in->u.charLimits.fullTextOptions) {
 		case AR_FULLTEXT_OPTIONS_NONE:
-			hv_store(hash, VNAME("fullTextOptions"), newSVpv("none", 0), 0);
+			hv_store(hash,  "fullTextOptions", strlen("fullTextOptions") , newSVpv("none", 0), 0);
 			break;
 		case AR_FULLTEXT_OPTIONS_INDEXED:
-			hv_store(hash, VNAME("fullTextOptions"), newSVpv("indexed", 0), 0);
+			hv_store(hash,  "fullTextOptions", strlen("fullTextOptions") , newSVpv("indexed", 0), 0);
 			break;
 		}
 		return newRV_noinc((SV *) hash);
 	case AR_DATA_TYPE_DIARY:
 		switch (in->u.diaryLimits.fullTextOptions) {
 		case AR_FULLTEXT_OPTIONS_NONE:
-			hv_store(hash, VNAME("fullTextOptions"), newSVpv("none", 0), 0);
+			hv_store(hash,  "fullTextOptions", strlen("fullTextOptions") , newSVpv("none", 0), 0);
 			break;
 		case AR_FULLTEXT_OPTIONS_INDEXED:
-			hv_store(hash, VNAME("fullTextOptions"), newSVpv("indexed", 0), 0);
+			hv_store(hash,  "fullTextOptions", strlen("fullTextOptions") , newSVpv("indexed", 0), 0);
 			break;
 		}
 		return newRV_noinc((SV *) hash);
@@ -1384,7 +1384,7 @@ perl_ARFieldLimitStruct(ARControlStruct * ctrl, ARFieldLimitStruct * in)
 		 * leave the code in here as a reference tho.
 		 */
 #ifdef KEEP_LIMIT_HASH_UNIFORM
-		hv_store(hash, VNAME("enumLimits"),
+		hv_store(hash,  "enumLimits", strlen("enumLimits") ,
 			 perl_ARList(ctrl, (ARList *) & in->u.enumLimits,
 			      (ARS_fn) perl_ARNameType, sizeof(ARNameType)),
 			 0);
@@ -1395,7 +1395,7 @@ perl_ARFieldLimitStruct(ARControlStruct * ctrl, ARFieldLimitStruct * in)
 #endif
 	case AR_DATA_TYPE_BITMASK:
 #ifdef KEEP_LIMIT_HASH_UNIFORM
-		hv_store(hash, VNAME("bitmask"),
+		hv_store(hash,  "bitmask", strlen("bitmask") ,
 			 perl_ARList(ctrl, (ARList *) & in->u.enumLimits,
 			      (ARS_fn) perl_ARNameType, sizeof(ARNameType)),
 			 0);
@@ -1420,7 +1420,7 @@ perl_ARAssignStruct(ARControlStruct * ctrl, ARAssignStruct * in)
 
 	switch (in->assignType) {
 	case AR_ASSIGN_TYPE_NONE:
-		hv_store(hash, VNAME("none"), &PL_sv_undef, 0);
+		hv_store(hash,  "none", strlen("none") , &PL_sv_undef, 0);
 		break;
 	case AR_ASSIGN_TYPE_VALUE:
 
@@ -1440,36 +1440,36 @@ perl_ARAssignStruct(ARControlStruct * ctrl, ARAssignStruct * in)
 		 * they are both CHAR types.
 		 */
 
-		hv_store(hash, VNAME("value"),
+		hv_store(hash,  "value", strlen("value") ,
 			 perl_ARValueStruct_Assign(ctrl, &in->u.value), 0);
-		hv_store(hash, VNAME("valueType"),
+		hv_store(hash,  "valueType", strlen("valueType") ,
 		      perl_ARValueStructType_Assign(ctrl, &in->u.value), 0);
 		break;
 	case AR_ASSIGN_TYPE_FIELD:
-		hv_store(hash, VNAME("field"),
+		hv_store(hash,  "field", strlen("field") ,
 			 perl_ARAssignFieldStruct(ctrl, in->u.field), 0);
 		break;
 	case AR_ASSIGN_TYPE_PROCESS:
-		hv_store(hash, VNAME("process"), newSVpv(in->u.process, 0), 0);
+		hv_store(hash,  "process", strlen("process") , newSVpv(in->u.process, 0), 0);
 		break;
 	case AR_ASSIGN_TYPE_ARITH:
-		hv_store(hash, VNAME("arith"),
+		hv_store(hash,  "arith", strlen("arith") ,
 			 perl_ARArithOpAssignStruct(ctrl, in->u.arithOp), 0);
 		break;
 	case AR_ASSIGN_TYPE_FUNCTION:
-		hv_store(hash, VNAME("function"),
+		hv_store(hash,  "function", strlen("function") ,
 		      perl_ARFunctionAssignStruct(ctrl, in->u.function), 0);
 		break;
 	case AR_ASSIGN_TYPE_DDE:
-		hv_store(hash, VNAME("dde"), perl_ARDDEStruct(ctrl, in->u.dde), 0);
+		hv_store(hash,  "dde", strlen("dde") , perl_ARDDEStruct(ctrl, in->u.dde), 0);
 		break;
 #if AR_EXPORT_VERSION >= 3
 	case AR_ASSIGN_TYPE_SQL:
-		hv_store(hash, VNAME("sql"), perl_ARAssignSQLStruct(ctrl, in->u.sql), 0);
+		hv_store(hash,  "sql", strlen("sql") , perl_ARAssignSQLStruct(ctrl, in->u.sql), 0);
 		break;
 #endif				/* ARS 3.x */
 	default:
-		hv_store(hash, VNAME("none"), &PL_sv_undef, 0);
+		hv_store(hash,  "none", strlen("none") , &PL_sv_undef, 0);
 		break;
 	}
 	return newRV_noinc((SV *) hash);
@@ -1480,8 +1480,8 @@ SV             *
 perl_ARSQLStruct(ARControlStruct * ctrl, ARSQLStruct * in)
 {
 	HV             *hash = newHV();
-	hv_store(hash, VNAME("server"), newSVpv(in->server, 0), 0);
-	hv_store(hash, VNAME("command"), newSVpv(in->command, 0), 0);
+	hv_store(hash,  "server", strlen("server") , newSVpv(in->server, 0), 0);
+	hv_store(hash,  "command", strlen("command") , newSVpv(in->command, 0), 0);
 	return newRV_noinc((SV *) hash);
 }
 #endif
@@ -1493,9 +1493,9 @@ perl_ARAssignSQLStruct(ARControlStruct * ctrl, ARAssignSQLStruct * in)
 	HV             *hash = newHV();
 	int             i;
 
-	hv_store(hash, VNAME("server"), newSVpv(in->server, 0), 0);
-	hv_store(hash, VNAME("sqlCommand"), newSVpv(in->sqlCommand, 0), 0);
-	hv_store(hash, VNAME("valueIndex"), newSViv(in->valueIndex), 0);
+	hv_store(hash,  "server", strlen("server") , newSVpv(in->server, 0), 0);
+	hv_store(hash,  "sqlCommand", strlen("sqlCommand") , newSVpv(in->sqlCommand, 0), 0);
+	hv_store(hash,  "valueIndex", strlen("valueIndex") , newSViv(in->valueIndex), 0);
 
 	/* translate the noMatchOption value into english */
 
@@ -1512,7 +1512,7 @@ perl_ARAssignSQLStruct(ARControlStruct * ctrl, ARAssignSQLStruct * in)
 	}
 	/* if we didn't find a match, store "" */
 
-	hv_store(hash, VNAME("noMatchOption"), newSVpv(NoMatchOptionMap[i].name, 0), 0);
+	hv_store(hash,  "noMatchOption", strlen("noMatchOption") , newSVpv(NoMatchOptionMap[i].name, 0), 0);
 
 	/* translate the multiMatchOption value into english */
 
@@ -1527,7 +1527,7 @@ perl_ARAssignSQLStruct(ARControlStruct * ctrl, ARAssignSQLStruct * in)
 		"perl_ARAssignFieldStruct: unknown multiMatchOption value");
 		ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, optnum);
 	}
-	hv_store(hash, VNAME("multiMatchOption"),
+	hv_store(hash,  "multiMatchOption", strlen("multiMatchOption") ,
 		 newSVpv(MultiMatchOptionMap[i].name, 0), 0);
 
 	return newRV_noinc((SV *) hash);
@@ -1562,13 +1562,13 @@ perl_ARArithOpAssignStruct(ARControlStruct * ctrl, ARArithOpAssignStruct * in)
 		if (ArithOpMap[i].number == in->operation)
 			break;
 
-	hv_store(hash, VNAME("oper"), newSVpv(ArithOpMap[i].name, 0), 0);
+	hv_store(hash,  "oper", strlen("oper") , newSVpv(ArithOpMap[i].name, 0), 0);
 
 	if (in->operation == AR_ARITH_OP_NEGATE) {
-		hv_store(hash, VNAME("left"), perl_ARAssignStruct(ctrl, &in->operandLeft), 0);
+		hv_store(hash,  "left", strlen("left") , perl_ARAssignStruct(ctrl, &in->operandLeft), 0);
 	} else {
-		hv_store(hash, VNAME("right"), perl_ARAssignStruct(ctrl, &in->operandRight), 0);
-		hv_store(hash, VNAME("left"), perl_ARAssignStruct(ctrl, &in->operandLeft), 0);
+		hv_store(hash,  "right", strlen("right") , perl_ARAssignStruct(ctrl, &in->operandRight), 0);
+		hv_store(hash,  "left", strlen("left") , perl_ARAssignStruct(ctrl, &in->operandLeft), 0);
 	}
 	return newRV_noinc((SV *) hash);
 }
@@ -1596,7 +1596,7 @@ perl_ARPermissionList(ARControlStruct * ctrl, ARPermissionList * in, int permTyp
 			if (tmap[j].number == in->permissionList[i].permissions)
 				break;
 		}
-		hv_store(hash, VNAME(groupid), newSVpv(VNAME(tmap[j].name)), 0);
+		hv_store(hash,  groupid, strlen(groupid) , newSVpv( tmap[j].name, strlen(tmap[j].name) ), 0);
 	}
 
 	return newRV_noinc((SV *) hash);
@@ -1738,9 +1738,9 @@ perl_ARPropStruct(ARControlStruct * ctrl, ARPropStruct * in)
 {
 	HV             *hash = newHV();
 
-	hv_store(hash, VNAME("prop"), newSViv(in->prop), 0);
-	hv_store(hash, VNAME("value"), perl_ARValueStruct(ctrl, &in->value), 0);
-	hv_store(hash, VNAME("valueType"),
+	hv_store(hash,  "prop", strlen("prop") , newSViv(in->prop), 0);
+	hv_store(hash,  "value", strlen("value") , perl_ARValueStruct(ctrl, &in->value), 0);
+	hv_store(hash,  "valueType", strlen("valueType") ,
 		 perl_ARValueStructType(ctrl, &in->value), 0);
 
 	return newRV_noinc((SV *) hash);
@@ -1764,8 +1764,8 @@ perl_ARDisplayInstanceStruct(ARControlStruct * ctrl, ARDisplayInstanceStruct * i
 {
 	HV             *hash = newHV();
 
-	hv_store(hash, VNAME("vui"), newSViv(in->vui), 0);
-	hv_store(hash, VNAME("props"),
+	hv_store(hash,  "vui", strlen("vui") , newSViv(in->vui), 0);
+	hv_store(hash,  "props", strlen("props") ,
 		 perl_ARList(ctrl,
 			     (ARList *) & in->props,
 			     (ARS_fn) perl_ARPropStruct,
@@ -1778,7 +1778,7 @@ perl_ARDisplayInstanceList(ARControlStruct * ctrl, ARDisplayInstanceList * in)
 {
 	HV             *hash = newHV();
 
-	hv_store(hash, VNAME("commonProps"),
+	hv_store(hash,  "commonProps", strlen("commonProps") ,
 		 perl_ARList(ctrl,
 			     (ARList *) & in->commonProps,
 			     (ARS_fn) perl_ARPropStruct,
@@ -1790,7 +1790,7 @@ perl_ARDisplayInstanceList(ARControlStruct * ctrl, ARDisplayInstanceList * in)
 	 * pass that to perl_ARList
 	 */
 
-	hv_store(hash, VNAME("dInstanceList"),
+	hv_store(hash,  "dInstanceList", strlen("dInstanceList") ,
 		 perl_ARList(ctrl,
 			     (ARList *) & in->numItems,
 			     (ARS_fn) perl_ARDisplayInstanceStruct,
@@ -1804,13 +1804,13 @@ perl_ARFieldMappingStruct(ARControlStruct * ctrl, ARFieldMappingStruct * in)
 {
 	HV             *hash = newHV();
 
-	hv_store(hash, VNAME("fieldType"), newSViv(in->fieldType), 0);
+	hv_store(hash,  "fieldType", strlen("fieldType") , newSViv(in->fieldType), 0);
 	switch (in->fieldType) {
 	case AR_FIELD_JOIN:
-		hv_store(hash, VNAME("join"), perl_ARJoinMappingStruct(ctrl, &in->u.join), 0);
+		hv_store(hash,  "join", strlen("join") , perl_ARJoinMappingStruct(ctrl, &in->u.join), 0);
 		break;
 	case AR_FIELD_VIEW:
-		hv_store(hash, VNAME("view"), perl_ARViewMappingStruct(ctrl, &in->u.view), 0);
+		hv_store(hash,  "view", strlen("view") , perl_ARViewMappingStruct(ctrl, &in->u.view), 0);
 		break;
 	}
 	return newRV_noinc((SV *) hash);
@@ -1821,8 +1821,8 @@ perl_ARJoinMappingStruct(ARControlStruct * ctrl, ARJoinMappingStruct * in)
 {
 	HV             *hash = newHV();
 
-	hv_store(hash, VNAME("schemaIndex"), newSViv(in->schemaIndex), 0);
-	hv_store(hash, VNAME("realId"), newSViv(in->realId), 0);
+	hv_store(hash,  "schemaIndex", strlen("schemaIndex") , newSViv(in->schemaIndex), 0);
+	hv_store(hash,  "realId", strlen("realId") , newSViv(in->realId), 0);
 	return newRV_noinc((SV *) hash);
 }
 
@@ -1831,7 +1831,7 @@ perl_ARViewMappingStruct(ARControlStruct * ctrl, ARViewMappingStruct * in)
 {
 	HV             *hash = newHV();
 
-	hv_store(hash, VNAME("fieldName"), newSVpv(in->fieldName, 0), 0);
+	hv_store(hash,  "fieldName", strlen("fieldName") , newSVpv(in->fieldName, 0), 0);
 
 	return newRV_noinc((SV *) hash);
 }
@@ -1842,12 +1842,12 @@ perl_ARJoinSchema(ARControlStruct * ctrl, ARJoinSchema * in)
 	HV             *hash = newHV();
 	SV             *joinQual = newSViv(0);
 
-	hv_store(hash, VNAME("memberA"), newSVpv(in->memberA, 0), 0);
-	hv_store(hash, VNAME("memberB"), newSVpv(in->memberB, 0), 0);
+	hv_store(hash,  "memberA", strlen("memberA") , newSVpv(in->memberA, 0), 0);
+	hv_store(hash,  "memberB", strlen("memberB") , newSVpv(in->memberB, 0), 0);
 	sv_setref_pv(joinQual, "ARQualifierStructPtr", dup_qualifier(ctrl,
 							    &in->joinQual));
-	hv_store(hash, VNAME("joinQual"), joinQual, 0);
-	hv_store(hash, VNAME("option"), newSViv(in->option), 0);
+	hv_store(hash,  "joinQual", strlen("joinQual") , joinQual, 0);
+	hv_store(hash,  "option", strlen("option") , newSViv(in->option), 0);
 	return newRV_noinc((SV *) hash);
 }
 
@@ -1856,9 +1856,9 @@ perl_ARViewSchema(ARControlStruct * ctrl, ARViewSchema * in)
 {
 	HV             *hash = newHV();
 
-	hv_store(hash, VNAME("tableName"), newSVpv(in->tableName, 0), 0);
-	hv_store(hash, VNAME("keyField"), newSVpv(in->keyField, 0), 0);
-	hv_store(hash, VNAME("viewQual"), newSVpv(in->viewQual, 0), 0);
+	hv_store(hash,  "tableName", strlen("tableName") , newSVpv(in->tableName, 0), 0);
+	hv_store(hash,  "keyField", strlen("keyField") , newSVpv(in->keyField, 0), 0);
+	hv_store(hash,  "viewQual", strlen("viewQual") , newSVpv(in->viewQual, 0), 0);
 	return newRV_noinc((SV *) hash);
 }
 
@@ -1867,16 +1867,16 @@ perl_ARCompoundSchema(ARControlStruct * ctrl, ARCompoundSchema * in)
 {
 	HV             *hash = newHV();
 
-        hv_store(hash, VNAME("schemaType"),
+        hv_store(hash,  "schemaType", strlen("schemaType") ,
                  newSVpv(lookUpTypeName((TypeMapStruct *)SchemaTypeMap,
                                         in->schemaType), 0), 0);
 
 	switch (in->schemaType) {
 	case AR_SCHEMA_JOIN:
-		hv_store(hash, VNAME("join"), perl_ARJoinSchema(ctrl, &in->u.join), 0);
+		hv_store(hash,  "join", strlen("join") , perl_ARJoinSchema(ctrl, &in->u.join), 0);
 		break;
 	case AR_SCHEMA_VIEW:
-		hv_store(hash, VNAME("view"), perl_ARViewSchema(ctrl, &in->u.view), 0);
+		hv_store(hash,  "view", strlen("view") , perl_ARViewSchema(ctrl, &in->u.view), 0);
 		break;
 	}
 	return newRV_noinc((SV *) hash);
@@ -1891,8 +1891,8 @@ perl_ARSortList(ARControlStruct * ctrl, ARSortList * in)
 	for (i = 0; i < in->numItems; i++) {
 		HV             *sort = newHV();
 
-		hv_store(sort, VNAME("fieldId"), newSViv(in->sortList[i].fieldId), 0);
-		hv_store(sort, VNAME("sortOrder"), newSViv(in->sortList[i].sortOrder), 0);
+		hv_store(sort,  "fieldId", strlen("fieldId") , newSViv(in->sortList[i].fieldId), 0);
+		hv_store(sort,  "sortOrder", strlen("sortOrder") , newSViv(in->sortList[i].sortOrder), 0);
 		av_push(array, newRV_noinc((SV *) sort));
 	}
 	return newRV_noinc((SV *) array);
@@ -1913,15 +1913,15 @@ perl_ARAttach(ARControlStruct * ctrl, ARAttachStruct * in)
 	 * at this point, the loc structure is not actually used ...
 	 */
 
-	buffer = newSVpv(VNAME(str));
-	name = newSVpv(VNAME(in->name));
+	buffer = newSVpv( str, strlen(str) );
+	name = newSVpv( in->name, strlen(in->name) );
 	size = newSViv(in->origSize);
 	csize = newSViv(in->compSize);
 
-	hv_store(hash, VNAME("name"), name, 0);
-	hv_store(hash, VNAME("value"), buffer, 0);
-	hv_store(hash, VNAME("origSize"), size, 0);
-	hv_store(hash, VNAME("compSize"), csize, 0);
+	hv_store(hash,  "name", strlen("name") , name, 0);
+	hv_store(hash,  "value", strlen("value") , buffer, 0);
+	hv_store(hash,  "origSize", strlen("origSize") , size, 0);
+	hv_store(hash,  "compSize", strlen("compSize") , csize, 0);
 
 	return newRV_noinc((SV *) hash);
 }
@@ -1938,8 +1938,8 @@ perl_ARByteList(ARControlStruct * ctrl, ARByteList * in)
 		if (ByteListTypeMap[i].number == in->type)
 			break;
 	}
-	hv_store(hash, VNAME("type"), newSVpv(VNAME(ByteListTypeMap[i].name)), 0);
-	hv_store(hash, VNAME("value"), byte_list, 0);
+	hv_store(hash,  "type", strlen("type") , newSVpv( ByteListTypeMap[i].name, strlen(ByteListTypeMap[i].name) ), 0);
+	hv_store(hash,  "value", strlen("value") , byte_list, 0);
 	return newRV_noinc((SV *) hash);
 }
 
@@ -1947,8 +1947,8 @@ SV             *
 perl_ARCoordStruct(ARControlStruct * ctrl, ARCoordStruct * in)
 {
 	HV             *hash = newHV();
-	hv_store(hash, VNAME("x"), newSViv(in->x), 0);
-	hv_store(hash, VNAME("y"), newSViv(in->y), 0);
+	hv_store(hash,  "x", strlen("x") , newSViv(in->x), 0);
+	hv_store(hash,  "y", strlen("y") , newSViv(in->y), 0);
 	return newRV_noinc((SV *) hash);
 }
 
@@ -2174,14 +2174,14 @@ perl_ARArithOpStruct(ARControlStruct * ctrl, ARArithOpStruct * in)
 		}
 		break;
 	}
-	hv_store(hash, VNAME("oper"), newSVpv(oper, 0), 0);
+	hv_store(hash,  "oper", strlen("oper") , newSVpv(oper, 0), 0);
 	if (in->operation == AR_ARITH_OP_NEGATE) {
-		hv_store(hash, VNAME("left"),
+		hv_store(hash,  "left", strlen("left") ,
 		 perl_ARFieldValueOrArithStruct(ctrl, &in->operandLeft), 0);
 	} else {
-		hv_store(hash, VNAME("right"),
+		hv_store(hash,  "right", strlen("right") ,
 		perl_ARFieldValueOrArithStruct(ctrl, &in->operandRight), 0);
-		hv_store(hash, VNAME("left"),
+		hv_store(hash,  "left", strlen("left") ,
 		 perl_ARFieldValueOrArithStruct(ctrl, &in->operandLeft), 0);
 	}
 	return newRV_noinc((SV *) hash);
@@ -2194,23 +2194,23 @@ perl_ARQueryValueStruct(ARControlStruct * ctrl, ARQueryValueStruct * in)
 	SV             *ref;
 
 	ARQualifierStruct *qual;
-	hv_store(hash, VNAME("schema"), newSVpv(in->schema, 0), 0);
-	hv_store(hash, VNAME("server"), newSVpv(in->server, 0), 0);
+	hv_store(hash,  "schema", strlen("schema") , newSVpv(in->schema, 0), 0);
+	hv_store(hash,  "server", strlen("server") , newSVpv(in->server, 0), 0);
 	qual = dup_qualifier(ctrl, in->qualifier);
 	ref = newSViv(0);
 	sv_setref_pv(ref, "ARQualifierStructPtr", (void *) qual);
-	hv_store(hash, VNAME("qualifier"), ref, 0);
+	hv_store(hash,  "qualifier", strlen("qualifier") , ref, 0);
 
-	hv_store(hash, VNAME("valueField"), newSViv(in->valueField), 0);
+	hv_store(hash,  "valueField", strlen("valueField") , newSViv(in->valueField), 0);
 	switch (in->multiMatchCode) {
 	case AR_QUERY_VALUE_MULTI_ERROR:
-		hv_store(hash, VNAME("multi"), newSVpv("error", 0), 0);
+		hv_store(hash,  "multi", strlen("multi") , newSVpv("error", 0), 0);
 		break;
 	case AR_QUERY_VALUE_MULTI_FIRST:
-		hv_store(hash, VNAME("multi"), newSVpv("first", 0), 0);
+		hv_store(hash,  "multi", strlen("multi") , newSVpv("first", 0), 0);
 		break;
 	case AR_QUERY_VALUE_MULTI_SET:
-		hv_store(hash, VNAME("multi"), newSVpv("set", 0), 0);
+		hv_store(hash,  "multi", strlen("multi") , newSVpv("set", 0), 0);
 		break;
 	}
 	return newRV_noinc((SV *) hash);
@@ -2223,9 +2223,9 @@ perl_ARWorkflowConnectStruct(ARControlStruct * ctrl, ARWorkflowConnectStruct * i
 	HV *hash = newHV();
 	switch (in->type) {
 	case AR_WORKFLOW_CONN_SCHEMA_LIST:
-		hv_store(hash, VNAME("type"), 
+		hv_store(hash,  "type", strlen("type") , 
 			 newSVpv("WORKFLOW_CONN_SCHEMA_LIST", 0), 0);
-		hv_store(hash, VNAME("schemaList"),
+		hv_store(hash,  "schemaList", strlen("schemaList") ,
 			 perl_ARList(ctrl, 
 				     (ARList *)  in->u.schemaList,
 				     (ARS_fn) perl_ARNameList,
@@ -2255,42 +2255,42 @@ perl_ARFieldValueOrArithStruct(ARControlStruct * ctrl, ARFieldValueOrArithStruct
 
 	switch (in->tag) {
 	case AR_FIELD:
-		hv_store(hash, VNAME("fieldId"), newSViv(in->u.fieldId), 0);
+		hv_store(hash,  "fieldId", strlen("fieldId") , newSViv(in->u.fieldId), 0);
 		break;
 	case AR_VALUE:
-		hv_store(hash, VNAME("value"),
+		hv_store(hash,  "value", strlen("value") ,
 			 perl_ARValueStruct(ctrl, &in->u.value), 0);
 		break;
 	case AR_ARITHMETIC:
-		hv_store(hash, VNAME("arith"),
+		hv_store(hash,  "arith", strlen("arith") ,
 			 perl_ARArithOpStruct(ctrl, in->u.arithOp), 0);
 		break;
 	case AR_STAT_HISTORY:
-		hv_store(hash, VNAME("statHistory"),
+		hv_store(hash,  "statHistory", strlen("statHistory") ,
 		      perl_ARStatHistoryValue(ctrl, &in->u.statHistory), 0);
 		break;
 	case AR_VALUE_SET:
-		hv_store(hash, VNAME("valueSet"),
+		hv_store(hash,  "valueSet", strlen("valueSet") ,
 			 perl_ARList(ctrl,
 				     (ARList *) & in->u.valueSet,
 				     (ARS_fn) perl_ARValueStruct,
 				     sizeof(ARValueStruct)), 0);
 		break;
 	case AR_FIELD_TRAN:
-		hv_store(hash, VNAME("TR_fieldId"), newSViv(in->u.fieldId), 0);
+		hv_store(hash,  "TR_fieldId", strlen("TR_fieldId") , newSViv(in->u.fieldId), 0);
 		break;
 	case AR_FIELD_DB:
-		hv_store(hash, VNAME("DB_fieldId"), newSViv(in->u.fieldId), 0);
+		hv_store(hash,  "DB_fieldId", strlen("DB_fieldId") , newSViv(in->u.fieldId), 0);
 		break;
 	case AR_LOCAL_VARIABLE:
-		hv_store(hash, VNAME("variable"), newSViv(in->u.variable), 0);
+		hv_store(hash,  "variable", strlen("variable") , newSViv(in->u.variable), 0);
 		break;
 	case AR_QUERY:
-		hv_store(hash, VNAME("queryValue"),
+		hv_store(hash,  "queryValue", strlen("queryValue") ,
 			 perl_ARQueryValueStruct(ctrl, in->u.queryValue), 0);
 		break;
 	case AR_FIELD_CURRENT:
-		hv_store(hash, VNAME("queryCurrent"),
+		hv_store(hash,  "queryCurrent", strlen("queryCurrent") ,
 			 newSViv(in->u.fieldId), 0);
 		break;
 	}
@@ -2329,10 +2329,10 @@ perl_relOp(ARControlStruct * ctrl, ARRelOpStruct * in)
 		s = "in";
 		break;
 	}
-	hv_store(hash, VNAME("oper"), newSVpv(s, 0), 0);
-	hv_store(hash, VNAME("left"),
+	hv_store(hash,  "oper", strlen("oper") , newSVpv(s, 0), 0);
+	hv_store(hash,  "left", strlen("left") ,
 		 perl_ARFieldValueOrArithStruct(ctrl, &in->operandLeft), 0);
-	hv_store(hash, VNAME("right"),
+	hv_store(hash,  "right", strlen("right") ,
 		 perl_ARFieldValueOrArithStruct(ctrl, &in->operandRight), 0);
 	return newRV_noinc((SV *) hash);
 }
@@ -2347,30 +2347,30 @@ perl_qualifier(ARControlStruct * ctrl, ARQualifierStruct * in)
 		switch (in->operation) {
 		case AR_COND_OP_AND:
 			s = "and";
-			hv_store(hash, VNAME("left"),
+			hv_store(hash,  "left", strlen("left") ,
 				 newRV_noinc((SV *) perl_qualifier(ctrl, in->u.andor.operandLeft)), 0);
-			hv_store(hash, VNAME("right"),
+			hv_store(hash,  "right", strlen("right") ,
 				 newRV_noinc((SV *) perl_qualifier(ctrl, in->u.andor.operandRight)), 0);
 			break;
 		case AR_COND_OP_OR:
 			s = "or";
-			hv_store(hash, VNAME("left"),
+			hv_store(hash,  "left", strlen("left") ,
 				 newRV_noinc((SV *) perl_qualifier(ctrl, in->u.andor.operandLeft)), 0);
-			hv_store(hash, VNAME("right"),
+			hv_store(hash,  "right", strlen("right") ,
 				 newRV_noinc((SV *) perl_qualifier(ctrl, in->u.andor.operandRight)), 0);
 			break;
 		case AR_COND_OP_NOT:
 			s = "not";
-			hv_store(hash, VNAME("not"),
+			hv_store(hash,  "not", strlen("not") ,
 			  newRV_noinc((SV *) perl_qualifier(ctrl, in->u.not)), 0);
 			break;
 		case AR_COND_OP_REL_OP:
 			s = "rel_op";
-			hv_store(hash, VNAME("rel_op"),
+			hv_store(hash,  "rel_op", strlen("rel_op") ,
 				 perl_relOp(ctrl, in->u.relOp), 0);
 			break;
 		}
-		hv_store(hash, VNAME("oper"), newSVpv(s, 0), 0);
+		hv_store(hash,  "oper", strlen("oper") , newSVpv(s, 0), 0);
 	}
 	return hash;
 }
@@ -2442,7 +2442,7 @@ ARGetFieldCached(ARControlStruct * ctrl, ARNameType schema, ARInternalId id,
 
 	/* dereference hash with server */
 
-	servers = hv_fetch(cache, VNAME(ctrl->server), TRUE);
+	servers = hv_fetch(cache,  ctrl->server, strlen(ctrl->server) , TRUE);
 
 	if (!(servers && SvROK(*servers) &&
 	      SvTYPE(server = (HV *) SvRV(*servers)) == SVt_PVHV)) {
@@ -2452,7 +2452,7 @@ ARGetFieldCached(ARControlStruct * ctrl, ARNameType schema, ARInternalId id,
 	}
 	/* dereference hash with schema */
 
-	schema_fields = hv_fetch(server, VNAME(schema), TRUE);
+	schema_fields = hv_fetch(server,  schema, strlen(schema) , TRUE);
 
 	if (!(schema_fields && SvROK(*schema_fields) &&
 	      SvTYPE(fields = (HV *) SvRV(*schema_fields)) == SVt_PVHV)) {
@@ -2464,7 +2464,7 @@ ARGetFieldCached(ARControlStruct * ctrl, ARNameType schema, ARInternalId id,
 
 	sprintf(field_string, "%i", (int) id);
 
-	field = hv_fetch(fields, VNAME(field_string), TRUE);
+	field = hv_fetch(fields,  field_string, strlen(field_string) , TRUE);
 
 	if (!(field && SvROK(*field) && SvTYPE(base = (HV *) SvRV(*field)))) {
 		(void) ARError_add(ARSPERL_TRACEBACK, 1,
@@ -2473,7 +2473,7 @@ ARGetFieldCached(ARControlStruct * ctrl, ARNameType schema, ARInternalId id,
 	}
 	/* fetch values */
 
-	val = hv_fetch(base, VNAME("name"), FALSE);
+	val = hv_fetch(base,  "name", strlen("name") , FALSE);
 	if (!val) {
 		(void) ARError_add(ARSPERL_TRACEBACK, 1,
 				 "GetFieldCached failed to fetch name key");
@@ -2502,7 +2502,7 @@ ARGetFieldCached(ARControlStruct * ctrl, ARNameType schema, ARInternalId id,
 	}
 #endif
 
-	val = hv_fetch(base, VNAME("type"), FALSE);
+	val = hv_fetch(base,  "type", strlen("type") , FALSE);
 
 	if (!val) {
 		(void) ARError_add(ARSPERL_TRACEBACK, 1,
@@ -2555,7 +2555,7 @@ cache_fail:;
 
 		/* dereference hash with server */
 
-		servers = hv_fetch(cache, VNAME(ctrl->server), TRUE);
+		servers = hv_fetch(cache,  ctrl->server, strlen(ctrl->server) , TRUE);
 
 		if (!servers) {
 			(void) ARError_add(ARSPERL_TRACEBACK, 1,
@@ -2570,7 +2570,7 @@ cache_fail:;
 
 		/* dereference hash with schema */
 
-		schema_fields = hv_fetch(server, VNAME(schema), TRUE);
+		schema_fields = hv_fetch(server,  schema, strlen(schema) , TRUE);
 
 		if (!schema_fields) {
 			(void) ARError_add(ARSPERL_TRACEBACK, 1,
@@ -2587,7 +2587,7 @@ cache_fail:;
 
 		sprintf(field_string, "%i", (int) id);
 
-		field = hv_fetch(fields, VNAME(field_string), TRUE);
+		field = hv_fetch(fields,  field_string, strlen(field_string) , TRUE);
 
 		if (!field) {
 			(void) ARError_add(ARSPERL_TRACEBACK, 1,
@@ -2603,7 +2603,7 @@ cache_fail:;
 		/* store field attributes */
 
 #if AR_EXPORT_VERSION >= 3
-		hv_store(base, VNAME("name"), newSVpv(my_fieldName, 0), 0);
+		hv_store(base,  "name", strlen("name") , newSVpv(my_fieldName, 0), 0);
 #else
 
 		display_ref = newSViv(0);
@@ -2611,11 +2611,11 @@ cache_fail:;
 		sv_setref_pv(display_ref, "ARDisplayListPtr",
 			     (void *) dup_DisplayList(ctrl, &my_display));
 
-		hv_store(base, VNAME("name"), display_ref, 0);
+		hv_store(base,  "name", strlen("name") , display_ref, 0);
 		FreeARDisplayList(&my_display, FALSE);
 #endif
 
-		hv_store(base, VNAME("type"), newSViv(my_dataType), 0);
+		hv_store(base,  "type", strlen("type") , newSViv(my_dataType), 0);
 	} else {
 		(void) ARError_add(ARSPERL_TRACEBACK, 1,
 				 "GetFieldCached: ARGetField call failed.");
@@ -2679,7 +2679,7 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 						ARError_add(AR_RETURN_ERROR, AP_ERR_BYTE_LIST);
 						return -1;
 					}
-					fetch = hv_fetch(hash, VNAME("value"), FALSE);
+					fetch = hv_fetch(hash,  "value", strlen("value") , FALSE);
 					if (!fetch) {
 						ARError_add(AR_RETURN_ERROR, AP_ERR_BYTE_LIST);
 						return -1;
@@ -2729,7 +2729,7 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 
 					/* first: decode the size key */
 
-					fetch = hv_fetch(hash, VNAME("size"), FALSE);
+					fetch = hv_fetch(hash,  "size", strlen("size") , FALSE);
 					if (!fetch) {
 						safefree(attachp);
 						ARError_add(AR_RETURN_ERROR, AP_ERR_ATTACH,
@@ -2746,7 +2746,7 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 
 					/* now get the name, if any */
 
-					fetch = hv_fetch(hash, VNAME("name"), FALSE);
+					fetch = hv_fetch(hash,  "name", strlen("name") , FALSE);
 					if( !fetch)
 						name = NULL;
 					else
@@ -2760,8 +2760,8 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 					 * accordingly
 					 */
 
-					fetch = hv_fetch(hash, VNAME("file"), FALSE);
-					fetch2 = hv_fetch(hash, VNAME("buffer"), FALSE);
+					fetch = hv_fetch(hash,  "file", strlen("file") , FALSE);
+					fetch2 = hv_fetch(hash,  "buffer", strlen("buffer") , FALSE);
 
 					/*
 					 * either/or must be specifed: not
