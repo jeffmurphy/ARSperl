@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.92 2003/04/16 20:27:22 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.93 2003/07/03 18:33:25 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -89,7 +89,7 @@ ars_LoadQualifier(ctrl,schema,qualstring,displayTag=NULL)
 		int                ret;
 		ARStatusList       status;
 		ARQualifierStruct *qual;
-		Newz(777, qual, 1, ARQualifierStruct);
+		AMALLOCNN(qual, 1, ARQualifierStruct);
 		Zero(&status, 1, ARStatusList);
 		(void) ARError_reset();
 		ret = ARLoadARQualifierStruct(ctrl, schema, displayTag, qualstring, qual, &status);
@@ -262,7 +262,7 @@ ars_Login(server, username, password, lang=NULL, authString=NULL, tcpport=0, rpc
 			DBG( ("ARInitialization failed %d\n", ret) );
 			ARTermination(ctrl, &status);
 			ARError(ret, status);
-			safefree(ctrl);
+			AP_FREE(ctrl);
 			goto ar_login_end;
 		}
 #endif
@@ -277,7 +277,7 @@ ars_Login(server, username, password, lang=NULL, authString=NULL, tcpport=0, rpc
 	  		if (ARError( ret, status)) {
 				ARTermination(ctrl, &status);
 				ARError(ret, status);
-	    			safefree(ctrl); /* invalid, cleanup */
+	    			AP_FREE(ctrl); /* invalid, cleanup */
 				DBG( ("ARGetListServer failed %d\n", ret) );
 	   			goto ar_login_end;
 	  		}
@@ -286,7 +286,7 @@ ars_Login(server, username, password, lang=NULL, authString=NULL, tcpport=0, rpc
 	     			(void) ARError_add( AR_RETURN_ERROR, AP_ERR_NO_SERVERS);
 				ARTermination(ctrl, &status);
 				ARError(ret, status);
-	      			safefree(ctrl); /* invalid, cleanup */
+	      			AP_FREE(ctrl); /* invalid, cleanup */
 	      			goto ar_login_end;
 	    		}
 	    		server = serverList.nameList[0];
@@ -305,7 +305,7 @@ ars_Login(server, username, password, lang=NULL, authString=NULL, tcpport=0, rpc
 			DBG( ("ARSetServerPort failed %d\n", ret) );
 			ARTermination(ctrl, &status);
 			ARError(ret, status);
-			safefree(ctrl);
+			AP_FREE(ctrl);
 			RETVAL = NULL;
 		}
 
@@ -316,7 +316,7 @@ ars_Login(server, username, password, lang=NULL, authString=NULL, tcpport=0, rpc
 			DBG( ("ARVerifyUser failed %d\n", ret) );
 			ARTermination(ctrl, &status);
 			ARError(ret, status);
-			safefree(ctrl); /* invalid, cleanup */
+			AP_FREE(ctrl); /* invalid, cleanup */
 			RETVAL = NULL;
 	  	} else {
 	  		RETVAL = ctrl; /* valid, return ctrl struct */
@@ -428,7 +428,7 @@ ars_Logoff(ctrl)
 		ret = ARTermination(&status);
 #endif
 		(void) ARError( ret, status);
-		/*safefree(ctrl); let DESTROY free it*/
+		/*AP_FREE(ctrl); let DESTROY free it*/
 	}
 
 void
@@ -587,7 +587,7 @@ ars_CreateEntry(ctrl,schema,...)
 	    (void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
 	  } else {
 	    fieldList.numItems = c;
-	    Newz(777,fieldList.fieldValueList,c,ARFieldValueStruct);
+	    AMALLOCNN(fieldList.fieldValueList,c,ARFieldValueStruct);
 	    for (i=0; i<c; i++) {
 	      a = i*2+2;
 	      fieldList.fieldValueList[i].fieldId = SvIV(ST(a));
@@ -843,7 +843,7 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve=0,firstRetrieve=0,...)
 	
 			getList                = &getListFields;
 			getListFields.numItems = av_len(getListFields_array) + 1;
-			Newz(777,getListFields.fieldsList, getListFields.numItems,
+			AMALLOCNN(getListFields.fieldsList, getListFields.numItems,
 				AREntryListFieldStruct);
 	
 			/* set query field list */
@@ -904,7 +904,7 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve=0,firstRetrieve=0,...)
 	  Zero(&sortList, 1, ARSortList);
 	  if (c) {
 	  	sortList.numItems = c;
-          	Newz(777,sortList.sortList, c,  ARSortStruct);
+          	AMALLOCNN(sortList.sortList, c,  ARSortStruct);
 	  	for ( i = 0 ; i < c ; i++) {
 			sortList.sortList[i].fieldId   = SvIV(ST(i*2+field_off));
 			sortList.sortList[i].sortOrder = SvIV(ST(i*2+field_off+1));
@@ -951,7 +951,7 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve=0,firstRetrieve=0,...)
 					joinId = strappend(joinId, joinSep);
 			}
 			XPUSHs(sv_2mortal(newSVpv(joinId, 0)));
-			safefree(joinId);
+			AP_FREE(joinId);
 		}
 #else /* ARS 2 */
 		XPUSHs(sv_2mortal(newSVpv(entryList.entryList[i].entryId, 0)));
@@ -987,7 +987,7 @@ ars_GetListSchema(ctrl,changedsince=0,schemaType=AR_LIST_SCHEMA_ALL,name=NULL,fi
 	  if (fieldIdList && (SvTYPE(fieldIdList) == SVt_PVAV)) {
 		int i;
 		idList.numItems = av_len(fieldIdList) + 1;
-		Newz(777, idList.internalIdList, idList.numItems, ARInternalId);
+		AMALLOCNN(idList.internalIdList, idList.numItems, ARInternalId);
 		for (i = 0 ; i < idList.numItems ; i++ ) {
 			SV **array_entry;
 			if ((array_entry = av_fetch(fieldIdList, i, 0)) &&
@@ -1044,7 +1044,7 @@ ars_GetListContainer(ctrl,changedSince=0,attributes=0,...)
 		ARContainerInfoList	conList;
 
 		containerTypes.numItems = items - 3;
-		Newz(777, containerTypes.type, 
+		AMALLOCNN(containerTypes.type, 
 		     containerTypes.numItems, int);
 		for(i = 3 ; i < items ; i++) {
 			containerTypes.type[i-3] = SvIV(ST(i));
@@ -1138,7 +1138,7 @@ ars_GetActiveLink(ctrl,name)
 	  ARQualifierStruct *query;
 	  ARDiaryList      diaryList;
 
-	  Newz(777,query,1,ARQualifierStruct);
+	  AMALLOCNN(query,1,ARQualifierStruct);
 
 	  (void) ARError_reset();
 	  Zero(&status, 1, ARStatusList);
@@ -1241,8 +1241,8 @@ ars_GetActiveLink(ctrl,name)
 	    FreeARWorkflowConnectStruct(&schemaList, FALSE);
 	    FreeARPropList(&objPropList, FALSE);
 #endif
-	    if(helpText) safefree(helpText);
-	    if(changeDiary) safefree(changeDiary);
+	    if(helpText) AP_FREE(helpText);
+	    if(changeDiary) AP_FREE(changeDiary);
 	  }
 	}
 	OUTPUT:
@@ -1313,7 +1313,7 @@ ars_GetFilter(ctrl,name)
 	  ARPropList       objPropList;
 #endif
 
-	  Newz(777,query,1,ARQualifierStruct);
+	  AMALLOCNN(query,1,ARQualifierStruct);
 
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
@@ -1396,10 +1396,10 @@ ars_GetFilter(ctrl,name)
 	    FreeARPropList(&objPropList, FALSE);
 #endif
 	    if(helpText) {
-	      	safefree(helpText);
+	      	AP_FREE(helpText);
 	    }
 	    if(changeDiary) {
-	      	safefree(changeDiary);
+	      	AP_FREE(changeDiary);
 	    }
 	  }
 	}
@@ -1422,7 +1422,7 @@ ars_GetServerStatistics(ctrl,...)
 		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
 	  } else {
 		requestList.numItems = items - 1;
-		Newz(777,requestList.requestList,(items-1),unsigned int);
+		AMALLOCNN(requestList.requestList,(items-1),unsigned int);
 		if(requestList.requestList) {
 			for(i=1; i<items; i++) {
 				requestList.requestList[i-1] = SvIV(ST(i));
@@ -1610,10 +1610,10 @@ ars_GetCharMenu(ctrl,name)
 #endif
 		FreeARCharMenuStruct(&menuDefn, FALSE);
 		if (helpText) {
-		  	safefree(helpText);
+		  	AP_FREE(helpText);
 		}
 		if (changeDiary) {
-		  	safefree(changeDiary);
+		  	AP_FREE(changeDiary);
 		}
 	  }
 	}
@@ -1779,10 +1779,10 @@ ars_GetSchema(ctrl,name)
 	    FreeAREntryListFieldList(&getListFields,FALSE);
 	    FreeARIndexList(&indexList,FALSE);
 	    if(helpText) {
-	      	safefree(helpText);
+	      	AP_FREE(helpText);
 	    }
 	    if(changeDiary) {
-	      	safefree(changeDiary);
+	      	AP_FREE(changeDiary);
 	    }
 #if AR_EXPORT_VERSION >= 3
 	    FreeARCompoundSchema(&schema,FALSE);
@@ -1918,10 +1918,10 @@ ars_GetField(ctrl,schema,id)
 	    FreeARDisplayList(&displayList,FALSE);
 #endif
 	    if(helpText) {
-	      	safefree(helpText);
+	      	AP_FREE(helpText);
 	    }
 	    if(changeDiary) {
-	      	safefree(changeDiary);
+	      	AP_FREE(changeDiary);
 	    }
 #if AR_EXPORT_VERSION >= 3
 	    ret = ARGetField(ctrl, schema, id, NULL, NULL, NULL, NULL, NULL, NULL, &permissions, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &Status);
@@ -1985,7 +1985,7 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	  }
 #endif
 	  fieldList.numItems = c;
-	  Newz(777,fieldList.fieldValueList,c,ARFieldValueStruct);
+	  AMALLOCNN(fieldList.fieldValueList,c,ARFieldValueStruct);
 	  for (i=0; i<c; i++) {
 	    a = i*2+offset;
 	    fieldList.fieldValueList[i].fieldId = SvIV(ST(a));
@@ -2061,7 +2061,7 @@ ars_Export(ctrl,displayTag,vuiType,...)
 			(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
 		} else {
 			structItems.numItems = c;
-			Newz(777, structItems.structItemList, c, ARStructItemStruct);
+			AMALLOCNN(structItems.structItemList, c, ARStructItemStruct);
 			for (i = 0 ; i < c ; i++) {
 				unsigned int et = 0;
 				a  = i * 2 + 3;
@@ -2097,7 +2097,7 @@ ars_Export(ctrl,displayTag,vuiType,...)
 				RETVAL = newSVpv(buf, 0);
 			}
 		} 
-		if(buf) safefree(buf);
+		if(buf) free(buf);
 		FreeARStructItemList(&structItems, FALSE);
 	}
 	OUTPUT:
@@ -2121,9 +2121,9 @@ ars_Import(ctrl,importOption=AR_IMPORT_OPT_CREATE,importBuf,...)
 			(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
 		} else {
 			if (c > 0) {
-				Newz(777, structItems, c, ARStructItemList);
+				AMALLOCNN(structItems, c, ARStructItemList);
 				structItems->numItems = c;
-				Newz(777, structItems->structItemList, c,
+				AMALLOCNN(structItems->structItemList, c,
 				     ARStructItemStruct);
 				for (i = 0; i < c; i++) {
 					unsigned int et = 0;
@@ -2598,7 +2598,7 @@ ars_ExecuteProcess(ctrl, command, runOption=0)
 		if(runOption == 0) {
 			XPUSHs(sv_2mortal(newSViv(returnStatus)));
 			XPUSHs(sv_2mortal(newSVpv(returnString, 0)));
-			if(returnString) safefree(returnString);
+			if(returnString) AP_FREE(returnString);
 		} else {
 			XPUSHs(sv_2mortal(newSViv(1)));
 		}
@@ -2662,10 +2662,10 @@ ars_GetAdminExtension(ctrl, name)
 	        }
 		FreeARInternalIdList(&groupList, FALSE);
 		if(helpText) {
-		  	safefree(helpText);
+		  	AP_FREE(helpText);
 		}
 		if(changeDiary) {
-		  	safefree(changeDiary);
+		  	AP_FREE(changeDiary);
 		}
 	 }
 #else /* ARS32 or later */
@@ -2800,10 +2800,10 @@ ars_GetEscalation(ctrl, name)
 	     FreeARPropList(&objPropList, FALSE);
 #endif
 	     if(helpText) {
-	       	safefree(helpText);
+	       	AP_FREE(helpText);
 	     }
 	     if(changeDiary) {
-	       	safefree(changeDiary);
+	       	AP_FREE(changeDiary);
 	     }
 	  }
 	}
@@ -3244,10 +3244,10 @@ ars_GetVUI(ctrl, schema, vuiId)
 	  }
 	  FreeARPropList(&dPropList, FALSE);
 	  if(helpText) {
-	    	safefree(helpText);
+	    	AP_FREE(helpText);
 	  }
 	  if(changeDiary) {
-	    	safefree(changeDiary);
+	    	AP_FREE(changeDiary);
 	  }
 #else /* ars 2.x */
 	  (void) ARError_reset();
@@ -3501,10 +3501,10 @@ ars_CreateActiveLink(ctrl, alDefRef)
 		   ARError_add( AR_RETURN_ERROR, AP_ERR_PREREVFAIL);
 	  }
 	  if (helpText) {
-	    	safefree(helpText);
+	    	AP_FREE(helpText);
 	  }
 	  if (changeDiary) {
-	    	safefree(changeDiary);
+	    	AP_FREE(changeDiary);
 	  }
 	  FreeARInternalIdList(&groupList, FALSE);
 	  FreeARActiveLinkActionList(&actionList, FALSE);
@@ -3542,7 +3542,7 @@ ars_MergeEntry(ctrl, schema, mergeType, ...)
 	  }
 
 	  fieldList.numItems = c;
-	  Newz(777, fieldList.fieldValueList, c, ARFieldValueStruct);
+	  AMALLOCNN(fieldList.fieldValueList, c, ARFieldValueStruct);
 
 	  for (i = 0; i < c; i++) {
 	  	a = i*2 + 3;
@@ -4025,12 +4025,12 @@ ars_DecodeAlertMessage(ctrl,message,messageLen)
 				newSVpv(formName, 0), 0);
 		}
 
-		if (alertText)  safefree(alertText);
-		if (sourceTag)  safefree(sourceTag);
-		if (serverName) safefree(serverName);
-		if (serverAddr) safefree(serverAddr);
-		if (formName)   safefree(formName);
-		if (objId)	safefree(objId);
+		if (alertText)  AP_FREE(alertText);
+		if (sourceTag)  AP_FREE(sourceTag);
+		if (serverName) AP_FREE(serverName);
+		if (serverAddr) AP_FREE(serverAddr);
+		if (formName)   AP_FREE(formName);
+		if (objId)	AP_FREE(objId);
 #else
 	  (void) ARError_add(AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
 			"GetAlertCount() is only available in ARSystem >= 5.0");
@@ -4450,7 +4450,7 @@ DESTROY(ctrl)
 		rv = ARTermination(&status);
 # endif /* AR_EXPORT_VERSION */
 		(void) ARError(rv, status);
-		safefree(ctrl);
+		free(ctrl);
 	}
 
 MODULE = ARS		PACKAGE = ARQualifierStructPtr
