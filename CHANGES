@@ -1,10 +1,47 @@
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.20 1998/03/30 19:00:19 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.21 1998/03/31 23:44:31 jcmurphy Exp $
 
 CHANGES for ARSperl
 
 Revision history for ARSperl.
 
+BM  = Bill Middleton <wjm@metronet.com>
+JCM = Jeff Murphy    <jcmurphy@buffalo.edu>
+JWM = Joel Murphy    <jmurphy@acsu.buffalo.edu>
+
 MM/DD/YY
+=======================================================================
+#######################################################################
+=======================================================================
+03/31/98        (1.6000 BETA)
+
+  o (BM)   removed most of the PPERLC and AWP stuff that was intended
+	   to help the port to ActiveState perl.  Use the One True Perl.
+ 
+  o (BM)   Changed many of the allocations to use perl's memory manager,
+ 	   except where the structure or element is grown further internally
+	   by ARS, or where the structure is non-trivial to free().  I still
+	   have concerns about some of the un-freed allocations in 
+	   supportrev.c, but at least ALL of the demo scripts, 
+	   including ARSDoc-1.11 (with small patch submitted to list) now 
+	   run, and produce the right results.
+ 
+  o (BM)   Removed all references to ZEROMEM in favor of perl's Zero, which
+	   is guaranteed to work everywhere, and doesn't need additional logic.
+ 
+  o (BM)   fixed a couple of small typos, including one in a elliptical 
+	   declaration (...) which didn't have a comma separator.
+ 
+  o (BM)   Changed the logic of CVLD in one place that was attempting to free()
+	   null pointers.
+
+=======================================================================
+#######################################################################
+=======================================================================
+03/31/98        (1.56)
+
+  o (JCM)  fixed a problem caused by some debugging code that
+           was left in 1.55 accidentally.
+
 =======================================================================
 #######################################################################
 =======================================================================
