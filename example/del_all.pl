@@ -1,6 +1,6 @@
 #!/oratest/perl/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/del_all.pl,v 1.3 1997/11/12 18:38:49 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/del_all.pl,v 1.4 1997/11/12 18:39:24 jcmurphy Exp $
 #
 # NAME
 #   del_all.pl [server] [user] [password] [pattern]
@@ -108,9 +108,7 @@ foreach (@sc) {
     if($_ =~ /$pat/) {
 	print "\t$_\n";
 	ars_DeleteSchema($c, $_, 2) || die "$ars_errstr";
-    } else {
-	print "$_ !~ $pat\n";
-    }
+    } 
 }
 
 ars_Logoff($c);
