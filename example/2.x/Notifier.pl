@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/2.x/Attic/Notifier.pl,v 1.1 1997/02/13 18:39:54 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/2.x/Attic/Notifier.pl,v 1.2 1997/02/13 18:41:21 jcmurphy Exp $
 #
 # USAGE
 #   Notifier.pl 
@@ -35,7 +35,7 @@ $fifo = "/tmp/arntfifo.$$";
 
 ($user, $password) = @ARGV;
 if(!defined($password)) {
-    print "Usage: $0 <user> <password> [server]\n";
+    print "Usage: $0 <user> <password>\n";
     exit 0;
 }
 
