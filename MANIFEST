@@ -218,5 +218,4 @@ t/01import.t
 infra/mkchanges.pl
 infra/c4asp.bat
 infra/pcpp.pl
-.#Makefile.PL.1.25
 changes.dat
