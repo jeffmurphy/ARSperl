@@ -1,4 +1,4 @@
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.23 1998/09/16 14:28:55 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.24 1998/09/16 14:29:14 jcmurphy Exp $
 
 CHANGES for ARSperl
 
@@ -16,7 +16,7 @@ MM/DD/YY
 =======================================================================
 #######################################################################
 =======================================================================
-09/16/98        (1.61 BETA)
+09/16/98        (1.61)
 
   o (JCM)  new utility: example/AddUsersToGroup.pl - bulk add a bunch
 		of users to a specified group 
