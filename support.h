@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.9 1997/11/10 23:50:36 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.10 1998/03/12 20:46:48 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,10 @@ $Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.9 1997/11/10 23:50:36 jcmu
     LOG:
 
 $Log: support.h,v $
+Revision 1.10  1998/03/12 20:46:48  jcmurphy
+added perl_ARValueStruct_Assign and ValueStructType_Assign
+for decoding field values for assign field operations.
+
 Revision 1.9  1997/11/10 23:50:36  jcmurphy
 1.5206: added refreshCode to GetCharMenu().
 added ars_GetVUI to EXPORTS in .pm file
@@ -392,6 +396,8 @@ EXTERN SV *perl_ARNameType(_AWPC_ ARNameType *);
 EXTERN SV *perl_ARList(_AWPC_ ARList *, ARS_fn, int);
 EXTERN SV *perl_ARValueStruct(_AWPC_ ARValueStruct *);
 EXTERN SV *perl_ARValueStructType(_AWPC_ ARValueStruct *in);
+EXTERN SV *perl_ARValueStruct_Assign(_AWPC_ ARValueStruct *);
+EXTERN SV *perl_ARValueStructType_Assign(_AWPC_ ARValueStruct *in);
 EXTERN SV *perl_dataType_names(_AWPC_ unsigned int *);
 EXTERN SV *perl_ARStatHistoryValue(_AWPC_ ARStatHistoryValue *);
 EXTERN SV *perl_ARAssignFieldStruct(_AWPC_ ARAssignFieldStruct *);
