@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.41 1997/11/10 23:50:36 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.42 1998/02/23 15:29:20 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.41 1997/11/10 23:50:36 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.42  1998/02/23 15:29:20  jcmurphy
+fixed bug in ars_GetCharMenu
+
 Revision 1.41  1997/11/10 23:50:36  jcmurphy
 1.5206: added refreshCode to GetCharMenu().
 added ars_GetVUI to EXPORTS in .pm file
@@ -1204,7 +1207,7 @@ ars_GetCharMenu(ctrl,name)
 				newSViv(menuDefn.u.menuQuery.sortOnLabel), 0);
 			ref = newSViv(0);
 			sv_setref_pv(ref, "ARQualifierStructPtr", dup_qualifier((void *)&(menuDefn.u.menuQuery.qualifier)));
-			hv_store(RETVAL, VNAME("qualifier"), ref, 0);
+			hv_store(menuDef, VNAME("qualifier"), ref, 0);
 			hv_store(RETVAL, VNAME("menuQuery"), 
 				newRV((SV *)menuDef), 0);
 			break;
