@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.23 1997/02/19 20:24:41 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.24 1997/02/19 21:55:38 jmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.23 1997/02/19 20:24:41 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.24  1997/02/19 21:55:38  jmurphy
+fixed bug in perl_ARValueStruct
+
 Revision 1.23  1997/02/19 20:24:41  jcmurphy
 *** empty log message ***
 
@@ -366,7 +369,7 @@ SV *perl_ARValueStruct(ARValueStruct *in) {
   case AR_DATA_TYPE_ULONG:
     return newSViv(in->u.ulongVal); /* FIX -- does perl have unsigned long? */
   case AR_DATA_TYPE_COORDS:
-      return perl_ARList((ARList *)&in->u.coordListVal,
+      return perl_ARList((ARList *)in->u.coordListVal,
 			 (ARS_fn)perl_ARCoordStruct,
 			 sizeof(ARCoordStruct));
 #endif
