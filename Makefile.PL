@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.60 2004/09/29 18:20:35 jmccarrell Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.61 2005/03/04 18:49:09 jeffmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -26,10 +26,10 @@ $debug = 0;
 # STEP 1 -> Set the path to your ARS API directory
 
 #$ARSAPI     = "/usr/ar/api";
-#$ARSAPI     = "/u1/project/ARSperl/api/sol2/api5.1.1";
+#$ARSAPI     = "/u1/project/ARSperl/api/sol2/api6.0.1";
 #$ARSAPI     = "/u1/project/ARSperl/api/linux/4.5";
 #$ARSAPI     = "/u1/project/ARSperl/api/linux/4.0";
-$ARSAPI     = "/u1/project/ARSperl/api/linux/5.1.1";
+$ARSAPI     = "/u1/project/ARSperl/api/linux/6.3";
 # $ARSAPI     = "/home/jcmurphy/arsperl/api/5.1";
 # $ARSAPI     = q{\\\\ess7\devkits\ars\4.5\drops\drop4.5FCS\winnt};
 # $ARSAPI     = q{\\\\ess7\devkits\ars\4.5\drops\drop4.5.1FCS\winnt};
@@ -58,7 +58,7 @@ $ARSAPI     = "/u1/project/ARSperl/api/linux/5.1.1";
 #              your version (e.g. for 4.5 you would specify 4.0, NOT
 #	       4.52)
 #
-$ARSVERSION = 6.0;
+$ARSVERSION = 6.01;
 
 # STEP 3 -> Choose whether or not to enable encryption
 #

@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.96 2004/09/23 17:34:23 jmccarrell Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.97 2005/03/04 18:49:08 jeffmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -248,10 +248,19 @@ ars_Login(server, username, password, lang=NULL, authString=NULL, tcpport=0, rpc
 		ctrl->user[sizeof(ctrl->user)-1] = 0;
 		strncpy(ctrl->password, password, sizeof(ctrl->password));
 		ctrl->password[sizeof(ctrl->password)-1] = 0;
+#ifndef AR_MAX_LOCALE_SIZE
+		/* 6.0.1 and 6.3 are AR_EXPORT_VERSION = 8L but 6.3 does not
+	         * contain the language field
+	         */
 		ctrl->language[0] = 0;
 		if ( CVLD(lang) ) {
 			strncpy(ctrl->language, lang, AR_MAX_LANG_SIZE);
 		}
+#else 
+		if ( CVLD(lang) ) {
+			strncpy(ctrl->localeInfo.locale, lang, AR_MAX_LANG_SIZE);
+		}
+#endif
 #if AR_EXPORT_VERSION >= 7L
 		ctrl->authString[0] = 0;
 		if ( CVLD(authString) ) {
@@ -374,7 +383,11 @@ ars_GetControlStructFields(ctrl)
 	   XPUSHs(sv_2mortal(newSViv(ctrl->operationTime)));
 	   XPUSHs(sv_2mortal(newSVpv(ctrl->user, 0)));
 	   XPUSHs(sv_2mortal(newSVpv(ctrl->password, 0)));
+#ifndef AR_MAX_LOCALE_SIZE
 	   XPUSHs(sv_2mortal(newSVpv(ctrl->language, 0)));
+#else
+	   XPUSHs(sv_2mortal(newSVpv(ctrl->localeInfo.locale, 0)));
+#endif
 	   XPUSHs(sv_2mortal(newSVpv(ctrl->server, 0)));
 	   XPUSHs(sv_2mortal(newSViv(ctrl->sessionId)));
 #if AR_EXPORT_VERSION >= 7

@@ -12,6 +12,14 @@ previous versions of arsperl and may require altering of some arsperl
 scripts.
 
 
+Released: xx/xx/2005 Version: 1.83
+
+
+(JCM)   fixed "lang" compilation error for API 6.3
+
+ (JG)   doc updates
+
+
 Released: 09/20/2004 Version: 1.82
 
 
@@ -648,5 +656,5 @@ Released: 01/12/96 Version: 1.0beta
 
 arsperl@arsperl.org
 
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.51 2004/09/19 22:27:24 jeffmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.52 2005/03/04 18:49:09 jeffmurphy Exp $
 
