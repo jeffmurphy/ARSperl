@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.12 1997/12/15 21:25:39 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.13 1998/02/13 18:44:34 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,11 @@ $Header: /cvsroot/arsperl/ARSperl/support.c,v 1.12 1997/12/15 21:25:39 jcmurphy 
     LOG:
 
 $Log: support.c,v $
+Revision 1.13  1998/02/13 18:44:34  jcmurphy
+patched BuildEntryIdList by Ulrich Pfeifer <pfeifer@wait.de>
+patch includes strncpy and terminating null to make it
+more robust.
+
 Revision 1.12  1997/12/15 21:25:39  jcmurphy
 /1.53
 
@@ -1201,7 +1206,9 @@ perl_BuildEntryList(_AWPC_ AREntryIdList *entryList, char *entry_id)
 
       if((tok = strtok(eid_dup, eidSep))) {
 	for(tn = 0; tn < entryList->numItems ; tn++) {
-	  strcpy(entryList->entryIdList[tn], tok);
+	  /* patch by Ulrich Pfeifer <pfeifer@wait.de> */
+	  strncpy(entryList->entryIdList[tn], tok, sizeof(AREntryIdType));
+	  *(entryList->entryIdList[tn]+AR_MAX_ENTRYID_SIZE+1) = '\0';
 	  tok = strtok((char *)NULL, eidSep);
 	}
 	FREE(eid_orig);
