@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/Dump_Setup.pl,v 1.1 1996/11/21 20:13:50 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/Dump_Setup.pl,v 1.2 1998/12/11 15:24:38 jcmurphy Exp $
 #
 # EXAMPLE
 #    Dump_Setup.pl [username] [password] [path]
@@ -17,6 +17,9 @@
 # 03/14/96
 #
 # $Log: Dump_Setup.pl,v $
+# Revision 1.2  1998/12/11 15:24:38  jcmurphy
+# adjustments to GetListSchema for >=3.0 systesm
+#
 # Revision 1.1  1996/11/21 20:13:50  jcmurphy
 # Initial revision
 #
@@ -32,7 +35,7 @@ $perm = 0755;
 chomp($path = `pwd`) if (!$path);
 $c = ars_Login("localhost",$ACCOUNT,$PASSWORD);
 
-@schema = ars_GetListSchema($c);
+@schema = ars_GetListSchema($c, 0, 1024);
 @active = ars_GetListActiveLink($c);
 @filter = ars_GetListFilter($c);
 @escal = ars_GetListEscalation($c);
