@@ -48,12 +48,12 @@ The default value is 0. Other values are:
 
 <P>Example:
 <br>
-To retrieve the full list of all servers (visible and hidden) accessible
+To retrieve the full list of all schemas (visible and hidden) accessible
 to the user on an ARS version 3.0 server:
 
 <PRE>
       @schemas = ars_GetListSchema($c, 0, 0 + 1024);
-      for ($i = 0; $i &gt; $#schemas ; $i++) {
+      for ($i = 0; $i &lt;= $#schemas ; $i++) {
          print "$schemas[$i]\n";
       }
 </PRE>
