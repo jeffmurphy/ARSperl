@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.34 2001/10/22 05:27:16 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.35 2001/10/22 05:59:25 jcmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -26,7 +26,7 @@ $debug = 0;
 $ARSAPI     = "/usr/ar/api";
 $ARSAPI     = "/u1/project/ARSperl/api/sol2/api4.5.2";
 #$ARSAPI     = "/u1/project/ARSperl/api/linux/4.0";
-#$ARSAPI     = "/home/jcmurphy/arsperl/api/4.0";
+$ARSAPI     = "/home/jcmurphy/arsperl/api/4.5";
 
 # STEP 2 -> Choose your version of ARS
 #           example: 2.0 2.1 3.0 3.1 3.2 4.0
@@ -43,8 +43,8 @@ $WINDOWS = ($^O eq 'MSWin32');
 
 #        Windows NT: no "-lpthread"
 #        NCR UNIX: add "-lc -lnet"
-
-$AUTODEFINES = " -DPROFILE -g ";
+#                -DARSPDEBUG
+$AUTODEFINES = "  -DPROFILE -g ";
 $AUTODEFINES = "-D_WIN32" if($WINDOWS);
 
 if($ARSVERSION >= 4.0) {
@@ -146,7 +146,7 @@ WriteMakefile(
 #
 #    -D_WIN32
 #
-#       If you are compiling ARSperl until windows, define this
+#       If you are compiling ARSperl under windows, define this
 #       and /don't/ define PROFILE.
 #
 #    -DSKIP_SV_ISA  (not automatically set)

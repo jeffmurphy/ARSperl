@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.17 2000/10/30 19:49:16 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.18 2001/10/22 05:59:25 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -71,6 +71,13 @@ $Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.17 2000/10/30 19:49:16 
 
 #ifdef PROFILE
 # include <sys/time.h>
+#endif
+
+#define SAFEPRT(X) (X && *X)? X : "[null]"
+#ifdef ARSPDEBUG
+# define DBG(X) printf("[%s %d] %s : ", __FILE__, __LINE__, __FUNCTION__); printf X
+#else
+# define DBG(X)
 #endif
 
 typedef struct {

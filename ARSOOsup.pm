@@ -24,13 +24,8 @@ sub new {
   my ($class, @p) = (shift, @_);
   my ($self) = {};
   my ($blessed) = bless($self, $class);
-
-  #my ($class, $server, $username, $password, $dbg, $self) = 
-  #  (shift, shift, shift, shift, shift, {});
-
   my ($server, $username, $password, $catch, $ctrl, $dbg) = 
     rearrange([SERVER,USERNAME,PASSWORD,CATCH,CTRL,DEBUG],@p);
-
   # should the OO layer emit debugging information?
 
   $self->{'.debug'} = 0;

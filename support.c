@@ -307,7 +307,7 @@ ARError(int returncode, ARStatusList status)
 
 	for (item = 0; item < status.numItems; item++) {
 #if AR_EXPORT_VERSION >= 4
-	        char *messageText = MALLOCNN(strlen(status.statusList[item].messageText) + 
+	        char *messageText = (char *)safemalloc(strlen(status.statusList[item].messageText) + 
 					     strlen(status.statusList[item].appendedText) + 4);
 		sprintf(messageText, "%s (%s)", 
 			status.statusList[item].messageText,
@@ -330,9 +330,8 @@ ARError(int returncode, ARStatusList status)
 	if (returncode == 0)
 		return ret;
 
-#ifndef WASTE_MEM
 	FreeARStatusList(&status, FALSE);
-#endif
+	status.numItems = 0;
 	return ret;
 }
 
@@ -2824,3 +2823,4 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 	}
 	return 0;
 }
+

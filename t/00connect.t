@@ -16,10 +16,11 @@ print "1..2\n";
 my($ctrl) = ars_Login(&CCACHE::SERVER, 
 		      &CCACHE::USERNAME, 
  		      &CCACHE::PASSWORD);
+
 if(!defined($ctrl)) {
-  print "not ok\n";
+  print "not ok [1]\n";
 } else {
-  print "ok\n";
+  print "ok [1]\n";
   ars_Logoff($ctrl);
 }
 
@@ -36,10 +37,12 @@ my $c = new ARS(-server => &CCACHE::SERVER,
 			    ARS::AR_RETURN_FATAL => undef
 			  },
 	       -debug => undef);
+
 if($c->hasErrors() || $c->hasFatals() || $c->hasWarnings()) {
-  print "not ok\n";
+  print "not ok [2]\n";
+#  print "messages: ", $c->messages(), "\n";
 } else {
-  print "ok\n";
+  print "ok [2]\n";
 }
 
 # exitting will cause $c to destruct, calling ars_Logoff() in the

@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.77 2001/10/18 16:42:28 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.78 2001/10/22 05:59:25 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -195,8 +195,14 @@ ars_Login(server,username,password)
 		struct timeval   tv;
 #endif
 
+		DBG( ("ars_Login(%s, %s, %s)\n", 
+			SAFEPRT(server),
+			SAFEPRT(username),
+			SAFEPRT(password)) );
+
 		RETVAL = NULL;
 		Zero(&status, 1, ARStatusList);
+		Zero(&serverList, 1, ARServerNameList);
 		(void) ARError_reset();  
 #ifdef PROFILE
 	  /* XXX
@@ -210,6 +216,7 @@ ars_Login(server,username,password)
 		((ars_ctrl *)ctrl)->startTime = 0;
 		((ars_ctrl *)ctrl)->endTime = 0;
 #else
+		DBG( ("safemalloc ARControlStruct\n") );
 		ctrl = (ARControlStruct *)safemalloc(sizeof(ARControlStruct));
 		Zero(ctrl, 1, ARControlStruct);
 #endif
@@ -232,45 +239,57 @@ ars_Login(server,username,password)
 #if AR_EXPORT_VERSION >= 4
 		/* call ARInitialization */
 		ret = ARInitialization(ctrl, &status);
+
 		if(ARError(ret, status)) {
+			DBG( ("ARInitialization failed %d\n", ret) );
 			safefree(ctrl);
 			goto ar_login_end;
 		}
 #endif
-		FreeARStatusList (&status, FALSE);
+
 		if (!server || !*server) {
+			DBG( ("no server give. picking one.\n") );
 #if AR_EXPORT_VERSION >= 4
 	  		ret = ARGetListServer(ctrl, &serverList, &status);
 #else
 	  		ret = ARGetListServer(&serverList, &status);
 #endif
-	  	if (ARError( ret, status)) {
-	    		safefree(ctrl); /* invalid, cleanup */
-	   		goto ar_login_end;
+	  		if (ARError( ret, status)) {
+	    			safefree(ctrl); /* invalid, cleanup */
+				DBG( ("ARGetListServer failed %d\n", ret) );
+	   			goto ar_login_end;
+	  		}
+			status.numItems = 0;
+	  		if (serverList.numItems == 0) {
+	     			(void) ARError_add( AR_RETURN_ERROR, AP_ERR_NO_SERVERS);
+	      			safefree(ctrl); /* invalid, cleanup */
+	      			goto ar_login_end;
+	    		}
+	    		server = serverList.nameList[0];
+			DBG( ("changing s_ok to 0, picked server %s\n",
+				SAFEPRT(server)) );
+	    		s_ok = 0;
 	  	}
-		FreeARStatusList (&status, FALSE);
-	  	if (serverList.numItems == 0) {
-	     		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_NO_SERVERS);
-	      		safefree(ctrl); /* invalid, cleanup */
-	      		goto ar_login_end;
-	    	}
-	    	server = serverList.nameList[0];
-	    	s_ok = 0;
-	  }
-	  strncpy(ctrl->server, server, sizeof(ctrl->server));
-	  ctrl->server[sizeof(ctrl->server)-1] = 0;
-	  /* finally, check to see if the user id is valid */
-	  ret = ARVerifyUser(ctrl, NULL, NULL, NULL, &status);
-	  if(ARError( ret, status)) {
-		safefree(ctrl); /* invalid, cleanup */
-	  } else
-	  	RETVAL = ctrl; /* valid, return ctrl struct */
-#ifndef WASTE_MEM
-	  if(s_ok == 0)
-	  	FreeARServerNameList(&serverList,FALSE);
-#endif
+	  	strncpy(ctrl->server, server, sizeof(ctrl->server));
+	 	ctrl->server[sizeof(ctrl->server)-1] = 0;
+
+	  	/* finally, check to see if the user id is valid */
+
+	  	ret = ARVerifyUser(ctrl, NULL, NULL, NULL, &status);
+	  	if(ARError( ret, status)) {
+			DBG( ("ARVerifyUser failed %d\n", ret) );
+			safefree(ctrl); /* invalid, cleanup */
+			RETVAL = NULL;
+	  	} else {
+	  		RETVAL = ctrl; /* valid, return ctrl struct */
+	  	}
+
+	  	if(s_ok == 0) {
+			DBG( ("s_ok == 0, cleaning ServerNameList\n") );
+	  		FreeARServerNameList(&serverList, FALSE);
+	  	}
 	ar_login_end:;
-		FreeARStatusList (&status, FALSE);
+		DBG( ("finished.\n") );
 	}
 	OUTPUT:
 	RETVAL
@@ -368,7 +387,6 @@ ars_Logoff(ctrl)
 		ret = ARTermination(&status);
 #endif
 		(void) ARError( ret, status);
-		FreeARStatusList (&status, FALSE);
 	/*		if(ctrl) safefree(ctrl); /**/
 	}
 
@@ -3423,45 +3441,59 @@ ars_MergeEntry(ctrl, schema, mergeType, ...)
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
 	  RETVAL = "";
+
 	  if ((items - 3) % 2 || c < 1) {
-	    (void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
-	    goto merge_entry_exit;
+	  	(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
+	  	goto merge_entry_exit;
 	  }
+
 	  fieldList.numItems = c;
-	  Newz(777,fieldList.fieldValueList,c,ARFieldValueStruct);
-	  for (i=0; i<c; i++) {
-	    a = i*2 + 3;
-	    fieldList.fieldValueList[i].fieldId = SvIV(ST(a));
-	    if (! SvOK(ST(a+1))) {
-	      /* pass a NULL */
-	      fieldList.fieldValueList[i].value.dataType = AR_DATA_TYPE_NULL;
-	    } else {
+	  Newz(777, fieldList.fieldValueList, c, ARFieldValueStruct);
+
+	  for (i = 0; i < c; i++) {
+	  	a = i*2 + 3;
+	  	fieldList.fieldValueList[i].fieldId = SvIV(ST(a));
+	  	if (! SvOK(ST(a+1))) {
+	  		/* pass a NULL */
+	  		fieldList.fieldValueList[i].value.dataType = 
+				AR_DATA_TYPE_NULL;
+	  	} else {
 #if AR_EXPORT_VERSION >= 3
-	      ret = ARGetFieldCached(ctrl, schema, fieldList.fieldValueList[i].fieldId, NULL, NULL, &dataType, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &status);
+	  		ret = ARGetFieldCached(ctrl, schema, 
+				fieldList.fieldValueList[i].fieldId, 
+				NULL, NULL, &dataType, NULL, NULL, NULL, NULL, 
+				NULL, NULL, NULL, NULL, NULL, NULL, NULL, &status);
 #else
-	      ret = ARGetFieldCached(ctrl, schema, fieldList.fieldValueList[i].fieldId, &dataType, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &status);
+	  		ret = ARGetFieldCached(ctrl, schema, 
+				fieldList.fieldValueList[i].fieldId, &dataType,
+				NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
+				NULL, NULL, NULL, &status);
 #endif
-	      if (ARError( ret, status)) {
-		goto merge_entry_end;
-	      }
-	      if (sv_to_ARValue(ctrl, ST(a+1), dataType, &fieldList.fieldValueList[i].value) < 0) {
-#ifndef WASTE_MEM
-		safefree(fieldList.fieldValueList);
-#endif
-		goto merge_entry_end;
-	      }
-	    }
+	  		if (ARError( ret, status)) {
+				DBG( ("GetFieldCached failed %d\n", ret) );
+				goto merge_entry_end;
+	   		}
+	   		if (sv_to_ARValue(ctrl, ST(a+1), dataType, 
+				&fieldList.fieldValueList[i].value) < 0) {
+				DBG( ("failed to convert to ARValue struct stack %d\n", a+1) );
+				safefree(fieldList.fieldValueList);
+				goto merge_entry_end;
+	  		}
+	  	}
 	  }
+
 	  ret = ARMergeEntry(ctrl, schema, &fieldList, mergeType, entryId, &status);
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
 #endif	  
 	  if (! ARError( ret, status)) {
-	    RETVAL = entryId;
+		DBG( ("MergeEntry returned %d\n", ret) );
+		DBG( ("entryId %s\n", SAFEPRT(entryId)) );
+	  	RETVAL = entryId;
 	  }
-#ifndef WASTE_MEM
+
 	  safefree(fieldList.fieldValueList);
-#endif
+
 	merge_entry_end:;
 	merge_entry_exit:;
 	}
