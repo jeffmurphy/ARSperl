@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/Dump_Setup.pl,v 1.2 1998/12/11 15:24:38 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/Dump_Setup.pl,v 1.3 1999/06/14 17:07:39 jcmurphy Exp $
 #
 # EXAMPLE
 #    Dump_Setup.pl [username] [password] [path]
@@ -17,6 +17,9 @@
 # 03/14/96
 #
 # $Log: Dump_Setup.pl,v $
+# Revision 1.3  1999/06/14 17:07:39  jcmurphy
+# added some login error checking
+#
 # Revision 1.2  1998/12/11 15:24:38  jcmurphy
 # adjustments to GetListSchema for >=3.0 systesm
 #
@@ -34,6 +37,7 @@ $perm = 0755;
 ($ACCOUNT, $PASSWORD, $path) = @ARGV;
 chomp($path = `pwd`) if (!$path);
 $c = ars_Login("localhost",$ACCOUNT,$PASSWORD);
+die "login error: $ars_errstr\n" unless defined($c);
 
 @schema = ars_GetListSchema($c, 0, 1024);
 @active = ars_GetListActiveLink($c);
