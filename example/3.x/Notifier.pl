@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/3.x/Attic/Notifier.pl,v 1.1 1997/02/13 15:52:43 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/3.x/Attic/Notifier.pl,v 1.2 1999/10/03 04:10:17 jcmurphy Exp $
 #
 # USAGE
 #   notifier.pl 
@@ -19,7 +19,7 @@ use Socket;
 $SIG{INT} = sub {
     print "control-c caught.\n";
     print "cleaning up.\n";
-    ars_NTDeregisterServer($server, $user, $password) ||
+    ars_NTDeregisterServer($server, $user, $password, 0) ||
 	warn "ars_NTDeRegisterServer: $ars_errstr";
     ars_NTTerminationServer() ||
 	warn "ars_NTTerminationServer: $ars_errstr";
@@ -73,7 +73,9 @@ ars_NTInitializationServer() || die "NTInitializationServer: $ars_errstr";
 
 print "Registering with NTServer on host $server ..\n";
 
-ars_NTRegisterServer($server, $user, $password, 2, $port, 1) || 
+ars_NTRegisterServer($server, $user, $password, $port,
+		     &ARS::NT_CLIENT_COMMUNICATION_SOCKET, 
+	             &ARS::NT_PROTOCOL_TCP) || 
     die "ars_NTRegisterServer: $ars_errstr";
 
 print "Registered.\n";
@@ -108,7 +110,9 @@ while(1) {
     sysread(Client, $buf, 1024) || print "sysread: $!";
     print "------DATA------\n";
     print "$buf\n";
-    syswrite(Client,"ack",3) || print "syswrite: $!\n";
+    syswrite(Client, 
+	     &ARS::NT_NOTIFY_ACK, 
+	     length(&ARS::NT_NOTIFY_ACK)) || print "syswrite: $!\n";
     print "\n---END OF DATA---\n";
 }
 
