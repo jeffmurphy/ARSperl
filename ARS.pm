@@ -21,6 +21,9 @@
 #    Comments to: arsperl@smurfland.cit.buffalo.edu
 #
 # $Log: ARS.pm,v $
+# Revision 1.16  1997/10/09 00:49:46  jcmurphy
+# 1.52: uninit'd var bug fix
+#
 # Revision 1.15  1997/10/07 14:29:01  jcmurphy
 # *** empty log message ***
 #
@@ -75,12 +78,23 @@ sub FETCH {
 		    4 => "INTERNAL ERROR",
 		   -1 => "TRACEBACK");
     for($i = 0; $i < $ARS::ars_errhash{numItems}; $i++) {
-	$s .= sprintf("[%s] %s (ARERR \#%d)",
-		      $mTypes{@{$ARS::ars_errhash{messageType}}[$i]},
-		      @{$ARS::ars_errhash{messageText}}[$i],
-		      @{$ARS::ars_errhash{messageNum}}[$i]);
-	if($i < $ARS::ars_errhash{numItems}-1) {
-	    $s .= "\n";
+
+	# If debugging is not enabled, don't show traceback messages
+
+	if($ARS::DEBUGGING == 1) {
+	    $s .= sprintf("[%s] %s (ARERR \#%d)",
+			  $mTypes{@{$ARS::ars_errhash{messageType}}[$i]},
+			  @{$ARS::ars_errhash{messageText}}[$i],
+			  @{$ARS::ars_errhash{messageNum}}[$i]);
+	    $s .= "\n" if($i < $ARS::ars_errhash{numItems}-1);
+	} else {
+	    if(@{$ARS::ars_errhash{messageType}}[$i] != -1) {
+		$s .= sprintf("[%s] %s (ARERR \#%d)",
+			      $mTypes{@{$ARS::ars_errhash{messageType}}[$i]},
+			      @{$ARS::ars_errhash{messageText}}[$i],
+			      @{$ARS::ars_errhash{messageNum}}[$i]);
+		$s .= "\n" if($i < $ARS::ars_errhash{numItems}-1);
+	    }
 	}
     }
     return $s;
@@ -118,7 +132,8 @@ ars_CreateActiveLink ars_CreateAdminExtension
 $ars_errstr %ARServerStats %ars_errhash
 );
 
-$VERSION = '1.51';
+$VERSION   = '1.51';
+$DEBUGGING = 0;
 
 bootstrap ARS $VERSION;
 tie $ars_errstr, ARS::ERRORSTR;

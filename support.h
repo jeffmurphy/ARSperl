@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.4 1997/10/07 14:29:38 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.5 1997/10/09 00:49:28 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.4 1997/10/07 14:29:38 jcmu
     LOG:
 
 $Log: support.h,v $
+Revision 1.5  1997/10/09 00:49:28  jcmurphy
+1.52: uninit'd var bug fix
+
 Revision 1.4  1997/10/07 14:29:38  jcmurphy
 1.51
 
@@ -376,9 +379,11 @@ EXTERN SV *perl_ARAssignSQLStruct(ARAssignSQLStruct *in);
 # define MEMCAST char
 #endif
 
-EXTERN int compmem(MEMCAST *m1, MEMCAST *m2, int size);
+#define ZEROMEM(ptr, sizetype) zeromem((MEMCAST *) ptr, sizeof(sizetype))
+
+EXTERN int  compmem(MEMCAST *m1, MEMCAST *m2, int size);
 EXTERN void zeromem(MEMCAST *m, int size);
-EXTERN int copymem(MEMCAST *m1, MEMCAST *m2, int size);
+EXTERN int  copymem(MEMCAST *m1, MEMCAST *m2, int size);
 
 #ifndef ARSPERL_MEMDEBUG
 
