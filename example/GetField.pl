@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/GetField.pl,v 1.3 1997/11/26 20:05:54 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/GetField.pl,v 1.4 1998/09/11 14:46:18 jcmurphy Exp $
 #
 # EXAMPLE
 #    GetField.pl [server] [username] [password] [schema] [fieldname]
@@ -18,6 +18,11 @@
 # 02/19/97
 #
 # $Log: GetField.pl,v $
+# Revision 1.4  1998/09/11 14:46:18  jcmurphy
+# altered script logic so that it figures out whether it
+# should decode a hash or array on the fly.
+# fixed typo that was causing arrays not to be printed.
+#
 # Revision 1.3  1997/11/26 20:05:54  jcmurphy
 # nada
 #
@@ -31,14 +36,6 @@
 #
 
 use ARS;
-
-%subHashes = ("displayInstanceList" => 1,
-	      "permissions" => 1,
-	      "limit" => 1,
-	      "fieldMap" => 1);
-
-%subArrays = ("dInstanceList" => 1,
-	      "commonProps" => 1);
 
 # Parse command line parameters
 
@@ -100,11 +97,11 @@ sub dumpKV {
 
   foreach $k (keys %$hr){
       print "\t"x$i."key=<$k> val=<$hr->{$k}>\n";
-      if($subHashes{$k} == 1) {
-	dumpKV($hr->{$k}, $i+1);
+      if(ref($hr->{$k}) eq "HASH") {
+	  dumpKV($hr->{$k}, $i+1);
       }
-      elsif($subArrays{$k} == 1) {
-        dumpAV($hr->{k}, $i+1);
+      elsif(ref($hr->{$k}) eq "ARRAY") {
+	  dumpAV($hr->{$k}, $i+1);
       }
   }
 }
@@ -112,7 +109,19 @@ sub dumpKV {
 sub dumpAV {
    my $ar = shift;
    my $i = shift;
+   my $a = 0;
 
-   print "\t"x$i."(".join(',', @$ar).")\n";
+   foreach (@$ar) {
+      print "\t"x$i."index=<$a> val=<$_>\n";
+      if(ref($_) eq "HASH") {
+	  dumpKV($_, $i+1);
+      }
+      elsif(ref($_) eq "ARRAY") {
+	  dumpAV($_, $i+1);
+      }
+
+      $a++;
+  }
+
 }
 
