@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.53 2004/08/13 01:09:42 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.54 2004/08/13 01:54:13 jcmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -19,14 +19,15 @@ use Config;
 
 $debug = 0;
 
-###### There are TWO (2) steps to complete. Complete both of them. ######
+###### There are THREE (3) steps to complete. Complete all of them. ######
 
 # STEP 1 -> Set the path to your ARS API directory
 
 $ARSAPI     = "/usr/ar/api";
-$ARSAPI     = "/u1/project/ARSperl/api/sol2/api5.1.1";
-$ARSAPI     = "/u1/project/ARSperl/api/linux/4.5";
+#$ARSAPI     = "/u1/project/ARSperl/api/sol2/api5.1.1";
+#$ARSAPI     = "/u1/project/ARSperl/api/linux/4.5";
 #$ARSAPI     = "/u1/project/ARSperl/api/linux/4.0";
+$ARSAPI     = "/u1/project/ARSperl/api/linux/5.1.1";
 #$ARSAPI     = "/home/jcmurphy/arsperl/api/5.1";
 
 # STEP 2 -> Choose your version of ARS FROM THE FOLLOWING LIST
@@ -42,8 +43,21 @@ $ARSAPI     = "/u1/project/ARSperl/api/linux/4.5";
 #              your version (e.g. for 4.5 you would specify 4.0, NOT
 #	       4.52)
 #           
-$ARSVERSION = 4.5;
+$ARSVERSION = 5.0;
 
+# STEP 3 -> Choose whether or not to enable encryption
+#
+# 0 -> No encryption library linking
+# 1 -> Link against Remedy's encryption library
+$ENCRYPT = 0;
+
+
+
+
+
+
+
+##############################
 # unless you run into problems, you shouldn't need to read any further.
 # if you do run into problems, and don't really know what this file
 # does, try subscribing to the mailing list and ask for help there.
@@ -59,6 +73,9 @@ $AUTODEFINES = "-D_WIN32" if($WINDOWS);
 
 if($ARSVERSION >= 4.0) {
   $ARS_LIBS = "-lar -lnsl";
+  if($ENCRYPT == 1) {
+    $ARS_LIBS = "-lar -larencrypt -lnsl";
+  } 
   $ARS_LIBS .= " -lnts" unless ($ARSVERSION >= 5.0);
   $ARS_LIBS .= " -lpthread" unless $WINDOWS;
   $AUTODEFINES .= " -DARS32 ";	

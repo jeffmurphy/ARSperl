@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.94 2003/09/04 15:34:42 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.95 2004/08/13 01:54:13 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -469,6 +469,9 @@ ars_GetFieldByName(control,schema,field_name)
 	  int              ret, loop;
 	  ARInternalIdList idList;
 	  ARStatusList     status;
+#if AR_EXPORT_VERSION >= 8L
+          ARPropList       propList;
+#endif
 #if AR_EXPORT_VERSION >= 3
 	  ARNameType       fieldName;
 #else
@@ -913,7 +916,11 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve=0,firstRetrieve=0,...)
 			sortList.sortList[i].sortOrder = SvIV(ST(i*2+field_off+1));
 	  	}
 	  }
-#if AR_EXPORT_VERSION >= 6
+#if AR_EXPORT_VERSION >= 8L
+	  ret = ARGetListEntry(ctrl, schema, qualifier, getList, &sortList, 
+				firstRetrieve, maxRetrieve, FALSE, &entryList, 
+				NULL, &status);
+#elif AR_EXPORT_VERSION >= 6
 	  ret = ARGetListEntry(ctrl, schema, qualifier, getList, &sortList, 
 				firstRetrieve, maxRetrieve, &entryList, 
 				NULL, &status);
@@ -966,18 +973,21 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve=0,firstRetrieve=0,...)
 	  FreeAREntryListList(&entryList,FALSE);
 	}
 
-void
-ars_GetListSchema(ctrl,changedsince=0,schemaType=AR_LIST_SCHEMA_ALL,name=NULL,fieldIdList=NULL)
+void ars_GetListSchema(ctrl,changedsince=0,schemaType=AR_LIST_SCHEMA_ALL,fieldPropList=NULL,name=NULL,fieldIdList=NULL)
 	ARControlStruct *	ctrl
 	unsigned int		changedsince
 	unsigned int		schemaType
 	char *			name
 	AV *			fieldIdList
+	ARPropList *		fieldPropList
 	PPCODE:
 	{
 	  ARNameList   nameList;
 	  ARStatusList status;
 	  int          i, ret;
+#if AR_EXPORT_VERSION >= 8L
+	  ARPropList propList;
+#endif
 #if AR_EXPORT_VERSION >= 6
 	  ARInternalIdList idList;
 
@@ -1003,7 +1013,9 @@ ars_GetListSchema(ctrl,changedsince=0,schemaType=AR_LIST_SCHEMA_ALL,name=NULL,fi
 #endif
 #if AR_EXPORT_VERSION >= 3
 	  ret = ARGetListSchema(ctrl, changedsince, schemaType, name, 
-# if AR_EXPORT_VERSION >= 6
+# if AR_EXPORT_VERSION >= 8L
+				&idList, &propList,
+# elif AR_EXPORT_VERSION >= 6 && AR_EXPORT_VERSION < 8L
 				&idList,
 # endif
 				&nameList, &status);
@@ -1044,6 +1056,9 @@ ars_GetListContainer(ctrl,changedSince=0,attributes=0,...)
 # else
 		ARContainerOwnerObj 	ownerObj;
 # endif
+# if AR_EXPORT_VERSION >= 8L
+		ARPropList		propList;
+# endif
 		ARContainerInfoList	conList;
 
 		containerTypes.numItems = items - 3;
@@ -1061,6 +1076,10 @@ ars_GetListContainer(ctrl,changedSince=0,attributes=0,...)
 # else
 					&ownerObj, 
 # endif
+# if AR_EXPORT_VERSION >= 8L
+                                        &propList,
+# endif
+
 					&conList, &status);
 		if(!ARError(i, status)) {
 			HV *r = newHV();				
@@ -1673,6 +1692,10 @@ ars_GetSchema(ctrl,name)
 #else
 	  ARInternalIdList     groupList;
 #endif
+#if AR_EXPORT_VERSION >= 8L
+	  ARSchemaInheritanceList inheritanceList;
+	  ARArchiveInfoStruct infoStruct;
+#endif
 	  ARInternalIdList     adminGroupList;
 	  AREntryListFieldList getListFields;
 	  ARIndexList          indexList;
@@ -1700,8 +1723,15 @@ ars_GetSchema(ctrl,name)
 #endif
 	  RETVAL = newHV();
 #if AR_EXPORT_VERSION >= 3
-	  ret = ARGetSchema(ctrl, name, &schema, &groupList, &adminGroupList, &getListFields, 
+	  ret = ARGetSchema(ctrl, name, &schema, 
+#if AR_EXPORT_VERSION >= 8L
+                            &inheritanceList,
+#endif
+			    &groupList, &adminGroupList, &getListFields, 
 			    &sortList, &indexList, 
+#if AR_EXPORT_VERSION >= 8L
+                            &infoStruct,
+#endif
 # if AR_EXPORT_VERSION >= 6
 			    defaultVui,
 # endif
@@ -1805,11 +1835,16 @@ ars_GetListActiveLink(ctrl,schema=NULL,changedSince=0)
 	{
 	  ARNameList   nameList;
 	  ARStatusList status;
+          ARPropList   propList;
 	  int          ret, i;
 
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
-	  ret=ARGetListActiveLink(ctrl,schema,changedSince,&nameList,&status);
+	  ret=ARGetListActiveLink(ctrl,schema,changedSince,
+#if AR_EXPORT_VERSION >= 8L
+                     &propList,
+#endif
+                     &nameList,&status);
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
 #endif
@@ -2055,6 +2090,9 @@ ars_Export(ctrl,displayTag,vuiType,...)
 		ARStructItemList structItems;
 		char            *buf = CPNULL;
 		ARStatusList     status;
+#if AR_EXPORT_VERSION >= 8L
+                ARWorkflowLockStruct workflowLockStruct;
+#endif
 	  
 		(void) ARError_reset();
 		Zero(&status, 1, ARStatusList);
@@ -2091,6 +2129,9 @@ ars_Export(ctrl,displayTag,vuiType,...)
 			ret = ARExport(ctrl, &structItems, displayTag, 
 #if AR_EXPORT_VERSION >= 6
 				       vuiType,
+#endif
+#if AR_EXPORT_VERSION >= 8L
+                                       &workflowLockStruct,
 #endif
 				       &buf, &status);
 #ifdef PROFILE
@@ -2182,11 +2223,16 @@ ars_GetListFilter(control,schema=NULL,changedsince=0)
 	{
 	  ARNameList   nameList;
 	  ARStatusList status;
+	  ARPropList   propList;
 	  int          ret, i;
 
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
-	  ret = ARGetListFilter(control,schema,changedsince,&nameList,&status);
+	  ret = ARGetListFilter(control,schema,changedsince,
+#if AR_EXPORT_VERSION >= 8L
+                               &propList,
+#endif
+                               &nameList,&status);
 #ifdef PROFILE
 	  ((ars_ctrl *)control)->queries++;
 #endif
@@ -2206,11 +2252,16 @@ ars_GetListEscalation(control,schema=NULL,changedsince=0)
 	{
 	  ARNameList   nameList;
 	  ARStatusList status;
+	  ARPropList   propList;
 	  int          ret, i;
 
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
-	  ret = ARGetListEscalation(control,schema,changedsince,&nameList,&status);
+	  ret = ARGetListEscalation(control,schema,changedsince,
+#if AR_EXPORT_VERSION >= 8L
+                                    &propList,
+#endif
+                                    &nameList,&status);
 #ifdef PROFILE
 	  ((ars_ctrl *)control)->queries++;
 #endif
@@ -2229,11 +2280,18 @@ ars_GetListCharMenu(control,changedsince=0)
 	{
 	  ARNameList   nameList;
 	  ARStatusList status;
+          ARPropList   propList;
+          ARNameList   schemaNameList;
+          ARNameList   actLinkNameList;
 	  int          ret, i;
 
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
-	  ret = ARGetListCharMenu(control,changedsince,&nameList,&status);
+	  ret = ARGetListCharMenu(control,changedsince,
+#if AR_EXPORT_VERSION >= 8L
+                                  &schemaNameList, &actLinkNameList, &propList,
+#endif
+                                  &nameList,&status);
 #ifdef PROFILE
 	  ((ars_ctrl *)control)->queries++;
 #endif
@@ -2286,7 +2344,11 @@ ars_DeleteActiveLink(ctrl, name)
 	  Zero(&status, 1,ARStatusList);
 	  RETVAL = 0;
 	  if(ctrl && CVLD(name)) {
-		ret = ARDeleteActiveLink(ctrl, name, &status);
+		ret = ARDeleteActiveLink(ctrl, name, 
+#if AR_EXPORT_VERSION >= 8L
+                                         0,
+#endif
+                                         &status);
 #ifdef PROFILE
 	        ((ars_ctrl *)ctrl)->queries++;
 #endif		
@@ -2377,7 +2439,11 @@ ars_DeleteCharMenu(ctrl, name)
 	  Zero(&status, 1,ARStatusList);
 	  RETVAL = 0;
 	  if(ctrl && name && *name) {
-		ret = ARDeleteCharMenu(ctrl, name, &status);
+		ret = ARDeleteCharMenu(ctrl, name, 
+#if AR_EXPORT_VERSION >= 8L
+                                       0,
+#endif
+                                       &status);
 #ifdef PROFILE
 	        ((ars_ctrl *)ctrl)->queries++;
 #endif
@@ -2404,7 +2470,11 @@ ars_DeleteEscalation(ctrl, name)
 	  Zero(&status, 1,ARStatusList);
 	  RETVAL = 0;
 	  if(ctrl && name && *name) {
-		ret = ARDeleteEscalation(ctrl, name, &status);
+		ret = ARDeleteEscalation(ctrl, name, 
+#if AR_EXPORT_VERSION >= 8L
+                                         0,
+#endif
+                                         &status);
 #ifdef PROFILE
 	        ((ars_ctrl *)ctrl)->queries++;
 #endif
@@ -2460,7 +2530,11 @@ ars_DeleteFilter(ctrl, name)
 	  Zero(&status, 1,ARStatusList);
 	  RETVAL = 0;
 	  if(ctrl && name && *name) {
-		ret = ARDeleteFilter(ctrl, name, &status);
+		ret = ARDeleteFilter(ctrl, name, 
+#if AR_EXPORT_VERSION >= 8L
+                                     0,
+#endif
+                                     &status);
 #ifdef PROFILE
 	        ((ars_ctrl *)ctrl)->queries++;
 #endif
@@ -3806,6 +3880,9 @@ ars_GetListEntryWithFields(ctrl,schema,qualifier,maxRetrieve=0,firstRetrieve=0,.
 		firstRetrieve,
 #endif
 		maxRetrieve, 
+#if AR_EXPORT_VERSION >= 8L
+                FALSE,
+#endif
 		&entryFieldValueList, NULL, &status);
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;

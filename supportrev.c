@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.21 2003/07/03 19:01:14 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.22 2004/08/13 01:54:13 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -824,7 +824,11 @@ rev_ARActiveLinkActionList_helper(ARControlStruct * ctrl, HV * h, ARActiveLinkAc
 	} else if (hv_exists(h,  "assign_fields", strlen("assign_fields") )) {
 		al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_FIELDS;
 		rv += rev_ARFieldAssignList(ctrl, h, "assign_fields",
+#if AR_EXPORT_VERSION >= 8L
+					&(al->actionList[idx].u.setFields));
+#else
 					&(al->actionList[idx].u.fieldList));
+#endif
 	} else if (hv_exists(h,  "message", strlen("message") )) {
 		al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_MESSAGE;
 #if AR_EXPORT_VERSION >= 4

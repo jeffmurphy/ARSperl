@@ -1267,7 +1267,11 @@ perl_ARActiveLinkActionStruct(ARControlStruct * ctrl, ARActiveLinkActionStruct *
 	case AR_ACTIVE_LINK_ACTION_FIELDS:
 		hv_store(hash,  "assign_fields", strlen("assign_fields") ,
 			 perl_ARList(ctrl,
+#if AR_EXPORT_VERSION >= 8L
+				     (ARList *) & in->u.setFields,
+#else
 				     (ARList *) & in->u.fieldList,
+#endif
 				     (ARS_fn) perl_ARFieldAssignStruct,
 				     sizeof(ARFieldAssignStruct)), 0);
 		break;
@@ -1296,7 +1300,11 @@ perl_ARActiveLinkActionStruct(ARControlStruct * ctrl, ARActiveLinkActionStruct *
 		/*ARPushFieldsList;*/
 		hv_store(hash,  "fieldp", strlen("fieldp") ,
 			 perl_ARList(ctrl, 
+#if AR_EXPORT_VERSION >= 8L
+				     (ARList *)& in->u.pushFields,
+#else
 				     (ARList *)& in->u.pushFieldsList,
+#endif
 				     (ARS_fn) perl_ARPushFieldsStruct,
 				     sizeof(ARPushFieldsStruct)), 0);
 		break;
@@ -1403,7 +1411,11 @@ perl_ARFilterActionStruct(ARControlStruct * ctrl, ARFilterActionStruct * in)
 	case AR_FILTER_ACTION_FIELDS:
 		hv_store(hash,  "assign_fields", strlen("assign_fields") ,
 			 perl_ARList(ctrl,
+#if AR_EXPORT_VERSION >= 8L
+				     (ARList *) & in->u.setFields,
+#else
 				     (ARList *) & in->u.fieldList,
+#endif
 				     (ARS_fn) perl_ARFieldAssignStruct,
 				     sizeof(ARFieldAssignStruct)), 0);
 		break;
@@ -1417,7 +1429,11 @@ perl_ARFilterActionStruct(ARControlStruct * ctrl, ARFilterActionStruct * in)
                  /*ARPushFieldsList;*/
                  hv_store(hash,  "fieldp", strlen("fieldp") ,
                           perl_ARList(ctrl,
+#if AR_EXPORT_VERSION >= 8L
+                                      (ARList *)& in->u.pushFields,
+#else
                                       (ARList *)& in->u.pushFieldsList,
+#endif
                                       (ARS_fn) perl_ARPushFieldsStruct,
                                       sizeof(ARPushFieldsStruct)),0);
                  break;
@@ -2243,6 +2259,7 @@ dup_Value(ARControlStruct * ctrl, ARValueStruct * n, ARValueStruct * in)
 	case AR_DATA_TYPE_BITMASK:
 	case AR_DATA_TYPE_ENUM:
 	case AR_DATA_TYPE_ULONG:
+#if AR_EXPORT_VERSION > 6L
 	case AR_DATA_TYPE_DATE:
 		n->u = in->u;
 		break;
@@ -2250,6 +2267,7 @@ dup_Value(ARControlStruct * ctrl, ARValueStruct * n, ARValueStruct * in)
 		n->u.currencyVal = dup_ARCurrencyStruct(ctrl, 
 							in->u.currencyVal);
 		break;
+#endif
 	case AR_DATA_TYPE_CHAR:
 		n->u.charVal = strdup(in->u.charVal);
 		break;
@@ -2957,14 +2975,12 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 		case AR_DATA_TYPE_BITMASK:
 			out->u.maskVal = SvIV(in);
 			break;
-#if AR_EXPORT_VERSION >= 7
+#if AR_EXPORT_VERSION >= 7L
 		case AR_DATA_TYPE_DATE:
 			out->u.dateVal = SvIV(in);
 			break;
-		case AR_DATA_TYPE_TIME:
-			out->u.timeVal = SvIV(in);
-			break;
 		case AR_DATA_TYPE_CURRENCY:
+#if 0 /* XX FINISH */
 			if (SvROK(in)) {
 				if (SvTYPE (hash = (HV *)SvRV(in)) == SVt_PVHV) {
 					fetch = hv_fetch(hash, "value", 5, FALSE);
@@ -2992,7 +3008,8 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 					out->u.currencyVal = MALLOCNN(sizeof(ARCurrencyStruct));
 					out->u.currencyVal->value = strdup(SvPV(val, PL_na));
 					out->u.currencyVal->currencyCode = strdup(SvPV(type, PL_na));
-
+#endif
+#endif /* 7L */
 
 					
 
