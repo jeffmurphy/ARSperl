@@ -1,6 +1,7 @@
 released=xx/yy/2001 version=1.72
 JCM modified Makefile.PL to handle changes to _SERVER_INFO definitions
     in 4.5.x
+JCM memory leak fixes
 
 released=10/30/2000 version=1.71
 JCM modified support-h.template to compile against api3.0
