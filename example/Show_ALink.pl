@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/Show_ALink.pl,v 1.1 1996/11/21 20:13:55 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/Show_ALink.pl,v 1.2 1997/11/11 15:04:47 jcmurphy Exp $
 #
 # EXAMPLE
 #    Show_ALink.pl
@@ -25,12 +25,17 @@
 # 01/12/96
 # 
 # $Log: Show_ALink.pl,v $
+# Revision 1.2  1997/11/11 15:04:47  jcmurphy
+# added qual decoding
+#
 # Revision 1.1  1996/11/21 20:13:55  jcmurphy
 # Initial revision
 #
 #
 
 use ARS;
+$debug = 0;
+require 'ars_QualDecode.pl';
 
 @MessageTypes = ( "Note", "Warn", "Error" );
 
@@ -409,6 +414,11 @@ foreach $display (@{$a->{displayList}}) {
 print "\n";
 
 print  "Qualification: ".$a->{query}."\n";
+
+$dq = ars_perl_qualifier($a->{query});
+$dq_text = ars_Decode_QualHash($ctrl, $a->{schema}, $dq);
+
+print  "    Qual Text: $dq_text\n";
 print  "Actions:\n";
 
 ProcessActions(@{$a->{actionList}});
