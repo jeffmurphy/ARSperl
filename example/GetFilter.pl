@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/GetFilter.pl,v 1.5 1998/09/16 14:38:31 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/GetFilter.pl,v 1.6 1998/10/14 13:54:53 jcmurphy Exp $
 #
 # NAME
 #   GetFilter.pl
@@ -16,6 +16,9 @@
 #   jcmurphy@acsu.buffalo.edu
 #
 # $Log: GetFilter.pl,v $
+# Revision 1.6  1998/10/14 13:54:53  jcmurphy
+# fixed syntax error
+#
 # Revision 1.5  1998/09/16 14:38:31  jcmurphy
 # updated changeDiary code
 #
@@ -106,8 +109,8 @@ print "changeDiary : ".$finfo->{"changeDiary"}."\n";
 
 foreach (@{$finfo->{"changeDiary"}}) {
     print "\tTIME: ".localtime($_->{"timestamp"})."\n";
-    print "\tUSER: $_->{"user"}\n";
-    print "\tWHAT: $_->{"value"}\n";
+    print "\tUSER: $_->{'user'}\n";
+    print "\tWHAT: $_->{'value'}\n";
 }
 
 ars_Logoff($ctrl);

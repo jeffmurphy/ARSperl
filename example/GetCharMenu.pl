@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/GetCharMenu.pl,v 1.4 1998/09/16 14:38:31 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/GetCharMenu.pl,v 1.5 1998/10/14 13:55:34 jcmurphy Exp $
 #
 # NAME
 #   GetCharMenu.pl
@@ -16,6 +16,9 @@
 #   jcmurphy@acsu.buffalo.edu
 #
 # $Log: GetCharMenu.pl,v $
+# Revision 1.5  1998/10/14 13:55:34  jcmurphy
+# fixed syntax error
+#
 # Revision 1.4  1998/09/16 14:38:31  jcmurphy
 # updated changeDiary code
 #
@@ -71,8 +74,8 @@ print "changeDiary : ".$finfo->{"changeDiary"}."\n";
 
 foreach (@{$finfo->{"changeDiary"}}) {
     print "\tTIME: ".localtime($_->{"timestamp"})."\n";
-    print "\tUSER: $_->{"user"}\n";
-    print "\tWHAT: $_->{"value"}\n";
+    print "\tUSER: $_->{'user'}\n";
+    print "\tWHAT: $_->{'value'}\n";
 }
 
 print "refreshCode : ".$finfo->{"refreshCode"}."\n";
