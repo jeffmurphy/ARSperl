@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.6 1998/09/11 17:59:43 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.7 1999/03/12 07:28:19 jcmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -13,6 +13,9 @@
 #    run with "perl Makefile.PL" then type "make"
 #
 # $Log: Makefile.PL,v $
+# Revision 1.7  1999/03/12 07:28:19  jcmurphy
+# revised and simplified
+#
 # Revision 1.6  1998/09/11 17:59:43  jcmurphy
 # added autogeneration of support.h file
 # updated instructions
@@ -25,29 +28,71 @@
 #
 
 use ExtUtils::MakeMaker;
+use Config;
 
-# There are THREE (3) steps to complete. Complete them all.
+$debug = 0;
 
+###### There are TWO (2) steps to complete. Complete both of them. ######
 
 # STEP 1 -> Set the path to your ARS API directory
 
-$ARSAPI     = "/usr/ars/api";
+$ARSAPI     = "/usr/ar/api";
 
-#$ARSAPI     = "/u1/project/ARSperl/api/sol2/api2.1";
+# STEP 2 -> Choose your version of ARS
+#           example: 2.0 2.1 3.0 3.1 3.2 4.0
+#           note: don't include the maint number (e.g. use 3.2 NOT 3.2.1)
+
+$ARSVERSION = 4.0;
+
+# unless you run into problems, you shouldn't need to read any further.
+# if you do run into problems, and don't really know what this file
+# does, try subscribing to the mailing list and ask for help there.
+# subscription information is available at http://arsinfo.cit.buffalo.edu/perl
+
+$WINDOWS = ($^O eq 'MSWin32');
+
+#        Windows NT: no "-lpthread"
+#        NCR UNIX: add "-lc -lnet"
+
+$AUTODEFINES = "-DPROFILE ";
+$AUTODEFINES = "-D_WIN32" if($WINDOWS);
+
+if($ARSVERSION >= 4.0) {
+  $ARS_LIBS = "-lar -lnsl -lnts";
+  $ARS_LIBS .= " -lpthread" unless $WINDOWS;
+}
+
+elsif($ARSVERSION >= 3.0 && $ARSVERSION < 4.0) {
+  $ARS_LIBS = "-lar -lnsl -lnts";
+  $AUTODEFINES .= " -DARS32 " if($ARSVERSION == 3.2);
+}
+
+elsif($ARSVERSION >= 2.0 && $ARSVERSION < 3.0) {
+  $ARS_LIBS = "-lar -lnsl -lnts -lntc";
+  $AUTODEFINES .= " -DARS20 " if($ARSVERSION == 2.0);
+}
+
+
+push(@extras, CAPI => 'TRUE') if ($] >= 5.005 and $^O eq 'MSWin32'
+				  and $Config{archname} =~ /-object\b/i);
+
+#$ARSAPI     = "/u1/project/ARSperl/api/sol2/api3.2";
+
 $ARS_LDPATH = "-L$ARSAPI/lib";
 $INCLUDES   = "-I$ARSAPI/include";
 
-# STEP 2 -> Choose your version of ARS
-
-#    3.0 libraries:
-
-$ARS_LIBS = "-lar -lnsl -lnts";
-
-#    2.x libraries:
-
-#$ARS_LIBS = "-lar -lnsl -lnts -lntc";
-
 GenerateSupportDotH("support-h.template", $INCLUDES);
+
+print "Convering C header files to perl modules ..\n";
+
+foreach ("ar", "arerrno", "nt", "nterrno") {
+  system("h2ph < ${ARSAPI}/include/${_}.h > ARS${_}-h.pm");
+}
+
+print "Configuring with options:\n";
+printf "\tARSVERSION  = %.1f\n", $ARSVERSION;
+print "\tARSAPI      = $ARSAPI\n";
+print "\tAUTODEFINES = $AUTODEFINES\n";
 
 WriteMakefile(
 	      'NAME'	=> 'ARS',
@@ -55,25 +100,17 @@ WriteMakefile(
 	      'LIBS'	=> ["${ARS_LDPATH} ${ARS_LIBS}"],
 	      'OBJECT'  => q[ARS$(OBJ_EXT) support$(OBJ_EXT) supportrev$(OBJ_EXT)],
 	      'INC'	=> "${INCLUDES}",
+	      @extras,
 
-# STEP 3 -> DEFINE OPTIONS:
-#
-#    -DWASTE_MEM
-#
-#       If you want to free() allocated memory, don't define WASTE_MEM
-#       In the past, there were some bad free() problems so we offered
-#       this option.
-#
-#    -DARSPERL_MALLOCDEBUG
-#       Enable debugging output for malloc() calls. Needs GCC. Very Verbose.
-#
-#    -DARSPERL_FREEDEBUG
-#       Enable debugging output for free() calls. Needs GCC. Very Verbose.
+# DEFINE OPTIONS:
+#  NOTE: these should automatically be detected and configured above.
+#        see the $AUTODEFINES variable above.
 #
 #    -DPROFILE
 #
 #       Enable query profiling code (very little overhead).
 #       See ars_GetProfileInfo() call for details.
+#       Don't use this if you are compiling on _WIN32
 #
 #    -DARS20
 #
@@ -87,15 +124,18 @@ WriteMakefile(
 #
 #    -D_WIN32
 #
-#       If you are compiling ARSperl until windows, define this.
+#       If you are compiling ARSperl until windows, define this
+#       and /don't/ define PROFILE.
 #
-#    -DSKIP_SV_ISA
+#    -DSKIP_SV_ISA  (not automatically set)
 #
 #       If you get errors during compilation/runtime similar to 
 #       "undefined symbol: sv_isa" then add this define.
 
-	      'DEFINE'	=> '-DPROFILE -DARS32',
-#
+	      'DEFINE'	=> ${AUTODEFINES},
+#             'DEFINE'  => '-D_WIN32 ', # note: win32 -> no -DPROFILE
+
+
 # if you have trouble under solaris when linking (bfd assertion 
 # failures) try uncommenting the following:
 #
@@ -103,8 +143,11 @@ WriteMakefile(
 
 # don't fiddle with this
 
-              'realclean' => { 'FILES' => 'support.h' }   
+              'realclean' => { 'FILES' => 'support.h ARSar-h.pm ARSarerrno-h.pm ARSnt-h.pm ARSnterrno-h.pm' }   
 );
+
+print "\nNote: if you want to do a \"make test\" you should first 
+edit t/config and fill in the blanks.\n\n";
 
 exit 0;
 
@@ -142,7 +185,7 @@ sub GenerateSupportDotH {
 	    my($line, $code);
 	    foreach $line (grep (/^\#define\s+AR_MENU_REFRESH.*/, @arh)) {
 		$code = (split(/\s/, $line))[1];
-		print "\t\t$code\n";
+		print "\t\t$code\n" if $debug;
 		$code =~ /^AR_MENU_REFRESH_(\w+)/;
 		print FD "  { $code, \t\t\"\L$1\E\" },\n";
 	    }
@@ -158,7 +201,7 @@ sub GenerateSupportDotH {
 		# schema and field.
 
 		if($code !~ /_VIEW|_CHANGE/) {
-		    print "\t\t$code\n";
+		    print "\t\t$code\n" if $debug;
 		    $code =~ /^AR_PERMISSIONS_(\w+)/;
 		    print FD "  { $code, \t\t\"\L$1\E\" },\n";
 		}
@@ -172,7 +215,7 @@ sub GenerateSupportDotH {
 
 		# _visible & _hidden are schema permissions
 		if($code !~ /_VISIBLE|_HIDDEN/) {
-		    print "\t\t$code\n";
+		    print "\t\t$code\n" if $debug;
 		    $code =~ /^AR_PERMISSIONS_(\w+)/;
 		    print FD "  { $code, \t\t\"\L$1\E\" },\n";
 		}
@@ -184,7 +227,7 @@ sub GenerateSupportDotH {
 	    foreach $line (grep (/^\#define\s+AR_DATA_TYPE.*/, @arh)) {
 		$code = (split(/\s/, $line))[1];
 
-		print "\t\t$code\n";
+		print "\t\t$code\n" if $debug;
 		$code =~ /^AR_DATA_TYPE_(\w+)/;
 		print FD "  { $code, \t\t\"\L$1\E\" },\n";
 	    }
@@ -195,7 +238,7 @@ sub GenerateSupportDotH {
 	    foreach $line (grep (/^\#define\s+AR_BYTE_LIST.*/, @arh)) {
 		$code = (split(/\s/, $line))[1];
 
-		print "\t\t$code\n";
+		print "\t\t$code\n" if $debug;
 		$code =~ /^AR_BYTE_LIST_(\w+)/;
 		print FD "  { $code, \t\t\"\L$1\E\" },\n";
 	    }
@@ -206,7 +249,7 @@ sub GenerateSupportDotH {
 	    foreach $line (grep (/^\#define\s+AR_NO_MATCH.*/, @arh)) {
 		$code = (split(/\s/, $line))[1];
 
-		print "\t\t$code\n";
+		print "\t\t$code\n" if $debug;
 		$code =~ /^AR_NO_MATCH_(\w+)/;
 		print FD "  { $code, \t\t\"\L$1\E\" },\n";
 	    }
@@ -217,7 +260,7 @@ sub GenerateSupportDotH {
 	    foreach $line (grep (/^\#define\s+AR_MULTI_MATCH.*/, @arh)) {
 		$code = (split(/\s/, $line))[1];
 
-		print "\t\t$code\n";
+		print "\t\t$code\n" if $debug;
 		$code =~ /^AR_MULTI_MATCH_(\w+)/;
 		print FD "  { $code, \t\t\"\L$1\E\" },\n";
 	    }
@@ -228,7 +271,7 @@ sub GenerateSupportDotH {
 	    foreach $line (grep (/^\#define\s+AR_FUNCTION.*/, @arh)) {
 		$code = (split(/\s/, $line))[1];
 
-		print "\t\t$code\n";
+		print "\t\t$code\n" if $debug;
 		$code =~ /^AR_FUNCTION_(\w+)/;
 		print FD "  { $code, \t\t\"\L$1\E\" },\n";
 	    }
@@ -239,7 +282,7 @@ sub GenerateSupportDotH {
 	    foreach $line (grep (/^\#define\s+AR_KEYWORD.*/, @arh)) {
 		$code = (split(/\s/, $line))[1];
 
-		print "\t\t$code\n";
+		print "\t\t$code\n" if $debug;
 		$code =~ /^AR_KEYWORD_(\w+)/;
 		printf(FD "  { %s, \t\t\"\\0\L%s\E\\0\", \t\t%d },\n",
 		       $code, $1, length($1)+2);
@@ -251,7 +294,7 @@ sub GenerateSupportDotH {
 	    foreach $line (grep (/^\#define\s+AR_SERVER_INFO.*/, @arh)) {
 		$code = (split(/\s/, $line))[1];
 
-		print "\t\t$code\n";
+		print "\t\t$code\n" if $debug;
 		$code =~ /^AR_SERVER_INFO_(\w+)/;
 		print FD "  { $code, \t\"$1\" },\n";
 	    }
