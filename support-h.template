@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.13 2000/08/15 14:55:07 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.14 2000/08/31 05:18:40 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -338,6 +338,7 @@ static struct {
 };
 
 EXTERN char *lookUpTypeName(TypeMapStruct *t, unsigned int v);
+EXTERN unsigned int  lookUpServerInfoTypeHint(unsigned int itn);
 EXTERN unsigned int  caseLookUpTypeNumber(TypeMapStruct *t, char *s);
 
 /* typedef SV* (*ARS_fn)(void *); */

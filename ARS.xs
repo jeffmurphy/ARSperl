@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.70 2000/08/15 14:55:07 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.71 2000/08/31 05:18:40 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -10,9 +10,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.70 2000/08/15 14:55:07 jcmurphy Exp
     This program is free software; you can redistribute it and/or modify
     it under the terms as Perl itself. 
     
-    Refer to the file called "Artistic" that accompanies the source distribution 
-    of ARSperl (or the one that accompanies the source distribution of Perl
-    itself) for a full description.
+    Refer to the file called "Artistic" that accompanies the source 
+    distribution of ARSperl (or the one that accompanies the source 
+    distribution of Perl itself) for a full description.
  
     Comments to:  arsperl@smurfland.cit.buffalo.edu
                   (this is a *mailing list* and you must be
@@ -2892,14 +2892,43 @@ ars_SetServerInfo(ctrl, ...)
 		(void) ARError_reset();
 		Zero(&status, 1, ARStatusList);
 		Zero(&serverInfo, 1, ARServerInfoList);
-	printf("items = %d\n", items);
+
 		if((items == 1) || ((items % 2) == 0)) { 
 			(void) ARError_add(AR_RETURN_ERROR, 
 					   AP_ERR_BAD_ARGS);
 		} else {
+			unsigned int infoType;
+
 			serverInfo.numItems = (items - 1) / 2;
+			serverInfo.serverInfoList = MALLOCNN(serverInfo.numItems * sizeof(ARServerInfoStruct));
+
 			for(i = 1 ; i < items ; i += 2) {
-				printf("%d\n", i);
+				/*printf("[%d] ", i);
+				printf("k=%d v=%s\n",
+					SvIV(ST(i)),
+					SvPV(ST(i+1), PL_na)
+				);*/
+				infoType = lookUpServerInfoTypeHint(SvIV(ST(i)));
+				serverInfo.serverInfoList[i-1].operation = SvIV(ST(i));
+				serverInfo.serverInfoList[i-1].value.dataType = infoType;
+
+				switch(infoType) {
+				case AR_DATA_TYPE_CHAR:
+					serverInfo.serverInfoList[i-1].value.u.charVal = strdup(SvPV(ST(i+1), PL_na));
+					break;
+				case AR_DATA_TYPE_INTEGER:
+					serverInfo.serverInfoList[i-1].value.u.intVal = SvIV(ST(i+1));
+					break;
+				default:
+					printf("ERR: default/type not found\n");
+				}
+			}
+			ret = ARSetServerInfo(ctrl, &serverInfo, &status);
+			FreeARServerInfoList(&serverInfo, FALSE);
+			if(ARError(ret, status)) {
+				XPUSHs(sv_2mortal(newSViv(0))); /* ERR */
+			} else {
+				XPUSHs(sv_2mortal(newSViv(1))); /* OK */
 			}
 		}
 	}

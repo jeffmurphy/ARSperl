@@ -1,4 +1,4 @@
-$Header: /cvsroot/arsperl/ARSperl/INSTALLATION,v 1.6 1999/09/03 13:44:00 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/INSTALLATION,v 1.7 2000/08/31 05:18:40 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -46,6 +46,7 @@ OS versions:
    o  Irix 6.2
    o  HPUX*
    o  WindowsNT  (But NOT win95)
+   o  Linux
 
 Users of other OS's might encounted problems with compiling. We'd be 
 interested in hearing about your experiences and if you got it working

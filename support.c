@@ -401,6 +401,18 @@ lookUpTypeName(TypeMapStruct *t, unsigned int v)
 }
 
 unsigned int
+lookUpServerInfoTypeHint(unsigned int itn)
+{
+	int i = 0;
+
+	while((ServerInfoTypeHints[i].infoTypeNum != itn) &&
+	      (ServerInfoTypeHints[i].infoTypeNum != TYPEMAP_LAST))
+		i++;
+
+        return ServerInfoTypeHints[i].infoTypeType;
+}
+
+unsigned int
 strsrch(register char *s, register char c)
 {
 	register unsigned int n = 0;

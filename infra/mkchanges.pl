@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/infra/mkchanges.pl,v 1.3 2000/07/04 14:44:22 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/infra/mkchanges.pl,v 1.4 2000/08/31 05:18:41 jcmurphy Exp $
 #
 # mkchanges.pl [-t] -f changes.dat
 #
@@ -122,10 +122,10 @@ sub spewHTML {
 			} else {
 				print "<font color='black'>";
 			}
-			print "$_\n";
+			print "$_ \n";
 		} else {
 			s/^\s+//g;
-			print "$_";
+			print "$_ ";
 		}
 	}
 }
