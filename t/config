@@ -8,7 +8,7 @@
 # SERVER FOR THE TESTS TO SUCCEED.
 
 $SERVER   = "localhost";
-$USERNAME = "Demo";
-$PASSWORD = "falalalalala";
+$USERNAME = "jcmurphy";
+$PASSWORD = "panacea";
 
 1;

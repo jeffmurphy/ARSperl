@@ -99,7 +99,7 @@ $ars_errstr %ARServerStats %ars_errhash
 ars_decodeStatusHistory ars_APIVersion
 );
 
-$ARS::VERSION   = '1.65';
+$ARS::VERSION   = '1.66';
 $ARS::DEBUGGING = 0;
 
 bootstrap ARS $ARS::VERSION;
@@ -311,6 +311,7 @@ sub ars_EncodeDiary {
 
 # call ARInitialization
 ARS::__ars_init() if(&ARS::ars_APIVersion() < 4);
+
 
 1;
 __END__

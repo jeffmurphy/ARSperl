@@ -24,8 +24,8 @@ $header: /u1/project/ARSperl/ARSperl/RCS/support.c,v 1.25 1999/01/04 21:04:27 jc
     LOG:
 
 $Log: support.c,v $
-Revision 1.28  1999/11/23 20:56:47  jcmurphy
-added support for 'decimal' data type
+Revision 1.29  1999/12/03 22:13:56  jcmurphy
+*** empty log message ***
 
 Revision 1.27  1999/10/03 04:00:27  jcmurphy
 various
@@ -663,6 +663,8 @@ perl_ARValueStruct_Assign(ARControlStruct * ctrl, ARValueStruct * in)
 #if AR_EXPORT_VERSION >= 4
 	case AR_DATA_TYPE_ATTACH:
 		return perl_ARAttach(ctrl, in->u.attachVal);
+        case AR_DATA_TYPE_DECIMAL:
+                return newSVpv(in->u.decimalVal, 0);
 #endif
 	case AR_DATA_TYPE_NULL:
 	default:
@@ -735,6 +737,8 @@ perl_ARValueStruct(ARControlStruct * ctrl, ARValueStruct * in)
 #if AR_EXPORT_VERSION >= 4
 	case AR_DATA_TYPE_ATTACH:
 		return perl_ARAttach(ctrl, in->u.attachVal);
+        case AR_DATA_TYPE_DECIMAL:
+		return newSVpv(in->u.decimalVal, 0);
 #endif
 	case AR_DATA_TYPE_NULL:
 	default:
@@ -1483,7 +1487,7 @@ perl_ARSQLStruct(ARControlStruct * ctrl, ARSQLStruct * in)
 }
 #endif
 
-#if AR_EXPORT_VERSION >= 4
+#if AR_EXPORT_VERSION >= 3
 SV             *
 perl_ARAssignSQLStruct(ARControlStruct * ctrl, ARAssignSQLStruct * in)
 {
@@ -2647,7 +2651,7 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 			break;
 #if AR_EXPORT_VERSION >= 4
 		case AR_DATA_TYPE_DECIMAL:
-		        out->u.keyNum = strdup(SvPV(in, na));
+		        out->u.decimalVal = strdup(SvPV(in, na));
 			break;
 		case AR_DATA_TYPE_ATTACH:
 			/* value must be a hash reference */
