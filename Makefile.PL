@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.12 2000/04/05 14:09:46 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.13 2000/05/24 18:05:25 jcmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -13,6 +13,9 @@
 #    run with "perl Makefile.PL" then type "make"
 #
 # $Log: Makefile.PL,v $
+# Revision 1.13  2000/05/24 18:05:25  jcmurphy
+# primary ars4.5 integration in this checkpoint.
+#
 # Revision 1.12  2000/04/05 14:09:46  jcmurphy
 # 1.67 - bug in getsql, addition of setserver port
 #
@@ -44,6 +47,7 @@
 # *** empty log message ***
 #
 
+require 5.004;
 use ExtUtils::MakeMaker;
 use Config;
 
@@ -54,7 +58,7 @@ $debug = 0;
 # STEP 1 -> Set the path to your ARS API directory
 
 $ARSAPI     = "/usr/ars/api";
-#$ARSAPI     = "/u1/project/ARSperl/api/sol2/api4.5";
+$ARSAPI     = "/u1/project/ARSperl/api/sol2/api4.5";
 #$ARSAPI     = "/u1/project/ARSperl/api/linux/4.0";
 #$ARSAPI     = "/home/jcmurphy/arsperl/api";
 
@@ -93,6 +97,14 @@ elsif($ARSVERSION >= 2.0 && $ARSVERSION < 3.0) {
   $AUTODEFINES .= " -DARS20 " if($ARSVERSION == 2.0);
 }
 
+$AUTODEFINES .= " -DPERL_PATCHLEVEL_IS=$Config{'patchlevel'} -DPERL_SUBVERSION_IS=$Config{'subversion'} -DPERL_BASEREV_IS=".($Config{'baserev'}*10)." ";
+
+if($Config{'baserev'} == 5 &&
+   $Config{'patchlevel'} == 4 &&
+   $Config{'subversion'} == 3) {
+	print "\n\nWARNING: Perl-5.004_03 contained a bugged 'h2ph' application.\nYou should examine line 100 of perl's 'h2ph' script and be sure that it\n
+produces correct syntax (it's missing a close-parenthesis)\n";
+}
 
 push(@extras, CAPI => 'TRUE') if ($] >= 5.005 and $^O eq 'MSWin32'
 				  and $Config{archname} =~ /-object\b/i);
@@ -209,6 +221,16 @@ sub GenerateSupportDotH {
 		print FD "  { $code, \t\t\"\L$1\E\" },\n";
 	    }
 	} 
+	elsif(/CHARMENUTYPEMAP/) {
+	    print "\tProcessing AR_CHAR_MENU codes..\n";
+	    my($code, $line);
+	    foreach $line (grep (/^\#define\s+AR_CHAR_MENU.*/, @arh)) {
+		$code = (split(/\s/, $line))[1];
+		print "\t\t$code\n" if $debug;
+		$code =~ /^AR_CHAR_MENU_(\w+)/;
+		print FD "  { $code, \t\t\"\L$1\E\" },\n";
+	    }
+	}
 	elsif(/SCHEMAPERMISSIONTYPEMAP/) {
 	    print "\tProcessing AR_PERMISSIONS (Schema) codes..\n";
 	    my($code, $line);

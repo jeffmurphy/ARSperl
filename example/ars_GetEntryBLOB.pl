@@ -2,15 +2,15 @@
 
 use ARS;
 
-$id = "000000000000002";
-$S  = "ARSperl Test";
+($S, $U, $P, $schema, $entry, $field) = (shift, shift, shift,
+					 shift, shift, shift);
 
-$c = ars_Login(shift, shift, shift);
-%f = ars_GetFieldTable($c, $S);
+$c = ars_Login($S, $U, $P);
+%f = ars_GetFieldTable($c, $schema);
 foreach (keys %f) {
   $r{$f{$_}} = $_;
 }
-%v = ars_GetEntry($c, $S, $id);
+%v = ars_GetEntry($c, $schema, $entry);
 foreach (keys %v) {
   print "$r{$_} = $v{$_}\n";
   dh($v{$_}) if $r{$_} =~ /Attachment/;
@@ -36,13 +36,13 @@ sub ra {
 
   unlink('/tmp/attachtest', '/tmp/attachtest2');
 
-  ars_GetEntryBLOB($c, $S, $id,
+  ars_GetEntryBLOB($c, $schema, $entry,
 		   $fid, 
 		   ARS::AR_LOC_FILENAME,
 		   "/tmp/attachtest") || 
 		     die ("GetEntryBLOB: $ars_errstr");
 
-  my $a = ars_GetEntryBLOB($c, $S, $id,
+  my $a = ars_GetEntryBLOB($c, $schema, $entry,
 			   $fid, 
 			   ARS::AR_LOC_BUFFER);
 

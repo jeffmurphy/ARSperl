@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.12 1999/10/03 04:00:27 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.13 2000/05/24 18:05:25 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -24,6 +24,9 @@ $Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.12 1999/10/03 04:00:27 jcmurp
     LOG:
 
 $Log: supportrev.c,v $
+Revision 1.13  2000/05/24 18:05:25  jcmurphy
+primary ars4.5 integration in this checkpoint.
+
 Revision 1.12  1999/10/03 04:00:27  jcmurphy
 various
 
@@ -176,7 +179,7 @@ strcpyHVal(HV * h, char *k, char *b, int len)
 			val = hv_fetch(h, VNAME(k), 0);
 			if (val && *val) {
 				if (SvPOK(*val)) {
-					strncpy(b, SvPV(*val, na), len);
+					strncpy(b, SvPV(*val, PL_na), len);
 					b[len] = 0;
 					return 0;
 				} else
@@ -1095,7 +1098,7 @@ rev_ARAssignSQLStruct(ARControlStruct * ctrl, HV * h, char *k, ARAssignSQLStruct
 	rv += uintcpyHVal(hr, "valueIndex", &(s->valueIndex));
 	svp = hv_fetch(hr, VNAME("noMatchOption"), 0);
 	if (svp && *svp) {
-		char           *c = SvPV(*svp, na);
+		char           *c = SvPV(*svp, PL_na);
 		if (rev_ARAssignFieldStructStr2NMO(ctrl, c, &(s->noMatchOption)) != 0) {
 			s->noMatchOption = AR_NO_MATCH_ERROR;
 			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
@@ -1106,7 +1109,7 @@ rev_ARAssignSQLStruct(ARControlStruct * ctrl, HV * h, char *k, ARAssignSQLStruct
 	}
 	svp = hv_fetch(hr, VNAME("multiMatchOption"), 0);
 	if (svp && *svp) {
-		char           *c = SvPV(*svp, na);
+		char           *c = SvPV(*svp, PL_na);
 		if (rev_ARAssignFieldStructStr2MMO(ctrl, c, &(s->multiMatchOption)) != 0) {
 			s->multiMatchOption = AR_MULTI_MATCH_ERROR;
 			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
@@ -1151,7 +1154,8 @@ rev_ARValueStruct(ARControlStruct * ctrl, HV * h, char *k, char *t, ARValueStruc
 	val = hv_fetch(h, VNAME(k), 0);
 	type = hv_fetch(h, VNAME(t), 0);
 	if (val && *val && type && *type && SvPOK(*type)) {
-		char           *tp = SvPV(*type, na), *vp = SvPV(*val, na);
+		char           *tp = SvPV(*type, PL_na), 
+		               *vp = SvPV(*val,  PL_na);
 
 		(void) rev_ARValueStructStr2Type(ctrl, tp, &(m->dataType));
 		switch (m->dataType) {
@@ -1345,8 +1349,8 @@ rev_ARByteList(ARControlStruct * ctrl, HV * h, char *k, ARByteList * b)
 				/* we are expecting two PV's */
 
 				if (SvPOK(*tv) && SvPOK(*vv)) {
-					char           *typeString = SvPV(*tv, na);	/* SvPV is a macro */
-					char           *byteString = SvPV(*vv, na);
+					char           *typeString = SvPV(*tv, PL_na);	/* SvPV is a macro */
+					char           *byteString = SvPV(*vv, PL_na);
 					int             byteLen = SvCUR(*vv);
 
 					if (rev_ARByteListStr2Type(ctrl, typeString, &(b->type)) == -1)
@@ -1572,13 +1576,13 @@ rev_ARAssignFieldStruct_helper(ARControlStruct * ctrl, HV * h, ARAssignFieldStru
 #if AR_EXPORT_VERSION >= 3
 	svp = hv_fetch(h, VNAME("noMatchOption"), 0);
 	if (svp && *svp) {
-		char           *c = SvPV(*svp, na);
+		char           *c = SvPV(*svp, PL_na);
 		if (rev_ARAssignFieldStructStr2NMO(ctrl, c, &(m->noMatchOption)) != 0)
 			m->noMatchOption = AR_NO_MATCH_ERROR;
 	}
 	svp = hv_fetch(h, VNAME("multiMatchOption"), 0);
 	if (svp && *svp) {
-		char           *c = SvPV(*svp, na);
+		char           *c = SvPV(*svp, PL_na);
 		if (rev_ARAssignFieldStructStr2MMO(ctrl, c, &(m->multiMatchOption)) != 0)
 			m->multiMatchOption = AR_MULTI_MATCH_ERROR;
 	}
@@ -1784,7 +1788,7 @@ rev_ARArithOpAssignStruct_helper(ARControlStruct * ctrl,
 
 	svp = hv_fetch(h, VNAME("oper"), 0);
 	if (svp && *svp) {
-		char           *c = SvPV(*svp, na);
+		char           *c = SvPV(*svp, PL_na);
 		if (rev_ARArithOpAssignStructStr2OP(ctrl, c, &(s->operation)) != 0)
 			return -1;
 	}
@@ -1873,7 +1877,7 @@ rev_ARFunctionAssignStruct(ARControlStruct * ctrl,
 					}
 					aval = av_fetch(a, 0, 0);	/* fetch function name */
 					if (aval && *aval && SvPOK(*aval)) {	/* must be a string */
-						char           *fn = SvPV(*aval, na);
+						char           *fn = SvPV(*aval, PL_na);
 						if (rev_ARFunctionAssignStructStr2FCODE(ctrl, fn, &(s->functionCode)) == -1)
 							return -1;
 					} else {
@@ -2296,7 +2300,7 @@ rev_ARMacroParmList(ARControlStruct * ctrl, HV * h, char *k, ARMacroParmList * m
 					i2 = 0;
 					while ((hval = hv_iternextsv(a, &hkey, &klen))) {
 						if (hval && SvPOK(hval)) {
-							char           *vv = SvPV(hval, na);
+							char           *vv = SvPV(hval, PL_na);
 							int             vl = SvCUR(hval);
 
 							if (i2 <= i) {

@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.6 1999/10/03 04:00:27 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.7 2000/05/24 18:05:25 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -24,6 +24,9 @@ $Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.6 1999/10/03 04:00:27 j
     LOG:
 
 $Log: support-h.template,v $
+Revision 1.7  2000/05/24 18:05:25  jcmurphy
+primary ars4.5 integration in this checkpoint.
+
 Revision 1.6  1999/10/03 04:00:27  jcmurphy
 various
 
@@ -90,6 +93,11 @@ Initial revision
 #ifndef __support_h_
 #define __support_h_
 
+#if (PERL_BASEREV_IS == 50) && (PERL_PATCHLEVEL_IS < 5)
+ #define PL_na na
+ #define PL_sv_undef sv_undef
+#endif
+
 #undef EXTERN
 #ifndef __support_c_
 # define EXTERN extern
@@ -107,9 +115,16 @@ Initial revision
 #include "nterrno.h"
 #include "ntfree.h"
 #include "ntsextrn.h"
+
+/* the following are defined because we use them as default values in ARS.xs */
+
 #if AR_EXPORT_VERSION < 3
 # define AR_FIELD_TYPE_ALL 0
 # include "ntcextrn.h"
+#endif
+#if AR_EXPORT_VERSION < 5
+# define AR_IMPORT_OPT_CREATE 0
+# define AR_IMPORT_OPT_OVERWRITE 1
 #endif
 
 #include "EXTERN.h"
@@ -164,6 +179,14 @@ static struct {
 	char         *name;
 } ActiveLinkActionTypeMap[] = {
 /*ACTIVELINKACTIONTYPEMAP*/
+	{ TYPEMAP_LAST, "" }
+};
+
+static struct {
+	unsigned int  number;
+	char         *name;
+} CharMenuTypeMap[] = {
+/*CHARMENUTYPEMAP*/
 	{ TYPEMAP_LAST, "" }
 };
 
@@ -296,6 +319,10 @@ EXTERN SV *perl_ARStatusStruct(ARControlStruct *ctrl,  ARStatusStruct *);
 #if AR_EXPORT_VERSION >= 4
 EXTERN SV *perl_ARMessageStruct(ARControlStruct *ctrl,  ARMessageStruct *);
 #endif
+#if AR_EXPORT_VERSION >= 5
+EXTERN SV *perl_ARWorkflowConnectStruct(ARControlStruct * ctrl, ARWorkflowConnectStruct * in);
+EXTERN SV *perl_ARNameList(ARControlStruct * ctrl, ARNameList * in);
+#endif
 EXTERN SV *perl_ARInternalId(ARControlStruct *ctrl,  ARInternalId *);
 EXTERN SV *perl_ARNameType(ARControlStruct *ctrl,  ARNameType *);
 EXTERN SV *perl_ARList(ARControlStruct *ctrl,  ARList *, ARS_fn, int);
@@ -361,7 +388,8 @@ EXTERN int ARGetFieldCached( ARControlStruct *, ARNameType, ARInternalId,
 EXTERN int sv_to_ARValue(ARControlStruct *ctrl, 
 			 SV *in, unsigned int dataType, ARValueStruct *out);
 #if AR_EXPORT_VERSION >= 3
-EXTERN SV *perl_ARPropStruct(ARControlStruct *ctrl,  ARPropStruct *);
+EXTERN SV *perl_ARPropStruct(ARControlStruct *ctrl,  ARPropStruct *in);
+EXTERN SV *perl_ARPropList(ARControlStruct *ctrl, ARPropList *in);
 EXTERN SV *perl_ARDisplayInstanceStruct(ARControlStruct *ctrl,
 				  ARDisplayInstanceStruct *);
 EXTERN SV *perl_ARDisplayInstanceList(ARControlStruct *ctrl,  ARDisplayInstanceList *);

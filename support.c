@@ -3,7 +3,7 @@ $header: /u1/project/ARSperl/ARSperl/RCS/support.c,v 1.25 1999/01/04 21:04:27 jc
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
-    Copyright (C) 1995,1996,1997,1998,1999
+    Copyright (C) 1995-2000
 	Joel Murphy, jmurphy@acsu.buffalo.edu
         Jeff Murphy, jcmurphy@acsu.buffalo.edu
 
@@ -24,6 +24,9 @@ $header: /u1/project/ARSperl/ARSperl/RCS/support.c,v 1.25 1999/01/04 21:04:27 jc
     LOG:
 
 $Log: support.c,v $
+Revision 1.31  2000/05/24 18:05:25  jcmurphy
+primary ars4.5 integration in this checkpoint.
+
 Revision 1.30  2000/02/04 16:20:44  jcmurphy
 *** empty log message ***
 
@@ -671,7 +674,7 @@ perl_ARValueStruct_Assign(ARControlStruct * ctrl, ARValueStruct * in)
 #endif
 	case AR_DATA_TYPE_NULL:
 	default:
-		return newSVsv(&sv_undef);	/* FIX */
+		return newSVsv(&PL_sv_undef);	/* FIX */
 	}
 }
 
@@ -707,7 +710,7 @@ perl_ARValueStruct(ARControlStruct * ctrl, ARValueStruct * in)
 		ret = ARDecodeDiary(in->u.diaryVal, &diaryList, &status);
 #endif
 		if (ARError(ret, status)) {
-			return newSVsv(&sv_undef);
+			return newSVsv(&PL_sv_undef);
 		} else {
 			SV             *array;
 			array = perl_ARList(ctrl,
@@ -745,7 +748,7 @@ perl_ARValueStruct(ARControlStruct * ctrl, ARValueStruct * in)
 #endif
 	case AR_DATA_TYPE_NULL:
 	default:
-		return newSVsv(&sv_undef);	/* FIX */
+		return newSVsv(&PL_sv_undef);	/* FIX */
 	}
 }
 
@@ -1073,7 +1076,7 @@ perl_ARFieldCharacteristics(ARControlStruct * ctrl, ARFieldCharacteristics * in)
 SV             *
 perl_ARDDEStruct(ARControlStruct * ctrl, ARDDEStruct * in)
 {				/* FIX */
-	return &sv_undef;
+	return &PL_sv_undef;
 }
 
 SV             *
@@ -1155,10 +1158,10 @@ perl_ARActiveLinkActionStruct(ARControlStruct * ctrl, ARActiveLinkActionStruct *
 		/*ARGotoActionStruct;*/
 #endif
         case AR_ACTIVE_LINK_ACTION_NONE:
-		hv_store(hash, VNAME("none"), &sv_undef, 0);
+		hv_store(hash, VNAME("none"), &PL_sv_undef, 0);
 		break;
 	default:
-		hv_store(hash, VNAME("[unknown]"), &sv_undef, 0);
+		hv_store(hash, VNAME("[unknown]"), &PL_sv_undef, 0);
 		break;
 	}
 	return newRV((SV *) hash);
@@ -1221,7 +1224,7 @@ perl_ARFilterActionStruct(ARControlStruct * ctrl, ARFilterActionStruct * in)
 		break;
 	case AR_FILTER_ACTION_NONE:
 	default:
-		hv_store(hash, VNAME("none"), &sv_undef, 0);
+		hv_store(hash, VNAME("none"), &PL_sv_undef, 0);
 		break;
 	}
 	return newRV((SV *) hash);
@@ -1270,7 +1273,7 @@ perl_expandARCharMenuStruct(ARControlStruct * ctrl,
 			break;
 		case AR_MENU_TYPE_NONE:
 		default:
-			av_push(array, &sv_undef);
+			av_push(array, &PL_sv_undef);
 			break;
 		}
 	}
@@ -1413,7 +1416,7 @@ perl_ARFieldLimitStruct(ARControlStruct * ctrl, ARFieldLimitStruct * in)
 	case AR_DATA_TYPE_NULL:
 	default:
 		/* no meaningful limits */
-		return &sv_undef;
+		return &PL_sv_undef;
 	}
 }
 
@@ -1424,7 +1427,7 @@ perl_ARAssignStruct(ARControlStruct * ctrl, ARAssignStruct * in)
 
 	switch (in->assignType) {
 	case AR_ASSIGN_TYPE_NONE:
-		hv_store(hash, VNAME("none"), &sv_undef, 0);
+		hv_store(hash, VNAME("none"), &PL_sv_undef, 0);
 		break;
 	case AR_ASSIGN_TYPE_VALUE:
 
@@ -1473,7 +1476,7 @@ perl_ARAssignStruct(ARControlStruct * ctrl, ARAssignStruct * in)
 		break;
 #endif				/* ARS 3.x */
 	default:
-		hv_store(hash, VNAME("none"), &sv_undef, 0);
+		hv_store(hash, VNAME("none"), &PL_sv_undef, 0);
 		break;
 	}
 	return newRV((SV *) hash);
@@ -1748,6 +1751,19 @@ perl_ARPropStruct(ARControlStruct * ctrl, ARPropStruct * in)
 		 perl_ARValueStructType(ctrl, &in->value), 0);
 
 	return newRV((SV *) hash);
+}
+
+SV             *
+perl_ARPropList(ARControlStruct * ctrl, ARPropList * in) 
+{
+	AV             *array = newAV();
+	int             i;
+
+	for(i = 0 ; i < in->numItems ; i++) 
+		av_push(array, 
+			perl_ARPropStruct(ctrl, &(in->props[i]) ));
+
+	return newRV((SV *)array);
 }
 
 SV             *
@@ -2196,6 +2212,38 @@ perl_ARQueryValueStruct(ARControlStruct * ctrl, ARQueryValueStruct * in)
 	return newRV((SV *) hash);
 }
 
+#if AR_EXPORT_VERSION >= 5
+SV             *
+perl_ARWorkflowConnectStruct(ARControlStruct * ctrl, ARWorkflowConnectStruct * in)
+{
+	HV *hash = newHV();
+	switch (in->type) {
+	case AR_WORKFLOW_CONN_SCHEMA_LIST:
+		hv_store(hash, VNAME("type"), 
+			 newSVpv("WORKFLOW_CONN_SCHEMA_LIST", 0), 0);
+		hv_store(hash, VNAME("schemaList"),
+			 perl_ARList(ctrl, 
+				     (ARList *)  in->u.schemaList,
+				     (ARS_fn) perl_ARNameList,
+				     sizeof(ARNameList)), 0);
+		break;
+	}
+	return newRV((SV *) hash);
+}
+
+SV *
+perl_ARNameList(ARControlStruct * ctrl, ARNameList * in) {
+	AV *array = newAV();
+	int i;
+
+	for(i = 0 ; i < in->numItems ; i++) {
+		av_push(array, newSVpv(in->nameList[i], 0));
+	}
+	return newRV((SV *)array);
+}
+
+#endif
+
 SV             *
 perl_ARFieldValueOrArithStruct(ARControlStruct * ctrl, ARFieldValueOrArithStruct * in)
 {
@@ -2429,7 +2477,7 @@ ARGetFieldCached(ARControlStruct * ctrl, ARNameType schema, ARInternalId id,
 	}
 #if AR_EXPORT_VERSION >= 3
 	if (fieldName) {
-		strcpy(fieldName, SvPV((*val), na));
+		strcpy(fieldName, SvPV((*val), PL_na));
 	}
 #else				/* ARS 2.x */
 #ifndef SKIP_SV_ISA
@@ -2599,10 +2647,10 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 			out->u.realVal = SvNV(in);
 			break;
 		case AR_DATA_TYPE_CHAR:
-			out->u.charVal = strdup(SvPV(in, na));
+			out->u.charVal = strdup(SvPV(in, PL_na));
 			break;
 		case AR_DATA_TYPE_DIARY:
-			out->u.diaryVal = strdup(SvPV(in, na));
+			out->u.diaryVal = strdup(SvPV(in, PL_na));
 			break;
 		case AR_DATA_TYPE_ENUM:
 			out->u.enumVal = SvIV(in);
@@ -2654,7 +2702,7 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 			break;
 #if AR_EXPORT_VERSION >= 4
 		case AR_DATA_TYPE_DECIMAL:
-		        out->u.decimalVal = strdup(SvPV(in, na));
+		        out->u.decimalVal = strdup(SvPV(in, PL_na));
 			break;
 		case AR_DATA_TYPE_ATTACH:
 			/* value must be a hash reference */

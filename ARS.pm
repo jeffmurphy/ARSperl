@@ -55,7 +55,7 @@ sub FETCH {
 
 package ARS;
 
-require 5.000;
+require 5.004;
 use strict "vars";
 require Exporter;
 require DynaLoader;
@@ -77,6 +77,7 @@ require 'ARSOOsup.pm';
 ars_Logoff ars_GetListField ars_GetFieldByName ars_GetFieldTable 
 ars_DeleteEntry ars_GetEntry ars_GetListEntry ars_GetListSchema 
 ars_GetListServer ars_GetActiveLink ars_GetCharMenuItems ars_GetSchema 
+ars_ExpandCharMenu
 ars_GetField ars_simpleMenu ars_GetListActiveLink ars_SetEntry 
 ars_perl_qualifier ars_Export ars_GetListFilter ars_GetListEscalation 
 ars_GetListCharMenu ars_GetListAdminExtension ars_padEntryid ars_GetFilter 
@@ -100,7 +101,7 @@ $ars_errstr %ARServerStats %ars_errhash
 ars_decodeStatusHistory ars_APIVersion
 );
 
-$ARS::VERSION   = '1.67';
+$ARS::VERSION   = '1.68';
 $ARS::DEBUGGING = 0;
 
 bootstrap ARS $ARS::VERSION;
@@ -301,6 +302,114 @@ sub ars_EncodeDiary {
     return $diary_string;
 }
 
+sub insertValueForCurrentTransaction {
+	my ($c, $s, $q) = (shift, shift, shift);
+
+	die Carp::longmess("Usage: insertValueForCurrentTransaction(ctrl, schema, qualifier, ...)\n")
+	  if(!defined($q));
+	
+	die Carp::longmess("Usage: insertValueForCurrentTransaction(ctrl, schema, qualifier, ...)\nEven number of arguments must follow 'qualifier'\n")
+	  if($#_ % 2 == 1);
+
+	#foreach (field, value) pair {
+	#    look up field
+	#    if field = text then wrap value in double quotes
+	#    if field = numeric then no quotes
+	#    search thru qual and change field ref to value
+	#}
+	# compile new qual
+	# pass to Expand2
+
+	if(ref($q) eq "ARQualifierStructPtr") {
+		$q = ars_perl_qualifier($c, $q);
+		die Carp::longmess("ars_perl_qualifier failed: $ARS::ars_errstr")
+		  unless defined($q);
+	}
+	if(0) {
+	while($#_) {
+		my ($f, $v) = (shift @_, shift @_);
+		my $fh = ars_GetField($c, $s, $f);
+		if(($fh->{'dataType'} eq "char") ||
+		   ($fh->{'dataType'} eq "diary")) {
+			$v = "\"$v\"";
+		}
+	}
+}
+	print "walktree..\n";
+	walkTree($q);
+	exit 0;
+}
+
+sub walkTree {
+	my $q = shift;
+	print "($q) ";
+	if(defined($q->{'oper'})) {
+		print "oper: ".$q->{'oper'}."\n";
+		if($q->{'oper'} eq "not") {
+			walkTree($q->{'not'});
+			return;
+		} elsif($q->{'oper'} eq "rel_op") {
+			walkTree($q->{'rel_op'});
+			return;
+		} else {
+			walkTree($q->{'left'});
+			walkTree($q->{'right'});
+			return;
+		}
+	}
+	else { 
+		if(defined($q->{'left'}{'queryCurrent'})) {
+			print "l ", $q->{'left'}{'queryCurrent'}, "\n";
+		}
+		if(defined($q->{'right'}{'queryCurrent'})) {
+			print "r ", $q->{'right'}{'queryCurrent'}, "\n";
+		}
+
+		foreach (keys %$q) {
+			print "key: ", $_,"\n";
+			print "val: ", $q->{$_},"\n";
+			dumpHash ($q->{$_}) if(ref($q->{$_}) eq "HASH");
+		}
+	}
+}
+
+sub dumpHash {
+	my $h = shift;
+	foreach (keys %$h) {
+		print "key: ", $_,"\n";
+		print "val: ", $h->{$_},"\n";
+		dumpHash($h->{$_}) if(ref($h->{$_}) eq "HASH");
+	}
+}	
+	
+# ars_GetCharMenuItems(ctrl, menuName, qualifier)
+#  qual is optional. 
+#    if it's specified:
+#       menuType must be "query"
+#       qualifier must compile against the form that the menu 
+#       is written for.
+
+sub ars_GetCharMenuItems {
+	my ($ctrl, $menuName, $qual) = (shift, shift, shift);
+
+	if(defined($qual)) {
+		my $menu = ars_GetCharMenu($ctrl, $menuName);
+		die "ars_GetCharMenuItems failed: $ARS::ars_errstr" 
+		  unless defined($menu);
+		die "ars_GetCharMenuItems failed: qualifier was specified, but menu is not a 'query' menu" 
+		  if($menu->{'menuType'} ne "query");
+		
+		if(ref($qual) ne "ARQualifierStruct") {
+			$qual = ars_LoadQualifier($ctrl, $menu->{'menuQuery'}{'schema'}, $qual);
+		}
+		return ars_ExpandCharMenu2($ctrl, $menuName, $qual);
+	}
+	return ars_ExpandCharMenu2($ctrl, $menuName);
+}
+
+sub ars_ExpandCharMenu {
+	return ars_ExpandCharMenu2(@_);
+}
 
 # As of ARS4.0, these routines (which call ARInitialization and ARTermination)
 # need to pass a control struct. this means that we now must move them into
