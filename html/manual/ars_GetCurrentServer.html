@@ -1,0 +1,36 @@
+<HTML>
+<HEAD>
+<TITLE>ARSperl Programmer's Manual</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+   <H2><CODE>ars_GetCurrentServer(ctrl)</CODE></H2>
+
+      Given a control record, returns the server name that is specified
+      in the record.
+
+      <DL>
+         <DT><B>On success</B><DD>
+                Returns a scalar.
+         <DT><B>On failure</B><DD>
+                Returns <CODE>undef</CODE>.
+      </DL>
+
+      <P>Example:
+
+      <PRE>
+	if($ctrl = ars_Login("", $username, $password)) {
+	    $cs = ars_GetCurrentServer($ctrl);
+	    print "current server: $cs\n";
+	} else {
+	    print "login failed: $ars_errstr\n";
+	    exit(0);
+	}
+
+      </PRE>
+
+<P>
+
+<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Back to Table of Contents </A>
+</BODY>
+</HTML>
