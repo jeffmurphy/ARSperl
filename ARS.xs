@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.76 2001/04/11 15:10:15 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.77 2001/10/18 16:42:28 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -676,16 +676,16 @@ ars_GetEntryBLOB(ctrl,schema,entry_id,field_id,locType,locFile=NULL)
 		if(!ARError(ret, status)) {
 			if(locType == AR_LOC_BUFFER)
 #if PERL_PATCHLEVEL_IS >= 6
-				XPUSHs(newSVpv((const char *)
+				XPUSHs(sv_2mortal(newSVpv((const char *)
 					loc.u.buf.buffer, 
-					loc.u.buf.bufSize));
+					loc.u.buf.bufSize)));
 #else
-				XPUSHs(newSVpv(
+				XPUSHs(sv_2mortal(newSVpv(
 					loc.u.buf.buffer, 
-					loc.u.buf.bufSize));
+					loc.u.buf.bufSize)));
 #endif
 			else
-				XPUSHs(newSViv(1));
+				XPUSHs(sv_2mortal(newSViv(1)));
 		} else
 			XPUSHs(&PL_sv_undef);
 		FreeAREntryIdList(&entryList, FALSE);
@@ -755,9 +755,9 @@ ars_GetEntry(ctrl,schema,entry_id,...)
 	    goto get_entry_cleanup;
  	  }
 	  for (i=0; i<fieldList.numItems; i++) {
-	    XPUSHs(newSViv(fieldList.fieldValueList[i].fieldId));
-	    XPUSHs(perl_ARValueStruct(ctrl,
-		&fieldList.fieldValueList[i].value));
+	    XPUSHs(sv_2mortal(newSViv(fieldList.fieldValueList[i].fieldId)));
+	    XPUSHs(sv_2mortal(perl_ARValueStruct(ctrl,
+		&fieldList.fieldValueList[i].value)));
 	  }
 #ifndef WASTE_MEM
 	  FreeARFieldValueList(&fieldList,FALSE);
@@ -2863,7 +2863,7 @@ ars_GetListSQL(ctrl, sqlCommand, maxRetrieve=AR_NO_MAX_LIST_RETRIEVE)
 	  if(RETVAL != NULL) {
 			XPUSHs(sv_2mortal(newRV((SV *)RETVAL)));
 	  } else {
-			XPUSHs(0);
+			XPUSHs(sv_2mortal(newSViv(0)));
 	  }
 	}
 
@@ -3060,8 +3060,8 @@ ars_GetServerInfo(ctrl, ...)
 		   } else {
 		      XPUSHs(sv_2mortal(newSViv(serverInfo.serverInfoList[i].operation)));
 		   }
-		      XPUSHs(perl_ARValueStruct(ctrl,
-			&(serverInfo.serverInfoList[i].value)));
+		      XPUSHs(sv_2mortal(perl_ARValueStruct(ctrl,
+			&(serverInfo.serverInfoList[i].value))));
 	        }
 	     }
 #ifndef WASTE_MEM
