@@ -12,14 +12,18 @@
  "min"             =&gt; integer,
  "max"             =&gt; integer
 }
+
       <I>or</I>
+
 <B>; real</B>
 {
  "min"             =&gt; float,
  "max"             =&gt; float,
  "precision"       =&gt; integer
 }
+
        <I>or</I>
+
 <B>; char</B>
 {
  "maxLength"       =&gt; integer,
@@ -28,14 +32,25 @@
  "charMenu"        =&gt; string,
  "pattern"         =&gt; string,
  "fullTextOptions" =&gt; "none" <I>or</I> "indexed"}
+
         <I>or</I>
+
 <B>; diary</B>
 {
  "fullTextOptions" =&gt; "none" <I>or</I> "indexed"}
         <I>or</I>
 <B>; enum and bitmask</B>
 array of strings
+
         <I>or</I>
+
+<b>; enum</B>
+{
+ list of strings (arrayref) (<I><B>2.x-4.x only</B></I>)
+ "enumLimits"      =&gt; hashref to <a href="ds_enumlimstruct.html">enumLimits hash</a> (<I><B>5.x only</B></I>)
+}
+        <I>or</I>
+
 undef
 </PRE>
 

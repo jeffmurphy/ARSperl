@@ -4,7 +4,7 @@
 </HEAD>
 <BODY BGCOLOR="#FFFFFF">
 
-<H2><CODE>ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,...)</CODE></H2>
+<H2><CODE>ars_GetListEntry(ctrl, schema, qualifier, maxRetrieve=0, firstRetrieve=0,...)</CODE></H2>
 
 This function is used to retrieve the list of <CODE>entry_id</CODE>s
 and description (query list) strings from the specified schema.  The entries
@@ -39,8 +39,13 @@ retain the order of the entry ids returned, then you must assign the
 list to an array, and not a hash. <P>
 
 Setting <CODE>maxRetrieve = 0</CODE> will return as many matches as
-the server will allow.
+the server will allow. This is the default. 
 <P>
+<code>firstRetrieve</code> (only available when compiled against the
+5.x API) specifies which entry to start with. The default (zero) is to
+start with the first entry that matches the qualifier.
+<P>
+
 
 <DL>
 <DT><B>On success</B>
@@ -72,7 +77,7 @@ Example (2.x or 3.x) of how to set sorting options:
            # returns entries for User schema sorted by login name
            $all = ars_LoadQualifier($c,"User","1=1");
            $login_name = ars_GetFieldByName($c,"User","Login Name");
-           @Entries = ars_GetListEntry($c, "User", $all, 0, $login_name, 1);
+           @Entries = ars_GetListEntry($c, "User", $all, 0, 0, $login_name, 1);
            for ( $i = 0; $i &lt;= $#Entries; $i +=2 ) {
 
                $entry_num = $Entries[$i];
@@ -88,7 +93,7 @@ Example (2.x or 3.x) of how to set sorting options:
            # retrieve list of matching records. query list should only
            # contain the Login name and Full Name fields. In addition, 
            # query list should be reverse sorted by Login name.
-           @a = ars_GetListEntry($ctrl, "User", $qual, 0,
+           @a = ars_GetListEntry($ctrl, "User", $qual, 0, 0,
                                 # getListFields
                                 [ 
                                   {columnWidth=&gt;5, separator=&gt;' ', fieldId=&gt;$f{'Login name'} },
@@ -106,7 +111,7 @@ Example (2.x or 3.x) of how to set sorting options:
 <p>
 
 <address>
-Last changes to this page 9 March 1998 by David Adams<P>
+Last changes to this page 15 Apr 2003 by jcmurphy<P>
 &#169; J.C.Murphy, J.W.Murphy 1998 arsperl@arsperl.org 
 </address>
 </BODY>
