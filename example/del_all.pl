@@ -1,6 +1,6 @@
 #!/oratest/perl/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/del_all.pl,v 1.1 1997/09/04 17:51:14 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/del_all.pl,v 1.2 1997/11/11 19:14:24 jcmurphy Exp $
 #
 # NAME
 #   del_all.pl [server] [user] [password] [pattern]
@@ -18,22 +18,41 @@
 
 use ARS;
 
-($c = ars_Login(shift, shift, shift)) ||
-    die "login: $ars_errstr";
-
-$pat = shift;
-if($pat eq "") {
+if($#ARGV != 3) {
     print "Usage: $0 [server] [user] [pwd] [pattern]\n";
+    print $#ARGV."\n";
     exit 0;
 }
 
+($c = ars_Login(shift, shift, shift)) ||
+    die "Login: $ars_errstr";
+
+$pat = shift;
+
 print "Fetching..\n";
-print "\tActiveLinks\n"; @al = ars_GetListActiveLink($c);
-print "\tAdminExtensions\n"; @ae = ars_GetListAdminExtension($c);
-print "\tCharMenus\n"; @cm = ars_GetListCharMenu($c);
-print "\tEscalations\n"; @es = ars_GetListEscalation($c);
-print "\tFilters\n"; @fi = ars_GetListFilter($c);
-print "\tSchemas\n"; @sc = ars_GetListSchema($c);
+print "\tActiveLinks .. "; 
+@al = ars_GetListActiveLink($c);
+print $#al." matches.\n";
+
+print "\tAdminExtensions .. "; 
+@ae = ars_GetListAdminExtension($c);
+print $#ae." matches.\n";
+
+print "\tCharMenus .. "; 
+@cm = ars_GetListCharMenu($c);
+print $#cm." matches.\n";
+
+print "\tEscalations .. "; 
+@es = ars_GetListEscalation($c);
+print $#es." matches.\n";
+
+print "\tFilters .. "; 
+@fi = ars_GetListFilter($c);
+print $#fi." matches.\n";
+
+print "\tSchemas .. "; 
+@sc = ars_GetListSchema($c);
+print $#sc." matches.\n";
 
 print "Sleeping for 5 seconds. control-c to abort!\n";
 sleep(5);
