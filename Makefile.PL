@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.14 2000/06/01 16:54:03 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.15 2000/07/04 14:44:22 jcmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -13,6 +13,9 @@
 #    run with "perl Makefile.PL" then type "make"
 #
 # $Log: Makefile.PL,v $
+# Revision 1.15  2000/07/04 14:44:22  jcmurphy
+# *** empty log message ***
+#
 # Revision 1.14  2000/06/01 16:54:03  jcmurphy
 # *** empty log message ***
 #
@@ -120,7 +123,16 @@ GenerateSupportDotH("support-h.template", $INCLUDES);
 print "Convering C header files to perl modules ..\n";
 
 foreach ("ar", "arerrno", "nt", "nterrno") {
-  system("h2ph < ${ARSAPI}/include/${_}.h > ARS${_}-h.pm");
+	system("h2ph < ${ARSAPI}/include/${_}.h > ARS${_}-h.pm");
+
+	if((! -e "ARS${_}-h.pm") || (-z "ARS${_}-h.pm")) {
+		open (FD, "> ARS${_}-h.pm") || die "open: $!";
+		print FD "\# your perl installation was either missing the 'h2ph'
+\# utility or it was not in your path with you ran 'perl Makefile.PL'
+
+1;\n";
+		close (FD);
+	}
 }
 
 print "Configuring with options:\n";
@@ -286,6 +298,19 @@ sub GenerateSupportDotH {
 		print FD "  { $code, \t\t\"\L$1\E\" },\n";
 	    }
 	}
+        elsif(/SCHEMATYPEMAP/) {
+            print "\tProcessing AR_SCHEMA codes..\n";
+            my($code, $line);
+            foreach $line (grep (/^\#define\s+AR_SCHEMA.*/, @arh)) {
+		# another instance of poor naming conventions
+		next if $line =~ /_DELETE/;
+                $code = (split(/\s/, $line))[1];
+
+                print "\t\t$code\n" if $debug;
+                $code =~ /^AR_SCHEMA_(\w+)/;
+                print FD "  { $code, \t\t\"\L$1\E\" },\n";
+            }
+        }
 	elsif(/BYTELISTTYPEMAP/) {
 	    print "\tProcessing AR_BYTE_LIST codes..\n";
 	    my($code, $line);

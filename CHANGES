@@ -15,7 +15,7 @@ Released: x/x/x Version: 1.68
 
 
 (JCM)   modifications to example/ars_GetListEntry.pl to make
-	it function with different revisions of the User form.
+        it function with different revisions of the User form.
 
 (JCM)   arsperl now requires at minimum perl 5.004.
 
@@ -37,6 +37,14 @@ Released: x/x/x Version: 1.68
 
 (JCM) ! changed ars_GetCharMenu so that {'menuType'} is returned
         as a string (decoded) instead of an integer.
+
+(JCM)   added patch submitted by Geoff Endresen which enabled decoding
+        of push fields actions in GetFilter()
+
+(JCM)   enhanced Makefile.PL to be more intelligent when h2ph fails or
+        doesnt exist
+
+(JCM)   decoded schemaType (within CompoundSchema structure)
 
 
 Released: 2/17/00 Version: 1.67
@@ -483,7 +491,9 @@ Released: 01/12/96 Version: 1.0beta
 (JCM)   Added example scripts and html documentation.
 
 
+
+
 arsperl@arsperl.org
 
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.35 2000/06/01 13:45:20 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.36 2000/07/04 14:44:22 jcmurphy Exp $
 

@@ -24,6 +24,9 @@ $header: /u1/project/ARSperl/ARSperl/RCS/support.c,v 1.25 1999/01/04 21:04:27 jc
     LOG:
 
 $Log: support.c,v $
+Revision 1.33  2000/07/04 14:44:22  jcmurphy
+*** empty log message ***
+
 Revision 1.32  2000/06/01 16:54:03  jcmurphy
 *** empty log message ***
 
@@ -1229,6 +1232,26 @@ perl_ARFilterActionStruct(ARControlStruct * ctrl, ARFilterActionStruct * in)
 	case AR_FILTER_ACTION_PROCESS:
 		hv_store(hash, VNAME("process"), newSVpv(in->u.process, 0), 0);
 		break;
+#if AR_EXPORT_VERSION >= 4
+ /* added cases for new ACTIONS in ARS v4.0 API, Geoff Endresen, 6/28/2000
+    copied from AR_ACTIVE_LINK_ACTION_FIELP */
+         case AR_FILTER_ACTION_FIELDP:
+                 /*ARPushFieldsList;*/
+                 hv_store(hash, VNAME("fieldp"),
+                          perl_ARList(ctrl,
+                                      (ARList *)& in->u.pushFieldsList,
+                                      (ARS_fn) perl_ARPushFieldsStruct,
+                                      sizeof(ARPushFieldsStruct)),0);
+                 break;
+         case AR_FILTER_ACTION_SQL:
+                 /*ARSQLStruct;*/
+                 hv_store(hash, VNAME("sqlCommand"),
+                          perl_ARSQLStruct(ctrl, &(in->u.sqlCommand)),0);
+                 break;
+         case AR_FILTER_ACTION_GOTOACTION:
+                 /*ARGotoActionStruct;*/
+ 
+#endif
 	case AR_FILTER_ACTION_NONE:
 	default:
 		hv_store(hash, VNAME("none"), &PL_sv_undef, 0);
@@ -1880,6 +1903,10 @@ SV             *
 perl_ARCompoundSchema(ARControlStruct * ctrl, ARCompoundSchema * in)
 {
 	HV             *hash = newHV();
+
+        hv_store(hash, VNAME("schemaType"),
+                 newSVpv(lookUpTypeName((TypeMapStruct *)SchemaTypeMap,
+                                        in->schemaType), 0), 0);
 
 	switch (in->schemaType) {
 	case AR_SCHEMA_JOIN:

@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.8 2000/06/01 16:54:03 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.9 2000/07/04 14:44:22 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -24,6 +24,9 @@ $Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.8 2000/06/01 16:54:03 j
     LOG:
 
 $Log: support-h.template,v $
+Revision 1.9  2000/07/04 14:44:22  jcmurphy
+*** empty log message ***
+
 Revision 1.8  2000/06/01 16:54:03  jcmurphy
 *** empty log message ***
 
@@ -160,6 +163,14 @@ typedef struct {
   unsigned int  number;
   char         *name;
 } TypeMapStruct;
+
+static struct {
+	unsigned int  number;
+	char	     *name;
+} SchemaTypeMap[] = {
+/*SCHEMATYPEMAP*/
+	{ TYPEMAP_LAST, "" }
+};
 
 static struct {
 	unsigned int  number;

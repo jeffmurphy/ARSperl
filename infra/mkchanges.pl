@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/infra/mkchanges.pl,v 1.2 2000/05/24 18:08:03 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/infra/mkchanges.pl,v 1.3 2000/07/04 14:44:22 jcmurphy Exp $
 #
-# mkchanges.pl
+# mkchanges.pl [-t] -f changes.dat
 #
 # generate a "CHANGES" or "changes.html" file
 # based on the "changes.dat" file
@@ -21,6 +21,13 @@ require 'getopts.pl';
 Getopts('tf:');
 
 my ($html) = defined($opt_t)?0:1;
+
+if((!defined($opt_f)) || (! -e "$opt_f")) {
+	die "usage: mkchanges.pl [-t] -f changes.dat > outputfile
+-t    text output (default = html)
+-f    changes.dat input file
+";
+}
 
 my($f) = new FileHandle($opt_f, "r");
 die "open($opt_f) failed: $!" if !defined($f);
