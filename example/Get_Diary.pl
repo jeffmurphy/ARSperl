@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/Get_Diary.pl,v 1.1 1996/11/21 20:13:54 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/Get_Diary.pl,v 1.2 1998/03/31 15:44:00 jcmurphy Exp $
 #
 # EXAMPLE
 #    Get_Diary.pl
@@ -15,6 +15,9 @@
 # 03/06/96
 # 
 # $Log: Get_Diary.pl,v $
+# Revision 1.2  1998/03/31 15:44:00  jcmurphy
+# nada
+#
 # Revision 1.1  1996/11/21 20:13:54  jcmurphy
 # Initial revision
 #
@@ -47,7 +50,7 @@ if(!defined($diaryfield)) {
 
 # Retrieve the fieldid for the diary field
 
-$diaryfield_fid = ars_GetFieldByName($ctrl, $schema, $diaryfield) ||
+($diaryfield_fid = ars_GetFieldByName($ctrl, $schema, $diaryfield)) ||
     die "no such field in this schema: '$diaryfield'";
 
 foreach $entry_id (sort keys %entries) {
@@ -61,7 +64,6 @@ foreach $entry_id (sort keys %entries) {
     # Print out the diary entries for this entry-id
 
     foreach $diary_entry (@{$e_vals{$diaryfield_fid}}) {
-
 	print "\t$diary_entry->{timestamp}\t$diary_entry->{user}\n";
 	print "\t$diary_entry->{value}\n";
     }
