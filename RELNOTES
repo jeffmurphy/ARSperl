@@ -1,4 +1,4 @@
-$Header: /cvsroot/arsperl/ARSperl/RELNOTES,v 1.6 1998/12/28 15:46:10 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/RELNOTES,v 1.7 1998/12/28 16:04:15 jcmurphy Exp $
 
 Release Notes for ARSperl
 
@@ -56,6 +56,12 @@ when it prematurely exits) you might not release your license. This shouldn't
 affect too many things, but is something to keep in mind. You might want to
 place END{} clauses in your scripts that can call ars_Logoff() if/when your
 script(s) die().
+
+Also note that, as of v4.0, the ARS API is now multithreaded. This means that
+you must linking the POSIX threads library when compiling ARSperl. I have
+not determined what impact this has under Windows NT. I would guess none since NT
+is normally a threaded environment - you probably get the appropriate thread
+routines either way.
 
 1.6 Notes
 ---------
