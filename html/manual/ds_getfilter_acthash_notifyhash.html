@@ -8,13 +8,14 @@
 
 <PRE>
 {
-"notifyText"		=&gt; string,
-"notifyPriority" 	=&gt; integer,
-"notifyMechanism"	=&gt; integer enumeration,
-"notifyMechanismXRef"	=&gt; unknown,
-"subjectText"		=&gt; string,
-"fieldIdListType"	=&gt; integer enumeration,
-"fieldList"		=&gt; integer list (where applicable)
+ "fieldIdListType"      =&gt; integer enumeration,
+ "fieldList"            =&gt; <i>list</i> of integer (where applicable),
+ "notifyMechanism"      =&gt; integer enumeration,
+ "notifyMechanismXRef"  =&gt; integer (0 or fieldId),
+ "notifyPriority"       =&gt; integer,
+ "notifyText"           =&gt; string,
+ "subjectText"          =&gt; string,
+ "user"                 =&gt; string
 }
 </PRE>
 
@@ -24,7 +25,7 @@
 <A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Table of Contents </A>
 <p>
 <address>
-Last changes to this page 26th June 1997 by d.j.adams@soton.ac.uk<br>
+Last changes to this page 26th February 1998 by d.j.adams@soton.ac.uk<br>
 &#169; J.C.Murphy, J.W.Murphy 1997 arsperl@smurfland.cit.buffalo.edu
 </address>
 </BODY>
