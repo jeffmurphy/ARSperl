@@ -1,0 +1,80 @@
+$Header: /cvsroot/arsperl/ARSperl/RELNOTES,v 1.1 1996/11/21 20:10:29 jcmurphy Exp $
+
+Release Notes for ARSperl
+
+---------------------------------------------------------------------------
+    ARSperl -- A Perl5 / ARS2.0 integration kit.
+    Copyright (C) 1996 Joel Murphy, jmurphy@acsu.buffalo.edu
+                       Jeff Murphy, jcmurphy@acsu.buffalo.edu
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+---------------------------------------------------------------------------
+
+1.3 Notes
+---------
+
+We've added some features for performance analysis. In particular, 
+we've added the "profiling" feature to ARSperl. Now, when you call
+ars_Login() it initializes a profiling variable that will track
+the number of queries your script makes against the server. You
+can then access this information using the ars_GetProfileInfo() call.
+
+We send this information to syslog() automatically at the end of
+each script and then process the syslog file later on to keep stats
+on our API scripts. In this fashion, we can quickly determine which
+scripts are triggered the most, and which make the most queries. We
+can then concentrate out optimization efforts on those particular
+API scripts.
+
+In addition, a few new functions were added (GetFilter, GetCharMenu and
+GetServerStatistics). The first two are used by the WhoUsesIt.pl 
+utility. This utility (found in the "examples" directory) is handy for
+locating which filter or menu is referencing a particular file, or 
+seeing exactly what filters a particular schema uses.. etc. This 
+cuts down the amount of time it takes to figure out a poorly documented
+system (what? poor documentation? not us!! :)
+
+The GetServerStatistics function was added to provide a simpler method
+for checking server health. I might provide a server analysis tool 
+built around this function in a future release. 
+
+Joel added a cache to the internal GetField routine. This should cut
+down on the number of queries made by some of the functions like
+GetFieldTable and such.
+
+jeff
+
+1.0 Beta User Notes
+-------------------
+
+   o The library and extension seem fairly stable. However, bugs and
+     memory leaks might still occur. We've only been able to build it
+     under Solaris 2.x (4 and 5 to be specific) because that is what we
+     run ARS under. Users who attempt builds on other systems and are
+     successful should submit diffs back to us so that they can be 
+     incorporated into the distribution.
+
+   o The WEB client example works (more or less) but there is much 
+     room for improvement. 
+
+   o There is a mailing list available for people to share their 
+     thoughts concerning ARSperl. To subscribe send email to 
+     "majordomo@lurch.cit.buffalo.edu" with a body of "subscribe arsperl".
+     The subject line is ignored.
+
+joel
+
+---------------------------------------------------------------------------
+arsperl@smurfland.cit.buffalo.edu
