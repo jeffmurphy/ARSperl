@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.14 2000/08/31 05:18:40 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.15 2000/08/31 05:31:16 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -538,6 +538,5 @@ int  copymem(MEMCAST *m1, MEMCAST *m2, int size);
 #define AP_ERR_PREREVFAIL   80024, "Failed to convert some perl structures to ars structures. Create/Set operation aborted."
 #define AP_ERR_ATTACH       80025  /* roll your own text */
 #define AP_ERR_INV_ARGS     80026 /* roll your own - invalid argument(s) */
-
 
 #endif /* __support_h_ */

@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.71 2000/08/31 05:18:40 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.72 2000/08/31 05:31:16 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -2898,9 +2898,11 @@ ars_SetServerInfo(ctrl, ...)
 					   AP_ERR_BAD_ARGS);
 		} else {
 			unsigned int infoType;
+			char         buf[64];
 
 			serverInfo.numItems = (items - 1) / 2;
 			serverInfo.serverInfoList = MALLOCNN(serverInfo.numItems * sizeof(ARServerInfoStruct));
+			Zero(serverInfo.serverInfoList, 1, ARServerInfoStruct);
 
 			for(i = 1 ; i < items ; i += 2) {
 				/*printf("[%d] ", i);
@@ -2920,7 +2922,12 @@ ars_SetServerInfo(ctrl, ...)
 					serverInfo.serverInfoList[i-1].value.u.intVal = SvIV(ST(i+1));
 					break;
 				default:
-					printf("ERR: default/type not found\n");
+					sprintf(buf, "unknown serverInfo value: %u", SvIV(ST(i)));
+					(void) ARError_add(AR_RETURN_ERROR, AP_ERR_INV_ARGS, 
+						buf);
+					FreeARServerInfoList(&serverInfo, FALSE);
+					XPUSHs(sv_2mortal(newSViv(0))); /* ERR */
+					goto SetServerInfo_fail;
 				}
 			}
 			ret = ARSetServerInfo(ctrl, &serverInfo, &status);
@@ -2931,6 +2938,7 @@ ars_SetServerInfo(ctrl, ...)
 				XPUSHs(sv_2mortal(newSViv(1))); /* OK */
 			}
 		}
+	SetServerInfo_fail:;
 	}
 
 void
