@@ -304,7 +304,7 @@ SV *perl_ARValueStruct(ARValueStruct *in) {
 			  (ARS_fn)perl_diary,
 			  sizeof(ARDiaryStruct));
 #ifndef WASTE_MEM
-/*      FreeARDiaryList(&diaryList,FALSE); */
+      FreeARDiaryList(&diaryList,FALSE); 
 #endif
       return array;
     }
@@ -314,9 +314,9 @@ SV *perl_ARValueStruct(ARValueStruct *in) {
     return newSViv(in->u.timeVal);
   case AR_DATA_TYPE_BITMASK:
     return newSViv(in->u.maskVal);
-#if AR_EXPORT_VERSION < 3
+#if AR_EXPORT_VERSION >= 3
   case AR_DATA_TYPE_BYTES:
-    return perl_ARByteList(&in->u.byteListVal);
+    return perl_ARByteList(in->u.byteListVal);
   case AR_DATA_TYPE_ULONG:
     return newSViv(in->u.ulongVal); /* FIX -- does perl have unsigned long? */
   case AR_DATA_TYPE_COORDS:
@@ -1563,7 +1563,7 @@ ARGetFieldCached(ARControlStruct *ctrl, ARNameType schema, ARInternalId id,
 #else
     display_ref = newSViv(0);
     sv_setref_pv(display_ref, "ARDisplayListPtr",
-		 (void *)dup_DisplayList(my_display));
+		 (void *)dup_DisplayList(&my_display));
     hv_store(base, "name", strlen("name"), display_ref, 0);
 #endif
     hv_store(base, "type", strlen("type"), newSViv(my_dataType), 0);
@@ -3067,7 +3067,7 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 #endif	  
 #else
 	  entryId = SvPV(entry_id, na);
-	  ret = ARSetEntry(ctrl, schema, entry_id, &fieldList, getTime, &status);
+	  ret = ARSetEntry(ctrl, schema, SvPV(entry_id, na), &fieldList, getTime, &status);
 #endif
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
