@@ -2088,6 +2088,7 @@ ars_GetCharMenu(ctrl,name)
 			hv_store(RETVAL, "menuFile", strlen("menuFile"),
 				newRV((SV *)menuDef), 0);
 			break;
+#ifndef ARS20
 		case AR_CHAR_MENU_SQL:
 			hv_store(menuDef, "server", strlen("server"),
 				newSVpv(menuDefn.u.menuSQL.server, 0), 0);
@@ -2100,6 +2101,7 @@ ars_GetCharMenu(ctrl,name)
 			hv_store(RETVAL, "menuSQL", strlen("menuSQL"),
 				newRV((SV *)menuDef), 0);
 			break;
+#endif
 		}
 #ifndef WASTE_MEM
 		FreeARCharMenuStruct(&menuDefn, FALSE);
