@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.38 1997/10/20 21:00:41 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.39 1997/10/29 21:54:19 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.38 1997/10/20 21:00:41 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.39  1997/10/29 21:54:19  jcmurphy
+1.5204: added ars_GetControlStructFields()
+
 Revision 1.38  1997/10/20 21:00:41  jcmurphy
 5203 beta. code cleanup. winnt additions. malloc/free
 debugging code.
@@ -162,7 +165,7 @@ ars_perl_qualifier(in)
 	ARQualifierStruct *	in
 	CODE:
 	{
-	  RETVAL = perl_qualifier(in);
+	  RETVAL = perl_qualifier(_PPERLC_ in);
 	}
 	OUTPUT:
 	RETVAL
@@ -294,6 +297,21 @@ ars_Login(server,username,password)
 	}
 	OUTPUT:
 	RETVAL
+
+void
+ars_GetControlStructFields(ctrl)
+	ARControlStruct *	ctrl
+	PPCODE:
+	{
+	   (void) ARError_reset(_PPERL_);
+	   if(!ctrl) return;
+	   XPUSHs(sv_2mortal(newSViv(ctrl->cacheId)));
+	   XPUSHs(sv_2mortal(newSViv(ctrl->operationTime)));
+	   XPUSHs(sv_2mortal(newSVpv(ctrl->user, 0)));
+	   XPUSHs(sv_2mortal(newSVpv(ctrl->password, 0)));
+	   XPUSHs(sv_2mortal(newSVpv(ctrl->language, 0)));
+	   XPUSHs(sv_2mortal(newSVpv(ctrl->server, 0)));
+	}
 
 SV *
 ars_GetCurrentServer(ctrl)
