@@ -14,8 +14,8 @@ print "1..2\n";
 # test 1 -> login
 
 my($ctrl) = ars_Login(&CCACHE::SERVER, 
-		      &CCACHE::$USERNAME, 
- 		      &CCACHE::$PASSWORD);
+		      &CCACHE::USERNAME, 
+ 		      &CCACHE::PASSWORD);
 if(!defined($ctrl)) {
   print "not ok\n";
 } else {
@@ -35,7 +35,7 @@ my $c = new ARS(-server => &CCACHE::SERVER,
 			    ARS::AR_RETURN_WARNING => undef,
 			    ARS::AR_RETURN_FATAL => undef
 			  },
-	       -debug => 1);
+	       -debug => undef);
 if($c->hasErrors() || $c->hasFatals() || $c->hasWarnings()) {
   print "not ok\n";
 } else {

@@ -35,7 +35,7 @@ print "ok [2]\n";
 
 # test 1:  create an entry
 
-my $id = $s->create("-values" => { 'Submitter' => $USERNAME,
+my $id = $s->create("-values" => { 'Submitter' => &CCACHE::USERNAME,
 				 'Status' => 'Assigned',
 				 'Short Description' => 'A test submission'
 			       }

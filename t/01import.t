@@ -40,13 +40,19 @@ close(FD);
 
 # import it
 
-ars_Import($ctrl,
+my $rv = ars_Import($ctrl,
 	   &ARS::AR_IMPORT_OPT_CREATE,
-	   $buf, "Schema", "ARSperl Test") || die "not ok (import $ars_errstr)\n";
+	   $buf, "Schema", "ARSperl Test"
+	);
+
+
+if($rv == 1) {
+	print "ok\n";
+} else {
+	print "not ok [$ars_errstr]\n";
+}
 
 ars_Logoff($ctrl);
-
-print "ok\n";
 
 exit 0;
 

@@ -21,7 +21,7 @@
       <PRE>
         $buf = `cat /tmp/importfile.arx`;
 	($a = ars_Import($ctrl, 
-			 &ARS::AR_IMPORT_OPTION_CREATE,
+			 &ARS::AR_IMPORT_OPT_CREATE,
                          $buf, "Schema", "HD:HelpDesk", 
 			 "Active_Link", "AL-FooBar")) || 
 		die "$ars_errstr";
@@ -30,8 +30,8 @@
 	<P>
 	<code>importOption</code> is one of:<P>
 	<blockquote>
-		&ARS::AR_IMPORT_OPTION_CREATE <BR>
-		&ARS::AR_IMPORT_OPTION_OVERWRITE <BR>
+		&ARS::AR_IMPORT_OPT_CREATE <BR>
+		&ARS::AR_IMPORT_OPT_OVERWRITE <BR>
 	</blockquote>
 	When compiling against an API version previous to 4.5, this
 	option has no effect on the import operation but must still
