@@ -1,0 +1,14 @@
+# make test configuration
+# 
+# NOTE: if you're smart, you'll do this against some scratch test
+# remedy server that you have setup somewhere. running tests against
+# something you care about is just begging for trouble! :-)
+
+# NOTE: THIS ACCOUNT MUST HAVE ADMINISTRATOR PRIVS ON THE GIVEN
+# SERVER FOR THE TESTS TO SUCCEED.
+
+$SERVER   = "localhost";
+$USERNAME = "Demo";
+$PASSWORD = "falalalalala";
+
+1;
