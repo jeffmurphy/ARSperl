@@ -1,4 +1,4 @@
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.18 1998/02/23 15:29:12 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.19 1998/03/30 18:55:05 jcmurphy Exp $
 
 CHANGES for ARSperl
 
@@ -8,13 +8,28 @@ MM/DD/YY
 =======================================================================
 #######################################################################
 =======================================================================
-//        (1.55)
+03/30/98        (1.55)
+
+  o (JCM)  added ars_GetListEntry.pl example to show how to use
+           customer query-list fields.
+
+  o (JCM)  numerous documentation updates by D.J.Adams@soton.ac.uk
+
+  o (JCM)  fixed bug in macroParm decoding. (D.J.Adams@soton.ac.uk)
+
+  o (JCM)  fixed bug when decoding results of GetFilter/GetActiveLink
+           in regards to set fields actions: values assigned to
+           diary fields were not being interpretted correctly.
+           (D.J.Adams@soton.ac.uk)
 
   o (JCM)  patched perl_BuildEntryIdList to make it more robust
            (Ulrich Pfeifer <pfeifer@wait.de>)
 
-  o (JCM)  patches ars_GetCharMenu for bug "GetCharMenu doesn't
+  o (JCM)  patched ars_GetCharMenu for bug "GetCharMenu doesn't
            return a qualifier for query menus" (D.J.Adams@soton.ac.uk)
+
+  o (JCM)  fixed dup_FieldValueOrArith to support decoding of
+           query style menus. 
 
 =======================================================================
 #######################################################################
