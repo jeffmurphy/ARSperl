@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/Dump_Users.pl,v 1.1 1996/11/21 20:13:51 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/Dump_Users.pl,v 1.2 1997/02/19 22:41:25 jcmurphy Exp $
 #
 # EXAMPLE
 #    Dump_Users.pl
@@ -19,6 +19,9 @@
 # 01/12/96
 #
 # $Log: Dump_Users.pl,v $
+# Revision 1.2  1997/02/19 22:41:25  jcmurphy
+# misspelling
+#
 # Revision 1.1  1996/11/21 20:13:51  jcmurphy
 # Initial revision
 #
@@ -55,8 +58,8 @@ if(!defined($password)) {
 $loginname_fid = ars_GetFieldByName($ctrl, $SCHEMA, "Login name") ||
     die "no such field in this schema: 'Login name'";
 
-$fullname_fid = ars_GetFieldByName($ctrl, $SCHEMA, "Full name") ||
-    die "no such field in this schema: 'Full name'";
+$fullname_fid = ars_GetFieldByName($ctrl, $SCHEMA, "Full Name") ||
+    die "no such field in this schema: 'Full Name'";
 
 # Loop over all of the entries (in ascending order)
 
