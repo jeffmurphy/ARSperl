@@ -21,6 +21,9 @@
 #    Comments to: arsperl@smurfland.cit.buffalo.edu
 #
 # $Log: ARS.pm,v $
+# Revision 1.10  1997/02/17 16:21:57  jcmurphy
+# added ars_GetCurrentServer so you can determine what server you connected to (if you didnt specify one)
+#
 # Revision 1.9  1997/02/13 15:06:43  jcmurphy
 # added NT* routines
 #
@@ -59,7 +62,7 @@ require AutoLoader;
 require Config;
 
 @ISA = qw(Exporter DynaLoader);
-@EXPORT = qw(isa_int isa_float isa_string ars_LoadQualifier ars_Login ars_Logoff ars_GetListField ars_GetFieldByName ars_GetFieldTable ars_CreateEntry ars_DeleteEntry ars_GetEntry ars_GetListEntry ars_GetListSchema ars_GetListServer ars_GetActiveLink ars_GetCharMenuItems ars_GetSchema ars_GetField ars_simpleMenu ars_GetListActiveLink ars_SetEntry ars_perl_qualifier ars_Export ars_GetListFilter ars_GetListEscalation ars_GetListCharMenu ars_GetListAdminExtension ars_padEntryid ars_GetFilter ars_GetProfileInfo ars_Import ars_GetCharMenu ars_GetServerStatistics ars_NTDeregisterServer ars_NTGetListServer ars_NTInitializationServer ars_NTNotificationServer ars_NTTerminationServer ars_NTDeregisterClient ars_NTInitializationClient ars_NTRegisterClient ars_NTTerminationClient ars_NTRegisterServer %ARServerStats);
+@EXPORT = qw(isa_int isa_float isa_string ars_LoadQualifier ars_Login ars_Logoff ars_GetListField ars_GetFieldByName ars_GetFieldTable ars_CreateEntry ars_DeleteEntry ars_GetEntry ars_GetListEntry ars_GetListSchema ars_GetListServer ars_GetActiveLink ars_GetCharMenuItems ars_GetSchema ars_GetField ars_simpleMenu ars_GetListActiveLink ars_SetEntry ars_perl_qualifier ars_Export ars_GetListFilter ars_GetListEscalation ars_GetListCharMenu ars_GetListAdminExtension ars_padEntryid ars_GetFilter ars_GetProfileInfo ars_Import ars_GetCharMenu ars_GetServerStatistics ars_NTDeregisterServer ars_NTGetListServer ars_NTInitializationServer ars_NTNotificationServer ars_NTTerminationServer ars_NTDeregisterClient ars_NTInitializationClient ars_NTRegisterClient ars_NTTerminationClient ars_NTRegisterServer ars_GetCurrentServer %ARServerStats);
 
 bootstrap ARS;
 tie $main::ars_errstr, ARS::ERRORSTR;
