@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.32 1997/09/04 00:21:03 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.33 1997/10/02 15:39:31 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.32 1997/09/04 00:21:03 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.33  1997/10/02 15:39:31  jcmurphy
+1.50beta
+
 Revision 1.32  1997/09/04 00:21:03  jcmurphy
 *** empty log message ***
 
@@ -96,6 +99,10 @@ modified comments
 
 #include "support.h"
 #include "supportrev.h"
+
+#if AR_EXPORT_VERSION < 3
+#define AR_LIST_SCHEMA_ALL 1 
+#endif
 
 MODULE = ARS		PACKAGE = ARS		PREFIX = ARS
 
@@ -528,17 +535,17 @@ int
 ars_DeleteEntry(ctrl,schema,entry_id)
 	ARControlStruct *	ctrl
 	char *			schema
-	SV *			entry_id
+	char *			entry_id
 	CODE:
 	{
-	  int ret;
-	  ARStatusList status;
-	  char *entryId;
+	  int            ret;
+	  ARStatusList   status;
 #if AR_EXPORT_VERSION >= 3
-	  SV **fetch_entry;
-	  AREntryIdList entryList;
-	  AV *input_list;
-	  int i;
+	  SV           **fetch_entry;
+	  AREntryIdList  entryList;
+	  AV            *input_list;
+	  int            i;
+
 	  RETVAL = -1; /* assume error */
 	  (void) ARError_reset();
 	  if(perl_BuildEntryList(&entryList, entry_id) != 0)
@@ -549,8 +556,11 @@ ars_DeleteEntry(ctrl,schema,entry_id)
 #endif
 #else /* ARS 2 */
 	  RETVAL = -1; /* assume error */
-	  entryId = SvPV(entry_id, na);
-	  ret = ARDeleteEntry(ctrl, schema, entryId, &status);
+	  if(!entry_id || !*entry_id) {
+		ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_EID);
+		goto delete_fail;
+	  }
+	  ret = ARDeleteEntry(ctrl, schema, entry_id, &status);
 #endif
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
@@ -559,8 +569,7 @@ ars_DeleteEntry(ctrl,schema,entry_id)
 	    RETVAL=-1;
 	  else
 	    RETVAL=0;
-	  
-	  delete_fail:;
+	delete_fail:;
 	}
 	OUTPUT:
 	RETVAL
@@ -569,18 +578,18 @@ void
 ars_GetEntry(ctrl,schema,entry_id,...)
 	ARControlStruct *	ctrl
 	char *			schema
-	SV *			entry_id
+	char *			entry_id
 	PPCODE:
 	{
-	  int c = items - 3, i, ret;
+	  int               c = items - 3, i, ret;
 	  ARInternalIdList  idList;
 	  ARFieldValueList  fieldList;
 	  ARStatusList      status;
-	  char *entryId;
+	  char             *entryId;
 #if AR_EXPORT_VERSION >= 3
-	  SV **fetch_entry;
-	  AREntryIdList entryList;
-	  AV *input_list;
+	  SV              **fetch_entry;
+	  AREntryIdList     entryList;
+	  AV               *input_list;
 #endif
 
 	  (void) ARError_reset();
@@ -604,32 +613,32 @@ ars_GetEntry(ctrl,schema,entry_id,...)
 	  free(entryList.entryIdList);
 #endif
 #else /* ARS 2 */
-	  entryId = SvPV(entry_id, na);
-	  ret = ARGetEntry(ctrl, schema, entryId, &idList, &fieldList, &status);
+	  if(!entry_id || !*entry_id) {
+		ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_EID);
+		goto get_entry_cleanup;
+	  }
+	  ret = ARGetEntry(ctrl, schema, entry_id, &idList, &fieldList, &status);
 #endif
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
 #endif
 	  if (ARError(ret, status)) {
-#ifndef WASTE_MEM
-	    FreeARInternalIdList(&idList, FALSE);
-#endif
-	    goto get_entry_end;
+	    goto get_entry_cleanup;
 	  }
 	  
 	  if(fieldList.numItems < 1) {
-#ifndef WASTE_MEM
-	    FreeARInternalIdList(&idList, FALSE);
-#endif
-	    goto get_entry_end;
+	    goto get_entry_cleanup;
  	  }
 	  for (i=0; i<fieldList.numItems; i++) {
 	    XPUSHs(newSViv(fieldList.fieldValueList[i].fieldId));
 	    XPUSHs(perl_ARValueStruct(&fieldList.fieldValueList[i].value));
 	  }
 #ifndef WASTE_MEM
-	  FreeARInternalIdList(&idList, FALSE);
 	  FreeARFieldValueList(&fieldList,FALSE);
+#endif
+	get_entry_cleanup:;
+#ifndef WASTE_MEM
+	  FreeARInternalIdList(&idList, FALSE);
 #endif
 	get_entry_end:;
 	}
@@ -1425,7 +1434,8 @@ ars_GetField(ctrl,schema,id)
 	    ret = ARGetField(ctrl, schema, id, NULL, NULL, NULL, NULL, &permissions, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &Status);
 #endif
 	    if (ret == 0) {
-	      hv_store(RETVAL, "permissions", strlen("permissions"), perl_ARPermissionList(&permissions), 0);
+	      hv_store(RETVAL, VNAME("permissions"), 
+		       perl_ARPermissionList(&permissions), 0);
 #ifndef WASTE_MEM
 	      FreeARPermissionList(&permissions,FALSE);
 #endif
@@ -1444,22 +1454,21 @@ int
 ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	ARControlStruct *	ctrl
 	char *			schema
-	SV *			entry_id
+	char *			entry_id
 	unsigned long		getTime
 	CODE:
 	{
-	  int a, i, c = (items - 4) / 2, j;
-	  int offset = 4;
+	  int              a, i, c = (items - 4) / 2, j;
+	  int              offset = 4;
 	  ARFieldValueList fieldList;
-	  ARStatusList status;
-	  int ret;
-	  unsigned int dataType;
-	  char *entryId;
+	  ARStatusList     status;
+	  int              ret;
+	  unsigned int     dataType;
 #if AR_EXPORT_VERSION >= 3
-	  unsigned int option = AR_JOIN_SETOPTION_NONE;
-	  SV **fetch_entry;
-	  AREntryIdList entryList;
-	  AV *input_list;
+	  unsigned int     option = AR_JOIN_SETOPTION_NONE;
+	  SV            **fetch_entry;
+	  AREntryIdList   entryList;
+	  AV             *input_list;
 
 	  (void) ARError_reset();
 	  RETVAL = 0; /* assume error */
@@ -1511,15 +1520,18 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 #if AR_EXPORT_VERSION >= 3
 	  /* build entryList */
 	  if(perl_BuildEntryList(&entryList, entry_id) != 0)
-		goto set_entry_exit;
+		goto set_entry_end;
 
 	  ret = ARSetEntry(ctrl, schema, &entryList, &fieldList, getTime, option, &status);
 #ifndef WASTE_MEM
 	  FreeAREntryIdList(&entryList, FALSE);
 #endif	  
 #else /* ARS2.x */
-	  entryId = SvPV(entry_id, na);
-	  ret = ARSetEntry(ctrl, schema, SvPV(entry_id, na), &fieldList, getTime, &status);
+	  if(!entry_id || !*entry_id) {
+		ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_EID);
+		goto set_entry_end;
+	  }
+	  ret = ARSetEntry(ctrl, schema, entry_id, &fieldList, getTime, &status);
 #endif
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
@@ -1814,6 +1826,7 @@ ars_DeleteVUI(ctrl, schema, vuiId)
 
 	  (void) ARError_reset();
 	  RETVAL = 0;
+#if AR_EXPORT_VERSION >= 3
 	  if(ctrl && CVLD(schema)) {
 		ret = ARDeleteVUI(ctrl, schema, vuiId, &status);
 #ifdef PROFILE
@@ -1825,6 +1838,9 @@ ars_DeleteVUI(ctrl, schema, vuiId)
 	  } else {
 		(void) ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
 	  }
+#else /* 2.x */
+	  (void) ARError_add(AR_RETURN_ERROR, AP_ERR_DEPRECATED, "DeleteVUI() is only available in ARS3.x");
+#endif
 	}
 	OUTPUT:
 	RETVAL
@@ -2128,7 +2144,7 @@ ars_GetAdminExtension(ctrl, name)
 		hv_store(RETVAL, VNAME("lastChanged"), newSVpv(lastChanged, 0), 0);
 		hv_store(RETVAL, VNAME("changeDiary"), newSVpv(changeDiary, 0), 0);
 #ifndef WASTE_MEM
-		FreeARInteralIdList(&groupList, FALSE);
+		FreeARInternalIdList(&groupList, FALSE);
 		if(helpText) free(helpText);
 		if(changeDiary) free(changeDiary);
 #endif
@@ -2742,7 +2758,7 @@ ars_CreateActiveLink(ctrl, alDefRef)
 		   (executeMask & AR_EXECUTE_ON_MENU_CHOICE))
 			rv += longcpyHVal(alDef, "field", &field);
 		if(executeMask & AR_EXECUTE_ON_BUTTON)
-			rv += rev_ARDisplayStruct(alDef, "displayList", 
+			rv += rev_ARDisplayList(alDef, "displayList", 
 					&displayList);
 #endif
 		/* at this point all datastructures (hopefully) are 

@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.2 1997/09/04 00:20:51 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.3 1997/10/02 15:40:00 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.2 1997/09/04 00:20:51 jcmurph
     LOG:
 
 $Log: supportrev.c,v $
+Revision 1.3  1997/10/02 15:40:00  jcmurphy
+1.50beta
+
 Revision 1.2  1997/09/04 00:20:51  jcmurphy
 *** empty log message ***
 
@@ -54,22 +57,23 @@ Initial revision
 #include "support.h"
 #include "supportrev.h"
 
-static int rev_ARDisplayStruct_helper(HV *h, ARDisplayList *d, int idx);
-static int rev_ARActiveLinkActionList_helper(HV *h, ARActiveLinkActionList *al, 
-					       int idx);
+static int rev_ARActiveLinkActionList_helper(HV *h, 
+					     ARActiveLinkActionList *al, 
+					     int idx);
+static int rev_ARDisplayStruct_helper(HV *h, char *k, ARDisplayStruct *d);
 static int rev_ARValueStructStr2Type(char *type, unsigned int *n);
 static int rev_ARValueStructKW2KN(char *keyword, unsigned int *n);
 static int rev_ARValueStructDiary(HV *h, char *k, char **d);
 static int rev_ARAssignFieldStruct_helper(HV *h, ARAssignFieldStruct *m);
 static int rev_ARAssignFieldStructStr2NMO(char *s, unsigned int *nmo);
 static int rev_ARAssignFieldStructStr2MMO(char *s, unsigned int *mmo);
-static int rev_StatHistoryValue_helper(HV *h, ARStatHistoryValue *s);
+static int rev_ARStatHistoryValue_helper(HV *h, ARStatHistoryValue *s);
 static int rev_ARArithOpAssignStruct_helper(HV *h, ARArithOpAssignStruct *s);
 static int rev_ARArithOpAssignStructStr2OP(char *c, unsigned int *o);
 static int rev_ARFunctionAssignStructStr2FCODE(char *c, unsigned int *o);
 static int rev_ARAssignStruct_helper(HV *h, ARAssignStruct *m);
-static int rev_ARActiveLinkMacroStruct_helper(HV *h, ARActiveLinkMacroStruct *m);
-
+static int rev_ARActiveLinkMacroStruct_helper(HV *h, 
+					      ARActiveLinkMacroStruct *m);
 #if AR_EXPORT_VERSION >= 3
 static int rev_ARByteListStr2Type(char *ts, unsigned long *tv);
 static int rev_ARCoordList_helper(HV *h, ARCoordList *m, int idx);
@@ -317,7 +321,7 @@ longcpyHVal(HV *h, char *k, long *b)
 }
 
 /* ROUTINE
- *   rev_ARDisplayStruct(hash, key, displayStruct)
+ *   rev_ARDisplayList(hash, key, displayStruct)
  *
  * DESCRIPTION
  *   Given a hash and key whose corresponding value is
@@ -334,14 +338,14 @@ longcpyHVal(HV *h, char *k, long *b)
  */
 
 int
-rev_ARDisplayStruct(HV *h, char *k, ARDisplayList *d)
+rev_ARDisplayList(HV *h, char *k, ARDisplayList *d)
 {
   SV **val;
   int  i;
 
   if(! d) {
     ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, 
-		"rev_ARDisplayStruct: DisplayList param is NULL");
+		"rev_ARDisplayList: DisplayList param is NULL");
     return -1;
   }
 
@@ -371,56 +375,102 @@ rev_ARDisplayStruct(HV *h, char *k, ARDisplayList *d)
 	    SV **av_hv = av_fetch(ar, i, 0);
 
 	    if(av_hv && *av_hv && (SvTYPE(SvRV(*av_hv)) == SVt_PVHV)) {
-	      if(rev_ARDisplayStruct_helper((HV *)SvRV(*av_hv), d, i) != 0)
+	      if(rev_ARDisplayStruct((HV *)SvRV(*av_hv), &(d->displayList[i])) != 0)
 		return -1;
 	    } else 
 	      ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, 
-			  "rev_ARDisplayStruct: inner array value is not a hash reference");
+			  "rev_ARDisplayList: inner array value is not a hash reference");
 	  }
 	  return 0;
 	} else 
 	  ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, 
-		      "rev_ARDisplayStruct: hash value is not an array reference");
+		      "rev_ARDisplayList: hash value is not an array reference");
       } else {
 	ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, 
-		    "rev_ARDisplayStruct: hv_fetch returned null");
+		    "rev_ARDisplayList: hv_fetch returned null");
 	return -2;
       }
     } else {
       ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, 
-		  "rev_ARDisplayStruct: key doesn't exist");
+		  "rev_ARDisplayList: key doesn't exist");
       return -2;
     }
   } else 
     ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
-		"rev_ARDisplayStruct: first argument is not a hash");
+		"rev_ARDisplayList: first argument is not a hash");
   return -1;
 }
 
-/* helper routine to above routine. does the actual data copying once 
- * main routine has verified that everything is OK.
+/* ROUTINE
+ *   rev_ARDisplayStruct_helper(hv, key, displayStruct)
  *
- * keys: displayTag (pv), x (iv), y (iv), option (pv +), 
- *       label (pv), labelLocation (pv +) and type (pv +),
- *       length (iv), numRows (iv)
- *
- * (+) variable needs to be decoded
+ * DESCRIPTION
+ *   a helper routine (wrapper)
  */
 
 static int
-rev_ARDisplayStruct_helper(HV *h, ARDisplayList *d, int idx)
+rev_ARDisplayStruct_helper(HV *h, char *k, ARDisplayStruct *d) 
+{
+  SV **val;
+  int  i;
+
+  if(! d) {
+    ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, 
+		"rev_ARDisplayStruct_helper: DisplayList param is NULL");
+    return -1;
+  }
+
+  if(SvTYPE((SV *)h) == SVt_PVHV) {
+    if(hv_exists(h, VNAME(k))) {
+      val = hv_fetch(h, VNAME(k), 0);
+      if(val && *val) {
+
+	/* hash value should be an hash reference */
+
+	if(SvTYPE(SvRV(*val)) == SVt_PVHV) {
+	  if(rev_ARDisplayStruct((HV *)SvRV(*val), d) != 0)
+	    return -1;
+	  return 0;
+	} else 
+	  ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, 
+		      "rev_ARDisplayStruct_helper: hash value is not an array reference");
+      } else {
+	ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, 
+		    "rev_ARDisplayStruct_helper: hv_fetch returned null");
+	return -2;
+      }
+    } else {
+      ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, 
+		  "rev_ARDisplayStruct_helper: key doesn't exist");
+      return -2;
+    }
+  } else 
+    ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
+		"rev_ARDisplayStruct_helper: first argument is not a hash");
+  return -1;
+}
+
+/* ROUTINE
+ *   rev_ARDisplayStruct(hv, displayStruct)
+ *
+ * DESCRIPTION
+ *   given a hash that contains displaystruct keys
+ *   and an empty (preallocated) displaystruct, fill
+ *   in the display struct.
+ */
+
+int 
+rev_ARDisplayStruct(HV *h, ARDisplayStruct *d)
 {
   int  rv = 0, rv2 = 0;
   char buf[1024];
 
-  rv += strcpyHVal(h, "displayTag", d->displayList[idx].displayTag, 
-		   sizeof(ARNameType));
-  rv += strcpyHVal(h, "label", d->displayList[idx].label,
-		   sizeof(ARNameType));
-  rv += uintcpyHVal(h, "x",       &(d->displayList[idx].x));
-  rv += uintcpyHVal(h, "y",       &(d->displayList[idx].y));
-  rv += uintcpyHVal(h, "length",  &(d->displayList[idx].length));
-  rv += uintcpyHVal(h, "numRows", &(d->displayList[idx].numRows));
+  rv += strcpyHVal(h, "displayTag", d->displayTag, sizeof(ARNameType));
+  rv += strcpyHVal(h, "label", d->label, sizeof(ARNameType));
+  rv += uintcpyHVal(h, "x",       &(d->x));
+  rv += uintcpyHVal(h, "y",       &(d->y));
+  rv += uintcpyHVal(h, "length",  &(d->length));
+  rv += uintcpyHVal(h, "numRows", &(d->numRows));
 
   /* variables that need some decoding before we store them */
 
@@ -430,9 +480,9 @@ rev_ARDisplayStruct_helper(HV *h, ARDisplayList *d, int idx)
 
   if((rv2 = strcpyHVal(h, "option", buf, sizeof(buf))) == 0) {
     if(strncasecmp(buf, "HIDDEN", sizeof(buf)) == 0) 
-      d->displayList[idx].option = AR_DISPLAY_OPT_HIDDEN;
+      d->option = AR_DISPLAY_OPT_HIDDEN;
     else 
-      d->displayList[idx].option = AR_DISPLAY_OPT_VISIBLE;
+      d->option = AR_DISPLAY_OPT_VISIBLE;
   } else 
     rv += rv2;
 
@@ -442,9 +492,9 @@ rev_ARDisplayStruct_helper(HV *h, ARDisplayList *d, int idx)
 
   if((rv2 = strcpyHVal(h, "labelLocation", buf, sizeof(buf))) == 0) {
     if(strncasecmp(buf, "Top", sizeof(buf)) == 0)
-      d->displayList[idx].labelLocation = AR_DISPLAY_LABEL_TOP;
+      d->labelLocation = AR_DISPLAY_LABEL_TOP;
     else
-      d->displayList[idx].labelLocation = AR_DISPLAY_LABEL_LEFT;
+      d->labelLocation = AR_DISPLAY_LABEL_LEFT;
   } else
     rv += rv2;
 
@@ -454,17 +504,17 @@ rev_ARDisplayStruct_helper(HV *h, ARDisplayList *d, int idx)
 
   if((rv2 = strcpyHVal(h, "type", buf, sizeof(buf))) == 0) {
     if(strncasecmp(buf, "TEXT", sizeof(buf)) == 0)
-      d->displayList[idx].type = AR_DISPLAY_TYPE_TEXT;
+      d->type = AR_DISPLAY_TYPE_TEXT;
     else if(strncasecmp(buf, "NUMTEXT", sizeof(buf)) == 0)
-      d->displayList[idx].type = AR_DISPLAY_TYPE_NUMTEXT;
+      d->type = AR_DISPLAY_TYPE_NUMTEXT;
     else if(strncasecmp(buf, "CHECKBOX", sizeof(buf)) == 0)
-      d->displayList[idx].type = AR_DISPLAY_TYPE_CHECKBOX;
+      d->type = AR_DISPLAY_TYPE_CHECKBOX;
     else if(strncasecmp(buf, "CHOICE", sizeof(buf)) == 0)
-      d->displayList[idx].type = AR_DISPLAY_TYPE_CHOICE;
+      d->type = AR_DISPLAY_TYPE_CHOICE;
     else if(strncasecmp(buf, "BUTTON", sizeof(buf)) == 0)
-      d->displayList[idx].type = AR_DISPLAY_TYPE_BUTTON;
+      d->type = AR_DISPLAY_TYPE_BUTTON;
     else
-      d->displayList[idx].type = AR_DISPLAY_TYPE_NONE;
+      d->type = AR_DISPLAY_TYPE_NONE;
   } else
     rv += rv2;
 
@@ -567,7 +617,7 @@ rev_ARActiveLinkActionList(HV *h, char *k, ARActiveLinkActionList *al)
 
   if(! al) {
     ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, 
-		"rev_ARDisplayStruct: DisplayList param is NULL");
+		"rev_ARActiveLinkActionList: DisplayList param is NULL");
     return -1;
   }
 
@@ -587,7 +637,6 @@ rev_ARActiveLinkActionList(HV *h, char *k, ARActiveLinkActionList *al)
 	  if(al->numItems == 0)
 	    return 0; /* nothing to do */
 
-	  printf("DEBUG: activelink actions = %d\n", al->numItems);
 	  al->actionList = MALLOCNN(sizeof(ARActiveLinkActionStruct) * al->numItems);
 
 	  /* iterate over the array, grabbing each hash reference out of it
@@ -603,25 +652,25 @@ rev_ARActiveLinkActionList(HV *h, char *k, ARActiveLinkActionList *al)
 		return -1;
 	    } else 
 	      ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, 
-			  "rev_ARDisplayStruct: inner array value is not a hash reference");
+			  "rev_ARActiveLinkActionList: inner array value is not a hash reference");
 	  }
 	  return 0;
 	} else 
 	  ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, 
-		      "rev_ARDisplayStruct: hash value is not an array reference");
+		      "rev_ARActiveLinkActionList: hash value is not an array reference");
       } else {
 	ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, 
-		    "rev_ARDisplayStruct: hv_fetch returned null");
+		    "rev_ARActiveLinkActionList: hv_fetch returned null");
 	return -2;
       }
     } else {
       ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, 
-		  "rev_ARDisplayStruct: key doesn't exist");
+		  "rev_ARActiveLinkActionList: key doesn't exist");
       return -2;
     }
   } else 
     ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
-		"rev_ARDisplayStruct: first argument is not a hash");
+		"rev_ARActiveLinkActionList: first argument is not a hash");
   return -1;
 }
 
@@ -1062,6 +1111,7 @@ rev_ARValueStructDiary(HV *h, char *k, char **d)
   return -1;
 }
 
+#if AR_EXPORT_VERSION >= 3
 int
 rev_ARByteList(HV *h, char *k, ARByteList *b)
 {
@@ -1115,7 +1165,6 @@ rev_ARByteList(HV *h, char *k, ARByteList *b)
   return -1;
 }
 
-#if AR_EXPORT_VERSION >= 3
 static int 
 rev_ARByteListStr2Type(char *ts, unsigned long *tv)
 {
@@ -1438,7 +1487,7 @@ rev_ARStatHistoryValue(HV *h, char *k, ARStatHistoryValue *s)
 }
 
 static int 
-rev_StatHistoryValue_helper(HV *h, ARStatHistoryValue *s)
+rev_ARStatHistoryValue_helper(HV *h, ARStatHistoryValue *s)
 {
   if(hv_exists(h, "userOrTime", 0) && hv_exists(h, "enumVal", 0)) {
     ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, 
@@ -1770,13 +1819,13 @@ rev_ARFieldCharacteristics(HV *h, char *k, ARFieldCharacteristics *m)
 	  rv += uintcpyHVal(a, "accessOption", &(m->accessOption));
 	  rv += uintcpyHVal(a, "focus", &(m->focus));
 	  rv += longcpyHVal(a, "fieldId", &(m->fieldId));
-	  rv += strmak(a, "charMenu", &(m->charMenu));
+	  rv += strmakHVal(a, "charMenu", &(m->charMenu));
 #if AR_EXPORT_VERSION >= 3
 	  if(rev_ARPropList(a, "props", &(m->props)) == -1)
 	    return -1;
 #else /* 2.x */
-	  m->display = (ARDisplayList *)MALLOCNN(sizeof(ARDisplayList));
-	  if(rev_ARDisplayStruct(a, "display", m->display) == -1)
+	  m->display = (ARDisplayStruct *)MALLOCNN(sizeof(ARDisplayStruct));
+	  if(rev_ARDisplayStruct_helper(a, "display", m->display) == -1)
 	    return -1;
 #endif
 	  return rv;
@@ -1978,8 +2027,8 @@ rev_ARMacroParmList(HV *h, char *k, ARMacroParmList *m)
 	  (void) hv_iterinit(a);
 	  for(i = 0 ; hv_iternext(a) != (HE *)NULL ; i++);
 	  m->numItems = i;
-	  m->parms = (ARMacroParmStruct *)MALLOCNN(sizeof(ARMacroParmStruct) * 
-						   m->numItems);
+	  m->parms = (ARMacroParmStruct *)MALLOCNN(sizeof(ARMacroParmStruct)
+						   * m->numItems);
 	  (void) hv_iterinit(a);
 	  i2 = 0;
 	  while(hval = hv_iternextsv(a, &hkey, &klen)) {

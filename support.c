@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.2 1997/09/04 00:20:38 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.3 1997/10/02 15:39:48 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/support.c,v 1.2 1997/09/04 00:20:38 jcmurphy E
     LOG:
 
 $Log: support.c,v $
+Revision 1.3  1997/10/02 15:39:48  jcmurphy
+1.50beta
+
 Revision 1.2  1997/09/04 00:20:38  jcmurphy
 *** empty log message ***
 
@@ -49,12 +52,6 @@ Initial revision
 #define __support_c_
 
 #include "support.h"
-
-#ifndef BSD
-# define MEMCAST void
-#else
-# define MEMCAST char
-#endif
 
 void
 zeromem(MEMCAST *m, int size)
@@ -103,8 +100,8 @@ mallocnn(int s) {
   void *m = malloc(s?s:1);
   if (! m)
     croak("can't malloc");
-  else 
-    return m;
+  else  
+   return m;
 }
 
 /* ROUTINE
@@ -136,9 +133,8 @@ static HV *err_hash = (HV *)NULL;
 int
 ARError_reset()
 {
-  SV **numItems, **messageType, **messageNum, **messageText, **t1;
-  SV *ni, *t2;
-  AV *mNum, *mType, *mText, *t3;
+  SV *ni, *t2, **t1;
+  AV *t3;
 
   /* lookup hash, create if necessary */
 
@@ -194,7 +190,7 @@ ARError_reset()
 int
 ARError_add(unsigned int type, long num, char *text)
 {
-  SV          **numItems, **messageType, **messageNum, **messageText, **tmp;
+  SV          **numItems, **messageType, **messageNum, **messageText;
   AV           *a;
   SV           *t2;
   unsigned int  ni, ret = 0;
@@ -429,10 +425,9 @@ perl_ARValueStructType(ARValueStruct *in) {
 
 SV *
 perl_ARValueStruct(ARValueStruct *in) {
-  char *s="";
-  ARDiaryList diaryList;
+  ARDiaryList  diaryList;
   ARStatusList status;
-  int ret, i;
+  int          ret, i;
   
   switch (in->dataType) {
   case AR_DATA_TYPE_KEYWORD:
@@ -1076,24 +1071,20 @@ perl_ARPermissionList(ARPermissionList *in) {
  */
 
 int 
-perl_BuildEntryList(AREntryIdList *entryList, SV *entry_id)
+perl_BuildEntryList(AREntryIdList *entryList, char *entry_id)
 {
-  if (SvOK(entry_id)) {
-    /* single scalar entry_id, can be a "normal" entry-id or 
-     * a "join" (long) entry-id
-     */
-    
+  if(entry_id && *entry_id) {
     /* if the entry id is too long, it is probably refering to
      * a join schema. split it, and fill in the entryIdList with
      * the components. 
      */
-    
-    if(strlen(SvPV(entry_id, na)) > AR_MAX_ENTRYID_SIZE) {
+  
+    if(strlen(entry_id) > AR_MAX_ENTRYID_SIZE) {
       char *eid_dup, *eid_orig, *tok;
       char  eidSep[2] = {AR_ENTRY_ID_SEPARATOR, 0};
       int   tn;
 
-      eid_dup  = strdup(SvPV(entry_id, na));
+      eid_dup  = strdup(entry_id);
       eid_orig = eid_dup; /* remember who we are */
       
       entryList->numItems = strsrch(eid_dup, AR_ENTRY_ID_SEPARATOR) + 1; 
@@ -1115,7 +1106,7 @@ perl_BuildEntryList(AREntryIdList *entryList, SV *entry_id)
     } else { /* "normal" entry-id */
       entryList->numItems = 1;
       entryList->entryIdList = MALLOCNN(sizeof(AREntryIdType) * 1);
-      strcpy(entryList->entryIdList[0], SvPV(entry_id, na));
+      strcpy(entryList->entryIdList[0], entry_id);
       return 0;
     }
   } else
@@ -1805,11 +1796,11 @@ ARGetFieldCached(ARControlStruct *ctrl, ARNameType schema, ARInternalId id,
 
 int
 sv_to_ARValue(SV *in, unsigned int dataType, ARValueStruct *out) {
-  AV *array, *array2;
-  HV *hash;
-  SV **fetch, *type, *val, **fetch2;
-  char *bytelist;
-  unsigned int len, i, len2;
+  AV           *array, *array2;
+  HV           *hash;
+  SV          **fetch, *type, *val, **fetch2;
+  char         *bytelist;
+  unsigned int  len, i, len2;
   
   out->dataType = dataType;
   if (! SvOK(in)) {
