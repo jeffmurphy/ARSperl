@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/Dump_Users.pl,v 1.3 1997/09/30 04:49:13 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/Dump_Users.pl,v 1.4 1998/12/28 15:23:29 jcmurphy Exp $
 #
 # EXAMPLE
 #    Dump_Users.pl
@@ -19,6 +19,9 @@
 # 01/12/96
 #
 # $Log: Dump_Users.pl,v $
+# Revision 1.4  1998/12/28 15:23:29  jcmurphy
+# fixed up "Login name" query for ARS4.0 ("Login Name")
+#
 # Revision 1.3  1997/09/30 04:49:13  jcmurphy
 # added some error output
 # /
@@ -58,9 +61,15 @@ if(!defined($password)) {
 %entries = ars_GetListEntry($ctrl, $SCHEMA, $qual, 0);
 
 # Retrieve the fieldid's for the "Login name" and "Full name" fields.
+# As of ARS4.0, "name" has become "Name", so we'll check for both fields
+# and use whatever we find.
 
-($loginname_fid = ars_GetFieldByName($ctrl, $SCHEMA, "Login name")) ||
+$loginname_fid = ars_GetFieldByName($ctrl, $SCHEMA, "Login name");
+if(!defined($loginname_fid)) {
+  ($loginname_fid = ars_GetFieldByName($ctrl, $SCHEMA, "Login Name")) ||
     die "no such field in this schema: 'Login name'";
+}
+
 
 ($fullname_fid = ars_GetFieldByName($ctrl, $SCHEMA, "Full Name")) ||
     die "no such field in this schema: 'Full Name'";
