@@ -36,7 +36,9 @@ if (defined($q1)) {
 	print "not ok [2] ($ars_errstr)\n";
 }
 
+print "expect DESTROY..\n";
 undef $q1; # should result in a call to DESTROY
+print "did you get it? (ARSPDEBUG must be defined)\n";
 
 {
 	my $q2 = ars_LoadQualifier($ctrl, "ARSperl Test", "'Submitter' = \"jcmurphy\"");

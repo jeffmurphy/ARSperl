@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.45 2003/03/30 16:36:29 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.46 2003/04/02 01:43:35 jcmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -62,6 +62,9 @@ if($ARSVERSION >= 4.0) {
   $ARS_LIBS .= " -lpthread" unless $WINDOWS;
   $AUTODEFINES .= " -DARS32 ";	
   $AUTODEFINES .= " -DARS452 " if($ARSVERSION >= 4.52);
+  if ( ($ARSVERSION >= 5.0) && ($^O eq 'linux') ) {
+    $AUTODEFINES .= " -malign-double ";
+  }
 }
 
 elsif($ARSVERSION >= 3.0 && $ARSVERSION < 4.0) {

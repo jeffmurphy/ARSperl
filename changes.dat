@@ -9,6 +9,7 @@ JCM memory leak fixed in ControlStruct destructor
 JCM bad/NULL ref fixed in ExpandCharMenu
 JCM added new params to ars_Login: lang, authString, tcpport, rpcnumber
 JCM added new rv's to ars_GetControlStructFields: lang, authString
+JCM updated example and test scripts 
 !JCM 5.x (5.0.1, 5.1, 5.1.1) integration<BR>
 	functions that no longer are available
 	<blockquote>

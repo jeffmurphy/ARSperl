@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/GetFilter.pl,v 1.8 2000/06/01 16:54:03 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/GetFilter.pl,v 1.9 2003/04/02 01:43:35 jcmurphy Exp $
 #
 # NAME
 #   GetFilter.pl
@@ -16,6 +16,9 @@
 #   jcmurphy@acsu.buffalo.edu
 #
 # $Log: GetFilter.pl,v $
+# Revision 1.9  2003/04/02 01:43:35  jcmurphy
+# mem mgmt cleanup
+#
 # Revision 1.8  2000/06/01 16:54:03  jcmurphy
 # *** empty log message ***
 #
@@ -43,6 +46,8 @@
 #
 
 use ARS;
+
+@MessageTypes = ( "Note", "Warn", "Error" );
 
 $debug = 0;
 
@@ -388,13 +393,16 @@ sub ProcessActions {
                 # message text is formatted as:
                 #
                 # Type X Num XXXXX Text [XXXXXX...]
- 
+
+	      # messageNum messageType messageText
+
                 $action->{message} =~ 
                     /Type\ ([0-9]+)\ Num\ ([0-9]+)\ Text \[(.*)\]/;
-                printl 2, "Message:\n";
-                printl 3, "Type: $MessageTypes[$1] ($1)\n";
-                printl 3, "Num: $2\n";
-                printl 3, "Text: $3\n";
+                printl 2, "Message: (raw=\"$action->{'message'}\")\n";
+		#print "keys ", keys %{$action->{'message'}}, "\n";
+                printl 3, "Type: ",$MessageTypes[$action->{'message'}->{'messageType'}],"\n";
+                printl 3, "Num: $action->{'message'}->{'messageNum'}\n";
+                printl 3, "Text: $action->{'message'}->{'messageText'}\n";
             }
             if(defined($action->{process})) {
                 printl 2, "Process: ".$action->{process}."\n";

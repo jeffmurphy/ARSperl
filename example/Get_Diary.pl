@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/Get_Diary.pl,v 1.2 1998/03/31 15:44:00 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/Get_Diary.pl,v 1.3 2003/04/02 01:43:35 jcmurphy Exp $
 #
 # EXAMPLE
 #    Get_Diary.pl
@@ -15,6 +15,9 @@
 # 03/06/96
 # 
 # $Log: Get_Diary.pl,v $
+# Revision 1.3  2003/04/02 01:43:35  jcmurphy
+# mem mgmt cleanup
+#
 # Revision 1.2  1998/03/31 15:44:00  jcmurphy
 # nada
 #
@@ -36,6 +39,10 @@ if(!defined($diaryfield)) {
 
 # Log onto the ars server specified
 
+print "schema=$schema
+qualifier=$qualifier
+diaryfield=$diaryfield\n";
+
 ($ctrl = ars_Login($server, $username, $password)) || 
     die "can't login to the server";
 
@@ -46,7 +53,7 @@ if(!defined($diaryfield)) {
 
 # Retrieve all of the entry-id's for the qualification.
 
-%entries = ars_GetListEntry($ctrl, $schema, $qual, 0);
+%entries = ars_GetListEntry($ctrl, $schema, $qual, 0, 0);
 
 # Retrieve the fieldid for the diary field
 
@@ -59,7 +66,8 @@ foreach $entry_id (sort keys %entries) {
 
     # Retrieve the (fieldid, value) pairs for this entry
 
-    %e_vals = ars_GetEntry($ctrl, $schema, $entry_id);
+    %e_vals = ars_GetEntry($ctrl, $schema, $entry_id, 
+			  $diaryfield_fid);
 
     # Print out the diary entries for this entry-id
 

@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.86 2003/03/31 16:09:45 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.87 2003/04/02 01:43:34 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -86,25 +86,22 @@ ars_LoadQualifier(ctrl,schema,qualstring,displayTag=NULL)
 	char *			displayTag
 	CODE:
 	{
-	  int                ret;
-	  ARStatusList       status;
-	  ARQualifierStruct *qual;
-	  Newz(777,qual,1,ARQualifierStruct);
-	  Zero(&status, 1, ARStatusList);
-	  (void) ARError_reset();
-	  /* this gets freed below in the ARQualifierStructPTR package */
-	  ret = ARLoadARQualifierStruct(ctrl, schema, displayTag, qualstring, qual, &status);
+		int                ret;
+		ARStatusList       status;
+		ARQualifierStruct *qual;
+		Newz(777, qual, 1, ARQualifierStruct);
+		Zero(&status, 1, ARStatusList);
+		(void) ARError_reset();
+		ret = ARLoadARQualifierStruct(ctrl, schema, displayTag, qualstring, qual, &status);
 #ifdef PROFILE
-	  ((ars_ctrl *)ctrl)->queries++;
+		((ars_ctrl *)ctrl)->queries++;
 #endif
-	  if (! ARError( ret, status)) {
-	    RETVAL = qual;
-	  } else {
-	    RETVAL = NULL;
-#ifndef WASTE_MEM
-	    safefree(qual);
-#endif
-	  }
+		if (! ARError( ret, status)) {
+			RETVAL = qual;
+		} else {
+			RETVAL = NULL;
+			FreeARQualifierStruct(qual, TRUE);
+		}
 	}
 	OUTPUT:
 	RETVAL
@@ -457,9 +454,7 @@ ars_GetListField(control,schema,changedsince=0,fieldType=AR_FIELD_TYPE_ALL)
 	  if (!ARError( ret,status)) {
 	    for (i=0; i<idlist.numItems; i++)
 	      XPUSHs(sv_2mortal(newSViv(idlist.internalIdList[i])));
-#ifndef WASTE_MEM
 	    FreeARInternalIdList(&idlist,FALSE);
-#endif
 	  }
 	}
 
@@ -509,21 +504,15 @@ ars_GetFieldByName(control,schema,field_name)
 	      {
 		XPUSHs(sv_2mortal(newSViv(idList.internalIdList[loop])));
 #if AR_EXPORT_VERSION < 3
-#ifndef WASTE_MEM
 		FreeARDisplayList(&displayList, FALSE);
-#endif
 #endif
 		break;
 	      }
 #if AR_EXPORT_VERSION < 3
-#ifndef WASTE_MEM
 	      FreeARDisplayList(&displayList, FALSE);
 #endif
-#endif
 	    }
-#ifndef WASTE_MEM
 	    FreeARInternalIdList(&idList, FALSE);
-#endif
 	  }
 	}
 
@@ -571,14 +560,10 @@ ars_GetFieldTable(control,schema)
 #endif
 	      XPUSHs(sv_2mortal(newSViv(idList.internalIdList[loop])));
 #if AR_EXPORT_VERSION < 3
-#ifndef WASTE_MEM
 	      FreeARDisplayList(&displayList, FALSE);
 #endif
-#endif
 	    }
-#ifndef WASTE_MEM
 	    FreeARInternalIdList(&idList, FALSE);
-#endif
 	  }
 	}
 
@@ -633,22 +618,8 @@ ars_CreateEntry(ctrl,schema,...)
 		RETVAL = newSVsv(&PL_sv_undef);
 	    else
 		RETVAL = newSVpv( entryId, strlen(entryId) );
-#ifndef WASTE_MEM
-#if 0
-	  for (i = 0; i < fieldList.numItems ; i++) {
-		switch(fieldList.fieldValueList[i].dataType) {
-		case AR_DATA_TYPE_CHAR:
-		case AR_DATA_TYPE_DIARY:
-		case AR_DATA_TYPE_BITMASK:
-		case AR_DATA_TYPE_BYTES:
-		case AR_DATA_TYPE_DECIMAL:
-		case AR_DATA_TYPE_ATTACH:
-		}
-	  }
-#endif
-	  	FreeARFieldValueList(&fieldList, FALSE);
-	  safefree(fieldList.fieldValueList);
-#endif
+	  FreeARFieldValueList(&fieldList, FALSE);
+	  safefree(fieldList.fieldValueList); /* FIX*/
 	  }
 	}
 	OUTPUT:
@@ -810,9 +781,7 @@ ars_GetEntry(ctrl,schema,entry_id,...)
 		goto get_entry_end;
 
 	  ret = ARGetEntry(ctrl, schema, &entryList, &idList, &fieldList, &status);
-#ifndef WASTE_MEM
 	  FreeAREntryIdList(&entryList,FALSE);
-#endif
 #else /* ARS 2 */
 	  if(!entry_id || !*entry_id) {
 		ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_EID);
@@ -835,13 +804,9 @@ ars_GetEntry(ctrl,schema,entry_id,...)
 	    XPUSHs(sv_2mortal(perl_ARValueStruct(ctrl,
 		&fieldList.fieldValueList[i].value)));
 	  }
-#ifndef WASTE_MEM
 	  FreeARFieldValueList(&fieldList,FALSE);
-#endif
 	get_entry_cleanup:;
-#ifndef WASTE_MEM
 	  FreeARInternalIdList(&idList, FALSE);
-#endif
 	get_entry_end:;
 	}
 
@@ -936,13 +901,13 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,firstRetrieve,...)
 	
 	  /* build sortList */
 	  Zero(&sortList, 1, ARSortList);
-	  sortList.numItems = c;
-	printf("sl %x\n", sortList.sortList);
-          Newz(777,sortList.sortList, c,  ARSortStruct);
-	printf("sl %x\n", sortList.sortList);
-	  for ( i = 0 ; i < c ; i++) {
-		sortList.sortList[i].fieldId   = SvIV(ST(i*2+field_off));
-		sortList.sortList[i].sortOrder = SvIV(ST(i*2+field_off+1));
+	  if (c) {
+	  	sortList.numItems = c;
+          	Newz(777,sortList.sortList, c,  ARSortStruct);
+	  	for ( i = 0 ; i < c ; i++) {
+			sortList.sortList[i].fieldId   = SvIV(ST(i*2+field_off));
+			sortList.sortList[i].sortOrder = SvIV(ST(i*2+field_off+1));
+	  	}
 	  }
 #if AR_EXPORT_VERSION >= 6
 	  ret = ARGetListEntry(ctrl, schema, qualifier, getList, &sortList, 
@@ -959,7 +924,6 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,firstRetrieve,...)
 	  ((ars_ctrl *)ctrl)->queries++;
 #endif
 	  if (ARError( ret, status)) {
-		safefree(sortList.sortList);
 		goto getlistentry_end;
 	  }
 	  for (i = 0 ; i < entryList.numItems ; i++) {
@@ -993,9 +957,9 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,firstRetrieve,...)
 #endif
 		XPUSHs(sv_2mortal(newSVpv(entryList.entryList[i].shortDesc, 0)));
 	  }
-	  safefree(sortList.sortList);
+	getlistentry_end:;
+	  FreeARSortList(&sortList, FALSE);
 	  FreeAREntryListList(&entryList,FALSE);
-	  getlistentry_end:;
 	}
 
 void
@@ -1050,9 +1014,7 @@ ars_GetListSchema(ctrl,changedsince=0,schemaType=AR_LIST_SCHEMA_ALL,name=NULL,fi
 	    for (i=0; i<nameList.numItems; i++) {
 	      XPUSHs(sv_2mortal(newSVpv(nameList.nameList[i], 0)));
 	    }
-#ifndef WASTE_MEM
 	    FreeARNameList(&nameList,FALSE);
-#endif
 	  }
 	}
 
@@ -1134,9 +1096,7 @@ ars_GetListServer()
 	    for (i=0; i<serverList.numItems; i++) {
 	      XPUSHs(sv_2mortal(newSVpv(serverList.nameList[i], 0)));
 	    }
-#ifndef WASTE_MEM
 	    FreeARServerNameList(&serverList,FALSE);
-#endif
 	  }
 	}
 
@@ -1426,18 +1386,20 @@ ars_GetFilter(ctrl,name)
 			FreeARDiaryList(&diaryList, FALSE);
 		}
 	    }
-#ifndef WASTE_MEM
 	    FreeARFilterActionList(&actionList,FALSE);
 #if AR_EXPORT_VERSION >= 3
 	    FreeARFilterActionList(&elseList,FALSE);
 #endif
-	    if(!CVLD(helpText)){
-	      FREE(helpText);
-	    }
-	    if(!CVLD(changeDiary)){
-	      FREE(changeDiary);
-	    }
+#if AR_EXPORT_VERSION >= 5
+	    FreeARWorkflowConnectStruct(&schemaList, FALSE);
+	    FreeARPropList(&objPropList, FALSE);
 #endif
+	    if(CVLD(helpText)){
+	      	safefree(helpText);
+	    }
+	    if(CVLD(changeDiary)){
+	      	safefree(changeDiary);
+	    }
 	  }
 	}
 	OUTPUT:
@@ -1468,11 +1430,7 @@ ars_GetServerStatistics(ctrl,...)
 #ifdef PROFILE
 			((ars_ctrl *)ctrl)->queries++;
 #endif
-			if(ARError( ret, status)) {
-#ifndef WASTE_MEM
-				safefree(requestList.requestList);
-#endif
-			} else {
+			if (!ARError(ret, status)) {
 				for(i=0; i<serverInfo.numItems; i++) {
 					XPUSHs(sv_2mortal(newSViv(serverInfo.serverInfoList[i].operation)));
 					switch(serverInfo.serverInfoList[i].value.dataType) {
@@ -1491,11 +1449,9 @@ ars_GetServerStatistics(ctrl,...)
 						break;
 					}
 				}
-#ifndef WASTE_MEM
-				FreeARServerInfoList(&serverInfo, FALSE);
-				safefree(requestList.requestList);
-#endif
 			}
+			FreeARServerInfoList(&serverInfo, FALSE);
+			FreeARServerInfoRequestList(&requestList, FALSE);
 		} else {
 			(void) ARError_add( AR_RETURN_ERROR, AP_ERR_MALLOC);
 		} 
@@ -1644,15 +1600,16 @@ ars_GetCharMenu(ctrl,name)
 			break;
 #endif
 		}
-#ifndef WASTE_MEM
-		FreeARCharMenuStruct(&menuDefn, FALSE);
-		if(!CVLD(helpText)){
-		  FREE(helpText);
-		}
-		if(!CVLD(changeDiary)){
-		  FREE(changeDiary);
-		}
+#if AR_EXPORT_VERSION >= 5
+		FreeARPropList(&objPropList, FALSE);
 #endif
+		FreeARCharMenuStruct(&menuDefn, FALSE);
+		if (CVLD(helpText)){
+		  	safefree(helpText);
+		}
+		if (CVLD(changeDiary)){
+		  	safefree(changeDiary);
+		}
 	  }
 	}
 	OUTPUT:
@@ -1808,7 +1765,6 @@ ars_GetSchema(ctrl,name)
 	    hv_store(RETVAL,  "sortList", strlen("sortList") , 
 			perl_ARSortList(ctrl, &sortList), 0);
 #endif
-#ifndef WASTE_MEM
 #if AR_EXPORT_VERSION >= 3
 	    FreeARPermissionList(&groupList,FALSE);
 #else
@@ -1817,16 +1773,15 @@ ars_GetSchema(ctrl,name)
 	    FreeARInternalIdList(&adminGroupList,FALSE);
 	    FreeAREntryListFieldList(&getListFields,FALSE);
 	    FreeARIndexList(&indexList,FALSE);
-	    if(!CVLD(helpText)){
-	      FREE(helpText);
+	    if(CVLD(helpText)){
+	      	safefree(helpText);
 	    }
-	    if(!CVLD(changeDiary)){
-	      FREE(changeDiary);
+	    if(CVLD(changeDiary)){
+	      	safefree(changeDiary);
 	    }
 #if AR_EXPORT_VERSION >= 3
 	    FreeARCompoundSchema(&schema,FALSE);
 	    FreeARSortList(&sortList,FALSE);
-#endif
 #endif
 	  }
 	}
@@ -1853,9 +1808,7 @@ ars_GetListActiveLink(ctrl,schema=NULL,changedSince=0)
 	  if (! ARError( ret,status)) {
 	    for (i=0; i<nameList.numItems; i++)
 	      XPUSHs(sv_2mortal(newSVpv(nameList.nameList[i],0)));
-#ifndef WASTE_MEM
 	    FreeARNameList(&nameList,FALSE);
-#endif
 	  }
 	}
 
@@ -1950,20 +1903,18 @@ ars_GetField(ctrl,schema,id)
 			FreeARDiaryList(&diaryList, FALSE);
 		}
 	    }
-#ifndef WASTE_MEM
 	    FreeARFieldLimitStruct(&limit,FALSE);
 #if AR_EXPORT_VERSION >= 3
 	    FreeARDisplayInstanceList(&displayList,FALSE);
 #else
 	    FreeARDisplayList(&displayList,FALSE);
 #endif
-	    if(!CVLD(helpText)){
-	      FREE(helpText);
+	    if(CVLD(helpText)){
+	      	safefree(helpText);
 	    }
-	    if(!CVLD(changeDiary)){
-	      FREE(changeDiary);
+	    if(CVLD(changeDiary)){
+	      	safefree(changeDiary);
 	    }
-#endif
 #if AR_EXPORT_VERSION >= 3
 	    ret = ARGetField(ctrl, schema, id, NULL, NULL, NULL, NULL, NULL, NULL, &permissions, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &Status);
 #else
@@ -1975,14 +1926,9 @@ ars_GetField(ctrl,schema,id)
 	    if (ret == 0) {
 	      hv_store(RETVAL,  "permissions", strlen("permissions") , 
 		       perl_ARPermissionList(ctrl, &permissions, PERMTYPE_FIELD), 0);
-#ifndef WASTE_MEM
 	      FreeARPermissionList(&permissions,FALSE);
-#endif
             } else {
-#ifndef WASTE_MEM
-	      /* We don't call ARError, so free status list manually */
 	      FreeARStatusList(&Status, FALSE);
-#endif
             } 
 	  }
 	}
@@ -2236,9 +2182,7 @@ ars_GetListFilter(control,schema=NULL,changedsince=0)
 	  if (!ARError( ret,status)) {
 	    for (i=0; i < nameList.numItems; i++)
 	      XPUSHs(sv_2mortal(newSVpv(nameList.nameList[i], 0)));
-#ifndef WASTE_MEM
 	    FreeARNameList(&nameList,FALSE);
-#endif
 	  }
 	}
 
@@ -2262,9 +2206,7 @@ ars_GetListEscalation(control,schema=NULL,changedsince=0)
 	  if (!ARError( ret,status)) {
 	    for (i=0; i<nameList.numItems; i++)
 	      XPUSHs(sv_2mortal(newSVpv(nameList.nameList[i], 0)));
-#ifndef WASTE_MEM
 	    FreeARNameList(&nameList,FALSE);
-#endif
 	  }
 	}
 
@@ -2288,9 +2230,7 @@ ars_GetListCharMenu(control,changedsince=0)
 	  if (!ARError( ret,status)) {
 	    for (i=0; i<nameList.numItems; i++)
 	      XPUSHs(sv_2mortal(newSVpv(nameList.nameList[i], 0)));
-#ifndef WASTE_MEM
 	    FreeARNameList(&nameList,FALSE);
-#endif
 	  }
 	}
 
@@ -2315,9 +2255,7 @@ ars_GetListAdminExtension(control,changedsince=0)
 	  if (!ARError( ret,status)) {
 	    for (i=0; i<nameList.numItems; i++)
 	      XPUSHs(sv_2mortal(newSVpv(nameList.nameList[i], 0)));
-#ifndef WASTE_MEM
 	    FreeARNameList(&nameList,FALSE);
-#endif
 	  }
 #else /* ARS32 or later */
 	(void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, "ars_GetListAdminExtension() is not available in ARS3.2 or later.");
@@ -2581,9 +2519,7 @@ ars_DeleteMultipleFields(ctrl, schema, deleteOption, ...)
 #endif
 	     if(!ARError( ret, status))
 		RETVAL = 1;
-#ifndef WASTE_MEM
 	     FreeARInternalIdList(&fieldList, FALSE);
-#endif
 	  }
 #else /* 2.x */
 	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, "Not available in 2.x");
@@ -2654,9 +2590,7 @@ ars_ExecuteProcess(ctrl, command, runOption=0)
 		if(runOption == 0) {
 			XPUSHs(sv_2mortal(newSViv(returnStatus)));
 			XPUSHs(sv_2mortal(newSVpv(returnString, 0)));
-#ifndef WASTE_MEM
-			if(!CVLD(returnString)) FREE(returnString);
-#endif
+			if(CVLD(returnString)) safefree(returnString);
 		} else {
 			XPUSHs(sv_2mortal(newSViv(1)));
 		}
@@ -2718,15 +2652,13 @@ ars_GetAdminExtension(ctrl, name)
 				FreeARDiaryList(&diaryList, FALSE);
 			}
 	        }
-#ifndef WASTE_MEM
 		FreeARInternalIdList(&groupList, FALSE);
-		if(!CVLD(helpText)){
-		  FREE(helpText);
+		if(CVLD(helpText)){
+		  	safefree(helpText);
 		}
-		if(!CVLD(changeDiary)){
-		  FREE(changeDiary);
+		if(CVLD(changeDiary)){
+		  	safefree(changeDiary);
 		}
-#endif
 	 }
 #else /* ARS32 or later */
 	 RETVAL = 0;
@@ -2851,18 +2783,20 @@ ars_GetEscalation(ctrl, name)
 			newSViv(escalationTm.u.date.minute), 0);
 		break;
 	     }
-#ifndef WASTE_MEM
 	     FreeARFilterActionList(&actionList, FALSE);
 #if AR_EXPORT_VERSION >= 3
 	     FreeARFilterActionList(&elseList, FALSE);
 #endif
-	     if(!CVLD(helpText)){
-	       FREE(helpText);
-	     }
-	     if(!CVLD(changeDiary)){
-	       FREE(changeDiary);
-	     }
+#if AR_EXPORT_VERSION >= 5
+	     FreeARWorkflowConnectStruct(&schemaList, FALSE);
+	     FreeARPropList(&objPropList, FALSE);
 #endif
+	     if(CVLD(helpText)){
+	       	safefree(helpText);
+	     }
+	     if(CVLD(changeDiary)){
+	       	safefree(changeDiary);
+	     }
 	  }
 	}
 	OUTPUT:
@@ -2877,11 +2811,11 @@ ars_GetFullTextInfo(ctrl)
 	  ARFullTextInfoList        fullTextInfo;
 	  ARStatusList              status;
 	  int                       ret;
-	  unsigned int rlist[] = {AR_FULLTEXTINFO_CASE_SENSITIVE_SRCH,
-			 	  AR_FULLTEXTINFO_COLLECTION_DIR,
-			 	  AR_FULLTEXTINFO_FTS_MATCH_OP,
+	  unsigned int rlist[] = {AR_FULLTEXTINFO_COLLECTION_DIR,
+			 	  AR_FULLTEXTINFO_STOPWORD,
+				  AR_FULLTEXTINFO_CASE_SENSITIVE_SRCH,
 			 	  AR_FULLTEXTINFO_STATE,
-			 	  AR_FULLTEXTINFO_STOPWORD};
+			 	  AR_FULLTEXTINFO_FTS_MATCH_OP };
 
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
@@ -2927,9 +2861,7 @@ ars_GetFullTextInfo(ctrl)
 		   break;
 		}
 	     }
-#ifndef WASTE_MEM
              FreeARFullTextInfoList(&fullTextInfo, FALSE);
-#endif
 	  }
 	}
 	OUTPUT:
@@ -2974,9 +2906,8 @@ ars_GetListGroup(ctrl, userName=NULL,password=NULL)
 	    hv_store(RETVAL,  "groupId", strlen("groupId") , newRV_noinc((SV *)gidList), 0);
 	    hv_store(RETVAL,  "groupType", strlen("groupType") , newRV_noinc((SV *)gtypeList), 0);
 	    hv_store(RETVAL,  "groupName", strlen("groupName") , newRV_noinc((SV *)gnameListList), 0);
-#ifndef WASTE_MEM
+	 
 	    FreeARGroupInfoList(&groupList, FALSE);
-#endif
 	  }
 	}
 	OUTPUT:
@@ -3020,9 +2951,7 @@ ars_GetListSQL(ctrl, sqlCommand, maxRetrieve=AR_NO_MAX_LIST_RETRIEVE)
 		av_push(ra, newRV_noinc((SV *)ca));
 	     }
 	     hv_store(RETVAL,  "rows", strlen("rows") , newRV_noinc((SV *)ra), 0);
-#ifndef WASTE_MEM
 	     FreeARValueListList(&valueListList, FALSE);
-#endif
 	  }
 #else
 	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, "Not available in pre-2.1 ARS");
@@ -3084,9 +3013,7 @@ ars_GetListUser(ctrl, userListType=AR_USER_LIST_MYSELF,changedSince=0)
 		hv_store(userInfo,  "currentLicenseType", strlen("currentLicenseType") , newRV_noinc((SV *)currentLicenseType), 0);
 	        XPUSHs(sv_2mortal(newRV_noinc((SV *)userInfo)));
 	     }
-#ifndef WASTE_MEM
 	     FreeARUserInfoList(&userList, FALSE);
-#endif
 	  }
 	}
 
@@ -3112,9 +3039,7 @@ ars_GetListVUI(ctrl, schema, changedSince=0)
 		XPUSHs(sv_2mortal(newSViv(idList.internalIdList[i])));
 	    }
 	  }
-#ifdef WASTE_MEM
 	  FreeARInternalIdList(&idList, FALSE);
-#endif
 #else /* ars 2.x */
 	  (void) ARError_reset();
 	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, "Not available in 2.x");
@@ -3236,9 +3161,7 @@ ars_GetServerInfo(ctrl, ...)
 			&(serverInfo.serverInfoList[i].value))));
 	        }
 	     }
-#ifndef WASTE_MEM
 	    FreeARServerInfoList(&serverInfo, FALSE);
-#endif
 	  }
 	}
 
@@ -3311,15 +3234,13 @@ ars_GetVUI(ctrl, schema, vuiId)
 			    (ARS_fn)perl_ARPropStruct,
 			    sizeof(ARPropStruct)), 0);
 	  }
-#ifndef WASTE_MEM
 	  FreeARPropList(&dPropList, FALSE);
-	  if(!CVLD(helpText)){
-	    FREE(helpText);
+	  if(CVLD(helpText)){
+	    	safefree(helpText);
 	  }
-	  if(!CVLD(changeDiary)){
-	    FREE(changeDiary);
+	  if(CVLD(changeDiary)){
+	    	safefree(changeDiary);
 	  }
-#endif
 #else /* ars 2.x */
 	  (void) ARError_reset();
 	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, "Not available in 2.x");
@@ -3571,12 +3492,11 @@ ars_CreateActiveLink(ctrl, alDefRef)
 		} else 
 		   ARError_add( AR_RETURN_ERROR, AP_ERR_PREREVFAIL);
 	  }
-#ifndef WASTE_MEM
-	  if(!CVLD(helpText)){
-	    FREE(helpText);
+	  if(CVLD(helpText)){
+	    	safefree(helpText);
 	  }
-	  if(!CVLD(changeDiary)){
-	    FREE(changeDiary);
+	  if(CVLD(changeDiary)){
+	    	safefree(changeDiary);
 	  }
 	  safefree(groupList.internalIdList);
 	  safefree(actionList.actionList);
@@ -3584,7 +3504,6 @@ ars_CreateActiveLink(ctrl, alDefRef)
 	  safefree(elseList.actionList);
 #else /* 2.x */
 	  safefree(displayList.displayList);
-#endif
 #endif
 	}
 	OUTPUT:
@@ -3790,12 +3709,10 @@ ars_GetMultipleEntries(ctrl,schema,...)
 		}
 	}
 	get_entry_cleanup:;
-#ifndef WASTE_MEM
 	FreeARInternalIdList(&idList, FALSE);
 	FreeAREntryIdListList(&entryList, FALSE);
 	FreeARFieldValueListList(&fieldList, FALSE);
 	FreeARBooleanList(&existList, FALSE);
-#endif
 	get_entry_end:;
 #else /* prior to ARS 4.0 */
 	(void) ARError_reset();
@@ -3917,11 +3834,9 @@ ars_GetListEntryWithFields(ctrl,schema,qualifier,firstRetrieve=0,maxRetrieve,...
 	    XPUSHs(newRV_noinc((SV *)fieldValue_hash));
 	  }
 	  getlistentry_end:
-#ifndef WASTE_MEM
 	  FreeAREntryListFieldValueList( &entryFieldValueList,FALSE );
 	  FreeARSortList( &sortList, FALSE );
 	  FreeAREntryListFieldList( &getListFields, FALSE );
-#endif
 #else	/* prior to ARS 4.0 */
 	  (void) ARError_reset();
 	  Zero(&status, 1, ARStatusList);
