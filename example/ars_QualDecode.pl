@@ -1,5 +1,5 @@
 #
-# $header$
+# $Header: /cvsroot/arsperl/ARSperl/example/ars_QualDecode.pl,v 1.3 1997/02/20 20:17:27 jcmurphy Exp $
 #
 # MODULE
 #   ars_QualDecode.pl
@@ -14,6 +14,9 @@
 #   jeff murphy
 #
 # $Log: ars_QualDecode.pl,v $
+# Revision 1.3  1997/02/20 20:17:27  jcmurphy
+# added more descriptive comments and also handled keywords correctly.
+#
 # Revision 1.2  1997/02/20 19:35:29  jcmurphy
 # *** empty log message ***
 #
@@ -109,6 +112,13 @@ sub Decode_FVoAS {
     my $fids = shift;
     my $e = "";
 
+#    my $f;
+#    print "keys:\n";
+#    foreach $f (keys %$h) {
+#	print "$f <".$h->{$f}.">\n";
+#    }
+#    print "\n";
+
     # a field is referenced
 
     if($h->{fieldId}) {
@@ -137,10 +147,27 @@ sub Decode_FVoAS {
     # a value
 
     elsif($h->{value}) {
-	if($h->{value} =~ /\D/) {
-	    $e = '"'.$h->{value}.'"';
-	} else {
+	if($h->{value} =~ /^\000/) {
+
+	    # this is a keyword
+
+	    $h->{value} =~ s/\000/\$/g;
+	    $h->{value} =~ tr [a-z] [A-Z];
 	    $e = $h->{value};
+
+	}
+	elsif($h->{value} =~ /\D/) {
+
+	    # this is an alphanum string
+	    $e = '"'.$h->{value}.'"';
+
+	} 
+	else {
+
+	    # this is a number
+
+	    $e = "$h->{value}";
+
 	}
     }
 
@@ -183,6 +210,20 @@ sub Decode_FVoAS {
 	$e = "external_query";
     }
 
+    # comparing against the status history. useful,
+    # but i dont think i'll bother to decode it here.
+    #
+    # you would need to examine the statHistory which 
+    # contains "userOrTime" and "enumVal". you will then
+    # contruct "StatusHistory.USER.[enum]" or "..TIME.[enum]"
+    # where enum is the name of the enumerated value (like
+    # "Closed" or whatever). USER or TIME keywords are
+    # determined from the userOrTime value (1 or 2).
+
+    elsif($h->{statHistory}) {
+	$e = "[statusHistory]";
+    }
+
     # a query against a value of a field in 
     # the current schema
 
@@ -192,6 +233,11 @@ sub Decode_FVoAS {
 	} else {
 	    $e = "current('".$h->{queryCurrent}."')";
 	}
+    } 
+    else {
+	print "WARNING: unknown FieldValueOrArithStruct hash key\n";
+	print keys %h;
+	print "\n";
     }
     return $e;
 }
