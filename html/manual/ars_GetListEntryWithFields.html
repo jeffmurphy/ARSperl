@@ -1,0 +1,97 @@
+<HTML>
+<HEAD>
+<TITLE>ARSperl Manual - ars_GetListEntryWithFields</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+<PRE>
+<H2><CODE>ars_GetListEntryWithFields(
+         ctrl,schema,qualifier,maxRetrieve,      # standard
+         [ fieldID_list ],                       # OPTIONAL
+         sortID1,sortdir1,sortID2,sortdir2,...)  # OPTIONAL</CODE></H2>
+</PRE>
+
+This function is used to query a specified schema and return actual
+field values - not formatted strings as per <CODE>ars_GetListEntry</CODE> - from
+all matching entries.<p>
+
+<CODE>[ fieldID_list ]</CODE> is an optional array reference; the list is
+a list of FieldIDs.  Because only the actual fieldIDs need to be passed,
+this is a list of scalar values, not a list of hash references a la
+<CODE>ars_GetListEntry</CODE>.  If not specified, the default result list
+fields for the schema are returned.<p>
+
+The other arguments are identical in function to <CODE>ars_GetListEntry</CODE>.
+<p>
+
+The format of the returned list/hash is <I>(entry_id, {field_value_hash})</I>
+pairs.  The returned list can be stored in an array or hash.  Using an array
+preserves the sort order, if one was specified.  Each referenced 
+field_value_hash looks like the return of a single <CODE>ars_GetEntry</CODE>
+call: the hash keys are the fieldIDs and the hash values are the field values.
+<P>
+
+<DL>
+<DT><B>On success</B>
+<DD>
+Returns a list of <I>(entry_id, {field_value_hash})</I> pairs.
+<DT><B>On failure</B>
+<DD>
+Returns <CODE>undef</CODE>.
+</DL>
+<P>
+
+<P>Example:
+
+<PRE>
+    #
+    # Read Status and History of all open entries
+    # return most recent entries first
+    #
+
+    $qs = qq/'Status' = "Open"/;
+    ( $lq = ars_LoadQualifier( $ctrl, $schema, $qs ) )
+    || die( "LoadQualifier Failed: $ars_errstr" );
+
+    ( @Entries = ars_GetListEntryWithFields(
+                            $ctrl, $schema, $lq, 0,
+                            [ FieldID("Status"), FieldID("History") ],
+                            FieldID("EntryID"), 2
+                                       ) )
+         || die( "GLEWF Failed: $ars_errstr" );
+</PRE>
+Returned list, sorted in descending order by EntryID:
+
+<PRE>
+    @Entries = ( "0000000139", { 7 => 1,
+                                10 => { decoded_history_hash } },
+                 "0000000047", { 7 => 1,
+                                10 => { another_diary } }
+               )
+</PRE>
+
+<P>
+<b>Notes:</b> This is a high-performance command that returns a lot of data with one
+API call.  Care should be taken to delete the returned data structure
+(e.g., with "<CODE>undef %Entries</CODE>") when it is no longer needed,
+to avoid memory problems.<p>
+
+<CODE>ars_GetListEntryWithFields</CODE> can only be used with API version 4.0
+or later.<p>
+
+See Also: <a HREF="ars_GetListEntry.html">ars_GetListEntry</a>, <a HREF="ars_GetMultipleEntries.html">ars_GetMultipleEntries</a>
+
+
+<hr width="30%">
+<p>
+
+<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Table of Contents </A>
+
+<p>
+
+<address>
+Last changes to this page 3 October 2002 by G. David Frye<P>
+&#169; J.C.Murphy, J.W.Murphy 1998 arsperl@smurfland.cit.buffalo.edu 
+</address>
+</BODY>
+</HTML>
