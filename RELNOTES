@@ -1,20 +1,20 @@
-$Header: /cvsroot/arsperl/ARSperl/RELNOTES,v 1.7 1998/12/28 16:04:15 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/RELNOTES,v 1.8 2000/06/01 13:45:20 jcmurphy Exp $
 
 Release Notes for ARSperl
 
 ---------------------------------------------------------------------------
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
-    Copyright (C) 1995,1996,1997,1998,1999
+    Copyright (C) 1995-2000
 	Joel Murphy, jmurphy@acsu.buffalo.edu
         Jeff Murphy, jcmurphy@acsu.buffalo.edu
 
     This program is free software; you can redistribute it and/or modify
     it under the terms as Perl itself. 
     
-    Refer to the file called "Artistic" that accompanies the source distribution 
-    of ARSperl (or the one that accompanies the source distribution of Perl
-    itself) for a full description.
+    Refer to the file called "Artistic" that accompanies the source 
+    distribution of ARSperl (or the one that accompanies the source 
+    distribution of Perl itself) for a full description.
  
     Comments to:  arsperl@smurfland.cit.buffalo.edu
                   (this is a *mailing list* and you must be
@@ -25,8 +25,42 @@ Release Notes for ARSperl
 
 ---------------------------------------------------------------------------
 
+1.68 Notes
+----------
+
+The 1.68 release includes ARS 4.5 integration. When compiling against ARS
+4.5 APIs, the following data structions will change which _might_ break
+existing scripts. You might need to update those scripts when recompiling
+ARSperl against the 4.5 (or later) libraries.
+
+	Data Structure			Used/Returned By
+	--------------------------------------------------------------
+	Active Link Hash		ars_GetActiveLink()
+	Active Link Hash		ars_CreateActiveLink()
+	Filter Hash			ars_GetFilter()
+	Escalation Hash			ars_GetEscalation()
+
+The majority of users should be unaffected by this since most probably
+don't retrieve the actual definitions of these objects in their
+scripts. 
+
+When compiling against an API revision prior to ARS4.5, the hashes returned 
+by the above functions include a "schema" key which denotes which schema
+the object is "attached" to. As of 4.5, it is possible to attach an object
+to multiple schemas. The hash key has changed from a scalar (string) to an
+array of (one or more) scalars and the name of the key has changed to
+"schemaList". 
+
+On an unrelated note, the ars_GetCharMenu() call now decodes the "menuType" 
+hash key. Previously it was returned as a number (a raw enumeration value)
+and you had to figure out on your own what that number meant. Now we decode 
+it so you get a string telling you what sort of menu it is. This change was 
+made to bring this function inline with how the other ARSperl functions
+operate. Again, you might need to update some of your scripts. This change
+is true regardless of what revision of the ARS API you compile against.
+
 1.62 Notes
----------
+----------
 
 The 1.62 release includes ARS 4.0 integration. There are a few things
 that have changed regardless of what version of ARS you compile against 

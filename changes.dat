@@ -1,4 +1,6 @@
 released=x/x/x version=1.68
+JCM modifications to example/ars_GetListEntry.pl to make
+    it function with different revisions of the User form.
 JCM arsperl now requires at minimum perl 5.004.
 JCM converted "na" "sv_unref" to PL_ namespace. 
     added perl-version checking so it will still compile

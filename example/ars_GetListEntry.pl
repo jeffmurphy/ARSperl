@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/ars_GetListEntry.pl,v 1.1 1998/03/25 22:52:51 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/ars_GetListEntry.pl,v 1.2 2000/06/01 13:45:20 jcmurphy Exp $
 #
 # NAME
 #   ars_GetListEntry.pl [server] [username] [password]
@@ -13,6 +13,9 @@
 #   jcmurphy@buffalo.edu
 #
 # $Log: ars_GetListEntry.pl,v $
+# Revision 1.2  2000/06/01 13:45:20  jcmurphy
+# *** empty log message ***
+#
 # Revision 1.1  1998/03/25 22:52:51  jcmurphy
 # Initial revision
 #
@@ -37,6 +40,8 @@ $lic_type = "License Type";
 
 (%fids = ars_GetFieldTable($ctrl, $schema)) ||
     die "ars_GetFieldTable: $ars_errstr";
+
+$login_name = "Login Name" if(!defined($fids{$login_name}));
 
 ($qual = ars_LoadQualifier($ctrl, $schema, "(1 = 1)")) ||
     die "ars_LoadQualifier: $ars_errstr";
@@ -70,15 +75,19 @@ for ($i = 0; $i < $#entries ; $i+=2) {
 
 print "Testing: basic + sorting + custom field-list format.\n";
 
-(@entries = ars_GetListEntry($ctrl, $schema, $qual, 0,
+if(!defined($fids{$login_name}) || !defined($fids{$lic_type})) {
+	print "Sorry. Either i can't find the field-id for \"$login_name\" or \"$lic_type\"\n on your \"$schema\" form. I'm skipping this test.\n";
+} else {
+	(@entries = ars_GetListEntry($ctrl, $schema, $qual, 0,
     [ {columnWidth => 15, separator => ' ', fieldId => $fids{$login_name} },
       {columnWidth => 10, separator => ' ', fieldId => $fids{$lic_type}   }
     ],
 			     $fids{$login_name}, 1)) ||
-    die "ars_GetListEntry: $ars_errstr";
+    		die "ars_GetListEntry: $ars_errstr";
 
-for ($i = 0; $i < $#entries ; $i+=2) {
-    printf("%s %s\n", $entries[$i], $entries[$i+1]);
+	for ($i = 0; $i < $#entries ; $i+=2) {
+    		printf("%s %s\n", $entries[$i], $entries[$i+1]);
+	}
 }
 
 ars_Logoff($ctrl);
