@@ -15,7 +15,7 @@ The structure returned depends on the version of the ARS server.
 For <b>ARS 3.0</b> the structure is:
 <PRE>
 {
-["changeDiary"   =&gt; encoded string,]
+ "changeDiary"   =&gt; <i>list</I> of references to <a href="ds_diaryentry_hash.html">Diary Entry Structures</a>,
  "createMode"    =&gt; open <i>or</i> protected,
  "dataType"      =&gt; string,
  "defaultVal"    =&gt; string,
@@ -37,7 +37,7 @@ For <b>ARS 2.1</b> or earlier the structure is:
 
 <PRE>
 {
-["changeDiary"  =&gt; encoded string,]
+ "changeDiary"   =&gt; <i>list</I> of references to <a href="ds_diaryentry_hash.html">Diary Entry Structures</a>,
  "createMode"   =&gt; open <i>or</i> protected,
  "dataType"     =&gt; string,
  "defaultVal"   =&gt; string,
@@ -59,7 +59,7 @@ For <b>ARS 2.1</b> or earlier the structure is:
 <A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Table of Contents </A>
 <p>
 <address>
-Last changes to this page 10th March 1998 by David Adams
+Last changes to this page 16 Sep 1998 by jeff murphy
 </address>
 </BODY>
 </HTML>
