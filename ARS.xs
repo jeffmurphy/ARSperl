@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.55 1999/01/04 20:44:33 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.56 1999/01/04 20:48:56 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -21,6 +21,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.55 1999/01/04 20:44:33 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.56  1999/01/04 20:48:56  jcmurphy
+another v4.0 ifdef missing
+
 Revision 1.55  1999/01/04 20:44:33  jcmurphy
 added v4.0 specific ifdef
 
@@ -3415,7 +3418,11 @@ ars_NTDeregisterServer(serverHost, user, password, port)
 	 Zero(&status, 1, NTStatusList);
 	 RETVAL = 0; /* assume error */
 	 if(serverHost && user && password) {
-	    ret = NTDeregisterServer(serverHost, user, password, &port, &status);
+	    ret = NTDeregisterServer(serverHost, user, password,
+#ifdef AR_EXPORT_VERSION >= 4
+			&port, 
+#endif
+			&status);
 	    if(!NTError( ret, status)) {
 		RETVAL = 1; /* success */
 	    }
