@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.88 2003/04/02 05:12:22 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.89 2003/04/02 05:56:17 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -855,23 +855,23 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,firstRetrieve,...)
 					SvTYPE(field_hash = (HV*)SvRV(*array_entry)) == SVt_PVHV) {
 	
 					/* get fieldId, columnWidth and separator from hash */
-					if (! (hash_entry = hv_fetch(field_hash, VNAME("fieldId"), 0))) {
+					if (! (hash_entry = hv_fetch(field_hash, "fieldId", strlen("fieldId"), 0))) {
 						(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_LFLDS);
 						FreeAREntryListFieldList(&getListFields, FALSE);
 						goto getlistentry_end;
 					}
 	
 					getListFields.fieldsList[i].fieldId = SvIV(*hash_entry);
-					if (! (hash_entry = hv_fetch(field_hash, 
-							VNAME("columnWidth"), 0))) {
+					if (! (hash_entry = hv_fetch(field_hash, "columnWidth",
+							strlen("columnWidth"), 0))) {
 						(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_LFLDS);
 						FreeAREntryListFieldList(&getListFields, FALSE);
 						goto getlistentry_end;
 					}
 	
 					getListFields.fieldsList[i].columnWidth = SvIV(*hash_entry);
-					if (! (hash_entry = hv_fetch(field_hash, 
-							VNAME("separator"), 0))) {
+					if (! (hash_entry = hv_fetch(field_hash,  "separator",
+							strlen("separator"), 0))) {
 						(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_LFLDS);
 						FreeAREntryListFieldList(&getListFields, FALSE);
 						goto getlistentry_end;
@@ -1839,7 +1839,10 @@ ars_GetField(ctrl,schema,id)
 	  ARDiaryList           diaryList;
 
 	  (void) ARError_reset();
-	  Zero(&Status, 1,ARStatusList);
+	  Zero(&Status,      1, ARStatusList);
+	  Zero(&defaultVal,  1, ARValueStruct);
+	  Zero(&permissions, 1, ARPermissionList);
+	  Zero(&limit,       1, ARFieldLimitStruct);
 	  RETVAL = newHV();
 #if AR_EXPORT_VERSION >= 3
 	  ret = ARGetFieldCached(ctrl, schema, id, fieldName, &fieldMap, &dataType, &option, &createMode, &defaultVal, NULL /* &permissions */, &limit, &displayList, &helpText, &timestamp, owner, lastChanged, &changeDiary, &Status);

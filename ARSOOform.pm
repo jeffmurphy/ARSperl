@@ -65,7 +65,10 @@ sub new {
 			if (exists $fv->{'limit'}->{'enumLimits'}->{'regularList'}) {
 				$enums{$_} = [@{$fv->{'limit'}->{'enumLimits'}->{'regularList'}}];
 			} else {
-				die "Sorry. I'm not sure what to do with non-regularLists of enums.";
+				print "Sorry. I'm not sure what to do with non-regularLists of enums.\n";
+				print "(this enum is type \"", keys %{$fv->{'limit'}->{'enumLimits'}}, "\")\n";
+				print "listStyle = ", $fv->{'limit'}->{'enumLimits'}->{'listStyle'}, "\n";
+				die;
 			}
 		}
 	}

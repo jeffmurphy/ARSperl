@@ -1,9 +1,9 @@
 #!perl
 
 use ARS;
-require './config.cache';
+require './t/config.cache';
 
-print "1..5\n";
+print "1..8\n";
 
 my($ctrl) = ars_Login(&CCACHE::SERVER, &CCACHE::USERNAME, &CCACHE::PASSWORD);
 if(!defined($ctrl)) {
@@ -22,7 +22,10 @@ my $c = 1;
 my @objects =  ("schema", "ARSperl Test",
 		"schema", "ARSperl Test2",
 		"schema", "ARSperl Test-join",
-		"filter", "ARSperl Test-filter");
+		"filter", "ARSperl Test-filter",
+		"active_link", "ARSperl Test-alink1",
+		"escalation", "ARSperl Test-escalation1",
+		"char_menu", "ARSperl Test-menu-search1");
 
 my $junk = ars_Export($ctrl, undef, 0, "schema", "blarg292394");
 if (defined($junk)) {

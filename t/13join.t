@@ -27,7 +27,7 @@ if(!defined($ctrl)) {
 
 my %ft = ars_GetFieldTable($ctrl, "ARSperl Test2");
 
-if (defined %ft) {
+if (%ft) {
 	print "ok [", $TN++, "] GFT\n";
 } else {
 	print "not ok [", $TN++, "]\n";
@@ -46,8 +46,8 @@ for (my $loop = 0 ; $loop < 5 ; $loop++) {
 	my $rv = ars_CreateEntry($ctrl, "ARSperl Test2", 
 				 $ft{'Submitter-AT2'}, 'jcmurphy',
 				 $ft{'Status-AT2'}, 1,
-				 $ft{'SD-AT2'}, 'short desc',
-				 @vals);
+				 $ft{'SD-AT2'}, 'short desc'
+				 );
 	$ok++ if defined $rv;
 }
 

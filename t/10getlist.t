@@ -22,7 +22,7 @@ SKIP: {
 
 	@a = ars_GetListField($c, "ARSperl Test", 0, 1);
 	ok($#a == 110, "GetListField") ||
-		diag "GetListEscalation ($#a) $ars_errstr";
+		diag "GetListField ($#a) $ars_errstr";
 
 	@a = ars_GetListFilter($c, "ARSperl Test");
 	ok($#a == 0, "GetListFilter") ||

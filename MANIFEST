@@ -196,7 +196,6 @@ html/copying.html
 html/debug.html
 html/index.html
 html/install.html
-html/usage.html
 infra/c4asp.bat
 infra/c4asp.sh
 infra/mkchanges.pl

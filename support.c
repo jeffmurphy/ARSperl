@@ -539,6 +539,9 @@ perl_AREnumLimitsStruct(ARControlStruct * ctrl, AREnumLimitsStruct * in)
 	default:
 		hv_store(hash, "error", 5,
 			 newSVpv("unknown listStyle", 0), 0);
+		hv_store(hash, "listStyle", strlen("listStyle"),
+			 newSViv(in->listStyle), 0);
+		ARError_add(AR_RETURN_ERROR, AP_ERR_ENUM_LISTSTYLE);
 	}
 	return newRV_noinc((SV *) hash);
 }
@@ -1420,6 +1423,7 @@ perl_ARFieldLimitStruct(ARControlStruct * ctrl, ARFieldLimitStruct * in)
 {
 	HV             *hash = newHV();
 
+	DBG( ("FLS dt=%d\n", in->dataType) );
 	switch (in->dataType) {
 	case AR_DATA_TYPE_KEYWORD:
 	  return &PL_sv_undef;
@@ -1463,8 +1467,13 @@ perl_ARFieldLimitStruct(ARControlStruct * ctrl, ARFieldLimitStruct * in)
 
 		hv_store(hash,  "charMenu", strlen("charMenu") ,
 			 newSVpv(in->u.charLimits.charMenu, 0), 0);
-		hv_store(hash,  "pattern", strlen("pattern") ,
-			 newSVpv(in->u.charLimits.pattern, 0), 0);
+		if(in->u.charLimits.pattern) {
+			hv_store(hash,  "pattern", strlen("pattern") ,
+				 newSVpv(in->u.charLimits.pattern, 0), 0);
+		} else {
+			hv_store(hash, "pattern", strlen("pattern"),
+				 &PL_sv_undef, 0);
+		}
 
 		switch (in->u.charLimits.fullTextOptions) {
 		case AR_FULLTEXT_OPTIONS_NONE:
@@ -1495,14 +1504,15 @@ perl_ARFieldLimitStruct(ARControlStruct * ctrl, ARFieldLimitStruct * in)
 		 * 5.0beta still had it as a list of NameTypes)
 		 */
 
-		DBG( ("case ENUM\n") );
 #if AR_EXPORT_VERSION >= 7L
+		DBG( ("case ENUM api v7+\n") );
 		hv_store(hash,  "enumLimits", strlen("enumLimits") ,
 			 perl_AREnumLimitsStruct(ctrl,
 						 &(in->u.enumLimits))
 			 ,0
 			 );
 #else
+		DBG( ("case ENUM api v-6\n") );
 		hv_store(hash,  "enumLimits", strlen("enumLimits") ,
 			 perl_ARList(ctrl, (ARList *) & (in->u.enumLimits),
 				     (ARS_fn) perl_ARNameType, 

@@ -101,7 +101,7 @@ if(ars_APIVersion() >= 4) {
   close(FD);
 
   if($fc ne $ic) {
-    print "not ok [attach (create) cmp]\n";
+    print "not ok [attach (create) cmp] fc ", length($fc), " ic ", length($ic), "\n";
   } else {
     print "ok [attach (set) test ; fclen=", length($fc),
 		" iclen=", length($ic), "]\n";

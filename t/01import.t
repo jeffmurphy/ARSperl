@@ -33,6 +33,8 @@ ars_DeleteSchema($ctrl, "ARSperl Test2", ARS::AR_SCHEMA_FORCE_DELETE);
 ars_DeleteSchema($ctrl, "ARSperl Test-join", ARS::AR_SCHEMA_FORCE_DELETE); 
 ars_DeleteFilter($ctrl, "ARSperl Test-Filter1"); 
 ars_DeleteActiveLink($ctrl, "ARSperl Test-alink1");
+ars_DeleteEscalation($ctrl, "ARSperl Test-escalation1");
+ars_DeleteCharMenu($ctrl, "ARSperl Test-menu-search1");
 
 # read in the schema definition
 
@@ -52,7 +54,9 @@ my $rv = ars_Import($ctrl,
 		    "Schema", "ARSperl Test2",
 		    "Schema", "ARSperl Test-join",
 		    "Filter", "ARSperl Test-Filter1",
-		    "Active_Link", "ARSperl Test-alink1"
+		    "Active_Link", "ARSperl Test-alink1",
+		    "Escalation", "ARSperl Test-escalation1",
+		    "Char_Menu", "ARSperl Test-menu-search1"
 	);
 
 

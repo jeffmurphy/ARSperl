@@ -26,7 +26,7 @@ if(!defined($ctrl)) {
 
 my %ft = ars_GetFieldTable($ctrl, "ARSperl Test");
 
-if (defined %ft) {
+if (%ft) {
 	print "ok [", $TN++, "]\n";
 } else {
 	print "not ok [", $TN++, "]\n";
@@ -70,7 +70,7 @@ print "ok [", $TN++, "]\n";
 my %recvals = ars_GetEntry($ctrl, "ARSperl Test",
 	$rv);
 
-if (!defined(%recvals)) {
+if (! %recvals) {
 	print "not ok [", $TN++, "] ($ars_errstr)\n";
 } else {
 	my @foo = keys %recvals;
@@ -84,7 +84,7 @@ for (my $loop = 0 ; $loop < $GETLOOPS ; $loop++) {
 	my %intvals = ars_GetEntry($ctrl, "ARSperl Test",
 				   $rv, @intFids);
 
-	if (!defined(%recvals)) {
+	if (!%recvals) {
 		print "not ok [", $TN++, "] ($ars_errstr)\n";
 	} else {
 		my @foo = keys %intvals;
