@@ -522,31 +522,64 @@ links, submit and modify data are available)</I>.
 
 	Returns an array of all available Filter names or a subset based
 	upon the given schema name and timestamp.
+	<P>
+
+      <DL>
+          <DT><B>On success</B><DD>
+		returns an array of strings
+          <DT><B>On failure</B><DD>
+		returns undef
+      </DL>
+	<P>
 
     <A NAME="ars_GetListCharMenu"></A>
     <DT><CODE>ars_GetListCharMenu(ctrl,changedsince=0)</CODE><DD>
 
 	Returns an array of all available Menu names or a subset based
 	upon the given timestamp.
+	<P>
+      <DL>
+          <DT><B>On success</B><DD>
+		returns an array of strings
+          <DT><B>On failure</B><DD>
+		returns undef
+      </DL>
+	<P>
 
     <A NAME="ars_GetListEscalation"></A>
     <DT><CODE>ars_GetListEscalation(ctrl,schema=NULL,changedsince=0)</CODE><DD>
 
 	Returns an array of all available Escalation names or a subset based
 	upon the given schema name and timestamp.
+	<P>
+      <DL>
+          <DT><B>On success</B><DD>
+		returns an array of strings
+          <DT><B>On failure</B><DD>
+		returns undef
+      </DL>
+	<P>
 
     <A NAME="ars_GetListAdminExtension"></A>
     <DT><CODE>ars_GetListAdminExtension(ctrl, changedsince=0)</CODE><DD>
 
 	Returns an array of all available Admin Extension names or a subset 
  	based upon the timestamp.
+	<P>
+      <DL>
+          <DT><B>On success</B><DD>
+		returns an array of strings
+          <DT><B>On failure</B><DD>
+		returns undef
+      </DL>
+	<P>
 
     <A NAME="ars_Export"></A>
     <DT><CODE>ars_Export(ctrl, displayTag, type, name)</CODE><DD>
 
 	Returns a scalar consisting of the export text for the
 	requested item name of the given type. Valid types are:
-
+	<P>
         <UL>
           <LI> ``Schema''
           <LI> ``Active_Link''
@@ -555,9 +588,17 @@ links, submit and modify data are available)</I>.
           <LI> ``Char_Menu''
           <LI> ``Admin_Ext''
 	</UL>
-
+	<P>
         displayTag is the particular view to export. If you pass in 
 	an empty string for this parameter, all views will be exported.
+	<P>
+      <DL>
+          <DT><B>On success</B><DD>
+		returns a scalar string
+          <DT><B>On failure</B><DD>
+		returns undef
+      </DL>
+      <P>
 </DL>
 
 <HR>
