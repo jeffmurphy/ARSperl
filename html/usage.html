@@ -7,7 +7,7 @@
 
 <H2>Using the ARS Perl extension</H2>
 
-$Id: usage.html,v 1.5 1996/11/21 19:48:22 jcmurphy Exp $
+$Id: usage.html,v 1.6 1996/11/21 22:23:07 jcmurphy Exp $
 
 <H3>Note</H3>
 
@@ -51,6 +51,7 @@ This documentation is under construction.
         <LI><A HREF="#ars_GetFilter">ars_GetFilter</A>
         <LI><A HREF="#ars_GetCharMenu">ars_GetCharMenu</A>
         <LI><A HREF="#ars_GetServerStatistics">ars_GetServerStatistics</A>
+        <LI><A HREF="#ars_GetProfileInfo">ars_GetProfileInfo</A>
     </UL>
     <LI><A HREF="#helper">Perl helper functions</A>
     <UL>
@@ -714,6 +715,30 @@ links, submit and modify data are available)</I>.
         </DL>
        <P>
 
+    <A NAME="ars_GetProfileInfo"></A>
+    <DT><CODE>ars_GetProfileInfo(ctrl)</CODE><DD>
+
+	<A HREF="#profile_hash">Returns a HASH</A> consisting of ARSperl profiling statistics. 
+
+	<P>
+        Here is an example:<P>
+
+        <PRE>
+	%profile = ars_GetServerStatistics($ctrl);
+        </PRE>
+
+	<PRE>
+	print "startTime= ".$profile->{startTime}." queries=".$profile->{queries}."\n";
+	</PRE>
+
+        <DL>
+          <DT><B>On success</B><DD>
+		returns a HASH
+          <DT><B>On failure</B><DD>
+		returns undef
+        </DL>
+       <P>
+
 </DL>
 
 <HR>
@@ -1051,6 +1076,17 @@ allow nulls in strings so this doesn't introduce any ambiguity.
 {
 "fileLocation"	=> integer enumertion,
 "filename"	=> string
+}
+</PRE>
+
+
+<A NAME="profile_hash"></A>
+<H4>GetProfile Hash</H4>
+
+<PRE>
+{
+"startTime"	=> integer,
+"queries"	=> integer
 }
 </PRE>
 
