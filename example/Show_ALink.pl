@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/Show_ALink.pl,v 1.3 1998/09/11 17:22:13 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/Show_ALink.pl,v 1.4 1998/09/11 17:49:47 jcmurphy Exp $
 #
 # EXAMPLE
 #    Show_ALink.pl
@@ -25,6 +25,9 @@
 # 01/12/96
 # 
 # $Log: Show_ALink.pl,v $
+# Revision 1.4  1998/09/11 17:49:47  jcmurphy
+# updated EXECUTE_ON definitions
+#
 # Revision 1.3  1998/09/11 17:22:13  jcmurphy
 # changed macroParms from array to hash since it is
 # a hashref.
@@ -79,29 +82,40 @@ sub printl {
 #   Simple routine to return a string representing (in english)
 #   the execution mask value(s).
 
-$AR_EXECUTE_ON_NONE =          0;
-$AR_EXECUTE_ON_BUTTON =        1;
-$AR_EXECUTE_ON_RETURN =        2;
-$AR_EXECUTE_ON_SUBMIT =        4;
-$AR_EXECUTE_ON_MODIFY =        8;
-$AR_EXECUTE_ON_DISPLAY =      16;
-$AR_EXECUTE_ON_MODIFY_ALL =   32;
-$AR_EXECUTE_ON_MENU =         64;
-$AR_EXECUTE_ON_MENU_CHOICE = 128;
-$AR_EXECUTE_ON_LOOSE_FOCUS = 256;
-$AR_EXECUTE_ON_SET_DEFAULT = 512;
-$AR_EXECUTE_ON_QUERY =      1024;
+$AR_EXECUTE_ON_NONE          = 0;
+$AR_EXECUTE_ON_BUTTON        = 1;
+$AR_EXECUTE_ON_RETURN        = 2;
+$AR_EXECUTE_ON_SUBMIT        = 4;
+$AR_EXECUTE_ON_MODIFY        = 8;
+$AR_EXECUTE_ON_DISPLAY       = 16;
+$AR_EXECUTE_ON_MODIFY_ALL    = 32;
+$AR_EXECUTE_ON_MENU          = 64;
+$AR_EXECUTE_ON_MENU_CHOICE   = 128;
+$AR_EXECUTE_ON_LOOSE_FOCUS   = 256;
+$AR_EXECUTE_ON_SET_DEFAULT   = 512;
+$AR_EXECUTE_ON_QUERY         = 1024;
+$AR_EXECUTE_ON_AFTER_MODIFY  = 2048;  # Added in 3.2
+$AR_EXECUTE_ON_AFTER_SUBMIT  = 4096;
+$AR_EXECUTE_ON_GAIN_FOCUS    = 8192;
+$AR_EXECUTE_ON_WINDOW_OPEN   = 16384;
+$AR_EXECUTE_ON_WINDOW_CLOSE  = 32768;
 
 %ars_ExecuteOn = ($AR_EXECUTE_ON_BUTTON, "Button", 
-		  $AR_EXECUTE_ON_RETURN, "Return",
-		  $AR_EXECUTE_ON_SUBMIT, "Submit",
-		  $AR_EXECUTE_ON_MODIFY, "Modify",
-		  $AR_EXECUTE_ON_DISPLAY, "Display", 
-		  $AR_EXECUTE_ON_MENU, "Menu", 
-		  $AR_EXECUTE_ON_MENU_CHOICE, "Menu_Choice", 
-		  $AR_EXECUTE_ON_LOOSE_FOCUS, "Loose_Focus", 
-		  $AR_EXECUTE_ON_SET_DEFAULT, "Set_Default",
-		  $AR_EXECUTE_ON_QUERY, "Query" );
+    $AR_EXECUTE_ON_RETURN,        "Return",
+    $AR_EXECUTE_ON_SUBMIT,        "Submit",
+    $AR_EXECUTE_ON_MODIFY,        "Modify",
+    $AR_EXECUTE_ON_DISPLAY,       "Display", 
+    $AR_EXECUTE_ON_MENU,          "Menu", 
+    $AR_EXECUTE_ON_MENU_CHOICE,   "Menu_Choice", 
+    $AR_EXECUTE_ON_LOOSE_FOCUS,   "Loose_Focus", 
+    $AR_EXECUTE_ON_SET_DEFAULT,   "Set_Default",
+    $AR_EXECUTE_ON_QUERY,         "Query",
+    $AR_EXECUTE_ON_AFTER_MODIFY,  "After_Modify",
+    $AR_EXECUTE_ON_AFTER_SUBMIT,  "After_Submit",
+    $AR_EXECUTE_ON_GAIN_FOCUS,    "Gain_Focus",
+    $AR_EXECUTE_ON_WINDOW_OPEN,   "Window_Open",
+    $AR_EXECUTE_ON_WINDOW_CLOSE,  "Window_Close" 
+		  );
 
 sub DecodeExecMask {
     my $m = shift;
