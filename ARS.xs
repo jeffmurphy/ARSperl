@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.49 1998/08/07 18:39:14 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.50 1998/09/11 18:00:51 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,10 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.49 1998/08/07 18:39:14 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.50  1998/09/11 18:00:51  jcmurphy
+updated ars_DeleteEntry to return 1 on success, 0 on error
+updated GetSchema which had a typo resulting in wrong results.
+
 Revision 1.49  1998/08/07 18:39:14  jcmurphy
 modified ars_ServerInfo routine a little
 
@@ -620,7 +624,7 @@ ars_DeleteEntry(ctrl,schema,entry_id)
 	  AV            *input_list;
 	  int            i;
 
-	  RETVAL = -1; /* assume error */
+	  RETVAL = 0; /* assume error */
 	  (void) ARError_reset();
 	  Zero(&status, 1, ARStatusList);
 	  if(perl_BuildEntryList( &entryList, entry_id) != 0)
@@ -630,7 +634,7 @@ ars_DeleteEntry(ctrl,schema,entry_id)
 	  FreeAREntryIdList(&entryList, FALSE);
 #endif
 #else /* ARS 2 */
-	  RETVAL = -1; /* assume error */
+	  RETVAL = 0; /* assume error */
 	  if(!entry_id || !*entry_id) {
 		ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_EID);
 		goto delete_fail;
@@ -640,10 +644,10 @@ ars_DeleteEntry(ctrl,schema,entry_id)
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
 #endif
-	  if (ARError( ret, status))
-	    RETVAL=-1;
+	  if (ARError(ret, status))
+	    RETVAL = 0;
 	  else
-	    RETVAL=0;
+	    RETVAL = 1;
 	delete_fail:;
 	}
 	OUTPUT:
@@ -1344,7 +1348,7 @@ ars_GetSchema(ctrl,name)
 #endif
 	    hv_store(RETVAL, VNAME("adminList"),
 		     perl_ARList( 
-				 (ARList *)&groupList, 
+				 (ARList *)&adminGroupList, 
 				 (ARS_fn)perl_ARInternalId,
 				 sizeof(ARInternalId)),0);
 	    hv_store(RETVAL, VNAME("getListFields"),
@@ -1983,6 +1987,7 @@ ars_DeleteAdminExtension(ctrl, name)
 		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
 	  }
 #else /* ARS32 */
+	RETVAL = 0;
 	(void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, "ars_DeleteAdminExtension() is not available in ARS3.2 or later.");
 #endif /* ARS32 */
 	}
@@ -2187,6 +2192,7 @@ ars_ExecuteAdminExtension(ctrl, name)
 	 if(!ARError( ret, status))
 		RETVAL = 1;
 #else /* ARS32 */
+	RETVAL = 0;
 	(void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, "ars_ExecuteAdminExtension() is not available in ARS3.2 or later.");
 #endif /* ARS32 */
 	}
@@ -2289,6 +2295,7 @@ ars_GetAdminExtension(ctrl, name)
 #endif
 	 }
 #else /* ARS32 */
+	 RETVAL = 0;
 	 (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, "ars_GetAdminExtension() is not available in ARS3.2 or later.");
 #endif /* ARS32 */
 	}
@@ -2839,6 +2846,7 @@ ars_CreateAdminExtension(ctrl, aeDefRef)
 		}
 	  }
 #else /* ARS32 */
+	  RETVAL = 0;
 	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, "ars_CreateAdminExtension() is not available in ARS3.2 or later.");
 #endif /* ARS32 */
 
