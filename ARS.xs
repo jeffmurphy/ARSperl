@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.75 2000/09/29 16:18:54 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.76 2001/04/11 15:10:15 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -187,73 +187,75 @@ ars_Login(server,username,password)
 	char *		password
 	CODE:
 	{
-	  int              ret, s_ok = 1;
-	  ARStatusList     status;
-	  ARServerNameList serverList;
-	  ARControlStruct *ctrl;
+		int              ret, s_ok = 1;
+		ARStatusList     status;
+		ARServerNameList serverList;
+		ARControlStruct *ctrl;
 #ifdef PROFILE
-	  struct timeval   tv;
+		struct timeval   tv;
 #endif
 
-	  RETVAL = NULL;
-	  Zero(&status, 1, ARStatusList);
-	  (void) ARError_reset();  
+		RETVAL = NULL;
+		Zero(&status, 1, ARStatusList);
+		(void) ARError_reset();  
 #ifdef PROFILE
 	  /* XXX
 	     This is something of a hack... a safemalloc will always
 	     complain about differing structures.  However, it's 
 	     pretty deep into the code.  Perhaps a static would be cleaner?
 	  */
-	  ctrl = (ARControlStruct *)MALLOCNN(sizeof(ars_ctrl));
-	  Zero(ctrl, 1, ars_ctrl);
-	  ((ars_ctrl *)ctrl)->queries = 0;
-	  ((ars_ctrl *)ctrl)->startTime = 0;
-	  ((ars_ctrl *)ctrl)->endTime = 0;
+		ctrl = (ARControlStruct *)MALLOCNN(sizeof(ars_ctrl));
+		Zero(ctrl, 1, ars_ctrl);
+		((ars_ctrl *)ctrl)->queries = 0;
+		((ars_ctrl *)ctrl)->startTime = 0;
+		((ars_ctrl *)ctrl)->endTime = 0;
 #else
-	  ctrl = (ARControlStruct *)safemalloc(sizeof(ARControlStruct));
-	  Zero(ctrl, 1, ARControlStruct);
+		ctrl = (ARControlStruct *)safemalloc(sizeof(ARControlStruct));
+		Zero(ctrl, 1, ARControlStruct);
 #endif
 #ifdef PROFILE
-	  if (gettimeofday(&tv, 0) != -1)
-		((ars_ctrl *)ctrl)->startTime = tv.tv_sec;
-	  else
-		perror("gettimeofday");
+		if (gettimeofday(&tv, 0) != -1)
+			((ars_ctrl *)ctrl)->startTime = tv.tv_sec;
+		else
+			perror("gettimeofday");
 #endif
-	  ctrl->cacheId = 0;
+		ctrl->cacheId = 0;
 #if AR_EXPORT_VERSION >= 4
-	  ctrl->sessionId = 0;
+	 	ctrl->sessionId = 0;
 #endif
-	  ctrl->operationTime = 0;
-	  strncpy(ctrl->user, username, sizeof(ctrl->user));
-	  ctrl->user[sizeof(ctrl->user)-1] = 0;
-	  strncpy(ctrl->password, password, sizeof(ctrl->password));
-	  ctrl->password[sizeof(ctrl->password)-1] = 0;
-	  ctrl->language[0] = 0;
+		ctrl->operationTime = 0;
+		strncpy(ctrl->user, username, sizeof(ctrl->user));
+		ctrl->user[sizeof(ctrl->user)-1] = 0;
+		strncpy(ctrl->password, password, sizeof(ctrl->password));
+		ctrl->password[sizeof(ctrl->password)-1] = 0;
+		ctrl->language[0] = 0;
 #if AR_EXPORT_VERSION >= 4
-	  /* call ARInitialization */
-	  ret = ARInitialization(ctrl, &status);
-	  if(ARError(ret, status)) {
-		safefree(ctrl);
-		goto ar_login_end;
-	  }
+		/* call ARInitialization */
+		ret = ARInitialization(ctrl, &status);
+		if(ARError(ret, status)) {
+			safefree(ctrl);
+			goto ar_login_end;
+		}
 #endif
-	  if (!server || !*server) {
+		FreeARStatusList (&status, FALSE);
+		if (!server || !*server) {
 #if AR_EXPORT_VERSION >= 4
-	    ret = ARGetListServer(ctrl, &serverList, &status);
+	  		ret = ARGetListServer(ctrl, &serverList, &status);
 #else
-	    ret = ARGetListServer(&serverList, &status);
+	  		ret = ARGetListServer(&serverList, &status);
 #endif
-	    if (ARError( ret, status)) {
-	      safefree(ctrl); /* invalid, cleanup */
-	      goto ar_login_end;
-	    }
-	    if (serverList.numItems == 0) {
-	      (void) ARError_add( AR_RETURN_ERROR, AP_ERR_NO_SERVERS);
-	      safefree(ctrl); /* invalid, cleanup */
-	      goto ar_login_end;
-	    }
-	    server = serverList.nameList[0];
-	    s_ok = 0;
+	  	if (ARError( ret, status)) {
+	    		safefree(ctrl); /* invalid, cleanup */
+	   		goto ar_login_end;
+	  	}
+		FreeARStatusList (&status, FALSE);
+	  	if (serverList.numItems == 0) {
+	     		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_NO_SERVERS);
+	      		safefree(ctrl); /* invalid, cleanup */
+	      		goto ar_login_end;
+	    	}
+	    	server = serverList.nameList[0];
+	    	s_ok = 0;
 	  }
 	  strncpy(ctrl->server, server, sizeof(ctrl->server));
 	  ctrl->server[sizeof(ctrl->server)-1] = 0;
@@ -268,6 +270,34 @@ ars_Login(server,username,password)
 	  	FreeARServerNameList(&serverList,FALSE);
 #endif
 	ar_login_end:;
+		FreeARStatusList (&status, FALSE);
+	}
+	OUTPUT:
+	RETVAL
+
+int
+ars_VerifyUser(ctrl)
+	ARControlStruct *	ctrl
+	CODE:
+	{
+		int ret = 0;
+		ARBoolean	adminFlag,
+				subAdminFlag,
+				customFlag;
+		ARStatusList status;
+
+		(void) ARError_reset();
+		Zero(&status, 1, ARStatusList);
+		RETVAL = 0;
+
+		ret = ARVerifyUser(ctrl, &adminFlag, 
+					 &subAdminFlag, 
+					 &customFlag, 
+				   &status);
+
+		if(! ARError(ret, status)) {
+			RETVAL = 1;
+		}
 	}
 	OUTPUT:
 	RETVAL
@@ -326,19 +356,20 @@ ars_Logoff(ctrl)
 	ARControlStruct *	ctrl
 	CODE:
 	{
-	    int          ret;
-	    ARStatusList status;
-	    Zero(&status, 1, ARStatusList);
-	    (void) ARError_reset();
-	    if (!ctrl) return;
+		int          ret;
+		ARStatusList status;
+		Zero(&status, 1, ARStatusList);
+		(void) ARError_reset();
+		if (!ctrl) return;
 #if AR_EXPORT_VERSION >= 4
-	    /*printf("ctrl=0x%x\n", &ctrl);*/
-	    ret = ARTermination(ctrl, &status);
+		/*printf("ctrl=0x%x\n", &ctrl);*/
+		ret = ARTermination(ctrl, &status);
 #else
-	    ret = ARTermination(&status);
+		ret = ARTermination(&status);
 #endif
-	    (void) ARError( ret, status);
-	    if(ctrl) safefree(ctrl);
+		(void) ARError( ret, status);
+		FreeARStatusList (&status, FALSE);
+	/*		if(ctrl) safefree(ctrl); /**/
 	}
 
 void

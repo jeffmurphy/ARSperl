@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/ars_GetListUser.pl,v 1.1 1997/07/23 18:21:29 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/ars_GetListUser.pl,v 1.2 2001/04/11 15:10:15 jcmurphy Exp $
 #
 # NAME
 #   ars_GetListUser.pl
@@ -21,6 +21,9 @@
 #   jeff murphy
 #
 # $Log: ars_GetListUser.pl,v $
+# Revision 1.2  2001/04/11 15:10:15  jcmurphy
+# updates to Makefile.PL for server info map
+#
 # Revision 1.1  1997/07/23 18:21:29  jcmurphy
 # Initial revision
 #
@@ -43,7 +46,7 @@ print "Calling GetListUser and asking for all connected users...\n";
 #
 # default = 0
 
-(@h = ars_GetListUser($c, 2)) || die "ERR: $ars_errstr\n";
+(@h = ars_GetListUser($c, &ARS::AR_USER_LIST_REGISTERED)) || die "ERR: $ars_errstr\n";
 print "errstr=$ars_errstr\n";
 
 print "GetListUser returned the following:\n";
