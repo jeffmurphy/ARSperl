@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/WhoUsesIt.pl,v 1.3 2005/04/06 18:02:28 jeffmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/WhoUsesIt.pl,v 1.4 2005/04/06 19:13:57 jeffmurphy Exp $
 #
 # NAME 
 #   WhoUsesIt.pl
@@ -27,6 +27,9 @@
 #   jcmurphy@acsu.buffalo.edu
 #
 # $Log: WhoUsesIt.pl,v $
+# Revision 1.4  2005/04/06 19:13:57  jeffmurphy
+# WhoUsesIt mod
+#
 # Revision 1.3  2005/04/06 18:02:28  jeffmurphy
 # added Zeros
 #
@@ -237,6 +240,7 @@ if($opt_M) {
 	    $finfo = ars_GetFilter($ctrl, $filter);
 	    foreach $action (@{$finfo->{actionList}}) {
 		if(defined($action->{process})) {
+		    print "filter $filter process ".$action->{process}."\n" if $debug;
 		    if($action->{process} =~ /$opt_p/) {
 			$users{$filter} = $action->{process};
 		    }
