@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.11 1997/11/10 23:50:36 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.12 1997/12/15 21:25:39 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/support.c,v 1.11 1997/11/10 23:50:36 jcmurphy 
     LOG:
 
 $Log: support.c,v $
+Revision 1.12  1997/12/15 21:25:39  jcmurphy
+/1.53
+
 Revision 1.11  1997/11/10 23:50:36  jcmurphy
 1.5206: added refreshCode to GetCharMenu().
 added ars_GetVUI to EXPORTS in .pm file
@@ -1854,11 +1857,13 @@ ARGetFieldCached(_AWPC_ ARControlStruct *ctrl, ARNameType schema, ARInternalId i
     strcpy(fieldName, SvPV((*val), na));
   }
 #else /* ARS 2.x */
+# ifndef SKIP_SV_ISA 
   if (! sv_isa(*val, "ARDisplayListPtr")) {
     (void) ARError_add(_PPERLC_ ARSPERL_TRACEBACK, 1, 
 		       "GetFieldCached: field value isnt'a ARDisplayListPtr");
     goto cache_fail;
   }
+# endif /* SKIP_SV_ISA */
 
   if (display) {
     display_copy         = (ARDisplayList *)SvIV(SvRV(*val));
