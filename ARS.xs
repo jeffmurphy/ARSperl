@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.14 1997/02/13 15:21:06 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.15 1997/02/14 20:38:49 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -27,6 +27,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.14 1997/02/13 15:21:06 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.15  1997/02/14 20:38:49  jcmurphy
+fixed phantom function call. initialized some un-inited stuff
+
 Revision 1.14  1997/02/13 15:21:06  jcmurphy
 modified comments
 
@@ -2917,7 +2920,7 @@ ars_GetField(ctrl,schema,id)
 #ifndef WASTE_MEM
 	    FreeARFieldLimitStruct(&limit,FALSE);
 #if AR_EXPORT_VERSION >= 3
-	    FreeARFieldMappingStruct(&fieldMap,FALSE);
+	    /* FreeARFieldMappingStruct(&fieldMap,FALSE); *//* doesnt exist! */
 	    FreeARDisplayInstanceList(&displayList,FALSE);
 #else
 	    FreeARDisplayList(&displayList,FALSE);
@@ -3422,6 +3425,7 @@ ars_NTDeregisterClient(user, password, filename)
 	CODE:
 	{
 		croak("NTDeregisterClient() is only available in ARS2.x");
+		RETVAL = 0;
 	}
 	OUTPUT:
 	RETVAL
@@ -3431,6 +3435,7 @@ ars_NTInitializationClient()
 	CODE:
 	{
 		croak("NTInitializationClient() is only available in ARS2.x");
+		RETVAL = 0;
 	}
 	OUTPUT:
 	RETVAL
@@ -3443,6 +3448,7 @@ ars_NTRegisterClient(user, password, filename)
 	CODE:
 	{
 		croak("NTRegisterClient() is only available in ARS2.x");
+		RETVAL = 0;
 	}
 	OUTPUT:
 	RETVAL
@@ -3452,6 +3458,7 @@ ars_NTTerminationClient()
 	CODE:
 	{
 		croak("NTTerminationClient() is only available in ARS2.x");
+		RETVAL = 0;
 	}
 	OUTPUT:
 	RETVAL
