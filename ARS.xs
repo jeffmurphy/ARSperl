@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.28 1997/05/22 14:40:05 jmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.29 1997/05/22 15:23:04 jmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.28 1997/05/22 14:40:05 jmurphy Exp 
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.29  1997/05/22 15:23:04  jmurphy
+duh
+
 Revision 1.28  1997/05/22 14:40:05  jmurphy
 changed logic for checking for scalar values
 
@@ -2227,6 +2230,7 @@ ars_DeleteEntry(ctrl,schema,entry_id)
 	    entryList.entryIdList = mallocnn(sizeof(AREntryIdType));
 	    strcpy(entryList.entryIdList[0], SvPV(entry_id, na));
 	  } else {
+	    ars_errstr = "bad entry_id";
 	    goto delete_fail;
 	  }
 	  ret = ARDeleteEntry(ctrl, schema, &entryList, 0, &status);
@@ -2309,6 +2313,7 @@ ars_GetEntry(ctrl,schema,entry_id,...)
 	    entryList.entryIdList = mallocnn(sizeof(AREntryIdType));
 	    strcpy(entryList.entryIdList[0], SvPV(entry_id, na));
 	  } else {
+	    ars_errstr = "bad entry_id";
 	    goto get_entry_end;
 	  }
 	  ret = ARGetEntry(ctrl, schema, &entryList, &idList, &fieldList, &status);
