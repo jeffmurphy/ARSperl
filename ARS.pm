@@ -1,26 +1,26 @@
 #
-#    ARSperl - An ARS2.0-3.x / Perl5.0 Integration Kit
+#    ARSperl - An ARS v2-v4 / Perl5 Integration Kit
 #
-#    Copyright (C) 1995 Joel Murphy, jmurphy@acsu.buffalo.edu
-#                       Jeff Murphy, jcmurphy@acsu.buffalo.edu
+#    Copyright (C) 1995-1999 Joel Murphy, jmurphy@acsu.buffalo.edu
+#                            Jeff Murphy, jcmurphy@acsu.buffalo.edu
 # 
 #    This program is free software; you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation; either version 2 of the License, or
-#    (at your option) any later version.
-# 
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
-# 
-#    You should have received a copy of the GNU General Public License
-#    along with this program; if not, write to the Free Software
-#    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-# 
-#    Comments to: arsperl@smurfland.cit.buffalo.edu
+#    it under the terms as Perl itself. 
+#    
+#    Refer to the file called "Artistic" that accompanies the source distribution 
+#    of ARSperl (or the one that accompanies the source distribution of Perl
+#    itself) for a full description.
+#
+#    Official Home Page: 
+#    http://arsinfo.cit.buffalo.edu/perl
+#
+#    Mailing List (must be subscribed to post):
+#    arsperl@arsinfo.cit.buffalo.edu
 #
 # $Log: ARS.pm,v $
+# Revision 1.35  1998/12/28 15:45:09  jcmurphy
+# v1.62
+#
 # Revision 1.34  1998/09/16 14:18:42  jcmurphy
 # v1.61
 #
@@ -159,7 +159,8 @@ package ARS;
 
 require Exporter;
 require DynaLoader;
-require AutoLoader;
+#require AutoLoader;
+use AutoLoader 'AUTOLOAD';
 require Config;
 
 @ISA = qw(Exporter DynaLoader);
@@ -186,10 +187,10 @@ ars_GetListVUI ars_GetServerInfo
 ars_CreateActiveLink ars_CreateAdminExtension
 ars_GetControlStructFields ars_GetVUI
 $ars_errstr %ARServerStats %ars_errhash
-ars_decodeStatusHistory
+ars_decodeStatusHistory ars_APIVersion
 );
 
-$VERSION   = '1.61';
+$VERSION   = '1.62';
 $DEBUGGING = 0;
 
 bootstrap ARS $VERSION;
@@ -425,13 +426,22 @@ sub ars_EncodeDiary {
 }
 
 
+# As of ARS4.0, these routines (which call ARInitialization and ARTermination)
+# need to pass a control struct. this means that we now must move them into
+# ars_Login and ars_Logoff in order to have access to that control struct.
+# the implications of this are that your script should always call ars_Logoff()
+# inorder to ensure that licenses are released (i.e. ARTermination is called)
+# as for ARInitialization: this is used for private servers, mostly, and shouldnt
+# affect anything by moving it into the ars_Login call.
+
 # call ARInitialization
-ARS::__ars_init();
+ARS::__ars_init() if(&ARS::ars_APIVersion() < 4);
 
 # call ARTermination when the package is terminated
-END {
-  ARS::__ars_Termination();
-}
+# Can't call this when using AutoLoader (?) (Murray Nesbitt <murray@ActiveState.com>)
+#END {
+#  ARS::__ars_Termination() if(&ARS::ars_APIVersion() < 4);
+#}
 
 1;
 __END__

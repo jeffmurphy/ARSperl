@@ -1,34 +1,32 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.2 1998/09/11 19:36:44 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.3 1998/12/28 15:46:10 jcmurphy Exp $
 
-    ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
+    ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
-    Copyright (C) 1995,1996,1997 
+    Copyright (C) 1995,1996,1997,1998,1999
 	Joel Murphy, jmurphy@acsu.buffalo.edu
         Jeff Murphy, jcmurphy@acsu.buffalo.edu
- 
+
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+    it under the terms as Perl itself. 
+    
+    Refer to the file called "Artistic" that accompanies the source distribution 
+    of ARSperl (or the one that accompanies the source distribution of Perl
+    itself) for a full description.
  
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
- 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
     Comments to:  arsperl@smurfland.cit.buffalo.edu
-                  (this is a *mailing list*)
+                  (this is a *mailing list* and you must be
+                   a subscriber before posting)
 
-    Bugs to: arsperl-bugs@smurfland.cit.buffalo.edu
+    Comments to: arsperl@lurch.cit.buffalo.edu
+    Home Page: http://arsinfo.cit.buffalo.edu
  
     LOG:
 
 $Log: support-h.template,v $
+Revision 1.3  1998/12/28 15:46:10  jcmurphy
+v1.62
+
 Revision 1.2  1998/09/11 19:36:44  jcmurphy
 added perl_diary prototype
 
@@ -234,7 +232,7 @@ static struct {
 };
 
 /* typedef SV* (*ARS_fn)(void *); */
-typedef void *(*ARS_fn)( void *b);
+typedef void *(*ARS_fn)(ARControlStruct *ctrl, void *b);
 
 EXTERN void        *mallocnn(int s);
 EXTERN void        *debug_mallocnn(int s, char *file, char *func, int line);
@@ -247,48 +245,60 @@ EXTERN int          ARError_add( unsigned int type, long num, char *text);
 EXTERN int          ARError( int returncode, ARStatusList status);
 EXTERN int          NTError( int returncode, NTStatusList status);
 
-EXTERN SV *perl_diary(ARDiaryStruct *in);
-EXTERN SV *perl_MenuRefreshCode2Str( unsigned int rc);
-EXTERN SV *perl_ARPermissionList( ARPermissionList *in, int);
-EXTERN SV *perl_ARStatusStruct( ARStatusStruct *);
-EXTERN SV *perl_ARInternalId( ARInternalId *);
-EXTERN SV *perl_ARNameType( ARNameType *);
-EXTERN SV *perl_ARList( ARList *, ARS_fn, int);
-EXTERN SV *perl_ARValueStruct( ARValueStruct *);
-EXTERN SV *perl_ARValueStructType( ARValueStruct *in);
-EXTERN SV *perl_dataType_names( unsigned int *);
-EXTERN SV *perl_ARStatHistoryValue( ARStatHistoryValue *);
-EXTERN SV *perl_ARAssignFieldStruct( ARAssignFieldStruct *);
-EXTERN SV *perl_ARAssignStruct( ARAssignStruct *);
-EXTERN SV *perl_ARFieldAssignStruct( ARFieldAssignStruct *);
-EXTERN SV *perl_ARDisplayStruct( ARDisplayStruct *);
-EXTERN SV *perl_ARMacroParmStruct( ARMacroParmStruct *);
-EXTERN SV *perl_ARActiveLinkMacroStruct( ARActiveLinkMacroStruct *);
-EXTERN SV *perl_ARFieldCharacteristics( ARFieldCharacteristics *);
-EXTERN SV *perl_ARDDEStruct( ARDDEStruct *);
-EXTERN SV *perl_ARActiveLinkActionStruct( ARActiveLinkActionStruct *);
-EXTERN SV *perl_ARFilterActionStruct( ARFilterActionStruct *);
+EXTERN SV *perl_diary(ARControlStruct *ctrl, ARDiaryStruct *in);
+EXTERN SV *perl_MenuRefreshCode2Str(ARControlStruct *ctrl,  unsigned int rc);
+EXTERN SV *perl_ARPermissionList(ARControlStruct *ctrl,  ARPermissionList *in, int);
+EXTERN SV *perl_ARStatusStruct(ARControlStruct *ctrl,  ARStatusStruct *);
+#if AR_EXPORT_VERSION >= 4
+EXTERN SV *perl_ARMessageStruct(ARControlStruct *ctrl,  ARMessageStruct *);
+#endif
+EXTERN SV *perl_ARInternalId(ARControlStruct *ctrl,  ARInternalId *);
+EXTERN SV *perl_ARNameType(ARControlStruct *ctrl,  ARNameType *);
+EXTERN SV *perl_ARList(ARControlStruct *ctrl,  ARList *, ARS_fn, int);
+EXTERN SV *perl_ARValueStruct(ARControlStruct *ctrl, ARValueStruct *);
+EXTERN SV *perl_ARValueStructType(ARControlStruct *ctrl,  ARValueStruct *in);
+EXTERN SV *perl_dataType_names(ARControlStruct *ctrl,  unsigned int *);
+EXTERN SV *perl_ARStatHistoryValue(ARControlStruct *ctrl,  ARStatHistoryValue *);
+EXTERN SV *perl_ARAssignFieldStruct(ARControlStruct *ctrl,  ARAssignFieldStruct *);
+EXTERN SV *perl_ARAssignStruct(ARControlStruct *ctrl,  ARAssignStruct *);
+EXTERN SV *perl_ARFieldAssignStruct(ARControlStruct *ctrl,  ARFieldAssignStruct *);
+EXTERN SV *perl_ARDisplayStruct(ARControlStruct *ctrl,  ARDisplayStruct *);
+EXTERN SV *perl_ARMacroParmStruct(ARControlStruct *ctrl, ARMacroParmStruct *);
+EXTERN SV *perl_ARActiveLinkMacroStruct(ARControlStruct *ctrl, 
+					ARActiveLinkMacroStruct *);
+EXTERN SV *perl_ARFieldCharacteristics(ARControlStruct *ctrl, 
+					ARFieldCharacteristics *);
+EXTERN SV *perl_ARDDEStruct(ARControlStruct *ctrl,  ARDDEStruct *);
+EXTERN SV *perl_ARActiveLinkActionStruct(ARControlStruct *ctrl, 
+					 ARActiveLinkActionStruct *);
+EXTERN SV *perl_ARFilterActionStruct(ARControlStruct *ctrl,  ARFilterActionStruct *);
 EXTERN SV *perl_expandARCharMenuStruct( ARControlStruct *, ARCharMenuStruct *);
-EXTERN SV *perl_AREntryListFieldStruct( AREntryListFieldStruct *);
-EXTERN SV *perl_ARIndexStruct( ARIndexStruct *);
-EXTERN SV *perl_ARFieldLimitStruct( ARFieldLimitStruct *);
-EXTERN SV *perl_ARFunctionAssignStruct( ARFunctionAssignStruct *);
-EXTERN SV *perl_ARArithOpAssignStruct( ARArithOpAssignStruct *);
-EXTERN void dup_Value( ARValueStruct *, ARValueStruct *);
-EXTERN ARArithOpStruct *dup_ArithOp( ARArithOpStruct *);
-EXTERN void dup_ValueList( ARValueList *, ARValueList *);
-EXTERN ARQueryValueStruct *dup_QueryValue( ARQueryValueStruct *);
-EXTERN void dup_FieldValueOrArith( ARFieldValueOrArithStruct *,
+EXTERN SV *perl_AREntryListFieldStruct(ARControlStruct *ctrl, 
+					AREntryListFieldStruct *);
+EXTERN SV *perl_ARIndexStruct(ARControlStruct *ctrl,  ARIndexStruct *);
+EXTERN SV *perl_ARFieldLimitStruct(ARControlStruct *ctrl,  ARFieldLimitStruct *);
+EXTERN SV *perl_ARFunctionAssignStruct(ARControlStruct *ctrl, 
+					 ARFunctionAssignStruct *);
+EXTERN SV *perl_ARArithOpAssignStruct(ARControlStruct *ctrl,  ARArithOpAssignStruct *);
+EXTERN void dup_Value(ARControlStruct *ctrl,  ARValueStruct *, ARValueStruct *);
+EXTERN ARArithOpStruct *dup_ArithOp(ARControlStruct *ctrl,  ARArithOpStruct *);
+EXTERN void dup_ValueList(ARControlStruct *ctrl,  ARValueList *, ARValueList *);
+EXTERN ARQueryValueStruct *dup_QueryValue(ARControlStruct *ctrl, 
+					 ARQueryValueStruct *);
+EXTERN void dup_FieldValueOrArith(ARControlStruct *ctrl, 
+				  ARFieldValueOrArithStruct *,
 				  ARFieldValueOrArithStruct *);
-EXTERN ARRelOpStruct *dup_RelOp( ARRelOpStruct *);
-EXTERN ARQualifierStruct *dup_qualifier( ARQualifierStruct *);
-EXTERN ARQualifierStruct *dup_qualifier2( ARQualifierStruct *in, 
+EXTERN ARRelOpStruct *dup_RelOp(ARControlStruct *ctrl,  ARRelOpStruct *);
+EXTERN ARQualifierStruct *dup_qualifier(ARControlStruct *ctrl,  ARQualifierStruct *);
+EXTERN ARQualifierStruct *dup_qualifier2(ARControlStruct *ctrl, 
+					 ARQualifierStruct *in, 
 					 ARQualifierStruct *out, int level);
-EXTERN SV *perl_ARArithOpStruct( ARArithOpStruct *);
-EXTERN SV *perl_ARQueryValueStruct( ARQueryValueStruct *);
-EXTERN SV *perl_ARFieldValueOrArithStruct( ARFieldValueOrArithStruct *);
-EXTERN SV *perl_relOp( ARRelOpStruct *);
-EXTERN HV *perl_qualifier( ARQualifierStruct *);
+EXTERN SV *perl_ARArithOpStruct(ARControlStruct *ctrl,  ARArithOpStruct *);
+EXTERN SV *perl_ARQueryValueStruct(ARControlStruct *ctrl,  ARQueryValueStruct *);
+EXTERN SV *perl_ARFieldValueOrArithStruct( ARControlStruct *ctrl,
+					   ARFieldValueOrArithStruct *);
+EXTERN SV *perl_relOp(ARControlStruct *ctrl, ARRelOpStruct *);
+EXTERN HV *perl_qualifier(ARControlStruct *ctrl,  ARQualifierStruct *);
 EXTERN int ARGetFieldCached( ARControlStruct *, ARNameType, ARInternalId,
 #if AR_EXPORT_VERSION >= 3
 		     ARNameType, ARFieldMappingStruct *,
@@ -304,22 +314,25 @@ EXTERN int ARGetFieldCached( ARControlStruct *, ARNameType, ARInternalId,
 		     char **, ARTimestamp *,
 		     ARNameType, ARNameType, char **,
 		     ARStatusList *);
-EXTERN int sv_to_ARValue( SV *in, unsigned int dataType, ARValueStruct *out);
+EXTERN int sv_to_ARValue(ARControlStruct *ctrl, 
+			 SV *in, unsigned int dataType, ARValueStruct *out);
 #if AR_EXPORT_VERSION >= 3
-EXTERN SV *perl_ARPropStruct( ARPropStruct *);
-EXTERN SV *perl_ARDisplayInstanceStruct( ARDisplayInstanceStruct *);
-EXTERN SV *perl_ARDisplayInstanceList( ARDisplayInstanceList *);
-EXTERN SV *perl_ARFieldMappingStruct( ARFieldMappingStruct *);
-EXTERN SV *perl_ARJoinMappingStruct( ARJoinMappingStruct *);
-EXTERN SV *perl_ARViewMappingStruct( ARViewMappingStruct *);
-EXTERN SV *perl_ARJoinSchema( ARJoinSchema *);
-EXTERN SV *perl_ARViewSchema( ARViewSchema *);
-EXTERN SV *perl_ARCompoundSchema( ARCompoundSchema *);
-EXTERN SV *perl_ARSortList( ARSortList *);
-EXTERN SV *perl_ARByteList( ARByteList *);
-EXTERN SV *perl_ARCoordStruct( ARCoordStruct *);
-EXTERN int perl_BuildEntryList( AREntryIdList *entryList, char *entry_id);
-EXTERN SV *perl_ARAssignSQLStruct( ARAssignSQLStruct *in);
+EXTERN SV *perl_ARPropStruct(ARControlStruct *ctrl,  ARPropStruct *);
+EXTERN SV *perl_ARDisplayInstanceStruct(ARControlStruct *ctrl,
+				  ARDisplayInstanceStruct *);
+EXTERN SV *perl_ARDisplayInstanceList(ARControlStruct *ctrl,  ARDisplayInstanceList *);
+EXTERN SV *perl_ARFieldMappingStruct(ARControlStruct *ctrl,  ARFieldMappingStruct *);
+EXTERN SV *perl_ARJoinMappingStruct(ARControlStruct *ctrl,  ARJoinMappingStruct *);
+EXTERN SV *perl_ARViewMappingStruct(ARControlStruct *ctrl,  ARViewMappingStruct *);
+EXTERN SV *perl_ARJoinSchema(ARControlStruct *ctrl,  ARJoinSchema *);
+EXTERN SV *perl_ARViewSchema(ARControlStruct *ctrl,  ARViewSchema *);
+EXTERN SV *perl_ARCompoundSchema(ARControlStruct *ctrl,  ARCompoundSchema *);
+EXTERN SV *perl_ARSortList(ARControlStruct *ctrl,  ARSortList *);
+EXTERN SV *perl_ARByteList(ARControlStruct *ctrl,  ARByteList *);
+EXTERN SV *perl_ARCoordStruct(ARControlStruct *ctrl,  ARCoordStruct *);
+EXTERN int perl_BuildEntryList(ARControlStruct *ctrl,  AREntryIdList *entryList, 
+				char *entry_id);
+EXTERN SV *perl_ARAssignSQLStruct(ARControlStruct *ctrl,  ARAssignSQLStruct *in);
 #endif
 
 #ifndef BSD

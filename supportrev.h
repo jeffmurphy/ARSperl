@@ -1,34 +1,32 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.7 1998/03/31 23:32:26 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.8 1998/12/28 15:46:10 jcmurphy Exp $
 
-    ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
+    ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
-    Copyright (C) 1995,1996,1997 
+    Copyright (C) 1995,1996,1997,1998,1999
 	Joel Murphy, jmurphy@acsu.buffalo.edu
         Jeff Murphy, jcmurphy@acsu.buffalo.edu
- 
+
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+    it under the terms as Perl itself. 
+    
+    Refer to the file called "Artistic" that accompanies the source distribution 
+    of ARSperl (or the one that accompanies the source distribution of Perl
+    itself) for a full description.
  
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
- 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
     Comments to:  arsperl@smurfland.cit.buffalo.edu
-                  (this is a *mailing list*)
+                  (this is a *mailing list* and you must be
+                   a subscriber before posting)
 
-    Bugs to: arsperl-bugs@smurfland.cit.buffalo.edu
- 
+    Comments to: arsperl@lurch.cit.buffalo.edu
+    Home Page: http://arsinfo.cit.buffalo.edu
+
     LOG:
 
 $Log: supportrev.h,v $
+Revision 1.8  1998/12/28 15:46:10  jcmurphy
+v1.62
+
 Revision 1.7  1998/03/31 23:32:26  jcmurphy
 NT patch by  Bill Middleton <wjm@metronet.com>
 
@@ -79,30 +77,48 @@ EXTERN int intcpyHVal( HV *h, char *k, int *b);
 EXTERN int uintcpyHVal( HV *h, char *k, unsigned int *b);
 EXTERN int longcpyHVal( HV *h, char *k, long *b);
 EXTERN int ulongcpyHVal( HV *h, char *k, unsigned long *b);
-EXTERN int rev_ARDisplayList( HV *h, char *k, ARDisplayList *d);
-EXTERN int rev_ARDisplayStruct( HV *h, ARDisplayStruct *d);
-EXTERN int rev_ARInternalIdList( HV *h, char *k, ARInternalIdList *il);
-EXTERN int rev_ARActiveLinkActionList( HV *h, char *k, 
+EXTERN int rev_ARDisplayList(ARControlStruct *ctrl, 
+			     HV *h, char *k, ARDisplayList *d);
+EXTERN int rev_ARDisplayStruct(ARControlStruct *ctrl, 
+			       HV *h, ARDisplayStruct *d);
+EXTERN int rev_ARInternalIdList(ARControlStruct *ctrl, 
+				HV *h, char *k, ARInternalIdList *il);
+EXTERN int rev_ARActiveLinkActionList(ARControlStruct *ctrl, HV *h, char *k, 
 				      ARActiveLinkActionList *al);
-EXTERN int rev_ARFieldAssignList( HV *h, char *k, ARFieldAssignList *m);
-EXTERN int rev_ARAssignStruct( HV *h, char *k, ARAssignStruct *m);
-EXTERN int rev_ARValueStruct( HV *h, char *k, char *t, ARValueStruct *m);
-EXTERN int rev_ARAssignFieldStruct( HV *h, char *k, ARAssignFieldStruct *m);
-EXTERN int rev_ARStatHistoryValue( HV *h, char *k, ARStatHistoryValue *s);
-EXTERN int rev_ARArithOpAssignStruct( HV *h, char *k, ARArithOpAssignStruct *s);
-EXTERN int rev_ARFunctionAssignStruct( HV *h, char *k,
+EXTERN int rev_ARFieldAssignList(ARControlStruct *ctrl,
+				 HV *h, char *k, ARFieldAssignList *m);
+EXTERN int rev_ARAssignStruct(ARControlStruct *ctrl,
+			      HV *h, char *k, ARAssignStruct *m);
+EXTERN int rev_ARValueStruct(ARControlStruct *ctrl,
+			     HV *h, char *k, char *t, ARValueStruct *m);
+EXTERN int rev_ARAssignFieldStruct(ARControlStruct *ctrl,
+				   HV *h, char *k, ARAssignFieldStruct *m);
+EXTERN int rev_ARStatHistoryValue(ARControlStruct *ctrl,
+				  HV *h, char *k, ARStatHistoryValue *s);
+EXTERN int rev_ARArithOpAssignStruct(ARControlStruct *ctrl,
+				     HV *h, char *k, ARArithOpAssignStruct *s);
+EXTERN int rev_ARFunctionAssignStruct(ARControlStruct *ctrl,
+				      HV *h, char *k,
 				      ARFunctionAssignStruct *s);
-EXTERN int rev_ARStatusStruct( HV *h, char *k, ARStatusStruct *m);
-EXTERN int rev_ARFieldCharacteristics( HV *h, char *k, ARFieldCharacteristics *m);
-EXTERN int rev_ARActiveLinkMacroStruct( HV *h, char *k, 
+EXTERN int rev_ARStatusStruct(ARControlStruct *ctrl,
+			      HV *h, char *k, ARStatusStruct *m);
+EXTERN int rev_ARFieldCharacteristics(ARControlStruct *ctrl,
+				      HV *h, char *k, ARFieldCharacteristics *m);
+EXTERN int rev_ARActiveLinkMacroStruct(ARControlStruct *ctrl,
+				       HV *h, char *k, 
 				       ARActiveLinkMacroStruct *m);
-EXTERN int rev_ARMacroParmList( HV *h, char *k, ARMacroParmList *m);
+EXTERN int rev_ARMacroParmList(ARControlStruct *ctrl,
+			       HV *h, char *k, ARMacroParmList *m);
 
 #if AR_EXPORT_VERSION >= 3
-EXTERN int rev_ARByteList( HV *h, char *k, ARByteList *b);
-EXTERN int rev_ARCoordList( HV *h, char *k, ARCoordList *m);
-EXTERN int rev_ARPropList( HV *h, char *k, ARPropList *m);
-EXTERN int rev_ARAssignSQLStruct( HV *h, char *k, ARAssignSQLStruct *s);
+EXTERN int rev_ARByteList(ARControlStruct *ctrl,
+			  HV *h, char *k, ARByteList *b);
+EXTERN int rev_ARCoordList(ARControlStruct *ctrl,
+			   HV *h, char *k, ARCoordList *m);
+EXTERN int rev_ARPropList(ARControlStruct *ctrl,
+			  HV *h, char *k, ARPropList *m);
+EXTERN int rev_ARAssignSQLStruct(ARControlStruct *ctrl,
+				 HV *h, char *k, ARAssignSQLStruct *s);
 #endif
 
 #endif /* __supportrev_h_ */

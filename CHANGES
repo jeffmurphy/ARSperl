@@ -1,4 +1,4 @@
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.26 1998/10/06 19:57:46 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.27 1998/12/28 15:45:49 jcmurphy Exp $
 
 CHANGES for ARSperl
 
@@ -18,7 +18,22 @@ MM/DD/YY
 =======================================================================
 0//        (1.62)
 
+  o (JCM)  added extra decoding code to GetFilter.pl example script
+  o (JCM)  syntax errors fixed in some example scripts
   o (JCM)  added bug fix to NTRegisterServer from  G David Frye <gdf@uiuc.edu>
+  o (JCM)  ars4.0 integration (see RELNOTES for important compatibility
+           information)
+  o (JCM)  perl_qualifier now takes a control struct 
+  o (JCM)  if compiled against API>=4.0 then __ars_init __ars_term
+           no longer do anything (but are still there). the functionality
+           of each of these have been rolled into ars_Login and ars_Logoff
+           respectively.
+  o (JCM)  added ars_APIVersion() 
+  o (JCM)  GetActiveLink, when compiled against 4.0 returns ARMessageStruct
+  o (JCM)  applied some changes contributed by Murray Nesbitt 
+           <murray@ActiveState.com> so that it will compile against the
+           active state version of perl more easily. 
+  o (JCM)  changed licensing to match that of perl itself.
 
 =======================================================================
 #######################################################################

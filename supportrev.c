@@ -1,34 +1,32 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.9 1998/03/31 23:32:16 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.10 1998/12/28 15:46:10 jcmurphy Exp $
 
-    ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
+    ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
-    Copyright (C) 1995,1996,1997 
+    Copyright (C) 1995,1996,1997,1998,1999
 	Joel Murphy, jmurphy@acsu.buffalo.edu
         Jeff Murphy, jcmurphy@acsu.buffalo.edu
- 
+
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+    it under the terms as Perl itself. 
+    
+    Refer to the file called "Artistic" that accompanies the source distribution 
+    of ARSperl (or the one that accompanies the source distribution of Perl
+    itself) for a full description.
  
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
- 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
     Comments to:  arsperl@smurfland.cit.buffalo.edu
-                  (this is a *mailing list*)
+                  (this is a *mailing list* and you must be
+                   a subscriber before posting)
 
-    Bugs to: arsperl-bugs@smurfland.cit.buffalo.edu
- 
+    Comments to: arsperl@lurch.cit.buffalo.edu
+    Home Page: http://arsinfo.cit.buffalo.edu
+
     LOG:
 
 $Log: supportrev.c,v $
+Revision 1.10  1998/12/28 15:46:10  jcmurphy
+v1.62
+
 Revision 1.9  1998/03/31 23:32:16  jcmurphy
 NT patch by  Bill Middleton <wjm@metronet.com>
 
@@ -79,29 +77,45 @@ Initial revision
 #include "support.h"
 #include "supportrev.h"
 
-static int rev_ARActiveLinkActionList_helper( HV *h, 
+static int rev_ARActiveLinkActionList_helper(ARControlStruct *ctrl, HV *h, 
 					     ARActiveLinkActionList *al, 
 					     int idx);
-static int rev_ARDisplayStruct_helper( HV *h, char *k, ARDisplayStruct *d);
-static int rev_ARValueStructStr2Type( char *type, unsigned int *n);
-static int rev_ARValueStructKW2KN( char *keyword, unsigned int *n);
-static int rev_ARValueStructDiary( HV *h, char *k, char **d);
-static int rev_ARAssignFieldStruct_helper( HV *h, ARAssignFieldStruct *m);
-static int rev_ARAssignFieldStructStr2NMO(char *s, unsigned int *nmo);
-static int rev_ARAssignFieldStructStr2MMO(char *s, unsigned int *mmo);
-static int rev_ARStatHistoryValue_helper( HV *h, ARStatHistoryValue *s);
-static int rev_ARArithOpAssignStruct_helper( HV *h, ARArithOpAssignStruct *s);
-static int rev_ARArithOpAssignStructStr2OP(char *c, unsigned int *o);
-static int rev_ARFunctionAssignStructStr2FCODE(char *c, unsigned int *o);
-static int rev_ARAssignStruct_helper( HV *h, ARAssignStruct *m);
-static int rev_ARActiveLinkMacroStruct_helper( HV *h, 
+static int rev_ARDisplayStruct_helper(ARControlStruct *ctrl,
+				      HV *h, char *k, ARDisplayStruct *d);
+static int rev_ARValueStructStr2Type(ARControlStruct *ctrl,
+				     char *type, unsigned int *n);
+static int rev_ARValueStructKW2KN(ARControlStruct *ctrl,
+				  char *keyword, unsigned int *n);
+static int rev_ARValueStructDiary(ARControlStruct *ctrl,
+				  HV *h, char *k, char **d);
+static int rev_ARAssignFieldStruct_helper(ARControlStruct *ctrl,
+					  HV *h, ARAssignFieldStruct *m);
+static int rev_ARAssignFieldStructStr2NMO(ARControlStruct *ctrl,
+					  char *s, unsigned int *nmo);
+static int rev_ARAssignFieldStructStr2MMO(ARControlStruct *ctrl,
+					  char *s, unsigned int *mmo);
+static int rev_ARStatHistoryValue_helper(ARControlStruct *ctrl,
+					 HV *h, ARStatHistoryValue *s);
+static int rev_ARArithOpAssignStruct_helper(ARControlStruct *ctrl,
+					    HV *h, ARArithOpAssignStruct *s);
+static int rev_ARArithOpAssignStructStr2OP(ARControlStruct *ctrl,
+					   char *c, unsigned int *o);
+static int rev_ARFunctionAssignStructStr2FCODE(ARControlStruct *ctrl,
+					       char *c, unsigned int *o);
+static int rev_ARAssignStruct_helper(ARControlStruct *ctrl, 
+				     HV *h, ARAssignStruct *m);
+static int rev_ARActiveLinkMacroStruct_helper(ARControlStruct *ctrl, HV *h, 
 					      ARActiveLinkMacroStruct *m);
-static int rev_ARAssignList_helper( HV *h, ARFieldAssignList *m, int i);
+static int rev_ARAssignList_helper(ARControlStruct *ctrl,
+				   HV *h, ARFieldAssignList *m, int i);
 
 #if AR_EXPORT_VERSION >= 3
-static int rev_ARByteListStr2Type(char *ts, unsigned long *tv);
-static int rev_ARCoordList_helper( HV *h, ARCoordList *m, int idx);
-static int rev_ARPropList_helper( HV *h, ARPropList *m, int idx);
+static int rev_ARByteListStr2Type(ARControlStruct *ctrl,
+				  char *ts, unsigned long *tv);
+static int rev_ARCoordList_helper(ARControlStruct *ctrl,
+				  HV *h, ARCoordList *m, int idx);
+static int rev_ARPropList_helper(ARControlStruct *ctrl,
+				 HV *h, ARPropList *m, int idx);
 #endif
 
 /* ROUTINE
@@ -268,6 +282,43 @@ intcpyHVal( HV *h, char *k, int *b)
  *   -2 on warning and pushes some info into the error hash
  */
 
+#if AR_EXPORT_VERSION >= 4
+int
+boolcpyHVal( HV *h, char *k, ARBoolean *b)
+{
+  SV **val;
+
+  if(SvTYPE((SV *)h) == SVt_PVHV) {
+    if(hv_exists(h, VNAME(k))) {
+      val = hv_fetch(h, VNAME(k), 0);
+      if(val && *val) {
+	if(SvIOK(*val)) {
+	  *b = (unsigned int)SvIV(*val);
+	  if(*b == 0) 
+	    *b = FALSE;
+	  else
+	    *b = TRUE;
+	  return 0;
+	} else 
+	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
+		      "uintcpyHVal: hash value is not an integer");
+      } else {
+	ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
+		    "uintcpyHVal: hv_fetch returned null");
+	return -2;
+      }
+    } else {
+      ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
+		  "uintcpyHVal: key doesn't exist");
+      return -2;
+    }
+  } else 
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
+		"uintcpyHVal: first argument is not a hash");
+  return -1;
+}
+#endif
+
 int
 uintcpyHVal( HV *h, char *k, unsigned int *b)
 {
@@ -393,7 +444,7 @@ ulongcpyHVal( HV *h, char *k, unsigned long *b)
  */
 
 int
-rev_ARDisplayList( HV *h, char *k, ARDisplayList *d)
+rev_ARDisplayList(ARControlStruct *ctrl, HV *h, char *k, ARDisplayList *d)
 {
   SV **val;
   int  i;
@@ -430,7 +481,7 @@ rev_ARDisplayList( HV *h, char *k, ARDisplayList *d)
 	    SV **av_hv = av_fetch(ar, i, 0);
 
 	    if(av_hv && *av_hv && (SvTYPE(SvRV(*av_hv)) == SVt_PVHV)) {
-	      if(rev_ARDisplayStruct( (HV *)SvRV(*av_hv), 
+	      if(rev_ARDisplayStruct(ctrl,  (HV *)SvRV(*av_hv), 
 				     &(d->displayList[i])) != 0)
 		return -1;
 	    } else 
@@ -465,7 +516,7 @@ rev_ARDisplayList( HV *h, char *k, ARDisplayList *d)
  */
 
 static int
-rev_ARDisplayStruct_helper( HV *h, char *k, ARDisplayStruct *d) 
+rev_ARDisplayStruct_helper(ARControlStruct *ctrl, HV *h, char *k, ARDisplayStruct *d) 
 {
   SV **val;
 
@@ -483,7 +534,7 @@ rev_ARDisplayStruct_helper( HV *h, char *k, ARDisplayStruct *d)
 	/* hash value should be an hash reference */
 
 	if(SvTYPE(SvRV(*val)) == SVt_PVHV) {
-	  if(rev_ARDisplayStruct( (HV *)SvRV(*val), d) != 0)
+	  if(rev_ARDisplayStruct(ctrl,  (HV *)SvRV(*val), d) != 0)
 	    return -1;
 	  return 0;
 	} else 
@@ -515,7 +566,7 @@ rev_ARDisplayStruct_helper( HV *h, char *k, ARDisplayStruct *d)
  */
 
 int 
-rev_ARDisplayStruct( HV *h, ARDisplayStruct *d)
+rev_ARDisplayStruct(ARControlStruct *ctrl, HV *h, ARDisplayStruct *d)
 {
   int  rv = 0, rv2 = 0;
   char buf[1024];
@@ -590,7 +641,7 @@ rev_ARDisplayStruct( HV *h, ARDisplayStruct *d)
  */
 
 int
-rev_ARInternalIdList( HV *h, char *k, ARInternalIdList *il)
+rev_ARInternalIdList(ARControlStruct *ctrl, HV *h, char *k, ARInternalIdList *il)
 {
 
   if(! il || ! h || ! k) {
@@ -665,7 +716,7 @@ rev_ARInternalIdList( HV *h, char *k, ARInternalIdList *il)
  */
 
 int
-rev_ARActiveLinkActionList( HV *h, char *k, ARActiveLinkActionList *al)
+rev_ARActiveLinkActionList(ARControlStruct *ctrl, HV *h, char *k, ARActiveLinkActionList *al)
 {
   SV **val;
   int  i;
@@ -703,7 +754,7 @@ rev_ARActiveLinkActionList( HV *h, char *k, ARActiveLinkActionList *al)
 	    SV **av_hv = av_fetch(ar, i, 0);
 
 	    if(av_hv && *av_hv && (SvTYPE(SvRV(*av_hv)) == SVt_PVHV)) {
-	      if(rev_ARActiveLinkActionList_helper( 
+	      if(rev_ARActiveLinkActionList_helper( ctrl, 
 						   (HV *)SvRV(*av_hv), al, i) != 0)
 		return -1;
 	    } else 
@@ -735,7 +786,7 @@ rev_ARActiveLinkActionList( HV *h, char *k, ARActiveLinkActionList *al)
  */
 
 static int
-rev_ARActiveLinkActionList_helper( HV *h, ARActiveLinkActionList *al, int idx)
+rev_ARActiveLinkActionList_helper(ARControlStruct *ctrl, HV *h, ARActiveLinkActionList *al, int idx)
 {
   int  rv = 0;
 
@@ -749,22 +800,27 @@ rev_ARActiveLinkActionList_helper( HV *h, ARActiveLinkActionList *al, int idx)
   }  
   else if(hv_exists(h, VNAME("macro"))) {
     al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_MACRO;
-    rv += rev_ARActiveLinkMacroStruct( h, "macro", 
+    rv += rev_ARActiveLinkMacroStruct(ctrl,  h, "macro", 
 			    &(al->actionList[idx].u.macro));
   }
   else if(hv_exists(h, VNAME("assign_fields"))) {
     al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_FIELDS;
-    rv += rev_ARFieldAssignList( h, "assign_fields",
+    rv += rev_ARFieldAssignList(ctrl,  h, "assign_fields",
 			    &(al->actionList[idx].u.fieldList));
   }
   else if(hv_exists(h, VNAME("message"))) {
     al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_MESSAGE;
-    rv += rev_ARStatusStruct( h, "message",
+#if AR_EXPORT_VERSION >= 4
+    rv += rev_ARMessageStruct(ctrl,  h, "message",
 			    &(al->actionList[idx].u.message));
+#else
+    rv += rev_ARStatusStruct(ctrl,  h, "message",
+			    &(al->actionList[idx].u.message));
+#endif
   }
   else if(hv_exists(h, VNAME("characteristics"))) {
     al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_SET_CHAR;
-    rv += rev_ARFieldCharacteristics( h, "characteristics",
+    rv += rev_ARFieldCharacteristics(ctrl,  h, "characteristics",
 			    &(al->actionList[idx].u.characteristics));
   }
   else if(hv_exists(h, VNAME("none"))) {
@@ -791,7 +847,7 @@ rev_ARActiveLinkActionList_helper( HV *h, ARActiveLinkActionList *al, int idx)
  */
 
 int
-rev_ARFieldAssignList( HV *h, char *k, ARFieldAssignList *m)
+rev_ARFieldAssignList(ARControlStruct *ctrl, HV *h, char *k, ARFieldAssignList *m)
 {
   SV **val;
   int  i;
@@ -828,7 +884,7 @@ rev_ARFieldAssignList( HV *h, char *k, ARFieldAssignList *m)
 	    SV **av_hv = av_fetch(ar, i, 0);
 
 	    if(av_hv && *av_hv && (SvTYPE(SvRV(*av_hv)) == SVt_PVHV)) {
-	      if(rev_ARAssignList_helper( (HV *)SvRV(*av_hv), m, i) != 0)
+	      if(rev_ARAssignList_helper(ctrl,  (HV *)SvRV(*av_hv), m, i) != 0)
 		return -1;
 	    } else 
 	      ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
@@ -855,19 +911,19 @@ rev_ARFieldAssignList( HV *h, char *k, ARFieldAssignList *m)
 }
 
 static int
-rev_ARAssignList_helper( HV *h, ARFieldAssignList *m, int i) 
+rev_ARAssignList_helper(ARControlStruct *ctrl, HV *h, ARFieldAssignList *m, int i) 
 {
   int rv = 0;
 
   rv += ulongcpyHVal( h, "fieldId", &(m->fieldAssignList[i].fieldId));
-  rv += rev_ARAssignStruct( h, "assignment", 
+  rv += rev_ARAssignStruct(ctrl,  h, "assignment", 
 			   &(m->fieldAssignList[i].assignment));
 
   return rv;
 }
 
 int
-rev_ARAssignStruct( HV *h, char *k, ARAssignStruct *m)
+rev_ARAssignStruct(ARControlStruct *ctrl, HV *h, char *k, ARAssignStruct *m)
 {
   if(! m || ! h || ! k) {
     ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
@@ -884,7 +940,7 @@ rev_ARAssignStruct( HV *h, char *k, ARAssignStruct *m)
 
 	if(SvTYPE(SvRV(*val)) == SVt_PVHV) {
 	  HV  *a = (HV *)SvRV((SV *)*val);
-	  return rev_ARAssignStruct_helper( a, m);
+	  return rev_ARAssignStruct_helper(ctrl,  a, m);
 	} else 
 	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "rev_ARFunctionAssignStruct: hash value is not an array reference");
@@ -905,7 +961,7 @@ rev_ARAssignStruct( HV *h, char *k, ARAssignStruct *m)
 }
 
 static int
-rev_ARAssignStruct_helper( HV *h, ARAssignStruct *m)
+rev_ARAssignStruct_helper(ARControlStruct *ctrl, HV *h, ARAssignStruct *m)
 {
   int  rv = 0;
 
@@ -919,7 +975,7 @@ rev_ARAssignStruct_helper( HV *h, ARAssignStruct *m)
   }  
   else if(hv_exists(h, VNAME("value"))) {
     m->assignType = AR_ASSIGN_TYPE_VALUE;
-    rv += rev_ARValueStruct( h, "value", "valueType", &(m->u.value));
+    rv += rev_ARValueStruct(ctrl,  h, "value", "valueType", &(m->u.value));
   }
 
   /* note. the below union members are pointers. so we will
@@ -931,23 +987,23 @@ rev_ARAssignStruct_helper( HV *h, ARAssignStruct *m)
   else if(hv_exists(h, VNAME("field"))) {
     m->assignType = AR_ASSIGN_TYPE_FIELD;
     m->u.field = safemalloc(sizeof(ARAssignFieldStruct));
-    rv += rev_ARAssignFieldStruct( h, "field", m->u.field);
+    rv += rev_ARAssignFieldStruct(ctrl, h, "field", m->u.field);
   }
   else if(hv_exists(h, VNAME("arith"))) {
     m->assignType = AR_ASSIGN_TYPE_ARITH;
     m->u.arithOp = safemalloc(sizeof(ARArithOpAssignStruct));
-    rv += rev_ARArithOpAssignStruct( h, "arith", m->u.arithOp);
+    rv += rev_ARArithOpAssignStruct(ctrl,  h, "arith", m->u.arithOp);
   }
   else if(hv_exists(h, VNAME("function"))) {
     m->assignType = AR_ASSIGN_TYPE_FUNCTION;
     m->u.function = safemalloc(sizeof(ARFunctionAssignStruct));
-    rv += rev_ARFunctionAssignStruct( h, "function", m->u.function);
+    rv += rev_ARFunctionAssignStruct(ctrl,  h, "function", m->u.function);
   }
 #if AR_EXPORT_VERSION >= 3
   else if(hv_exists(h, VNAME("sql"))) {
     m->assignType = AR_ASSIGN_TYPE_SQL;
     m->u.sql = safemalloc(sizeof(ARAssignSQLStruct));
-    rv += rev_ARAssignSQLStruct( h, "sql", m->u.sql);
+    rv += rev_ARAssignSQLStruct(ctrl, h, "sql", m->u.sql);
   }
 #endif
   else if(hv_exists(h, VNAME("none"))) {
@@ -962,7 +1018,7 @@ rev_ARAssignStruct_helper( HV *h, ARAssignStruct *m)
 
 #if AR_EXPORT_VERSION >= 3
 int
-rev_ARAssignSQLStruct( HV *h, char *k, ARAssignSQLStruct *s)
+rev_ARAssignSQLStruct(ARControlStruct *ctrl, HV *h, char *k, ARAssignSQLStruct *s)
 {
   SV   **h_sv = hv_fetch(h, VNAME(k), 0);
   SV   **svp;
@@ -1007,7 +1063,7 @@ rev_ARAssignSQLStruct( HV *h, char *k, ARAssignSQLStruct *s)
   svp = hv_fetch(hr, VNAME("noMatchOption"), 0);
   if(svp && *svp) {
     char *c = SvPV(*svp, na);
-    if(rev_ARAssignFieldStructStr2NMO(c, &(s->noMatchOption)) != 0) {
+    if(rev_ARAssignFieldStructStr2NMO(ctrl, c, &(s->noMatchOption)) != 0) {
       s->noMatchOption = AR_NO_MATCH_ERROR;
       ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		  "rev_ARAssignSQLStruct: unknown noMatchOption string:");
@@ -1019,7 +1075,7 @@ rev_ARAssignSQLStruct( HV *h, char *k, ARAssignSQLStruct *s)
   svp = hv_fetch(hr, VNAME("multiMatchOption"), 0);
   if(svp && *svp) {
     char *c = SvPV(*svp, na);
-    if(rev_ARAssignFieldStructStr2MMO(c, &(s->multiMatchOption)) != 0) {
+    if(rev_ARAssignFieldStructStr2MMO(ctrl, c, &(s->multiMatchOption)) != 0) {
       s->multiMatchOption = AR_MULTI_MATCH_ERROR;
       ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		  "rev_ARAssignSQLStruct: unknown multiMatchOption string:");
@@ -1047,7 +1103,7 @@ rev_ARAssignSQLStruct( HV *h, char *k, ARAssignSQLStruct *s)
  */
 
 int
-rev_ARValueStruct( HV *h, char *k, char *t, ARValueStruct *m)
+rev_ARValueStruct(ARControlStruct *ctrl, HV *h, char *k, char *t, ARValueStruct *m)
 {
   SV   **val, **type;
 
@@ -1066,13 +1122,13 @@ rev_ARValueStruct( HV *h, char *k, char *t, ARValueStruct *m)
   if(val && *val && type && *type && SvPOK(*type)) {
     char *tp = SvPV(*type, na), *vp = SvPV(*val, na);
 
-    (void) rev_ARValueStructStr2Type(tp, &(m->dataType));
+    (void) rev_ARValueStructStr2Type(ctrl, tp, &(m->dataType));
     switch(m->dataType) {
     case AR_DATA_TYPE_NULL:
       m->u.intVal = 0;
       break;
     case AR_DATA_TYPE_KEYWORD:
-      if(rev_ARValueStructKW2KN(vp, &(m->u.keyNum)) == -1)
+      if(rev_ARValueStructKW2KN(ctrl, vp, &(m->u.keyNum)) == -1)
 	return -1;
       break;
     case AR_DATA_TYPE_INTEGER:
@@ -1086,7 +1142,7 @@ rev_ARValueStruct( HV *h, char *k, char *t, ARValueStruct *m)
 	return -1;
       break;
     case AR_DATA_TYPE_DIARY:
-      if(rev_ARValueStructDiary( h, k, &(m->u.diaryVal)) == -1)
+      if(rev_ARValueStructDiary(ctrl,  h, k, &(m->u.diaryVal)) == -1)
 	return -1;
       break;
     case AR_DATA_TYPE_ENUM:
@@ -1101,7 +1157,7 @@ rev_ARValueStruct( HV *h, char *k, char *t, ARValueStruct *m)
 #if AR_EXPORT_VERSION >= 3
     case AR_DATA_TYPE_BYTES:
       m->u.byteListVal = (ARByteList *)safemalloc(sizeof(ARByteList));
-      if(rev_ARByteList( h, k, m->u.byteListVal) == -1)
+      if(rev_ARByteList(ctrl, h, k, m->u.byteListVal) == -1)
 	return -1;
       break;
     case AR_DATA_TYPE_JOIN:
@@ -1115,7 +1171,7 @@ rev_ARValueStruct( HV *h, char *k, char *t, ARValueStruct *m)
       break;
     case AR_DATA_TYPE_COORDS:
       m->u.coordListVal = (ARCoordList *)safemalloc(sizeof(ARCoordList));
-      if(rev_ARCoordList( h, k, m->u.coordListVal) == -1)
+      if(rev_ARCoordList(ctrl,  h, k, m->u.coordListVal) == -1)
 	return -1;
       break;
     case AR_DATA_TYPE_ULONG:
@@ -1140,7 +1196,7 @@ rev_ARValueStruct( HV *h, char *k, char *t, ARValueStruct *m)
 }
 
 static int 
-rev_ARValueStructStr2Type(char *type, unsigned int *n)
+rev_ARValueStructStr2Type(ARControlStruct *ctrl,char *type, unsigned int *n)
 {
   int i = 0;
 
@@ -1163,7 +1219,7 @@ rev_ARValueStructStr2Type(char *type, unsigned int *n)
 }
 
 static int
-rev_ARValueStructKW2KN(char *keyword, unsigned int *n)
+rev_ARValueStructKW2KN(ARControlStruct *ctrl,char *keyword, unsigned int *n)
 {
   int i;
 
@@ -1188,7 +1244,7 @@ rev_ARValueStructKW2KN(char *keyword, unsigned int *n)
 }
 
 static int
-rev_ARValueStructDiary( HV *h, char *k, char **d)
+rev_ARValueStructDiary(ARControlStruct *ctrl, HV *h, char *k, char **d)
 {
   if(! h || ! k || ! d) {
     ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
@@ -1239,7 +1295,7 @@ rev_ARValueStructDiary( HV *h, char *k, char **d)
 
 #if AR_EXPORT_VERSION >= 3
 int
-rev_ARByteList( HV *h, char *k, ARByteList *b)
+rev_ARByteList(ARControlStruct *ctrl, HV *h, char *k, ARByteList *b)
 {
   if(! h || ! k || ! b) {
     ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
@@ -1263,7 +1319,7 @@ rev_ARByteList( HV *h, char *k, ARByteList *b)
 	  char *byteString = SvPV(*vv, na);
 	  int   byteLen    = SvCUR(*vv);
 
-	  if(rev_ARByteListStr2Type(typeString, &(b->type)) == -1)
+	  if(rev_ARByteListStr2Type(ctrl, typeString, &(b->type)) == -1)
 	    return -1;
 	  b->numItems = byteLen;
 	  b->bytes = safemalloc(byteLen + 1); /* don't want FreeAR.. to whack us */
@@ -1291,7 +1347,7 @@ rev_ARByteList( HV *h, char *k, ARByteList *b)
 }
 
 static int 
-rev_ARByteListStr2Type(char *ts, unsigned long *tv)
+rev_ARByteListStr2Type(ARControlStruct *ctrl,char *ts, unsigned long *tv)
 {
   int i = 0;
 
@@ -1309,7 +1365,7 @@ rev_ARByteListStr2Type(char *ts, unsigned long *tv)
 }
 
 int
-rev_ARCoordList( HV *h, char *k, ARCoordList *m)
+rev_ARCoordList(ARControlStruct *ctrl, HV *h, char *k, ARCoordList *m)
 {
   SV **val;
   int  i;
@@ -1346,7 +1402,7 @@ rev_ARCoordList( HV *h, char *k, ARCoordList *m)
 	    SV **av_hv = av_fetch(ar, i, 0);
 
 	    if(av_hv && *av_hv && (SvTYPE(SvRV(*av_hv)) == SVt_PVHV)) {
-	      if(rev_ARCoordList_helper( (HV *)SvRV(*av_hv), m, i) != 0)
+	      if(rev_ARCoordList_helper(ctrl, (HV *)SvRV(*av_hv), m, i) != 0)
 		return -1;
 	    } else 
 	      ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
@@ -1373,7 +1429,7 @@ rev_ARCoordList( HV *h, char *k, ARCoordList *m)
 }
 
 static int
-rev_ARCoordList_helper( HV *h, ARCoordList *m, int idx)
+rev_ARCoordList_helper(ARControlStruct *ctrl, HV *h, ARCoordList *m, int idx)
 {
   if(!(hv_exists(h, VNAME("x")) && hv_exists(h, VNAME("y")))) {
     SV **xv = hv_fetch(h, VNAME("x"), 0);
@@ -1408,7 +1464,7 @@ rev_ARCoordList_helper( HV *h, ARCoordList *m, int idx)
  */
 
 int
-rev_ARAssignFieldStruct( HV *h, char *k, ARAssignFieldStruct *m)
+rev_ARAssignFieldStruct(ARControlStruct *ctrl, HV *h, char *k, ARAssignFieldStruct *m)
 {
   if(! m || ! h || ! k) {
     ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
@@ -1426,7 +1482,7 @@ rev_ARAssignFieldStruct( HV *h, char *k, ARAssignFieldStruct *m)
 	if(SvTYPE(SvRV(*val)) == SVt_PVHV) {
 	  HV *h2 = (HV *)SvRV((SV *)*val);
 	  /* extract vals from hash ref and populate structure */
-	  return rev_ARAssignFieldStruct_helper( h2, m);
+	  return rev_ARAssignFieldStruct_helper(ctrl, h2, m);
 	} else 
 	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "rev_ARAssignFieldStruct: hash value is not a hash reference");
@@ -1447,7 +1503,7 @@ rev_ARAssignFieldStruct( HV *h, char *k, ARAssignFieldStruct *m)
 }
 
 static int 
-rev_ARAssignFieldStruct_helper( HV *h, ARAssignFieldStruct *m) 
+rev_ARAssignFieldStruct_helper(ARControlStruct *ctrl, HV *h, ARAssignFieldStruct *m) 
 {
   ARQualifierStruct  *qp;
   SV                **qpsv, **svp;
@@ -1476,7 +1532,7 @@ rev_ARAssignFieldStruct_helper( HV *h, ARAssignFieldStruct *m)
       return -1;
   } 
   else if(hv_exists(h, "statHistory", 0)) {
-    if(rev_ARStatHistoryValue( h, "statHistory", &(m->u.statHistory)) != 0)
+    if(rev_ARStatHistoryValue(ctrl, h, "statHistory", &(m->u.statHistory)) != 0)
       return -1;
   }
 
@@ -1484,14 +1540,14 @@ rev_ARAssignFieldStruct_helper( HV *h, ARAssignFieldStruct *m)
   svp = hv_fetch(h, VNAME("noMatchOption"), 0);
   if(svp && *svp) {
     char *c = SvPV(*svp, na);
-    if(rev_ARAssignFieldStructStr2NMO(c, &(m->noMatchOption)) != 0)
+    if(rev_ARAssignFieldStructStr2NMO(ctrl, c, &(m->noMatchOption)) != 0)
       m->noMatchOption = AR_NO_MATCH_ERROR;
   }
 
   svp = hv_fetch(h, VNAME("multiMatchOption"), 0);
   if(svp && *svp) {
     char *c = SvPV(*svp, na);
-    if(rev_ARAssignFieldStructStr2MMO(c, &(m->multiMatchOption)) != 0) 
+    if(rev_ARAssignFieldStructStr2MMO(ctrl, c, &(m->multiMatchOption)) != 0) 
       m->multiMatchOption = AR_MULTI_MATCH_ERROR;
   }
 #endif
@@ -1507,7 +1563,7 @@ rev_ARAssignFieldStruct_helper( HV *h, ARAssignFieldStruct *m)
     if(sv_derived_from(*qpsv, "ARQualifierStructPtr")) {
       qp = (ARQualifierStruct *)SvIV((SV *)SvRV(*qpsv));
 
-      if(dup_qualifier2( qp, &(m->qualifier), 0) != (ARQualifierStruct *)NULL) 
+      if(dup_qualifier2(ctrl, qp, &(m->qualifier), 0) != (ARQualifierStruct *)NULL) 
 	{
 	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "rev_ARAssignFieldStruct_helper: dup_qualifier2() failed");
@@ -1526,7 +1582,7 @@ rev_ARAssignFieldStruct_helper( HV *h, ARAssignFieldStruct *m)
 }
 
 static int 
-rev_ARAssignFieldStructStr2NMO(char *s, unsigned int *nmo) 
+rev_ARAssignFieldStructStr2NMO(ARControlStruct *ctrl,char *s, unsigned int *nmo) 
 {
   if(s && *s) {
     int i;
@@ -1542,7 +1598,7 @@ rev_ARAssignFieldStructStr2NMO(char *s, unsigned int *nmo)
 }
 
 static int 
-rev_ARAssignFieldStructStr2MMO(char *s, unsigned int *mmo)
+rev_ARAssignFieldStructStr2MMO(ARControlStruct *ctrl,char *s, unsigned int *mmo)
 {
   if(s && *s) {
     int i;
@@ -1571,7 +1627,7 @@ rev_ARAssignFieldStructStr2MMO(char *s, unsigned int *mmo)
  */
 
 int
-rev_ARStatHistoryValue( HV *h, char *k, ARStatHistoryValue *s)
+rev_ARStatHistoryValue(ARControlStruct *ctrl, HV *h, char *k, ARStatHistoryValue *s)
 {
   if(! s || ! h || ! k) {
     ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
@@ -1589,7 +1645,7 @@ rev_ARStatHistoryValue( HV *h, char *k, ARStatHistoryValue *s)
 	if(SvTYPE(SvRV(*val)) == SVt_PVHV) {
 	  HV *h2 = (HV *)SvRV((SV *)*val);
 	  /* extract vals from hash ref and populate structure */
-	  return rev_ARStatHistoryValue_helper( h2, s);
+	  return rev_ARStatHistoryValue_helper(ctrl, h2, s);
 	} else 
 	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "rev_ARStatHistoryValue: hash value is not a hash reference");
@@ -1610,7 +1666,7 @@ rev_ARStatHistoryValue( HV *h, char *k, ARStatHistoryValue *s)
 }
 
 static int 
-rev_ARStatHistoryValue_helper( HV *h, ARStatHistoryValue *s)
+rev_ARStatHistoryValue_helper(ARControlStruct *ctrl, HV *h, ARStatHistoryValue *s)
 {
   if(!(hv_exists(h, "userOrTime", 0) && hv_exists(h, "enumVal", 0))) {
     ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
@@ -1640,7 +1696,8 @@ rev_ARStatHistoryValue_helper( HV *h, ARStatHistoryValue *s)
  */
 
 int
-rev_ARArithOpAssignStruct( HV *h, char *k, ARArithOpAssignStruct *s)
+rev_ARArithOpAssignStruct(ARControlStruct *ctrl,
+			  HV *h, char *k, ARArithOpAssignStruct *s)
 {
   if(! s || ! h || ! k) {
     ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
@@ -1658,7 +1715,7 @@ rev_ARArithOpAssignStruct( HV *h, char *k, ARArithOpAssignStruct *s)
 	if(SvTYPE(SvRV(*val)) == SVt_PVHV) {
 	  HV *h2 = (HV *)SvRV((SV *)*val);
 	  /* extract vals from hash ref and populate structure */
-	  return rev_ARArithOpAssignStruct_helper( h2, s);
+	  return rev_ARArithOpAssignStruct_helper(ctrl, h2, s);
 	} else 
 	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "rev_ARArithOpAssignStruct: hash value is not a hash reference");
@@ -1679,7 +1736,8 @@ rev_ARArithOpAssignStruct( HV *h, char *k, ARArithOpAssignStruct *s)
 }
 
 static int
-rev_ARArithOpAssignStruct_helper( HV *h, ARArithOpAssignStruct *s)
+rev_ARArithOpAssignStruct_helper(ARControlStruct *ctrl,
+				 HV *h, ARArithOpAssignStruct *s)
 {
   SV **svp;
   
@@ -1694,7 +1752,7 @@ rev_ARArithOpAssignStruct_helper( HV *h, ARArithOpAssignStruct *s)
   svp = hv_fetch(h, VNAME("oper"), 0);
   if(svp && *svp) {
     char *c = SvPV(*svp, na);
-    if(rev_ARArithOpAssignStructStr2OP( c, &(s->operation)) != 0)
+    if(rev_ARArithOpAssignStructStr2OP(ctrl, c, &(s->operation)) != 0)
       return -1;
   }
 
@@ -1705,7 +1763,7 @@ rev_ARArithOpAssignStruct_helper( HV *h, ARArithOpAssignStruct *s)
 
   if(s->operation == AR_ARITH_OP_NEGATE) {
     if(hv_exists(h, "left", 0)) 
-      return rev_ARAssignStruct( h, "left", &(s->operandLeft));
+      return rev_ARAssignStruct(ctrl, h, "left", &(s->operandLeft));
     else {
       ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		  "rev_ARArithOpAssignStructStr2OP: operation 'negate' ('-') requires 'left' key.");
@@ -1721,13 +1779,13 @@ rev_ARArithOpAssignStruct_helper( HV *h, ARArithOpAssignStruct *s)
     return -1;
   }
 
-  if(rev_ARAssignStruct( h, "left", &(s->operandLeft)) == -1)
+  if(rev_ARAssignStruct(ctrl, h, "left", &(s->operandLeft)) == -1)
     return -1;
-  return rev_ARAssignStruct( h, "right", &(s->operandRight));
+  return rev_ARAssignStruct(ctrl, h, "right", &(s->operandRight));
 }
 
 static int
-rev_ARArithOpAssignStructStr2OP(char *c, unsigned int *o)
+rev_ARArithOpAssignStructStr2OP(ARControlStruct *ctrl,char *c, unsigned int *o)
 {
   int i;
   for(i = 0 ; ArithOpMap[i].number != TYPEMAP_LAST ; i++) 
@@ -1757,7 +1815,8 @@ rev_ARArithOpAssignStructStr2OP(char *c, unsigned int *o)
  */
 
 int
-rev_ARFunctionAssignStruct( HV *h, char *k, ARFunctionAssignStruct *s)
+rev_ARFunctionAssignStruct(ARControlStruct *ctrl,
+			   HV *h, char *k, ARFunctionAssignStruct *s)
 {
   if(! s || ! h || ! k) {
     ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
@@ -1786,7 +1845,7 @@ rev_ARFunctionAssignStruct( HV *h, char *k, ARFunctionAssignStruct *s)
 	  aval = av_fetch(a, 0, 0); /* fetch function name */
 	  if(aval && *aval && SvPOK(*aval)) { /* must be a string */
 	    char *fn = SvPV(*aval, na);
-	    if(rev_ARFunctionAssignStructStr2FCODE(fn, &(s->functionCode)) == -1)
+	    if(rev_ARFunctionAssignStructStr2FCODE(ctrl, fn, &(s->functionCode)) == -1)
 	      return -1;
 	  } else {
 	    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
@@ -1804,7 +1863,7 @@ rev_ARFunctionAssignStruct( HV *h, char *k, ARFunctionAssignStruct *s)
 	  for(i = 1 ; i <= av_len(a) ; i++) {
 	    SV **hvr = av_fetch(a, i, 0);
 	    if(hvr && *hvr && (SvTYPE(SvRV(*hvr)) == SVt_PVHV))
-	      if(rev_ARAssignStruct_helper( (HV *)SvRV(*hvr), 
+	      if(rev_ARAssignStruct_helper(ctrl, (HV *)SvRV(*hvr), 
 					   &(s->parameterList[i])) == -1)
 		return -1;
 	  }
@@ -1831,7 +1890,7 @@ rev_ARFunctionAssignStruct( HV *h, char *k, ARFunctionAssignStruct *s)
 }
 
 static int
-rev_ARFunctionAssignStructStr2FCODE(char *c, unsigned int *o)
+rev_ARFunctionAssignStructStr2FCODE(ARControlStruct *ctrl, char *c, unsigned int *o)
 {
   int i;
   for(i = 0 ; FunctionMap[i].number != TYPEMAP_LAST ; i++) 
@@ -1861,7 +1920,7 @@ rev_ARFunctionAssignStructStr2FCODE(char *c, unsigned int *o)
  */
 
 int
-rev_ARStatusStruct( HV *h, char *k, ARStatusStruct *m)
+rev_ARStatusStruct(ARControlStruct *ctrl, HV *h, char *k, ARStatusStruct *m)
 {
   if(! m || ! h || ! k) {
     ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
@@ -1904,6 +1963,53 @@ rev_ARStatusStruct( HV *h, char *k, ARStatusStruct *m)
   return -1;  
 }
 
+#if AR_EXPORT_VERSION >= 4
+int
+rev_ARMessageStruct(ARControlStruct *ctrl, HV *h, char *k, ARMessageStruct *m)
+{
+  if(! m || ! h || ! k) {
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
+		"rev_ARMessageStruct: invalid (NULL) parameter");
+    return -1;
+  }
+
+  if(SvTYPE((SV *)h) == SVt_PVHV) {
+    if(hv_exists(h, VNAME(k))) {
+      SV **val = hv_fetch(h, VNAME(k), 0);
+      if(val && *val) {
+
+	/* hash value should be a hash reference */
+
+	if(SvTYPE(SvRV(*val)) == SVt_PVHV) {
+	  HV  *a = (HV *)SvRV((SV *)*val);
+	  int  rv = 0;
+
+	  rv += strmakHVal( a, "messageText", &(m->messageText));
+	  rv += uintcpyHVal( a, "messageType", &(m->messageType));
+	  rv += longcpyHVal( a, "messageNum", &(m->messageNum));
+	  rv += boolcpyHVal( a, "usePromptingPane", &(m->usePromptingPane));
+
+	  return rv;
+	} else 
+	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
+		      "rev_ARMessageStruct: hash value is not a hash reference");
+      } else {
+	ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
+		    "rev_ARMessageStruct: hv_fetch returned null");
+	return -2;
+      }
+    } else {
+      ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
+		  "rev_ARMessageStruct: key doesn't exist");
+      return -2;
+    }
+  } else 
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
+		"rev_ARMessageStruct: first argument is not a hash");
+  return -1;  
+}
+#endif
+
 /* ROUTINE
  *   rev_ARFieldCharacteristics(hash, key, fieldcharstruct)
  *
@@ -1917,7 +2023,8 @@ rev_ARStatusStruct( HV *h, char *k, ARStatusStruct *m)
  */
 
 int
-rev_ARFieldCharacteristics( HV *h, char *k, ARFieldCharacteristics *m)
+rev_ARFieldCharacteristics(ARControlStruct *ctrl,
+			   HV *h, char *k, ARFieldCharacteristics *m)
 {
   if(! m || ! h || ! k) {
     ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
@@ -1941,7 +2048,7 @@ rev_ARFieldCharacteristics( HV *h, char *k, ARFieldCharacteristics *m)
 	  rv += ulongcpyHVal( a, "fieldId", &(m->fieldId));
 	  rv += strmakHVal( a, "charMenu", &(m->charMenu));
 #if AR_EXPORT_VERSION >= 3
-	  if(rev_ARPropList( a, "props", &(m->props)) == -1)
+	  if(rev_ARPropList(ctrl, a, "props", &(m->props)) == -1)
 	    return -1;
 #else /* 2.x */
 	  m->display = (ARDisplayStruct *)safemalloc(sizeof(ARDisplayStruct));
@@ -1970,7 +2077,7 @@ rev_ARFieldCharacteristics( HV *h, char *k, ARFieldCharacteristics *m)
 
 #if AR_EXPORT_VERSION >= 3
 int
-rev_ARPropList( HV *h, char *k, ARPropList *m)
+rev_ARPropList(ARControlStruct *ctrl, HV *h, char *k, ARPropList *m)
 {
   if(! m || ! h || ! k) {
     ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
@@ -2008,7 +2115,7 @@ rev_ARPropList( HV *h, char *k, ARPropList *m)
 	    SV **av_hv = av_fetch(a, i, 0);
 
 	    if(av_hv && *av_hv && (SvTYPE(SvRV(*av_hv)) == SVt_PVHV)) {
-	      if(rev_ARPropList_helper( (HV *)SvRV(*av_hv), m, i) != 0)
+	      if(rev_ARPropList_helper(ctrl, (HV *)SvRV(*av_hv), m, i) != 0)
 		return -1;
 	    } else 
 	      ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
@@ -2036,7 +2143,7 @@ rev_ARPropList( HV *h, char *k, ARPropList *m)
 }
 
 static int 
-rev_ARPropList_helper( HV *h, ARPropList *m, int idx)
+rev_ARPropList_helper(ARControlStruct *ctrl, HV *h, ARPropList *m, int idx)
 {
   int rv = 0;
 
@@ -2045,7 +2152,7 @@ rev_ARPropList_helper( HV *h, ARPropList *m, int idx)
      hv_exists(h, VNAME("valueType"))) {
 
     rv += ulongcpyHVal( h, "prop", &(m->props[idx].prop));
-    rv += rev_ARValueStruct( h, "value", "valueType", 
+    rv += rev_ARValueStruct(ctrl, h, "value", "valueType", 
 			    &(m->props[idx].value));
 
     return rv;
@@ -2057,7 +2164,8 @@ rev_ARPropList_helper( HV *h, ARPropList *m, int idx)
 #endif /* 3.x */
 
 int
-rev_ARActiveLinkMacroStruct( HV *h, char *k, ARActiveLinkMacroStruct *m)
+rev_ARActiveLinkMacroStruct(ARControlStruct *ctrl,
+			    HV *h, char *k, ARActiveLinkMacroStruct *m)
 {
   if(! m || ! h || ! k) {
     ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
@@ -2074,7 +2182,7 @@ rev_ARActiveLinkMacroStruct( HV *h, char *k, ARActiveLinkMacroStruct *m)
 
 	if(SvTYPE(SvRV(*val)) == SVt_PVHV) {
 	  HV  *a = (HV *)SvRV((SV *)*val);
-	  return rev_ARActiveLinkMacroStruct_helper( a, m);
+	  return rev_ARActiveLinkMacroStruct_helper(ctrl, a, m);
 	} else 
 	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "rev_ARActiveLinkMacroStruct: hash value is not a hash reference");
@@ -2095,7 +2203,8 @@ rev_ARActiveLinkMacroStruct( HV *h, char *k, ARActiveLinkMacroStruct *m)
 }
 
 static int
-rev_ARActiveLinkMacroStruct_helper( HV *h, ARActiveLinkMacroStruct *m)
+rev_ARActiveLinkMacroStruct_helper(ARControlStruct *ctrl,
+				   HV *h, ARActiveLinkMacroStruct *m)
 {
   int rv = 0;
 
@@ -2105,7 +2214,7 @@ rev_ARActiveLinkMacroStruct_helper( HV *h, ARActiveLinkMacroStruct *m)
 
     rv += strcpyHVal( h, "macroName", m->macroName, sizeof(ARNameType));
     rv += strmakHVal( h, "macroText", &(m->macroText));
-    rv += rev_ARMacroParmList( h, "macroParms", &(m->macroParms));
+    rv += rev_ARMacroParmList(ctrl, h, "macroParms", &(m->macroParms));
 
     return 0;
   }
@@ -2115,7 +2224,7 @@ rev_ARActiveLinkMacroStruct_helper( HV *h, ARActiveLinkMacroStruct *m)
 }
 
 int
-rev_ARMacroParmList( HV *h, char *k, ARMacroParmList *m)
+rev_ARMacroParmList(ARControlStruct *ctrl, HV *h, char *k, ARMacroParmList *m)
 {
   if(!h || !k || !*k || !m) {
     ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
@@ -2189,49 +2298,50 @@ rev_ARMacroParmList( HV *h, char *k, ARMacroParmList *m)
 		"rev_ARMacroParmList: first argument is not a hash");
   return -1;  
 } 
-/* roll our own strcasecmp and strncasecmp for Win */
+
 #ifdef _WIN32
+/* roll our own strcasecmp and strncasecmp for Win */
 
 int strcasecmp(const char *s1, const char *s2){
-char *p1,*p2;
-char c1,c2;
-p1=s1;
-p2=s2;
-while((*p1 != NULL) && (*p2 != NULL)){
-	c1 = tolower(*p1);
-	c2 = tolower(*p2);
-	if((c1 - c2) == 0){
-		p2++;
-		p1++;
-	}
-	else{
-		return (c1 - c2);
-	}
-}
-return 0;
+  char *p1, *p2;
+  char  c1,  c2;
+  p1 = s1;
+  p2 = s2;
+  while((*p1 != NULL) && (*p2 != NULL)){
+    c1 = tolower(*p1);
+    c2 = tolower(*p2);
+    if((c1 - c2) == 0){
+      p2++;
+      p1++;
+    }
+    else{
+      return (c1 - c2);
+    }
+  }
+  return 0;
 }
 
 int strncasecmp(const char *s1, const char *s2, size_t n){
+  
+  char *p1, *p2;
+  char  c1,  c2;
+  int   i;
+  p1 = s1;
+  p2 = s2;
 
-char *p1,*p2;
-char c1,c2;
-int i;
-p1=s1;
-p2=s2;
-while((*p1 != NULL) && (*p2 != NULL) && (i <= n)){
-	c1 = tolower(*p1);
-	c2 = tolower(*p2);
-	if((c1 - c2) == 0){
-		p2++;
-		p1++;
-	}
-	else{
-		return (c1 - c2);
-	}
-	i++;
+  while((*p1 != NULL) && (*p2 != NULL) && (i <= n)){
+    c1 = tolower(*p1);
+    c2 = tolower(*p2);
+    if((c1 - c2) == 0){
+      p2++;
+      p1++;
+    }
+    else{
+      return (c1 - c2);
+    }
+    i++;
+  }
+  return 0;
 }
-return 0;
-}
-
 
 #endif

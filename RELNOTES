@@ -1,27 +1,61 @@
-$Header: /cvsroot/arsperl/ARSperl/RELNOTES,v 1.5 1998/03/31 23:44:16 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/RELNOTES,v 1.6 1998/12/28 15:46:10 jcmurphy Exp $
 
 Release Notes for ARSperl
 
 ---------------------------------------------------------------------------
-    ARSperl -- A Perl5 / ARS2.x-3.x integration kit.
-    Copyright (C) 1996,1997
-                       Joel Murphy, jmurphy@acsu.buffalo.edu
-                       Jeff Murphy, jcmurphy@acsu.buffalo.edu
+    ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
+
+    Copyright (C) 1995,1996,1997,1998,1999
+	Joel Murphy, jmurphy@acsu.buffalo.edu
+        Jeff Murphy, jcmurphy@acsu.buffalo.edu
 
     This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+    it under the terms as Perl itself. 
+    
+    Refer to the file called "Artistic" that accompanies the source distribution 
+    of ARSperl (or the one that accompanies the source distribution of Perl
+    itself) for a full description.
+ 
+    Comments to:  arsperl@smurfland.cit.buffalo.edu
+                  (this is a *mailing list* and you must be
+                   a subscriber before posting)
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+    Comments to: arsperl@lurch.cit.buffalo.edu
+    Home Page: http://arsinfo.cit.buffalo.edu
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ---------------------------------------------------------------------------
+
+1.62 Notes
+---------
+
+The 1.62 release includes ARS 4.0 integration. There are a few things
+that have changed regardless of what version of ARS you compile against 
+and there are things that have changed only if you are compiling against
+v4.0 (or greater).
+
+First, regardless of what version of ARS you are compiling this against,
+ars_perl_qualifier now takes a control struct (in addition to the  
+encoded qualifier). When compiled against pre-4.0 APIs, the control struct
+parameter is still required, but is ignored. IF YOU USE THIS ROUTINE IN 
+EXISTING SCRIPTS, THEY WILL NEED TO BE CHANGED.
+
+Previously, when perl executed "use ARS;" it would automatically trigger a
+call to  ARS::__ars_init(). This routine was im`ortant for setting up
+system specific stuff as well as preparing to connect to a private
+server. Now this routine is part of ars_Login() because, as of 4.0, we need
+the control structure that ars_Login() generates in order to call
+ARInitialization (a.k.a. __ars_init). The __ars_init() routine is still
+there and is callable, but doesn't do anything if you compile against ARS>=4.0
+
+Similiarly, when your perl script exitted, ARS::__ars_Termination() was 
+automatically called for you. This can no longer be done because we, once
+again, need the control structure when we are cleaning up (to release licenses,
+etc). So, the functionality of this routine is now rolled into ars_Logoff().
+This means that if you don't call ars_Logoff when your script completes (or
+when it prematurely exits) you might not release your license. This shouldn't
+affect too many things, but is something to keep in mind. You might want to
+place END{} clauses in your scripts that can call ars_Logoff() if/when your
+script(s) die().
 
 1.6 Notes
 ---------
