@@ -1,4 +1,4 @@
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.30 1999/10/03 04:00:27 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.31 1999/11/23 20:56:46 jcmurphy Exp $
 
 CHANGES for ARSperl
 
@@ -16,7 +16,18 @@ MM/DD/YY
 =======================================================================
 #######################################################################
 =======================================================================
+11/23/99        (1.65)
+
+  o (JCM)  added better support for decoding filters/activelinks
+           for arsystem 4.0 (not finished yet)
+  o (JCM)  added support for data type "decimal" when performing
+           (Set|Create)Entry
+
+=======================================================================
+#######################################################################
+=======================================================================
 04/7/99        (1.6403 BETA)
+
 
   o (JCM)  tested/fixed compiling against pre-4.0 apis. 
   o (JCM)  OO: now checks named params to ensure you don't

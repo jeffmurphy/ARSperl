@@ -24,6 +24,9 @@ $header: /u1/project/ARSperl/ARSperl/RCS/support.c,v 1.25 1999/01/04 21:04:27 jc
     LOG:
 
 $Log: support.c,v $
+Revision 1.28  1999/11/23 20:56:47  jcmurphy
+added support for 'decimal' data type
+
 Revision 1.27  1999/10/03 04:00:27  jcmurphy
 various
 
@@ -2643,6 +2646,9 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 							 * ulong ? */
 			break;
 #if AR_EXPORT_VERSION >= 4
+		case AR_DATA_TYPE_DECIMAL:
+		        out->u.keyNum = strdup(SvPV(in, na));
+			break;
 		case AR_DATA_TYPE_ATTACH:
 			/* value must be a hash reference */
 			if (SvROK(in)) {
