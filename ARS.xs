@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.20 1997/02/18 18:45:54 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.21 1997/02/19 14:21:48 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -27,6 +27,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.20 1997/02/18 18:45:54 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.21  1997/02/19 14:21:48  jcmurphy
+oops. fixed double call to getlistserver in ars_Login
+
 Revision 1.20  1997/02/18 18:45:54  jcmurphy
 ran thru -Wall and cleaned up some blunders and stuff
 
@@ -1728,16 +1731,6 @@ ars_Login(server,username,password)
 	  struct timeval tv;
 #endif
 	  
-	  ret = ARGetListServer(&serverList, &status);
-	  if (ARError(ret, status)) {
-	    RETVAL = NULL;
-	    goto ar_login_end;
-	  }
-	  if (serverList.numItems < 0) {
-	    ars_errstr = "no servers available";
-	    RETVAL = NULL;
-	    goto ar_login_end;
-	  }
 	  /* this gets freed below in the ARControlStructPTR package */
 	  ctrl = (ARControlStruct *)mallocnn(sizeof(ars_ctrl));
 	  ((ars_ctrl *)ctrl)->queries = 0;
