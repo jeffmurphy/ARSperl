@@ -7,7 +7,7 @@ JCM memory leak fixed in QualifierStructPtr destructor
 JCM memory leak fixed in ControlStruct destructor
 JCM bad/NULL ref fixed in ExpandCharMenu
 JCM added new params to ars_Login: lang, authString, tcpport, rpcnumber
-!JCM 5.0 integration
+!JCM 5.x (5.0.1, 5.1, 5.1.1) integration
 	functions that no longer are available
 	<blockquote>
 		ars_NT*()   [notifier functions]

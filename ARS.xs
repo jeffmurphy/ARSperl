@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.84 2003/03/30 03:18:03 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.85 2003/03/30 16:36:29 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -375,6 +375,8 @@ ars_GetControlStructFields(ctrl)
 	   XPUSHs(sv_2mortal(newSVpv(ctrl->password, 0)));
 	   XPUSHs(sv_2mortal(newSVpv(ctrl->language, 0)));
 	   XPUSHs(sv_2mortal(newSVpv(ctrl->server, 0)));
+	   XPUSHs(sv_2mortal(newSViv(ctrl->sessionId)));
+	   XPUSHs(sv_2mortal(newSVpv(ctrl->authString, 0)));
 	}
 
 SV *
