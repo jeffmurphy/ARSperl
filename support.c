@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.19 1998/03/31 23:31:06 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.20 1998/04/25 16:00:20 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/support.c,v 1.19 1998/03/31 23:31:06 jcmurphy 
     LOG:
 
 $Log: support.c,v $
+Revision 1.20  1998/04/25 16:00:20  jcmurphy
+removed some debugging code
+
 Revision 1.19  1998/03/31 23:31:06  jcmurphy
 NT patch from  Bill Middleton <wjm@metronet.com>
 
@@ -1871,8 +1874,6 @@ ARGetFieldCached(ARControlStruct *ctrl, ARNameType schema, ARInternalId id,
 #endif
   char           field_string[20];
 
-  (void) ARError_add( ARSPERL_TRACEBACK, 1, "testing");
-  
 #if AR_EXPORT_VERSION >= 3
   /* cache fieldName and dataType */
   if (fieldMap || option || createMode || defaultVal || perm || limit ||
