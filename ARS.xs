@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.16 1997/02/14 20:48:06 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.17 1997/02/17 16:21:12 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -27,6 +27,11 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.16 1997/02/14 20:48:06 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.17  1997/02/17 16:21:12  jcmurphy
+uncommented ARTermintation(), added GetListServer to ars_Login incase
+no server is specified. added ars_GetCurrentServer so you can determine
+what server you connected to (if you didnt specify one).
+
 Revision 1.16  1997/02/14 20:48:06  jcmurphy
 un-commented the ARInitialization() call. this allows
 you to write a perl script that connects to a private
@@ -1726,8 +1731,19 @@ ars_Login(server,username,password)
 	  strncpy(ctrl->password, password, sizeof(ctrl->password));
 	  ctrl->password[sizeof(ctrl->password)-1] = 0;
 	  ctrl->language[0] = 0;
-	  if (!server || !*server)
+	  if (!server || !*server) {
+	    ret = ARGetListServer(&serverList, &status);
+	    if (ARError(ret, status)) {
+	      RETVAL = NULL;
+	      goto ar_login_end;
+	    }
+	    if (serverList.numItems < 0) {
+	      ars_errstr = "no servers available";
+	      RETVAL = NULL;
+	      goto ar_login_end;
+	    }
 	    server = serverList.nameList[0];
+	  }
 	  strncpy(ctrl->server, server, sizeof(ctrl->server));
 	  ctrl->server[sizeof(ctrl->server)-1] = 0;
 	  RETVAL = ctrl;
@@ -1736,6 +1752,19 @@ ars_Login(server,username,password)
 #endif
 	  goto ar_login_end;
 	ar_login_end:;
+	}
+	OUTPUT:
+	RETVAL
+
+SV *
+ars_GetCurrentServer(ctrl)
+	ARControlStruct *	ctrl
+	CODE:
+	{
+	 RETVAL = NULL;
+	 if(ctrl && ctrl->server) {
+	    RETVAL = newSVpv(ctrl->server, strlen(ctrl->server));
+	 } 
 	}
 	OUTPUT:
 	RETVAL
@@ -1771,9 +1800,9 @@ ars_Logoff(ctrl,a=0,b=0,c=1)
 	    if (!ctrl) return;
 	    ret = XARReleaseCurrentUser(ctrl, ctrl->user, &status, a, b, c);
 	    ARError(ret, status);
-	    /* FIX    ret = ARTermination(&status);
-	       ARError(ret, status);
-	       free(ctrl); */
+	    ret = ARTermination(&status);
+	    ARError(ret, status);
+	    free(ctrl);
 	}
 
 void
