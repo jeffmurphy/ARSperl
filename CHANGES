@@ -16,6 +16,8 @@ Released: 9/21/2000 Version: 1.70
 
 (JCM)   modified support-h.template to compile against api3.x
 
+(JCM)   bug fix to ars_Import()
+
 
 Released: 8/31/2000 Version: 1.69
 
@@ -530,5 +532,5 @@ Released: 01/12/96 Version: 1.0beta
 
 arsperl@arsperl.org
 
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.40 2000/09/21 18:21:41 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.41 2000/10/09 20:35:15 jcmurphy Exp $
 
