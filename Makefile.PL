@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.61 2005/03/04 18:49:09 jeffmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.62 2005/03/10 02:11:21 jeffmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -47,7 +47,7 @@ $ARSAPI     = "/u1/project/ARSperl/api/linux/6.3";
 
 # STEP 2 -> Choose your version of ARS FROM THE FOLLOWING LIST
 #
-#                  2.0 2.1 3.0 3.1 3.2 4.0 4.52 5.0 6.0 6.01
+#                  2.0 2.1 3.0 3.1 3.2 4.0 4.52 5.0 6.0 6.01 6.3
 #
 #           notes
 #            - if there is a maintenace number (e.g. 4.5.2)
@@ -58,7 +58,7 @@ $ARSAPI     = "/u1/project/ARSperl/api/linux/6.3";
 #              your version (e.g. for 4.5 you would specify 4.0, NOT
 #	       4.52)
 #
-$ARSVERSION = 6.01;
+$ARSVERSION = 6.3;
 
 # STEP 3 -> Choose whether or not to enable encryption
 #
@@ -90,11 +90,25 @@ $WINDOWS = ($^O eq 'MSWin32');
 #        Windows NT: no "-lpthread"
 #        NCR UNIX: add "-lc -lnet"
 #                -DARSPDEBUG
-$AUTODEFINES = " -g ";
+$AUTODEFINES = " -g -DARSPDEBUG ";
 $AUTODEFINES = "-D_WIN32" if($WINDOWS);
 
 
-if ($ARSVERSION >= 6.0) {
+if ($ARSVERSION >= 6.3) {
+	$ARS_LIBS = "";
+	if ($WINDOWS) {
+		    $ARS_LIBS = join(' ', map { '-l' . $_ } @{$ra_arlibs});
+	} else {
+		    $ARS_LIBS .= " -lpthread";
+	}
+	$AUTODEFINES .= " -DARS32 ";
+	$AUTODEFINES .= " -DARS452 " if($ARSVERSION >= 4.52);
+	if ( ($ARSVERSION >= 5.0) && ($^O eq 'linux') ) {
+		$AUTODEFINES .= " -malign-double ";
+	}
+}
+
+elsif ($ARSVERSION >= 6.0) {
   $ARS_LIBS = "-lar";
   if ($WINDOWS) {
     $ARS_LIBS = join(' ', map { '-l' . $_ } @{$ra_arlibs});
@@ -102,6 +116,20 @@ if ($ARSVERSION >= 6.0) {
     $ARS_LIBS .= " -lpthread";
   }
   $AUTODEFINES .= " -DARS32 ";	
+  $AUTODEFINES .= " -DARS452 " if($ARSVERSION >= 4.52);
+  if ( ($ARSVERSION >= 5.0) && ($^O eq 'linux') ) {
+    $AUTODEFINES .= " -malign-double ";
+  }
+}
+
+elsif($ARSVERSION >= 5.0) {
+ $ARS_LIBS = "-lar -lnsl";
+  if($ENCRYPT == 1) {
+    $ARS_LIBS = "-lar -larencrypt -lnsl";
+  }
+  $ARS_LIBS .= " -lnts" unless ($ARSVERSION >= 5.0);
+  $ARS_LIBS .= " -lpthread" unless $WINDOWS;
+  $AUTODEFINES .= " -DARS32 ";
   $AUTODEFINES .= " -DARS452 " if($ARSVERSION >= 4.52);
   if ( ($ARSVERSION >= 5.0) && ($^O eq 'linux') ) {
     $AUTODEFINES .= " -malign-double ";
@@ -183,8 +211,15 @@ foreach ("ar", "arerrno", "nt", "nterrno") {
 # are retired. so this file is just stubbed.
 1;\n";
 		close(FD);
+		open (FD, "> artypes.ph") || die "open: $!";
+		print FD "\# hackaround for artypes.h. do not remove.\n1;\n";
+		close(FD);
 		next;
 	}
+
+	# arsystem <= 6.0.3 doesnt have artypes.h
+
+	next if ( ($ARSVERSION < 6.03) && /^artypes$/ );
 
 	die "couldn't find $headerFile" if (! -e $headerFile);
 
@@ -193,7 +228,11 @@ foreach ("ar", "arerrno", "nt", "nterrno") {
 	# -d should make it create _h2ph_pre in the current 
 	# directory incase you never ran h2ph before (as root)
 
-	$rv = system("$Config{'perlpath'} infra/h2ph -d . < $headerFile > ARS${_}-h.pm");
+	if ($_ eq "artypes") {
+		$rv = system("$Config{'perlpath'} infra/h2ph -d . < $headerFile > ${_}.ph");
+	} else {
+		$rv = system("$Config{'perlpath'} infra/h2ph -d . < $headerFile > ARS${_}-h.pm");
+	}
 
 	unlink ('_h2ph_pre.ph');
 	open (FD, "> _h2ph_pre.ph") || die "open: $!";
@@ -219,7 +258,7 @@ WriteMakefile(
 	      'NAME'	=> 'ARS',
 	      'VERSION_FROM' => 'ARS.pm',
 	      'LIBS'	=> ["${ARS_LDPATH} ${ARS_LIBS}"],
-	      'OBJECT'  => q[ARS$(OBJ_EXT) support$(OBJ_EXT) supportrev$(OBJ_EXT)],
+	      'OBJECT'  => q[ARS$(OBJ_EXT) support$(OBJ_EXT) supportrev$(OBJ_EXT) ]."${ARSAPI}/lib/libar.a ",
 	      'INC'	=> "${INCLUDES}",
 	      # 'PM' =>{ '_h2ph_pre.ph' => '$(INST_LIBDIR)/_h2ph_pre.ph' },
 	      ($] >= 5.005 ?    ## Add these new keywords supported since 5.005

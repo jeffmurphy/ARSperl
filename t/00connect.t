@@ -23,7 +23,7 @@ my($ctrl) = ars_Login(&CCACHE::SERVER,
  		      &CCACHE::PASSWORD);
 
 if(!defined($ctrl)) {
-  print "not ok [1]\n";
+  print "not ok [1 $ars_errstr]\n";
 } else {
   print "ok [1]\n";
   ars_Logoff($ctrl);
@@ -35,7 +35,7 @@ if(!defined($ctrl)) {
 			&CCACHE::PASSWORD);
 
   if (!defined($c2)) {
-    print "not ok [2]\n";
+    print "not ok [2 $ars_errstr]\n";
   } else {
     print "ok [2]\n";
   }
@@ -60,7 +60,7 @@ my $c = new ARS(-server => &CCACHE::SERVER,
 	       -debug => undef);
 
 if($c->hasErrors() || $c->hasFatals() || $c->hasWarnings()) {
-  print "not ok [3]\n";
+  print "not ok [3 $ars_errstr]\n";
 #  print "messages: ", $c->messages(), "\n";
 } else {
   print "ok [3]\n";

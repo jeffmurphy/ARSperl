@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.97 2005/03/04 18:49:08 jeffmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.98 2005/03/10 02:11:20 jeffmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -239,9 +239,9 @@ ars_Login(server, username, password, lang=NULL, authString=NULL, tcpport=0, rpc
 		else
 			perror("gettimeofday");
 #endif
-		ctrl->cacheId = 0;
+		/*ctrl->cacheId = 0;*/
 #if AR_EXPORT_VERSION >= 4
-	 	ctrl->sessionId = 0;
+	 	/*ctrl->sessionId = 0;*/
 #endif
 		ctrl->operationTime = 0;
 		strncpy(ctrl->user, username, sizeof(ctrl->user));
@@ -257,6 +257,7 @@ ars_Login(server, username, password, lang=NULL, authString=NULL, tcpport=0, rpc
 			strncpy(ctrl->language, lang, AR_MAX_LANG_SIZE);
 		}
 #else 
+		ctrl->localeInfo.locale[0] = 0;
 		if ( CVLD(lang) ) {
 			strncpy(ctrl->localeInfo.locale, lang, AR_MAX_LANG_SIZE);
 		}
@@ -281,7 +282,7 @@ ars_Login(server, username, password, lang=NULL, authString=NULL, tcpport=0, rpc
 #endif
 
 		if (!server || !*server) {
-			DBG( ("no server give. picking one.\n") );
+			DBG( ("no server given. picking one.\n") );
 #if AR_EXPORT_VERSION >= 4
 	  		ret = ARGetListServer(ctrl, &serverList, &status);
 #else
@@ -296,6 +297,7 @@ ars_Login(server, username, password, lang=NULL, authString=NULL, tcpport=0, rpc
 	  		}
 			status.numItems = 0;
 	  		if (serverList.numItems == 0) {
+				DBG( ("serverList is empty.\n") );
 	     			(void) ARError_add( AR_RETURN_ERROR, AP_ERR_NO_SERVERS);
 				ARTermination(ctrl, &status);
 				ARError(ret, status);
