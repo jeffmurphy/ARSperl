@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.11 1998/03/31 23:32:06 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.12 1998/05/19 13:10:26 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.11 1998/03/31 23:32:06 jcm
     LOG:
 
 $Log: support.h,v $
+Revision 1.12  1998/05/19 13:10:26  jcmurphy
+fixed strstr/substr typo
+
 Revision 1.11  1998/03/31 23:32:06  jcmurphy
 NT patch by  Bill Middleton <wjm@metronet.com>
 
@@ -257,7 +260,7 @@ static struct {
   { AR_FUNCTION_LPAD,    "lpad" },
   { AR_FUNCTION_RPAD,    "rpad" },
   { AR_FUNCTION_REPLACE, "replace" },
-  { AR_FUNCTION_STRSTR,  "substr" },
+  { AR_FUNCTION_STRSTR,  "strstr" },
   { AR_FUNCTION_MIN,     "min" },
   { AR_FUNCTION_MAX,     "max" },
   { TYPEMAP_LAST, "" }
