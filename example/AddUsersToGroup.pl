@@ -1,25 +1,29 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/AddUsersToGroup.pl,v 1.1 1998/09/14 17:40:44 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/AddUsersToGroup.pl,v 1.2 1998/09/14 20:48:59 jcmurphy Exp $
 #
 # NAME
-#   AddUsers2Group group user1 [user2] ...
+#   AddUsersToGroup server user password group user1 [user2] ...
 #
 # DESCRIPTION
 #   add given users to specified group
 #
 # AUTHOR
 #   jeff murphy
+#
+# $Log: AddUsersToGroup.pl,v $
+# Revision 1.2  1998/09/14 20:48:59  jcmurphy
+# changed usage, comments. fixed bug.
+#
+#
 
 use ARS;
 
-require '/usr/ars/c/netman.pl';
+die "usage: AddUserToGroup server username password group user1 [user2] ...\n" unless ($#ARGV >= 4);
 
-die "usage: add2group group user1 [user2] ...\n" unless ($#ARGV >= 1);
+($server, $user, $pass, $group, @users) = (shift, shift, shift, shift, @ARGV);
 
-($group, @users) = (shift, @ARGV);
-
-($c = ars_Login($SERVER, $ACCOUNT, $PASSWORD)) ||
+($c = ars_Login($server, $user, $pass)) ||
     die "ars_Login: $ars_errstr";
 
 (%uf = ars_GetFieldTable($c, "User")) ||
@@ -50,7 +54,7 @@ foreach (@users) {
 
     $cg = $v{$uf{'Group list'}};
 
-    if($cg =~ /$group_id;/) {
+    if(($cg =~ /^$group_id;/) || ($cg =~ /\s$group_id;/)) {
 	print "\talready a member of $group\n";
 	next;
     }
