@@ -4,12 +4,23 @@
 </HEAD>
 <BODY BGCOLOR="#FFFFFF">
 
-   <H2><CODE>ars_GetListField(control,schema,changedsince=0)</CODE></H2>
+   <H2><CODE>ars_GetListField(control,schema,changedsince=0,fieldType)</CODE></H2>
 
       Fetches the Field ID's for all fields in the schema
       specified. <CODE>changedsince</CODE> is an optional unix timestamp
       and defaults to 0.<P>
 
+      <B>3.x and above</B>
+      <UL>
+         In 3.x and above, the <code>fieldType</code> parameter allows you 
+         to specify what field type(s) to retrieve. This is a bitmask.
+         <UL> 
+            1 = Retrieve data fields <BR>
+            2 = Retrieve trim fields <BR>
+            4 = Retrieve control fields <BR>
+         </UL>
+         Ergo, fieldType = 6 will return trim and control fields.
+      </UL>
       <DL>
           <DT><B>On success</B><DD>
               Returns an array of field ids.
