@@ -1,4 +1,4 @@
-$Header: /cvsroot/arsperl/ARSperl/RELNOTES,v 1.9 2000/07/21 01:38:22 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/RELNOTES,v 1.10 2003/03/27 17:58:42 jcmurphy Exp $
 
 Release Notes for ARSperl
 
@@ -25,11 +25,27 @@ Release Notes for ARSperl
 
 ---------------------------------------------------------------------------
 
+1.80 Notes
+----------
+
+The 1.80 release includes ARS 5.0 integration. When compiling against
+ARS 5.0 APIs, the ars_NT* functions (notifier library) will no longer
+work. The notifier system has completely changed in release 5.0 of
+ARsystem.
+
+Regardless of what version of API you compile against, the following 
+functions have had their parameters altered which means that scripts 
+will need to be editted (unless you are using the OO layer).
+
+	Function			What's Changed
+	--------------------------------------------------------------
+	ars_GetListEntry		additional required 
+	
 1.68 Notes
 ----------
 
 The 1.68 release includes ARS 4.5 integration. When compiling against ARS
-4.5 APIs, the following data structions will change which _might_ break
+4.5 APIs, the following data structures will change which _might_ break
 existing scripts. You might need to update those scripts when recompiling
 ARSperl against the 4.5 (or later) libraries.
 

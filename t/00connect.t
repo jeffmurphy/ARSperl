@@ -4,14 +4,19 @@
 # test out connecting to an arserver
 #
 
+# TEST    DESC
+# 1       explicit ars_Login / ars_Logoff
+# 2       explicit login, implicit Logoff via GC
+# 3       OO login / logoff
+
 use ARS;
 require './t/config.cache';
 
-print "1..2\n";
+print "1..3\n";
 
 # make non-oo connect
 
-# test 1 -> login
+# test 1 -> login/logout
 
 my($ctrl) = ars_Login(&CCACHE::SERVER, 
 		      &CCACHE::USERNAME, 
@@ -23,6 +28,22 @@ if(!defined($ctrl)) {
   print "ok [1]\n";
   ars_Logoff($ctrl);
 }
+
+{
+  my ($c2) = ars_Login (&CCACHE::SERVER, 
+			&CCACHE::USERNAME, 
+			&CCACHE::PASSWORD);
+
+  if (!defined($c2)) {
+    print "not ok [2]\n";
+  } else {
+    print "ok [2]\n";
+  }
+}
+
+# if built with debugging, we should see $c2 be
+# DESTROYed at this point
+
 
 # make an OO connection. note that we disable exception
 # catching so we can detect the errors manually.
@@ -39,10 +60,10 @@ my $c = new ARS(-server => &CCACHE::SERVER,
 	       -debug => undef);
 
 if($c->hasErrors() || $c->hasFatals() || $c->hasWarnings()) {
-  print "not ok [2]\n";
+  print "not ok [3]\n";
 #  print "messages: ", $c->messages(), "\n";
 } else {
-  print "ok [2]\n";
+  print "ok [3]\n";
 }
 
 # exitting will cause $c to destruct, calling ars_Logoff() in the

@@ -1,9 +1,9 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.20 2001/10/30 14:47:02 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.21 2003/03/27 17:58:42 jcmurphy Exp $
 
-    ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
+    ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
-    Copyright (C) 1995,1996,1997,1998,1999
+    Copyright (C) 1995-2003
 	Joel Murphy, jmurphy@acsu.buffalo.edu
         Jeff Murphy, jcmurphy@acsu.buffalo.edu
 
@@ -14,12 +14,11 @@ $Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.20 2001/10/30 14:47:02 
     of ARSperl (or the one that accompanies the source distribution of Perl
     itself) for a full description.
  
-    Comments to:  arsperl@smurfland.cit.buffalo.edu
+    Comments to:  arsperl@arsperl.org
                   (this is a *mailing list* and you must be
                    a subscriber before posting)
 
-    Comments to: arsperl@lurch.cit.buffalo.edu
-    Home Page: http://arsinfo.cit.buffalo.edu
+    Home Page: http://www.arsperl.org
  
 
 */
@@ -45,10 +44,12 @@ $Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.20 2001/10/30 14:47:02 
 #include "arstruct.h"
 #include "arfree.h"
 
-#include "nt.h"
-#include "nterrno.h"
-#include "ntfree.h"
-#include "ntsextrn.h"
+#if AR_EXPORT_VERSION < 6
+# include "nt.h"
+# include "nterrno.h"
+# include "ntfree.h"
+# include "ntsextrn.h"
+#endif
 
 /* the following are defined because we use them as default values in ARS.xs */
 
@@ -270,115 +271,9 @@ static struct {
   { TYPEMAP_LAST, NULL }
 };
 
-static struct {
-	unsigned int infoTypeNum;
-	unsigned int infoTypeType;
-} ServerInfoTypeHints[] = {
-#if AR_EXPORT_VERSION >= 4
-	{ AR_SERVER_INFO_ACTLINK_DIR, 		AR_DATA_TYPE_CHAR },  /* 0 */
-	{ AR_SERVER_INFO_ACTLINK_SHELL, 	AR_DATA_TYPE_CHAR },  /* 1 */
-#endif
-#ifdef ARS32
-	{ AR_SERVER_INFO_ADMIN_ONLY, 		AR_DATA_TYPE_INTEGER }, /* 2 */
-	{ AR_SERVER_INFO_ADMIN_TCP_PORT, 	AR_DATA_TYPE_INTEGER }, /* 3 */
-#endif
-	{ AR_SERVER_INFO_ALLOW_GUESTS, 		AR_DATA_TYPE_INTEGER }, /* 4 */
-#if AR_EXPORT_VERSION >= 4
-	{ AR_SERVER_INFO_AP_DEFN_CHECK, 	AR_DATA_TYPE_INTEGER }, /* 5 */ 
-	{ AR_SERVER_INFO_AP_LOG_FILE, 		AR_DATA_TYPE_CHAR },    /* 6 */ 
-	{ AR_SERVER_INFO_AP_RPC_SOCKET, 	AR_DATA_TYPE_INTEGER }, /* 7 */
-#endif
-	{ AR_SERVER_INFO_API_LOG_FILE, 		AR_DATA_TYPE_CHAR },   /* 8 */ 
-#ifdef ARS32
-	{ AR_SERVER_INFO_CACHE_LOG_FILE, 	AR_DATA_TYPE_CHAR },   /* 9 */
-#endif
-#if AR_EXPORT_VERSION >= 4
-	{ AR_SERVER_INFO_CLUSTERED_INDEX, 	AR_DATA_TYPE_INTEGER }, /* 10 */
-#endif
-	{ AR_SERVER_INFO_DB_PASSWORD, 		AR_DATA_TYPE_CHAR }, /* 11 */
-#if AR_EXPORT_VERSION >= 4
-	{ AR_SERVER_INFO_DBCONF, 		AR_DATA_TYPE_CHAR }, /* 12 */
-#endif
-	{ AR_SERVER_INFO_DEBUG_MODE, 		AR_DATA_TYPE_INTEGER }, /* 13 */
-#if AR_EXPORT_VERSION >= 4
-	{ AR_SERVER_INFO_DELAYED_CACHE, 	AR_DATA_TYPE_INTEGER }, /* 14 */ 
-#endif
-	{ AR_SERVER_INFO_DS_LOG_FILE, 		AR_DATA_TYPE_CHAR },    /* 15 */ 
-#ifdef ARS32
-	{ AR_SERVER_INFO_DSO_DEST_PORT, 	AR_DATA_TYPE_INTEGER }, /* 16 */
-#endif
-	{ AR_SERVER_INFO_DS_RPC_SOCKET, 	AR_DATA_TYPE_INTEGER }, /* 17 */
-#if AR_EXPORT_VERSION >= 5
-	{ AR_SERVER_INFO_EA_RPC_SOCKET, 	AR_DATA_TYPE_INTEGER }, /* 18 */
-	{ AR_SERVER_INFO_EA_RPC_TIMEOUT, 	AR_DATA_TYPE_INTEGER }, /* 19 */
-	{ AR_SERVER_INFO_EA_SYNC_TIMEOUT, 	AR_DATA_TYPE_INTEGER }, /* 20 */
-#endif
-	{ AR_SERVER_INFO_EMAIL_FROM, 		AR_DATA_TYPE_CHAR },    /* 21 */
-#if AR_EXPORT_VERSION >= 4
-	{ AR_SERVER_INFO_EMAIL_LINE_LEN, 	AR_DATA_TYPE_INTEGER }, /* 22 */
-	{ AR_SERVER_INFO_EMAIL_TIMEOUT, 	AR_DATA_TYPE_INTEGER }, /* 23 */
-#endif
-	{ AR_SERVER_INFO_ESCALATION_LOG_FILE, 	AR_DATA_TYPE_CHAR },    /* 24 */
-	{ AR_SERVER_INFO_ESCL_DAEMON, 		AR_DATA_TYPE_INTEGER }, /* 25 */
-#ifdef ARS32
-	{ AR_SERVER_INFO_ESCL_TCP_PORT, 	AR_DATA_TYPE_INTEGER }, /* 26 */
-	{ AR_SERVER_INFO_FAST_TCP_PORT, 	AR_DATA_TYPE_INTEGER }, /* 27 */
-#endif
-#if AR_EXPORT_VERSION >= 4
-	{ AR_SERVER_INFO_FILT_MAX_TOTAL, 	AR_DATA_TYPE_INTEGER }, /* 28 */
-	{ AR_SERVER_INFO_FILT_MAX_STACK, 	AR_DATA_TYPE_INTEGER }, /* 29 */
-#endif
-	{ AR_SERVER_INFO_FILTER_LOG_FILE, 	AR_DATA_TYPE_CHAR },    /* 30 */
-#ifdef ARS32
-	{ AR_SERVER_INFO_FLASH_DAEMON, 		AR_DATA_TYPE_INTEGER }, /* 31 */
-	{ AR_SERVER_INFO_FLASH_TCP_PORT, 	AR_DATA_TYPE_INTEGER }, /* 32 */
-#endif
-	{ AR_SERVER_INFO_FLOAT_TIMEOUT, 	AR_DATA_TYPE_INTEGER }, /* 33 */
-	{ AR_SERVER_INFO_FTEXT_TIMEOUT, 	AR_DATA_TYPE_INTEGER }, /* 34 */
-#ifdef ARS32
-	{ AR_SERVER_INFO_LIST_TCP_PORT, 	AR_DATA_TYPE_INTEGER }, /* 35 */
-#endif
-	{ AR_SERVER_INFO_MAX_ENTRIES, 		AR_DATA_TYPE_INTEGER }, /* 36 */
-	{ AR_SERVER_INFO_MAX_F_DAEMONS, 	AR_DATA_TYPE_INTEGER }, /* 37 */
-	{ AR_SERVER_INFO_MAX_L_DAEMONS, 	AR_DATA_TYPE_INTEGER }, /* 38 */
-#if AR_EXPORT_VERSION >= 5
-	{ AR_SERVER_INFO_MAX_LOG_FILE_SIZE, 	AR_DATA_TYPE_INTEGER }, /* 39 */
-#endif
-#ifdef ARS32
-	{ AR_SERVER_INFO_NFY_TCP_PORT, 		AR_DATA_TYPE_INTEGER }, /* 40 */
-#endif
-#if AR_EXPORT_VERSION >= 4
-	{ AR_SERVER_INFO_PS_RPC_SOCKET, 	AR_DATA_TYPE_INTEGER }, /* 41 */
-	{ AR_SERVER_INFO_REGISTER_PORTMAPPER, 	AR_DATA_TYPE_INTEGER }, /* 42 */
-#endif
-	{ AR_SERVER_INFO_SAVE_LOGIN, 		AR_DATA_TYPE_INTEGER }, /* 43 */
-#if AR_EXPORT_VERSION >= 5
-	{ AR_SERVER_INFO_SCC_ENABLED, 		AR_DATA_TYPE_INTEGER }, /* 44 */
-	{ AR_SERVER_INFO_SCC_PROVIDER_NAME, 	AR_DATA_TYPE_CHAR },    /* 45 */
-	{ AR_SERVER_INFO_SCC_TARGET_DIR, 	AR_DATA_TYPE_CHAR },    /* 46 */
-	{ AR_SERVER_INFO_SCC_COMMENT_CHECKIN, 	AR_DATA_TYPE_CHAR },    /* 47 */
-	{ AR_SERVER_INFO_SCC_COMMENT_CHECKOUT, 	AR_DATA_TYPE_CHAR },    /* 48 */  
-#endif
-#if AR_EXPORT_VERSION >= 4
-	{ AR_SERVER_INFO_SERVER_NAME, 		AR_DATA_TYPE_CHAR },    /* 49 */
-#endif
-	{ AR_SERVER_INFO_SET_PROC_TIME, 	AR_DATA_TYPE_INTEGER }, /* 50 */ 
-	{ AR_SERVER_INFO_SQL_LOG_FILE, 		AR_DATA_TYPE_CHAR },    /* 51 */
-	{ AR_SERVER_INFO_SUBMITTER_MODE, 	AR_DATA_TYPE_INTEGER }, /* 52 */
-	{ AR_SERVER_INFO_SUPPRESS_WARN, 	AR_DATA_TYPE_CHAR },    /* 53 */
-#ifdef ARS32
-	{ AR_SERVER_INFO_TCD_TCP_PORT, 		AR_DATA_TYPE_INTEGER }, /* 54 */
-	{ AR_SERVER_INFO_THREAD_LOG_FILE, 	AR_DATA_TYPE_CHAR },    /* 55 */
-#endif
-	{ AR_SERVER_INFO_UNQUAL_QUERIES, 	AR_DATA_TYPE_INTEGER }, /* 56 */ 
-	{ AR_SERVER_INFO_USE_ETC_PASSWD, 	AR_DATA_TYPE_INTEGER }, /* 57 */
-#if AR_EXPORT_VERSION >= 4
-	{ AR_SERVER_INFO_USER_CACHE_UTILS, 	AR_DATA_TYPE_INTEGER }, /* 58 */
-#endif
-	{ AR_SERVER_INFO_USER_LOG_FILE, 	AR_DATA_TYPE_CHAR },    /* 59 */
-	{ AR_SERVER_INFO_XREF_PASSWORDS, 	AR_DATA_TYPE_INTEGER }, /* 60 */
-	{ TYPEMAP_LAST,                         TYPEMAP_LAST }
-};
+/*SERVERINFOTYPEHINTS*/
+#include "serverTypeInfoHints.h"
+
 
 EXTERN char *lookUpTypeName(TypeMapStruct *t, unsigned int v);
 EXTERN unsigned int  lookUpServerInfoTypeHint(unsigned int itn);
@@ -396,7 +291,9 @@ EXTERN char        *strappend(char *b, char *a);
 EXTERN int          ARError_reset();
 EXTERN int          ARError_add( unsigned int type, long num, char *text);
 EXTERN int          ARError( int returncode, ARStatusList status);
+#if AR_EXPORT_VERSION < 6
 EXTERN int          NTError( int returncode, NTStatusList status);
+#endif
 
 EXTERN SV *perl_diary(ARControlStruct *ctrl, ARDiaryStruct *in);
 EXTERN SV *perl_MenuRefreshCode2Str(ARControlStruct *ctrl,  unsigned int rc);

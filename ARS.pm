@@ -21,6 +21,7 @@
 # Routines for grabbing the current error message "stack" 
 # by simply referring to the $ars_errstr scalar.
 
+
 package ARS::ERRORSTR;
 sub TIESCALAR {
     bless {};
@@ -105,7 +106,7 @@ $ars_errstr %ARServerStats %ars_errhash
 ars_decodeStatusHistory ars_APIVersion
 );
 
-$ARS::VERSION   = '1.74';
+$ARS::VERSION   = '1.8000';
 $ARS::DEBUGGING = 0;
 
 # definitions required for backwards compatibility

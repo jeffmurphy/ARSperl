@@ -24,48 +24,55 @@ require Carp;
 # new ARS::form(-form => name, -vui => view, -connection => connection)
 
 sub new {
-  my ($class, $self) = (shift, {});
-  my ($b) = bless($self, $class);
+	my ($class, $self) = (shift, {});
+	my ($b) = bless($self, $class);
+	
+	my ($form, $vui, $connection) =  
+	  ARS::rearrange([FORM,VUI,CONNECTION],@_);
+	
+	$connection->pushMessage(&ARS::AR_RETURN_ERROR,
+				 81000,
+				 "usage: new ARS::form(-form => name, -vui => vui, -connection => connection)\nform and connection parameters are required."
+				)    
+	  if(!defined($form) || !defined($connection));
+	
+	$vui = "Default Admin View" unless defined $vui;
+	
+	$self->{'form'}       = $form;
+	$self->{'connection'} = $connection;
+	$self->{'vui'}        = $vui;
+	my %f = ARS::ars_GetFieldTable($connection->{'ctrl'}, 
+				       $form);
+	
+	$connection->tryCatch();
+	$self->{'fields'}     = \%f;
+	
+	my %rev = reverse %f; # convenient
+	$self->{'fields_rev'} = \%rev;
+	
+	my(%t, %enums);
+	
+	foreach (keys %f) {
+		print "caching field: $_\n" if $self->{'connection'}->{'.debug'};
+		my $fv = ARS::ars_GetField($self->{'connection'}->{'ctrl'},
+					   $self->{'form'},
+					   $f{$_});
+		$connection->tryCatch();
+		$t{$_} = $fv->{'dataType'};
+		print "\tdatatype: $t{$_}\n" if $self->{'connection'}->{'.debug'};
 
-  my ($form, $vui, $connection) =  
-    ARS::rearrange([FORM,VUI,CONNECTION],@_);
-
-  $connection->pushMessage(&ARS::AR_RETURN_ERROR,
-			   81000,
-			   "usage: new ARS::form(-form => name, -vui => vui, -connection => connection)\nform and connection parameters are required."
-			   )    
-      if(!defined($form) || !defined($connection));
-
-  $vui = "Default Admin View" unless defined $vui;
-
-  $self->{'form'}       = $form;
-  $self->{'connection'} = $connection;
-  $self->{'vui'}        = $vui;
-  my %f = ARS::ars_GetFieldTable($connection->{'ctrl'}, 
-				 $form);
-
-  $connection->tryCatch();
-  $self->{'fields'}     = \%f;
-
-  my %rev = reverse %f; # convenient
-  $self->{'fields_rev'} = \%rev;
-
-  my(%t, %enums);
-
-  foreach (keys %f) {
-    print "caching field: $_\n" if $self->{'connection'}->{'.debug'};
-    my $fv = ARS::ars_GetField($self->{'connection'}->{'ctrl'},
-			       $self->{'form'},
-			       $f{$_});
-    $connection->tryCatch();
-    $t{$_} = $fv->{'dataType'};
-    print "\tdatatype: $t{$_}\n" if $self->{'connection'}->{'.debug'};
-    $enums{$_} = [@{$fv->{'limit'}}] if $fv->{'dataType'} eq "enum";
-  }
-
-  $self->{'fieldtypes'} = \%t;
-  $self->{'fieldEnumValues'} = \%enums;
-  return $b;
+		if ($fv->{'dataType'} eq "enum") {
+			if (exists $fv->{'limit'}->{'enumLimits'}->{'regularList'}) {
+				$enums{$_} = [@{$fv->{'limit'}->{'enumLimits'}->{'regularList'}}];
+			} else {
+				die "Sorry. I'm not sure what to do with non-regularLists of enums.";
+			}
+		}
+	}
+	
+	$self->{'fieldtypes'} = \%t;
+	$self->{'fieldEnumValues'} = \%enums;
+	return $b;
 }
 
 sub DESTROY {

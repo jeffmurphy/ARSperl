@@ -1,3 +1,19 @@
+released=xx/xx/2003 version=1.8000
+JCM memory leak fixed in ars_CreateEntry
+JCM memory leak fixed in ars_SetEntry
+JCM memory leak fixed in ars_MergeEntry
+JCM memory leak fixed in QualifierStructPtr destructor
+JCM memory leak fixed in ControlStruct destructor
+!JCM 5.0 integration
+	functions that no longer are available
+	<blockquote>
+		ars_NT*()   [notifier functions]
+	</blockquote>
+	functions whose parameters have changed
+	<blockquote>
+		ars_GetListEntry()
+	</blockquote>
+
 released=11/13/2002 version=1.74
 GDF added ars_GetMultipleEntries, ars_GetListEntryWithFields
 GDF remove unused num_entries parameter from ARGetListEntry
@@ -146,7 +162,7 @@ JCM  new utility: example/DelUsersFromGroup.pl - bulk delete a bunch
 JCM  fixed uninitialized variable warnings
 JCM  fixed various problems with join schema entry-id handling
 JCM  fixed bug in indexList returned by ars_GetSchema()
-!JCM  updated all Get<object> functions so that changeDiary
+!JCM  updated all Get&lt;object&gt; functions so that changeDiary
            is fully decoded.
 !JCM  changed return value of ars_DeleteEntry() so that
            ars_DeleteEntry() || die() will work as expected.

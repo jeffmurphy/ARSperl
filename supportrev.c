@@ -1,9 +1,9 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.19 2002/11/06 16:20:25 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.20 2003/03/27 17:58:42 jcmurphy Exp $
 
-    ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
+    ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
-    Copyright (C) 1995,1996,1997,1998,1999
+    Copyright (C) 1995-2003
 	Joel Murphy, jmurphy@acsu.buffalo.edu
         Jeff Murphy, jcmurphy@acsu.buffalo.edu
 
@@ -14,12 +14,11 @@ $Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.19 2002/11/06 16:20:25 jcmurp
     of ARSperl (or the one that accompanies the source distribution of Perl
     itself) for a full description.
 
-    Comments to:  arsperl@smurfland.cit.buffalo.edu
+    Comments to:  arsperl@arsperl.org
                   (this is a *mailing list* and you must be
                    a subscriber before posting)
 
-    Comments to: arsperl@lurch.cit.buffalo.edu
-    Home Page: http://arsinfo.cit.buffalo.edu
+    Home Page: http://www.arsperl.org
 
 
 */

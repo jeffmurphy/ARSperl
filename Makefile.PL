@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.42 2002/11/06 16:20:25 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.43 2003/03/27 17:58:42 jcmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -24,13 +24,13 @@ $debug = 0;
 # STEP 1 -> Set the path to your ARS API directory
 
 $ARSAPI     = "/usr/ar/api";
-#$ARSAPI     = "/u1/project/ARSperl/api/sol2/api4.5.2";
-$ARSAPI     = "/u1/project/ARSperl/api/linux/4.5";
+$ARSAPI     = "/u1/project/ARSperl/api/sol2/api5.0.1";
+#$ARSAPI     = "/u1/project/ARSperl/api/linux/4.5";
 #$ARSAPI     = "/home/jcmurphy/arsperl/api/4.5";
 
 # STEP 2 -> Choose your version of ARS FROM THE FOLLOWING LIST
 #
-#                  2.0 2.1 3.0 3.1 3.2 4.0 4.52
+#                  2.0 2.1 3.0 3.1 3.2 4.0 4.52 5.0
 #
 #           notes
 #            - if there is a maintenace number (e.g. 4.5.2)
@@ -41,9 +41,7 @@ $ARSAPI     = "/u1/project/ARSperl/api/linux/4.5";
 #              your version (e.g. for 4.5 you would specify 4.0, NOT
 #	       4.52)
 #           
-$ARSVERSION = 4.0;
-
-
+$ARSVERSION = 5.0;
 
 # unless you run into problems, you shouldn't need to read any further.
 # if you do run into problems, and don't really know what this file
@@ -55,11 +53,12 @@ $WINDOWS = ($^O eq 'MSWin32');
 #        Windows NT: no "-lpthread"
 #        NCR UNIX: add "-lc -lnet"
 #                -DARSPDEBUG
-$AUTODEFINES = " -DPROFILE -g ";
+$AUTODEFINES = " -DARSPDEBUG -DPROFILE -g ";
 $AUTODEFINES = "-D_WIN32" if($WINDOWS);
 
 if($ARSVERSION >= 4.0) {
-  $ARS_LIBS = "-lar -lnsl -lnts";
+  $ARS_LIBS = "-lar -lnsl";
+  $ARS_LIBS .= " -lnts" unless ($ARSVERSION >= 5.0);
   $ARS_LIBS .= " -lpthread" unless $WINDOWS;
   $AUTODEFINES .= " -DARS32 ";	
   $AUTODEFINES .= " -DARS452 " if($ARSVERSION >= 4.52);
@@ -90,7 +89,7 @@ $AUTODEFINES .= " -DPERL_PATCHLEVEL_IS=$Config{'PATCHLEVEL'} -DPERL_SUBVERSION_I
 if($Config{'baserev'} == 5 &&
    $Config{'PATCHLEVEL'} == 4 &&
    $Config{'SUBVERSION'} == 3) {
-	print "\n\nWARNING: Perl-5.004_03 contained a bugged 'h2ph' application.\nYou should examine line 100 of perl's 'h2ph' script and be sure that it\n
+	print "\n\nWARNING: Perl-5.004_03 contained a buggy 'h2ph' application.\nYou should examine line 100 of perl's 'h2ph' script and be sure that it\n
 produces correct syntax (it's missing a close-parenthesis)\n";
 	print "\nsleeping for 5 seconds. press control-c to abort.\n\n";
 	sleep 5;
@@ -107,11 +106,23 @@ $INCLUDES   = "-I$ARSAPI/include";
 
 GenerateSupportDotH("support-h.template", $INCLUDES);
 
+print "Generating serverTypeInfoHints.h ..\n";
+
+die "whoops. no file at ".$Config{'perlpath'} unless ( -f $Config{'perlpath'} );
+$cmd = "$Config{'perlpath'} infra/exsi.pl < ${ARSAPI}/include/ar.h > serverTypeInfoHints.h";
+$rv = system($cmd);
+die "something went wrong when i ran \"$cmd\" (rv = $rv, expected 0)" unless ($rv == 0);
 
 print "Converting C header files to perl modules ..\n";
 
 foreach ("ar", "arerrno", "nt", "nterrno") {
-	system("h2ph < ${ARSAPI}/include/${_}.h > ARS${_}-h.pm");
+	my $headerFile = "${ARSAPI}/include/${_}.h";
+
+	# arsystem >= 5.0 doesnt have nt libs/hdrs anymore
+	next if (! -e $headeFile && /^nt/);
+	die "couldn't find $headerFile" if (! -e $headerFile);
+
+	system("h2ph < $headerFile > ARS${_}-h.pm");
 
 	if((! -e "ARS${_}-h.pm") || (-z "ARS${_}-h.pm")) {
 		open (FD, "> ARS${_}-h.pm") || die "open: $!";
@@ -178,7 +189,7 @@ WriteMakefile(
 # don't fiddle with this
 
               'realclean' => {
-		 'FILES' => 'support.h ARSar-h.pm ARSarerrno-h.pm ARSnt-h.pm ARSnterrno-h.pm t/config.cache' 
+		 'FILES' => 'support.h ARSar-h.pm ARSarerrno-h.pm ARSnt-h.pm ARSnterrno-h.pm t/config.cache serverTypeInfoHints.h *~ .purify' 
 	      } 
 );
 

@@ -1,9 +1,9 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.80 2002/11/06 16:20:25 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.81 2003/03/27 17:58:42 jcmurphy Exp $
 
-    ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
+    ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
-    Copyright (C) 1995-2000
+    Copyright (C) 1995-2003
 	Joel Murphy, jmurphy@acsu.buffalo.edu
         Jeff Murphy, jcmurphy@acsu.buffalo.edu
 
@@ -14,9 +14,12 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.80 2002/11/06 16:20:25 jcmurphy Exp
     distribution of ARSperl (or the one that accompanies the source 
     distribution of Perl itself) for a full description.
  
-    Comments to:  arsperl@smurfland.cit.buffalo.edu
+    Comments to:  arsperl@arsperl.org
                   (this is a *mailing list* and you must be
                    a subscriber before posting)
+
+
+    http://www.arsperl.org
 
 */
 
@@ -599,6 +602,19 @@ ars_CreateEntry(ctrl,schema,...)
 	    else
 		RETVAL = newSVpv( entryId, strlen(entryId) );
 #ifndef WASTE_MEM
+#if 0
+	  for (i = 0; i < fieldList.numItems ; i++) {
+		switch(fieldList.fieldValueList[i].dataType) {
+		case AR_DATA_TYPE_CHAR:
+		case AR_DATA_TYPE_DIARY:
+		case AR_DATA_TYPE_BITMASK:
+		case AR_DATA_TYPE_BYTES:
+		case AR_DATA_TYPE_DECIMAL:
+		case AR_DATA_TYPE_ATTACH:
+		}
+	  }
+#endif
+	  	FreeARFieldValueList(&fieldList, FALSE);
 	  safefree(fieldList.fieldValueList);
 #endif
 	  }
@@ -796,15 +812,17 @@ ars_GetEntry(ctrl,schema,entry_id,...)
 	}
 
 void
-ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,...)
+ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,firstRetrieve,...)
 	ARControlStruct *	ctrl
 	char *			schema
 	ARQualifierStruct *	qualifier
 	int			maxRetrieve
+	int			firstRetrieve
 	PPCODE:
 	{
-	  int              c = (items - 4) / 2, i;
-	  int              field_off = 4;
+	  int              c = (items - 5) / 2, i;
+	  int              field_off    = 5;
+	  int              staticParams = field_off;
 	  ARSortList       sortList;
 	  AREntryListList  entryList;
 	  ARStatusList     status;
@@ -812,143 +830,177 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,...)
 #if AR_EXPORT_VERSION >= 3
 	  AREntryListFieldList getListFields, *getList = NULL;
 	  AV              *getListFields_array;
-
+	
 	  (void) ARError_reset();
 	  Zero(&status, 1, ARStatusList);
-	  if ((items - 4) % 2) {
-	    /* odd number of arguments, so argument after maxRetrieve is
-	       optional getListFields (an array of hash refs) */
-	    if (SvROK(ST(field_off)) &&
-		(getListFields_array = (AV *)SvRV(ST(field_off))) &&
-		SvTYPE(getListFields_array) == SVt_PVAV) {
-	      getList = &getListFields;
-	      getListFields.numItems = av_len(getListFields_array) + 1;
-              Newz(777,getListFields.fieldsList, getListFields.numItems,AREntryListFieldStruct);
-	      /* set query field list */
-	      for (i=0; i<getListFields.numItems; i++) {
-		SV **array_entry, **hash_entry;
-		HV *field_hash;
-		/* get hash from array */
-		if ((array_entry = av_fetch(getListFields_array, i, 0)) &&
-		    SvROK(*array_entry) &&
-		    SvTYPE(field_hash = (HV*)SvRV(*array_entry)) == SVt_PVHV) {
-		  /* get fieldId, columnWidth and separator from hash */
-		  if (! (hash_entry = hv_fetch(field_hash,  "fieldId", strlen("fieldId") , 0))) {
-		    (void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_LFLDS);
-#ifndef WASTE_MEM
-		      safefree(getListFields.fieldsList);
-#endif
-		    goto getlistentry_end;
-		  }
-		  getListFields.fieldsList[i].fieldId = SvIV(*hash_entry);
-		  if (! (hash_entry = hv_fetch(field_hash,  "columnWidth", strlen("columnWidth") , 0))) {
-		    (void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_LFLDS);
-#ifndef WASTE_MEM
-		      safefree(getListFields.fieldsList);
-#endif
-		    goto getlistentry_end;
-		  }
-		  getListFields.fieldsList[i].columnWidth = SvIV(*hash_entry);
-		  if (! (hash_entry = hv_fetch(field_hash,  "separator", strlen("separator") , 0))) {
-		    (void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_LFLDS);
-#ifndef WASTE_MEM
-
-		      safefree(getListFields.fieldsList);
-#endif
-		    goto getlistentry_end;
-		  }
-		  strncpy(getListFields.fieldsList[i].separator,
-			  SvPV(*hash_entry, PL_na),
-			  sizeof(getListFields.fieldsList[i].separator));
+	  if ((items - staticParams) % 2) {
+		/* odd number of arguments, so argument after maxRetrieve is
+		optional getListFields (an array of hash refs) */
+	
+		if (SvROK(ST(field_off)) &&
+			(getListFields_array = (AV *)SvRV(ST(field_off))) &&
+			SvTYPE(getListFields_array) == SVt_PVAV) {
+	
+			getList                = &getListFields;
+			getListFields.numItems = av_len(getListFields_array) + 1;
+			Newz(777,getListFields.fieldsList, getListFields.numItems,
+				AREntryListFieldStruct);
+	
+			/* set query field list */
+			for (i = 0 ; i < getListFields.numItems ; i++) {
+				SV **array_entry, **hash_entry;
+				HV *field_hash;
+	
+				/* get hash from array */
+				if ((array_entry = av_fetch(getListFields_array, i, 0)) &&
+					SvROK(*array_entry) &&
+					SvTYPE(field_hash = (HV*)SvRV(*array_entry)) == SVt_PVHV) {
+	
+					/* get fieldId, columnWidth and separator from hash */
+					if (! (hash_entry = hv_fetch(field_hash, VNAME("fieldId"), 0))) {
+						(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_LFLDS);
+						safefree(getListFields.fieldsList);
+						goto getlistentry_end;
+					}
+	
+					getListFields.fieldsList[i].fieldId = SvIV(*hash_entry);
+					if (! (hash_entry = hv_fetch(field_hash, 
+							VNAME("columnWidth"), 0))) {
+						(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_LFLDS);
+						safefree(getListFields.fieldsList);
+						goto getlistentry_end;
+					}
+	
+					getListFields.fieldsList[i].columnWidth = SvIV(*hash_entry);
+					if (! (hash_entry = hv_fetch(field_hash, 
+							VNAME("separator"), 0))) {
+						(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_LFLDS);
+						safefree(getListFields.fieldsList);
+						goto getlistentry_end;
+					}
+	
+					strncpy(getListFields.fieldsList[i].separator,
+						SvPV(*hash_entry, PL_na),
+						sizeof(getListFields.fieldsList[i].separator));
+				}
+			}
+		} else {
+			(void) ARError_add( AR_RETURN_ERROR, AP_ERR_LFLDS_TYPE);
+			goto getlistentry_end;
 		}
-	      }
-	    } else {
-	      (void) ARError_add( AR_RETURN_ERROR, AP_ERR_LFLDS_TYPE);
-	      goto getlistentry_end;
-	    }
-	    /* increase the offset of the first sortList field by one */
-	    field_off ++;
+		/* increase the offset of the first sortList field by one */
+		field_off ++;
 	  }
 #else  /* ARS 2 */
 	  Zero(&status, 1,ARStatusList);
 	  (void) ARError_reset();
-	  if ((items - 4) % 2) {
-	    (void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
-	    goto getlistentry_end;
+	  if ((items - staticParms) % 2) {
+		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
+		goto getlistentry_end;
 	  }
 #endif /* if ARS >= 3 */
+	
 	  /* build sortList */
+	printf("c %d\n", c);
 	  sortList.numItems = c;
           Newz(777,sortList.sortList, c,  ARSortStruct);
-	  for (i=0; i<c; i++) {
-	    sortList.sortList[i].fieldId = SvIV(ST(i*2+field_off));
-	    sortList.sortList[i].sortOrder = SvIV(ST(i*2+field_off+1));
+	  for ( i = 0 ; i < c ; i++) {
+		sortList.sortList[i].fieldId   = SvIV(ST(i*2+field_off));
+		sortList.sortList[i].sortOrder = SvIV(ST(i*2+field_off+1));
 	  }
-#if AR_EXPORT_VERSION >= 3
-	  ret = ARGetListEntry(ctrl, schema, qualifier, getList, &sortList, maxRetrieve, &entryList, NULL, &status);
+#if AR_EXPORT_VERSION >= 6
+	  ret = ARGetListEntry(ctrl, schema, qualifier, getList, &sortList, 
+				firstRetrieve, maxRetrieve, &entryList, 
+				NULL, &status);
+#elif AR_EXPORT_VERSION >= 3
+	  ret = ARGetListEntry(ctrl, schema, qualifier, getList, &sortList, 
+				maxRetrieve, &entryList, NULL, &status);
 #else
-	  ret = ARGetListEntry(ctrl, schema, qualifier, &sortList, maxRetrieve, &entryList, NULL, &status);
+	  ret = ARGetListEntry(ctrl, schema, qualifier, &sortList, 
+				maxRetrieve, &entryList, NULL, &status);
 #endif
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
 #endif
 	  if (ARError( ret, status)) {
-#ifndef WASTE_MEM
-	    safefree(sortList.sortList);
-#endif
-	    goto getlistentry_end;
+		safefree(sortList.sortList);
+		goto getlistentry_end;
 	  }
-	  for (i=0; i < entryList.numItems; i++) {
+	  for (i = 0 ; i < entryList.numItems ; i++) {
 #if AR_EXPORT_VERSION >= 3
-	    AV *entryIdList;
+		AV *entryIdList;
 	    
-	    if (entryList.entryList[i].entryId.numItems == 1) {
-	      /* only one entryId -- so just return its value to be compatible
-		 with ars 2 */
-	      XPUSHs(sv_2mortal(newSVpv(entryList.entryList[i].entryId.entryIdList[0], 0)));
-	    } else {
-	      /* more than one entry -- this must be a join schema. merge
-	       * the list into a single entry-id to keep things
-	       * consistent.
-               */
-	      int   entry;
-	      char *joinId = (char *)NULL;
-	      char  joinSep[2] = {AR_ENTRY_ID_SEPARATOR, 0};
-
-	      for (entry=0; entry < entryList.entryList[i].entryId.numItems; entry++) {
-	        joinId = strappend(joinId, entryList.entryList[i].entryId.entryIdList[entry]);
-	        if(entry < entryList.entryList[i].entryId.numItems-1)
-		    joinId = strappend(joinId, joinSep);
-	      }
-	      XPUSHs(sv_2mortal(newSVpv(joinId, 0)));
-	    }
+		if (entryList.entryList[i].entryId.numItems == 1) {
+			/* only one entryId -- so just return its value to be compatible
+			   with ars 2 */
+			XPUSHs(sv_2mortal(newSVpv(entryList.entryList[i].entryId.entryIdList[0], 0)));
+		} else {
+			/* more than one entry -- this must be a join schema. merge
+			 * the list into a single entry-id to keep things
+			 * consistent.
+			 */
+			int   entry;
+			char *joinId     = (char *)NULL;
+			char  joinSep[2] = {AR_ENTRY_ID_SEPARATOR, 0};
+	
+			for ( entry = 0 ; entry < entryList.entryList[i].entryId.numItems ; entry++) {
+				joinId = strappend(joinId, 
+					entryList.entryList[i].entryId.entryIdList[entry]);
+				if(entry < entryList.entryList[i].entryId.numItems-1)
+					joinId = strappend(joinId, joinSep);
+			}
+			XPUSHs(sv_2mortal(newSVpv(joinId, 0)));
+		}
 #else /* ARS 2 */
-	    XPUSHs(sv_2mortal(newSVpv(entryList.entryList[i].entryId, 0)));
+		XPUSHs(sv_2mortal(newSVpv(entryList.entryList[i].entryId, 0)));
 #endif
-	    XPUSHs(sv_2mortal(newSVpv(entryList.entryList[i].shortDesc, 0)));
+		XPUSHs(sv_2mortal(newSVpv(entryList.entryList[i].shortDesc, 0)));
 	  }
-#ifndef WASTE_MEM
+	  safefree(sortList.sortList);
 	  FreeAREntryListList(&entryList,FALSE);
-#endif
 	  getlistentry_end:;
 	}
 
 void
-ars_GetListSchema(ctrl,changedsince=0,schemaType=AR_LIST_SCHEMA_ALL,name=NULL)
+ars_GetListSchema(ctrl,changedsince=0,schemaType=AR_LIST_SCHEMA_ALL,name=NULL,fieldIdList=NULL)
 	ARControlStruct *	ctrl
 	unsigned int		changedsince
 	unsigned int		schemaType
 	char *			name
+	AV *			fieldIdList
 	PPCODE:
 	{
 	  ARNameList   nameList;
 	  ARStatusList status;
 	  int          i, ret;
+#if AR_EXPORT_VERSION >= 6
+	  ARInternalIdList idList;
 
-	  (void) ARError_reset();	  
+	  Zero(&idList, 1, ARInternalIdList);	  
+#endif
+
+	  (void) ARError_reset();
 	  Zero(&status, 1, ARStatusList);
+#if AR_EXPORT_VERSION >= 6
+	  if (SvTYPE(fieldIdList) == SVt_PVAV) {
+		int i;
+		idList.numItems = av_len(fieldIdList) + 1;
+		Newz(777, idList.internalIdList, idList.numItems, ARInternalId);
+		for (i = 0 ; i < idList.numItems ; i++ ) {
+			SV **array_entry;
+			if ((array_entry = av_fetch(fieldIdList, i, 0)) &&
+			    SvROK(*array_entry)                         &&
+		 	    (SvTYPE(*array_entry) == SVt_PVIV) ) {
+				idList.internalIdList[i] = (unsigned long) (SvIV(*array_entry));
+			} 
+		}
+	  }
+#endif
 #if AR_EXPORT_VERSION >= 3
 	  ret = ARGetListSchema(ctrl, changedsince, schemaType, name, 
+# if AR_EXPORT_VERSION >= 6
+				&idList,
+# endif
 				&nameList, &status);
 #else
 	  ret = ARGetListSchema(ctrl, changedsince, 
@@ -984,7 +1036,11 @@ ars_GetListContainer(ctrl,changedSince=0,attributes=0,...)
 	  if(items > 3) {
 		int 			i;
 	  	ARContainerTypeList	containerTypes;
+# if AR_EXPORT_VERSION >= 6
+		ARContainerOwnerObjList ownerObjList;
+# else
 		ARContainerOwnerObj 	ownerObj;
+# endif
 		ARContainerInfoList	conList;
 
 		containerTypes.numItems = items - 3;
@@ -997,7 +1053,12 @@ ars_GetListContainer(ctrl,changedSince=0,attributes=0,...)
 		i = ARGetListContainer(ctrl, changedSince,
 					&containerTypes,
 					attributes,
-					&ownerObj, &conList, &status);
+# if AR_EXPORT_VERSION >= 6
+					&ownerObjList,
+# else
+					&ownerObj, 
+# endif
+					&conList, &status);
 		if(!ARError(i, status)) {
 			HV *r = newHV();				
 		}
@@ -1477,8 +1538,25 @@ ars_GetCharMenu(ctrl,name)
 				newSVpv(menuDefn.u.menuQuery.schema, 0), 0);
 			hv_store(menuDef,  "server", strlen("server") , 
 				newSVpv(menuDefn.u.menuQuery.server, 0), 0);
+#if AR_EXPORT_VERSION >= 6
+			{
+				int lfn = 0;
+				AV *a = newAV();
+				while (lfn < 6) {
+					if ( menuDefn.u.menuQuery.labelField[lfn] ) {
+						av_push(a, newSViv(menuDefn.u.menuQuery.labelField[lfn]));
+					} else {
+						av_push(a, newSVsv(&PL_sv_undef));
+					}
+					lfn++;
+				}
+				hv_store(menuDef, "labelField", strlen("labelField"),
+					 newRV_noinc((SV *) a), 0);
+			}
+#else
 			hv_store(menuDef,  "labelField", strlen("labelField") ,
 				newSViv(menuDefn.u.menuQuery.labelField), 0);
+#endif
 			hv_store(menuDef,  "valueField", strlen("valueField") ,
 				newSViv(menuDefn.u.menuQuery.valueField), 0);
 			hv_store(menuDef,  "sortOnLabel", strlen("sortOnLabel") ,
@@ -1505,8 +1583,25 @@ ars_GetCharMenu(ctrl,name)
 				newSVpv(menuDefn.u.menuSQL.server, 0), 0);
 			hv_store(menuDef,  "sqlCommand", strlen("sqlCommand") , 
 				newSVpv(menuDefn.u.menuSQL.sqlCommand, 0), 0);
+#if AR_EXPORT_VERSION >= 6
+			{
+				int lfn = 0;
+				AV *a = newAV();
+				while (lfn < 6) {
+					if ( menuDefn.u.menuSQL.labelIndex[lfn] ) {
+						av_push(a, newSViv(menuDefn.u.menuSQL.labelIndex[lfn]));
+					} else {
+						av_push(a, newSVsv(&PL_sv_undef));
+					}
+					lfn++;
+				}
+				hv_store(menuDef, "labelIndex", strlen("labelIndex"),
+					 newRV_noinc((SV *) a), 0);
+			}
+#else
 			hv_store(menuDef,  "labelIndex", strlen("labelIndex") , 
 				newSViv(menuDefn.u.menuSQL.labelIndex), 0);
+#endif
 			hv_store(menuDef,  "valueIndex", strlen("valueIndex") , 
 				newSViv(menuDefn.u.menuSQL.valueIndex), 0);
 			hv_store(RETVAL,  "menuSQL", strlen("menuSQL") , 
@@ -1592,13 +1687,23 @@ ars_GetSchema(ctrl,name)
 #if AR_EXPORT_VERSION >= 5
 	  ARPropList           objPropList;
 #endif
+#if AR_EXPORT_VERSION >= 6
+	  ARNameType           defaultVui;
+#endif
 
 	  (void) ARError_reset();
 	  Zero(&status, 1,  ARStatusList);
+#if AR_EXPORT_VERSION >= 6
+	  Zero(&defaultVui, 1, ARNameType);
+#endif
 	  RETVAL = newHV();
 #if AR_EXPORT_VERSION >= 3
 	  ret = ARGetSchema(ctrl, name, &schema, &groupList, &adminGroupList, &getListFields, 
-			    &sortList, &indexList, &helpText, &timestamp, owner, 
+			    &sortList, &indexList, 
+# if AR_EXPORT_VERSION >= 6
+			    defaultVui,
+# endif
+			    &helpText, &timestamp, owner, 
 			    lastChanged, &changeDiary, 
 # if AR_EXPORT_VERSION >= 5
 			    &objPropList,
@@ -1614,6 +1719,10 @@ ars_GetSchema(ctrl,name)
 #if AR_EXPORT_VERSION >= 5
 		hv_store(RETVAL,  "objPropList", strlen("objPropList") ,
 			 perl_ARPropList(ctrl, &objPropList), 0);
+#endif
+#if AR_EXPORT_VERSION >= 6
+		hv_store(RETVAL, "defaultVui", strlen("defaultVui"),
+			newSVpv(defaultVui, 0), 0);			
 #endif
 #if AR_EXPORT_VERSION >= 3
 	    hv_store(RETVAL,  "groupList", strlen("groupList") ,
@@ -1901,16 +2010,12 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	      ret = ARGetFieldCached(ctrl, schema, fieldList.fieldValueList[i].fieldId, &dataType, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &status);
 #endif
 	      if (ARError( ret, status)) {
-#ifndef WASTE_MEM
-		safefree(fieldList.fieldValueList);
-#endif
+		FreeARFieldValueList(&fieldList, FALSE);
 		goto set_entry_end;
 	      }
 	      if (sv_to_ARValue(ctrl, ST(a+1), dataType, 
 			&fieldList.fieldValueList[i].value) < 0) {
-#ifndef WASTE_MEM
-		safefree(fieldList.fieldValueList);
-#endif
+		FreeARFieldValueList(&fieldList, FALSE);
 		goto set_entry_end;
 	      }
 	    }
@@ -1918,22 +2023,16 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 #if AR_EXPORT_VERSION >= 3
 	  /* build entryList */
 	  if(perl_BuildEntryList(ctrl, &entryList, entry_id) != 0){
-#ifndef WASTE_MEM
-		safefree(fieldList.fieldValueList);
-#endif
+		FreeARFieldValueList(&fieldList, FALSE);
 		goto set_entry_end;
 	  }
 
 	  ret = ARSetEntry(ctrl, schema, &entryList, &fieldList, getTime, option, &status);
-#ifndef WASTE_MEM
 	  FreeAREntryIdList(&entryList, FALSE);
-#endif	  
 #else /* ARS2.x */
 	  if(!entry_id || !*entry_id) {
 		ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_EID);
-#ifndef WASTE_MEM
-		safefree(fieldList.fieldValueList);
-#endif
+		FreeARFieldValueList(&fieldList, FALSE);
 		goto set_entry_end;
 	  }
 	  ret = ARSetEntry(ctrl, schema, entry_id, &fieldList, getTime, &status);
@@ -1944,9 +2043,7 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	  if (! ARError( ret, status)) {
 	    RETVAL = 1;
 	  }
-#ifndef WASTE_MEM
-	  safefree(fieldList.fieldValueList);
-#endif
+	  FreeARFieldValueList(&fieldList, FALSE);
 	set_entry_end:;
 	set_entry_exit:;
 	}
@@ -1954,12 +2051,13 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	RETVAL
 
 char *
-ars_Export(ctrl,displayTag,...)
+ars_Export(ctrl,displayTag,vuiType,...)
 	ARControlStruct *	ctrl
 	char *			displayTag
+	unsigned int		vuiType
 	CODE:
 	{
-		int              ret, i, a, c = (items - 2) / 2, ok = 1;
+		int              ret, i, a, c = (items - 3) / 2, ok = 1;
 		ARStructItemList structItems;
 		char            *buf = CPNULL;
 		ARStatusList     status;
@@ -1995,7 +2093,11 @@ ars_Export(ctrl,displayTag,...)
 		}
 
 		if(ok) {
-			ret = ARExport(ctrl, &structItems, displayTag, &buf, &status);
+			ret = ARExport(ctrl, &structItems, displayTag, 
+#if AR_EXPORT_VERSION >= 6
+				       vuiType,
+#endif
+				       &buf, &status);
 #ifdef PROFILE
 			((ars_ctrl *)ctrl)->queries++;
 #endif
@@ -2799,9 +2901,10 @@ ars_GetFullTextInfo(ctrl)
 	RETVAL
 
 HV *
-ars_GetListGroup(ctrl, userName=NULL)
+ars_GetListGroup(ctrl, userName=NULL,password=NULL)
 	ARControlStruct *	ctrl
 	char *			userName
+	char *			password
 	CODE:
 	{
 	  ARStatusList    status;
@@ -2811,7 +2914,11 @@ ars_GetListGroup(ctrl, userName=NULL)
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
 	  RETVAL = newHV();
-	  ret = ARGetListGroup(ctrl, userName, &groupList, &status);
+	  ret = ARGetListGroup(ctrl, userName, 
+#if AR_EXPORT_VERSION >= 6
+			       password,
+#endif
+			       &groupList, &status);
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
 #endif
@@ -2893,9 +3000,10 @@ ars_GetListSQL(ctrl, sqlCommand, maxRetrieve=AR_NO_MAX_LIST_RETRIEVE)
 	}
 
 void
-ars_GetListUser(ctrl, userListType=AR_USER_LIST_MYSELF)
+ars_GetListUser(ctrl, userListType=AR_USER_LIST_MYSELF,changedSince=0)
 	ARControlStruct *	ctrl
 	unsigned int		userListType
+	ARTimestamp		changedSince
 	PPCODE:
 	{
 	  ARStatusList   status;
@@ -2904,7 +3012,11 @@ ars_GetListUser(ctrl, userListType=AR_USER_LIST_MYSELF)
 
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
-	  ret = ARGetListUser(ctrl, userListType, &userList, &status);
+	  ret = ARGetListUser(ctrl, userListType, 
+#if AR_EXPORT_VERSION >= 6
+				changedSince,
+#endif
+				&userList, &status);
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
 #endif
@@ -3113,16 +3225,28 @@ ars_GetVUI(ctrl, schema, vuiId)
 	  char        *changeDiary = CPNULL;
 	  int          i, ret;
 	  ARDiaryList      diaryList;
-
+# if AR_EXPORT_VERSION >= 6
+	  unsigned int vuiType = 0;
+	  ARLocaleType locale;
+	  Zero(locale, 1, ARLocaleType);
+# endif
 	  RETVAL = newHV();
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
-	  ret = ARGetVUI(ctrl, schema, vuiId, vuiName, &dPropList, &helpText, 
+	  ret = ARGetVUI(ctrl, schema, vuiId, vuiName,
+# if AR_EXPORT_VERSION >= 6
+			 locale, &vuiType,
+# endif
+			 &dPropList, &helpText, 
 			 &timestamp, owner, lastChanged, &changeDiary, &status);
-#ifdef PROFILE
+# ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
-#endif
+# endif
 	  if(!ARError( ret, status)) {
+# if AR_EXPORT_VERSION >= 6
+	     hv_store(RETVAL, "locale", strlen("locale"), newSVpv(locale, 0), 0);
+	     hv_store(RETVAL, "vuiType", strlen("vuiType"), newSViv(vuiType), 0);
+# endif
 	     hv_store(RETVAL,  "schema", strlen("schema") , newSVpv(schema, 0), 0);
 	     hv_store(RETVAL,  "vuiId", strlen("vuiId") , newSViv(vuiId), 0);
 	     hv_store(RETVAL,  "vuiName", strlen("vuiName") , newSVpv(vuiName, 0), 0);
@@ -3446,7 +3570,8 @@ ars_MergeEntry(ctrl, schema, mergeType, ...)
 	  AREntryIdType    entryId;
 
 	  (void) ARError_reset();
-	  Zero(&status, 1,ARStatusList);
+	  Zero(&status,    1, ARStatusList);
+	  Zero(&fieldList, 1, ARFieldValueList);
 	  RETVAL = "";
 
 	  if ((items - 3) % 2 || c < 1) {
@@ -3483,7 +3608,6 @@ ars_MergeEntry(ctrl, schema, mergeType, ...)
 	   		if (sv_to_ARValue(ctrl, ST(a+1), dataType, 
 				&fieldList.fieldValueList[i].value) < 0) {
 				DBG( ("failed to convert to ARValue struct stack %d\n", a+1) );
-				safefree(fieldList.fieldValueList);
 				goto merge_entry_end;
 	  		}
 	  	}
@@ -3499,9 +3623,8 @@ ars_MergeEntry(ctrl, schema, mergeType, ...)
 	  	RETVAL = entryId;
 	  }
 
-	  safefree(fieldList.fieldValueList);
-
 	merge_entry_end:;
+	FreeARFieldValueList(&fieldList, FALSE);
 	merge_entry_exit:;
 	}
 	OUTPUT:
@@ -3649,17 +3772,18 @@ ars_GetMultipleEntries(ctrl,schema,...)
 
 
 void
-ars_GetListEntryWithFields(ctrl,schema,qualifier,maxRetrieve,...)
+ars_GetListEntryWithFields(ctrl,schema,qualifier,firstRetrieve=0,maxRetrieve,...)
 	ARControlStruct *       ctrl
 	char *                  schema
 	ARQualifierStruct *     qualifier
-	int                     maxRetrieve
+	unsigned int            firstRetrieve
+	unsigned int            maxRetrieve
 	PPCODE:
 	{
 	  ARStatusList     status;
 #if AR_EXPORT_VERSION >= 4
-	  int              c = (items - 4) / 2, i;
-	  int              field_off = 4;
+	  int              c = (items - 5) / 2, i;
+	  int              field_off = 5;
 	  ARSortList       sortList;
 	  AREntryListFieldValueList  entryFieldValueList;
 	  int              ret;
@@ -3671,7 +3795,7 @@ ars_GetListEntryWithFields(ctrl,schema,qualifier,maxRetrieve,...)
 	  sortList.sortList = NULL;
 	  getListFields.fieldsList = NULL;
 	  entryFieldValueList.entryList = NULL;
-	  if ((items - 4) % 2) {
+	  if ((items - 5) % 2) {
 	    /* odd number of arguments, so argument after maxRetrieve is
 	       optional getListFields (an array of hash refs) */
 	    if ( SvROK(ST(field_off)) &&
@@ -3713,7 +3837,13 @@ ars_GetListEntryWithFields(ctrl,schema,qualifier,maxRetrieve,...)
 	    sortList.sortList[i].fieldId = SvIV(ST(i*2+field_off));
 	    sortList.sortList[i].sortOrder = SvIV(ST(i*2+field_off+1));
 	  }
-	  ret = ARGetListEntryWithFields(ctrl, schema, qualifier, getList, &sortList, maxRetrieve, &entryFieldValueList, NULL, &status);
+	  ret = ARGetListEntryWithFields(ctrl, schema, qualifier, 
+		getList, &sortList, 
+#if AR_EXPORT_VERSION >= 6
+		firstRetrieve,
+#endif
+		maxRetrieve, 
+		&entryFieldValueList, NULL, &status);
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
 #endif
@@ -3774,19 +3904,25 @@ int
 ars_NTInitializationClient()
         CODE:
         {
+#if AR_EXPORT_VERSION < 6
           NTStatusList status;
           int          ret;
 
 	  (void) ARError_reset();
 	  Zero(&status, 1, NTStatusList);
           RETVAL = 0;
-#if AR_EXPORT_VERSION < 3
+# if AR_EXPORT_VERSION < 3
           ret = NTInitializationClient(&status);
           if(!NTError( ret, status)) {
-            RETVAL = 1;
+          	RETVAL = 1;
           }
-#else
-	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, "NTInitializationClient() is only available in ARS2.x");
+# else
+	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"NTInitializationClient() is only available in ARS2.x");
+# endif
+#else /* >=5.0 */
+	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"NTInitializationClient() is only available in ARSystem < 5.0");
 #endif
         }
         OUTPUT:
@@ -3800,21 +3936,27 @@ ars_NTDeregisterClient(user, password, filename)
 	char *		filename
 	CODE:
 	{
+#if AR_EXPORT_VERSION < 6
 	  NTStatusList status;
 	  int ret;
 
 	  (void) ARError_reset();
 	  RETVAL = 0;
 	  Zero(&status, 1,NTStatusList);
-#if AR_EXPORT_VERSION < 3
+# if AR_EXPORT_VERSION < 3
 	  if(user && password && filename) {
-	    ret = NTDeregisterClient(user, password, filename, &status);
-	    if(!NTError( ret, status)) {
-	      RETVAL = 1;
-	    }
+		ret = NTDeregisterClient(user, password, filename, &status);
+		if(!NTError( ret, status)) {
+			RETVAL = 1;
+		}
 	  }
-#else
-	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, "NTDeregisterClient() is only available in ARS2.x");
+# else
+	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"NTDeregisterClient() is only available in ARS2.x");
+# endif
+#else /* >= 5.0 */
+	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"NTDeregisterClient() is only available in ARSystem < 5.0");
 #endif
 	}
 	OUTPUT:
@@ -3827,21 +3969,27 @@ ars_NTRegisterClient(user, password, filename)
 	char *		filename
 	CODE:
 	{
+#if AR_EXPORT_VERSION < 6
 	  NTStatusList status;
 	  int ret;
 
 	  (void) ARError_reset();
 	  Zero(&status, 1, NTStatusList);
 	  RETVAL = 0;
-#if AR_EXPORT_VERSION < 3
+# if AR_EXPORT_VERSION < 3
 	  if(user && password && filename) {
-	    ret = NTRegisterClient(user, password, filename, &status);
-	    if(!NTError( ret, status)) {
-		RETVAL = 1;
-	    }
+	  	ret = NTRegisterClient(user, password, filename, &status);
+		if(!NTError( ret, status)) {
+			RETVAL = 1;
+		}
 	  }
-#else
-	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, "NTRegisterClient() is only available in ARS2.x");
+# else
+	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"NTRegisterClient() is only available in ARS2.x");
+# endif
+#else /* >= 5.0 */
+	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"NTRegisterClient() is only available in ARSystem < 5.0");
 #endif
 	}
 	OUTPUT:
@@ -3851,19 +3999,25 @@ int
 ars_NTTerminationClient()
 	CODE:
 	{
+#if AR_EXPORT_VERSION < 6
 	  NTStatusList status;
 	  int ret;
 
 	  (void) ARError_reset();
 	  Zero(&status, 1, NTStatusList);
 	  RETVAL = 0;
-#if AR_EXPORT_VERSION < 3
+# if AR_EXPORT_VERSION < 3
 	  ret = NTTerminationClient(&status);
 	  if(!NTError( ret, status)) {
-	    RETVAL = 1;
+	 	RETVAL = 1;
 	  }
-#else
-	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, "NTTerminationClient() is only available in ARS2.x");
+# else
+	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"NTTerminationClient() is only available in ARS2.x");
+# endif
+#else /* >= 5.0 */
+	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"NTTerminationClient() is only available in ARSystem < 5.0");
 #endif
 	}
 	OUTPUT:
@@ -3876,9 +4030,10 @@ ars_NTRegisterServer(serverHost, user, password, ...)
 	char *		password
 	CODE:
 	{
+#if AR_EXPORT_VERSION < 6
 	  NTStatusList status;
 	  int          ret;
-#if AR_EXPORT_VERSION < 3
+# if AR_EXPORT_VERSION < 3
 	  Zero(&status, 1, NTStatusList);
 	  (void) ARError_reset();
 	  RETVAL = 0;
@@ -3891,7 +4046,7 @@ ars_NTRegisterServer(serverHost, user, password, ...)
 		(void) ARError_add(AR_RETURN_ERROR, AP_ERR_USAGE,
 			"usage: ars_NTRegisterServer(serverHost, user, password)");
 	  }
-#else
+# else /* >= 3 */
 	  NTPortAddr    clientPort;
 	  unsigned int  clientCommunication;
 	  unsigned int  protocol;
@@ -3928,7 +4083,9 @@ ars_NTRegisterServer(serverHost, user, password, ...)
 
 	  if(clientCommunication == NT_CLIENT_COMMUNICATION_SOCKET) {
 		if(protocol == NT_PROTOCOL_TCP) {
-			ret = NTRegisterServer(serverHost, user, password, clientCommunication, clientPort, protocol, multipleClients, &status);
+			ret = NTRegisterServer(serverHost, user, password, 
+						clientCommunication, clientPort, protocol, 
+						multipleClients, &status);
 			if(!NTError(ret, status)) {
 				RETVAL = 1;
 			}
@@ -3938,8 +4095,12 @@ ars_NTRegisterServer(serverHost, user, password, ...)
 	  } else 
 		(void) ARError_add(AR_RETURN_ERROR, AP_ERR_INV_ARGS,
 				"clientCommunication arg invalid.");
-#endif
+# endif /* pre/post 3.0 selection */
 	ntregserver_end:;
+#else /* >= 5.0 */
+	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"NTRegisterServer() is only available in ARSystem < 5.0");
+#endif
 	}
 	OUTPUT:
 	RETVAL
@@ -3948,6 +4109,7 @@ int
 ars_NTTerminationServer()
 	CODE:
 	{
+#if AR_EXPORT_VERSION < 6
 	 int ret;
 	 NTStatusList status;
 
@@ -3956,8 +4118,12 @@ ars_NTTerminationServer()
 	 RETVAL = 0;
 	 ret = NTTerminationServer(&status);
 	 if(!NTError( ret, status)) {
-	   RETVAL = 1;
+		RETVAL = 1;
 	 }
+#else /* >= 5.0 */
+	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"NTTerminationServer() is only available in ARSystem < 5.0");
+#endif
 	}
 	OUTPUT:
 	RETVAL
@@ -3967,9 +4133,10 @@ ars_NTDeregisterServer(serverHost, user, password, port=0)
 	char *		serverHost
 	char *		user
 	char *		password
-	NTPortAddr	port
+	unsigned long	port
 	CODE:
 	{
+#if AR_EXPORT_VERSION < 6
 	 int ret;
 	 NTStatusList status;
 
@@ -3977,15 +4144,19 @@ ars_NTDeregisterServer(serverHost, user, password, port=0)
 	 Zero(&status, 1, NTStatusList);
 	 RETVAL = 0; /* assume error */
 	 if(serverHost && user && password) {
-	    ret = NTDeregisterServer(serverHost, user, password,
-#if AR_EXPORT_VERSION >= 4
+		ret = NTDeregisterServer(serverHost, user, password,
+# if AR_EXPORT_VERSION >= 4
 			&port, 
-#endif
+# endif /* < 4 */
 			&status);
 	    if(!NTError( ret, status)) {
 		RETVAL = 1; /* success */
 	    }
 	 }
+#else /* >= 5.0 */
+	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"NTDeregisterServer() is only available in ARSystem < 5.0");
+#endif
 	}
 	OUTPUT:
 	RETVAL
@@ -3994,6 +4165,7 @@ void
 ars_NTGetListServer()
 	PPCODE:
 	{
+#if AR_EXPORT_VERSION < 6
 	  NTServerNameList serverList;
 	  NTStatusList     status;
 	  int              ret, i;
@@ -4002,19 +4174,22 @@ ars_NTGetListServer()
 	  Zero(&status, 1, NTStatusList);
 	  ret = NTGetListServer(&serverList, &status);
 	  if(!NTError( ret, status)) {
-	     for(i=0; i<serverList.numItems; i++) {
-	        XPUSHs(sv_2mortal(newSVpv(serverList.nameList[i], 0)));
-	     }
-#ifndef WASTE_MEM
-	     FreeNTServerNameList(&serverList, FALSE);
-#endif
+		for(i=0; i<serverList.numItems; i++) {
+			XPUSHs(sv_2mortal(newSVpv(serverList.nameList[i], 0)));
+		}
+		FreeNTServerNameList(&serverList, FALSE);
 	  }
+#else /* >= 5.0 */
+	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"NTGetListServer() is only available in ARSystem < 5.0");
+#endif
 	}
 
 int
 ars_NTInitializationServer()
 	CODE:
 	{
+#if AR_EXPORT_VERSION < 6
 	  NTStatusList status;
 	  int          ret;
 
@@ -4025,6 +4200,10 @@ ars_NTInitializationServer()
 	  if(!NTError( ret, status)) {
 	     RETVAL = 1; /* success */
 	  }
+#else /* >= 5.0 */
+	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"NTInitializationServer() is only available in ARSystem < 5.0");
+#endif
 	}
 	OUTPUT:
 	RETVAL
@@ -4038,6 +4217,7 @@ ars_NTNotificationServer(serverHost, user, notifyText, notifyCode, notifyCodeTex
 	char *		notifyCodeText
 	CODE:
 	{
+#if AR_EXPORT_VERSION < 6
 	  NTStatusList status;
 	  int ret;
 
@@ -4051,6 +4231,10 @@ ars_NTNotificationServer(serverHost, user, notifyText, notifyCode, notifyCodeTex
 		RETVAL = 1;
 	     }
 	  }
+#else
+	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"NTNotificationServer() is only available in ARSystem < 5.0");
+#endif
 	}
 	OUTPUT:
 	RETVAL
@@ -4066,11 +4250,17 @@ DESTROY(ctrl)
 	ARControlStruct *	ctrl
 	CODE:
 	{
-#ifndef WASTE_MEM
 # if AR_EXPORT_VERSION > 4
-	  safefree(ctrl);
+		ARStatusList status;
+		int rv = 0;
+
+		(void) ARError_reset();
+		Zero(&status, 1, ARStatusList);
+		DBG( ("control struct destructor\n") );
+		rv = ARTermination(ctrl, &status);
+		(void) ARError(rv, status);
+		safefree(ctrl);
 # endif /* AR_EXPORT_VERSION */
-#endif
 	}
 
 MODULE = ARS		PACKAGE = ARQualifierStructPtr
@@ -4080,7 +4270,6 @@ DESTROY(qual)
 	ARQualifierStruct *	qual
 	CODE:
 	{
-#ifndef WASTE_MEM
-	  safefree(qual);
-#endif
+		DBG( ("arqualifierstruct destructor\n") );
+		FreeARQualifierStruct(qual, TRUE);
 	}

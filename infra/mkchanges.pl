@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/infra/mkchanges.pl,v 1.5 2002/11/06 16:20:25 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/infra/mkchanges.pl,v 1.6 2003/03/27 17:58:42 jcmurphy Exp $
 #
 # mkchanges.pl [-t] -f changes.dat
 #
@@ -144,7 +144,7 @@ sub spewTXT {
 		s/<[\/]{0,1}BLOCKQUOTE>/\ /gi;
 		s/<[\/]{0,1}BR>/\ /gi;
 		s/&gt;/>/g;
-		s/&lt;/>/g;
+		s/&lt;/</g;
 
 		if(/^$/) {
 			print "\n\n";

@@ -121,5 +121,6 @@ if($eid2 eq $eid) {
 }
 
 ars_DeleteEntry($c, "ARSperl Test", $eid);
+ars_Logoff($c);
 
 exit 0;
