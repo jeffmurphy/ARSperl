@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.22 2004/08/13 01:54:13 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.23 2004/09/23 17:34:24 jmccarrell Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -38,6 +38,10 @@ $Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.22 2004/08/13 01:54:13 jcmurp
 
 #include "support.h"
 #include "supportrev.h"
+
+/*
+ * forward declarations
+ */
 
 static int 
 rev_ARActiveLinkActionList_helper(ARControlStruct * ctrl, HV * h,
@@ -97,6 +101,14 @@ static int
 rev_ARPropList_helper(ARControlStruct * ctrl,
 		      HV * h, ARPropList * m, int idx);
 #endif
+
+#if AR_EXPORT_VERSION >= 4
+static int
+rev_ARMessageStruct(ARControlStruct * ctrl, 
+                    HV * h, char *k, ARMessageStruct * m);
+#endif
+
+
 
 /* ROUTINE
  *   revTypeName(TypeMapStruct *tms, char *type)
@@ -825,7 +837,7 @@ rev_ARActiveLinkActionList_helper(ARControlStruct * ctrl, HV * h, ARActiveLinkAc
 		al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_FIELDS;
 		rv += rev_ARFieldAssignList(ctrl, h, "assign_fields",
 #if AR_EXPORT_VERSION >= 8L
-					&(al->actionList[idx].u.setFields));
+					&(al->actionList[idx].u.setFields.fieldList));
 #else
 					&(al->actionList[idx].u.fieldList));
 #endif
@@ -2418,7 +2430,7 @@ rev_ARMacroParmList(ARControlStruct * ctrl, HV * h, char *k, ARMacroParmList * m
 /* roll our own strcasecmp and strncasecmp for Win */
 
 int 
-strcasecmp(const char *s1, const char *s2)
+strcasecmp(char *s1, char *s2)
 {
 	char           *p1, *p2;
 	char            c1, c2;
@@ -2438,12 +2450,12 @@ strcasecmp(const char *s1, const char *s2)
 }
 
 int 
-strncasecmp(const char *s1, const char *s2, size_t n)
+strncasecmp(char *s1, char *s2, size_t n)
 {
 
 	char           *p1, *p2;
 	char            c1, c2;
-	int             i = 0;
+	size_t          i = 0;
 	p1 = s1;
 	p2 = s2;
 

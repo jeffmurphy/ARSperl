@@ -33,6 +33,7 @@ $header: /u1/project/ARSperl/ARSperl/RCS/support.c,v 1.25 1999/01/04 21:04:27 jc
 #define __support_c_
 
 #include "support.h"
+#include "supportrev.h"
 
 int
 compmem(MEMCAST * m1, MEMCAST * m2, int size)
@@ -301,7 +302,7 @@ ARError_add(unsigned int type, long num, char *text)
 int
 ARError(int returncode, ARStatusList status)
 {
-	int             item;
+	unsigned int    item;
 	int             ret = 0;
 
 	for (item = 0; item < status.numItems; item++) {
@@ -745,7 +746,7 @@ perl_ARNameType(ARControlStruct * ctrl, ARNameType * in)
 SV             *
 perl_ARList(ARControlStruct * ctrl, ARList * in, ARS_fn fn, int size)
 {
-	int             i;
+	unsigned int   i;
 	AV             *array = newAV();
 
 	for (i = 0; i < in->numItems; i++)
@@ -802,9 +803,8 @@ perl_ARValueStructType(ARControlStruct * ctrl, ARValueStruct * in)
 SV             *
 perl_ARValueStruct_Assign(ARControlStruct * ctrl, ARValueStruct * in)
 {
-	ARDiaryList     diaryList;
 	ARStatusList    status;
-	int             ret, i;
+	int             i;
 
 	Zero(&status, 1, ARStatusList);
 
@@ -1200,7 +1200,7 @@ SV             *
 perl_ARMacroParmList(ARControlStruct * ctrl, ARMacroParmList * in)
 {
 	HV             *hash = newHV();
-	int             i;
+	unsigned int   i;
 
 	for (i = 0; i < in->numItems; i++)
 		hv_store(hash,  in->parms[i].name, strlen(in->parms[i].name) , newSVpv(in->parms[i].value, 0), 0);
@@ -1478,7 +1478,8 @@ perl_expandARCharMenuStruct(ARControlStruct * ctrl,
 			    ARCharMenuStruct * in)
 {
 	ARCharMenuStruct menu, *which;
-	int             ret, i;
+	int             ret;
+        unsigned int    i;
 	ARStatusList    status;
 	AV             *array;
 	SV             *sub;
@@ -1566,7 +1567,7 @@ perl_ARIndexStruct(ARControlStruct * ctrl, ARIndexStruct * in)
 {
 	HV             *hash = newHV();
 	AV             *array = newAV();
-	int             i;
+	unsigned int   i;
 
 	if (in->unique)
 		hv_store(hash,  "unique", strlen("unique") , newSViv(1), 0);
@@ -1843,7 +1844,7 @@ SV             *
 perl_ARFunctionAssignStruct(ARControlStruct * ctrl, ARFunctionAssignStruct * in)
 {
 	AV             *array = newAV();
-	int             i;
+	unsigned int   i;
 
 	for (i = 0; FunctionMap[i].number != TYPEMAP_LAST; i++)
 		if (FunctionMap[i].number == in->functionCode)
@@ -1883,7 +1884,8 @@ perl_ARPermissionList(ARControlStruct * ctrl, ARPermissionList * in, int permTyp
 {
 	HV             *hash = newHV();
 	char            groupid[20];
-	int             i, j;
+	int             j;
+        unsigned int    i;
 	TypeMapStruct  *tmap;
 
 	switch (permType) {
@@ -2055,7 +2057,7 @@ SV             *
 perl_ARPropList(ARControlStruct * ctrl, ARPropList * in) 
 {
 	AV             *array = newAV();
-	int             i;
+	unsigned int   i;
 
 	for(i = 0 ; i < in->numItems ; i++) 
 		av_push(array, 
@@ -2193,7 +2195,7 @@ SV             *
 perl_ARSortList(ARControlStruct * ctrl, ARSortList * in)
 {
 	AV             *array = newAV();
-	int             i;
+	unsigned int   i;
 
 	for (i = 0; i < in->numItems; i++) {
 		HV             *sort = newHV();
@@ -2321,7 +2323,7 @@ dup_ArithOp(ARControlStruct * ctrl, ARArithOpStruct * in)
 void
 dup_ValueList(ARControlStruct * ctrl, ARValueList * n, ARValueList * in)
 {
-	int             i;
+	unsigned int   i;
 
 	n->numItems = in->numItems;
 	n->valueList = MALLOCNN(sizeof(ARValueStruct) * in->numItems);
@@ -2564,7 +2566,7 @@ perl_ARWorkflowConnectStruct(ARControlStruct * ctrl, ARWorkflowConnectStruct * i
 SV *
 perl_ARNameList(ARControlStruct * ctrl, ARNameList * in) {
 	AV *array = newAV();
-	int i;
+	unsigned int i;
 
 	for(i = 0 ; i < in->numItems ; i++) {
 		av_push(array, newSVpv(in->nameList[i], 0));
