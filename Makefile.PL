@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.62 2005/03/10 02:11:21 jeffmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.63 2005/03/10 02:19:51 jeffmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -94,7 +94,9 @@ $AUTODEFINES = " -g -DARSPDEBUG ";
 $AUTODEFINES = "-D_WIN32" if($WINDOWS);
 
 
+$ARS_STATIC_LIB = "";
 if ($ARSVERSION >= 6.3) {
+        $ARS_STATIC_LIB = $ARSAPI."/lib/libar.a";
 	$ARS_LIBS = "";
 	if ($WINDOWS) {
 		    $ARS_LIBS = join(' ', map { '-l' . $_ } @{$ra_arlibs});
@@ -258,7 +260,7 @@ WriteMakefile(
 	      'NAME'	=> 'ARS',
 	      'VERSION_FROM' => 'ARS.pm',
 	      'LIBS'	=> ["${ARS_LDPATH} ${ARS_LIBS}"],
-	      'OBJECT'  => q[ARS$(OBJ_EXT) support$(OBJ_EXT) supportrev$(OBJ_EXT) ]."${ARSAPI}/lib/libar.a ",
+	      'OBJECT'  => q[ARS$(OBJ_EXT) support$(OBJ_EXT) supportrev$(OBJ_EXT) ].$ARS_STATIC_LIB,
 	      'INC'	=> "${INCLUDES}",
 	      # 'PM' =>{ '_h2ph_pre.ph' => '$(INST_LIBDIR)/_h2ph_pre.ph' },
 	      ($] >= 5.005 ?    ## Add these new keywords supported since 5.005
