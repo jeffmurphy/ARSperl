@@ -21,6 +21,9 @@
 #    Comments to: arsperl@smurfland.cit.buffalo.edu
 #
 # $Log: ARS.pm,v $
+# Revision 1.21  1997/10/29 21:54:07  jcmurphy
+# 1.5204
+#
 # Revision 1.20  1997/10/20 21:00:05  jcmurphy
 # 1.5203 beta. code cleanup. winnt additions. malloc/free
 # debugging code.
@@ -142,6 +145,7 @@ ars_GetAdminExtension ars_GetEscalation ars_GetFullTextInfo
 ars_GetListGroup ars_GetListSQL ars_GetListUser
 ars_GetListVUI ars_GetServerInfo
 ars_CreateActiveLink ars_CreateAdminExtension
+ars_GetControlStructFields
 $ars_errstr %ARServerStats %ars_errhash
 );
 
