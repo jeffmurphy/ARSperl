@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/GetFilter.pl,v 1.3 1998/03/12 20:44:57 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/GetFilter.pl,v 1.4 1998/04/22 17:25:46 jcmurphy Exp $
 #
 # NAME
 #   GetFilter.pl
@@ -16,6 +16,9 @@
 #   jcmurphy@acsu.buffalo.edu
 #
 # $Log: GetFilter.pl,v $
+# Revision 1.4  1998/04/22 17:25:46  jcmurphy
+# added example code to show decoding of SQL/SetFields actions.
+#
 # Revision 1.3  1998/03/12 20:44:57  jcmurphy
 # minor changes to allow specification of a server
 #
@@ -53,7 +56,7 @@ sub printl {
 
 ($server, $username, $password, $filtername) = @ARGV;
 if(!defined($filtername)) {
-    print "Usage: $0 [username] [password] [filtername]\n";
+    print "Usage: $0 [server] [username] [password] [filtername]\n";
     exit 0;
 }
 
@@ -256,6 +259,13 @@ sub ProcessFunctionList {
 sub ProcessSetFields {
     my $field = shift;
  
+    if(defined($field->{sql})) {
+	printl 3, "SQL:\n";
+	printl 4, "server: $field->{sql}->{server}\n";
+	printl 4, "sqlCommand: $field->{sql}->{sqlCommand}\n";
+	printl 4, "valueIndex: $field->{sql}->{valueIndex}\n";
+    }
+
     if(defined($field->{valueType})) {
 	printl 3, "valueType: $field->{valueType}\n";
     }
