@@ -2660,7 +2660,7 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 			/* value must be a hash reference */
 			if (SvROK(in)) {
 				if (SvTYPE(hash = (HV *) SvRV(in)) == SVt_PVHV) {
-					ARAttachStruct *attachp = MALLOCNN(sizeof(ARLocStruct));
+					ARAttachStruct *attachp = MALLOCNN(sizeof(ARAttachStruct));
 					ARLocStruct    *locp = &(attachp->loc);
 					long            size = 0;
 					SV             *name = NULL;
