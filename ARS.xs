@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.52 1998/09/16 14:18:49 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.53 1998/10/06 19:16:40 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,10 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.52 1998/09/16 14:18:49 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.53  1998/10/06 19:16:40  jcmurphy
+fixed bugs in RegisterServer (3.x version) submitted by
+G David Frye <gdf@uiuc.edu>
+
 Revision 1.52  1998/09/16 14:18:49  jcmurphy
 v1.61
 
@@ -3246,11 +3250,11 @@ ars_NTRegisterServer(serverHost, user, password, ...)
 	  RETVAL = 0;
 	  if(serverHost && user && password && items == 3) {
 	    ret = NTRegisterServer(serverHost, user, password, &status);
-	    if(!NTError( ret, status)) {
+	    if(!NTError(ret, status)) {
 		RETVAL = 1;
 	    }
 	  } else {
-	    (void) ARError_add( AR_RETURN_ERROR, AP_ERR_USAGE, "usage: ars_NTRegisterServer(serverHost, user, password)");
+	    (void) ARError_add(AR_RETURN_ERROR, AP_ERR_USAGE, "usage: ars_NTRegisterServer(serverHost, user, password)");
 	  }
 #else
 	  unsigned long clientPort;
@@ -3262,33 +3266,33 @@ ars_NTRegisterServer(serverHost, user, password, ...)
 	  Zero(&status, 1, NTStatusList);
 	  RETVAL = 0;
           if (items < 4 || items > 7) {
-	    (void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
+	    (void) ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
 	  }
-	  clientPort = (unsigned int)SvIV(ST(4));
+	  clientPort = (unsigned int)SvIV(ST(3));
 	  if (items < 5) {
 	    clientCommunication = 2;
 	  } else {
-	    clientCommunication = (unsigned int)SvIV(ST(5));
+	    clientCommunication = (unsigned int)SvIV(ST(4));
 	  }
 	  if (items < 6) {
 	    protocol = 1;
 	  } else {
-	    protocol = (unsigned int)SvIV(ST(6));
+	    protocol = (unsigned int)SvIV(ST(5));
 	  }
 	  if (items < 7) {
 	    multipleClients = 1;
 	  } else {
-	    multipleClients = (unsigned int)SvIV(ST(1));
+	    multipleClients = (unsigned int)SvIV(ST(6));
 	  }
 	  
 	  if(clientCommunication == NT_CLIENT_COMMUNICATION_SOCKET) {
 	    if(protocol == NT_PROTOCOL_TCP) {
-	      ret = NTRegisterServer(serverHost, user, password, clientCommunication, clientPort, protocol, multipleClients, &status);
-	      if(!NTError( ret, status)) {
+		ret = NTRegisterServer(serverHost, user, password, clientCommunication, clientPort, protocol, multipleClients, &status);
+	      if(!NTError(ret, status)) {
 		RETVAL = 1;
 	      }
-	    }
-	  }
+	    } else (void) ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
+      } else (void) ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
 #endif
 	}
 	OUTPUT:
