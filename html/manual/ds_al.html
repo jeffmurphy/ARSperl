@@ -9,7 +9,29 @@
 This structure is returned by function 
 <A HREF="ars_GetActiveLink.html">ars_GetActiveLink</a>.
 <p>
-For ARS version 3.0:
+For ARS version 4.5:
+<PRE>
+{
+ "actionList"      =&gt; <i>list</i> of references to <A HREF="ds_alas.html">Active Link Action Structure</a>,
+ "controlField     =&gt; integer,
+ "elseList"        =&gt; <i>list</i> of references to <A HREF="ds_alas.html">Active Link Action Structure</a>,
+ "enable"          =&gt; integer enumeration,
+ "executeMask"     =&gt; integer bitmask,
+ "focusField"      =&gt; integer,
+ "groupList"       =&gt; <i>list</i> of integer,
+ "helpText"        =&gt; string,
+ "lastChanged"     =&gt; string,
+ "name"            =&gt; string,
+ "order"           =&gt; integer,
+ "owner"           =&gt; string,
+ "query"           =&gt; reference to internal struct,
+ <font color='red'>"schemaList"      =&gt; <i>list</I> of one or more strings</font>,
+ "timestamp"       =&gt; integer
+ "changeDiary"     =&gt; <i>list</i> of references to <a href="ds_diaryentry_hash.html">Diary Entry Structures</a>
+}
+</PRE>
+
+For ARS version 3.x and 4.0.x:
 <PRE>
 {
  "actionList"      =&gt; <i>list</i> of references to <A HREF="ds_alas.html">Active Link Action Structure</a>,

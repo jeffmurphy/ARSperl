@@ -10,6 +10,31 @@ This structure is returned by
 <A href="ars_GetEscalation.html">ars_GetEscalation</a>.
 <p>
 
+
+For ARS version 4.5:
+<PRE>
+{
+ "name"         =&gt; string,
+ "changeDiary" =&gt; <i>list</I> of references to <a href="ds_diaryentry_hash.html">Diary Entry Structures</a>,
+ "helpText"     =&gt; string,
+ "lastChanged"  =&gt; string,
+ "timestamp"    =&gt; integer,
+ "owner"        =&gt; string,
+ <font color='red'>"schemaList"   =&gt; <I>list</I> of 1 or more strings</font>,
+ "enable"       =&gt; integer,
+ "query"        =&gt; ARQualifierStructPtr,
+ "actionList"   =&gt; <B>list</B> of references to <A HREF="ds_alas.html">Active Link Action Structure</A>,
+ "elseList"     =&gt; <B>list</B> of references to <A HREF="ds_alas.html">Active Link Action Structure</A>, 
+ "TmType"       =&gt; integer,
+ "TmInterval"     =&gt; integer, <B>*</B>
+ "TmMonthDayMask" =&gt; integer, <B>*</B>
+ "TmWeekDayMask"  =&gt; integer, <B>*</B>
+ "TmHourMask"     =&gt; integer, <B>*</B>
+ "TmMinute"       =&gt; integer, <B>*</B>
+}
+</PRE>
+
+For ARS version 2.x, 3.x and 4.0.x:
 <PRE>
 {
  "name"         =&gt; string,
@@ -22,7 +47,7 @@ This structure is returned by
  "enable"       =&gt; integer,
  "query"        =&gt; ARQualifierStructPtr,
  "actionList"   =&gt; <B>list</B> of references to <A HREF="ds_alas.html">Active Link Action Structure</A>,
- "elseList"     =&gt; <B>list</B> of references to <A HREF="ds_alas.html">Active Link Action Structure</A>, <B>(3.x)</B>
+ "elseList"     =&gt; <B>list</B> of references to <A HREF="ds_alas.html">Active Link Action Structure</A>, <B>(&gt;=3.x)</B>
  "TmType"       =&gt; integer,
  "TmInterval"     =&gt; integer, <B>*</B>
  "TmMonthDayMask" =&gt; integer, <B>*</B>

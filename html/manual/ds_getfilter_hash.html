@@ -10,12 +10,32 @@ This structure is returned by
 <A href="ars_GetFilter.html">ars_GetFilter</a>.
 <p>
 
-For ARS version 3.0:
+For ARS version 4.5:
 
 <PRE>
 {
  "actionList"   =&gt; <I>list</I> of references to <A HREF="ds_getfilter_acthash.html">Action Hash</A>
- "changeDiary" =&gt; <i>list</I> of references to <a href="ds_diaryentry_hash.html">Diary Entry Structures</a>,
+ "changeDiary"  =&gt; <i>list</I> of references to <a href="ds_diaryentry_hash.html">Diary Entry Structures</a>,
+ "elseList"     =&gt; <I>list</I> of references to <A HREF="ds_getfilter_acthash.html">Action Hash</A>
+ "enable"       =&gt; integer boolean,
+ "helpText"     =&gt; string,
+["lastChanged"  =&gt; integer,]
+ "name"         =&gt; string,
+ "opSet"        =&gt; integer bitmask,
+ "order"        =&gt; integer,
+ "owner"        =&gt; string,
+ "query"        =&gt; reference to internal struct,
+ <font color='red'>"schemaList"   =&gt; <I>list</I> of one or more strings</font>,
+ "timestamp"    =&gt; integer
+}
+</PRE>
+
+For ARS version 3.x and 4.0.x:
+
+<PRE>
+{
+ "actionList"   =&gt; <I>list</I> of references to <A HREF="ds_getfilter_acthash.html">Action Hash</A>
+ "changeDiary"  =&gt; <i>list</I> of references to <a href="ds_diaryentry_hash.html">Diary Entry Structures</a>,
  "elseList"     =&gt; <I>list</I> of references to <A HREF="ds_getfilter_acthash.html">Action Hash</A>
  "enable"       =&gt; integer boolean,
  "helpText"     =&gt; string,
@@ -35,7 +55,7 @@ For ARS 2.1 and earlier:
 <PRE>
 {
  "actionList"   =&gt; <I>list</I> of references to <A HREF="ds_getfilter_acthash.html">Action Hash</A>
- "changeDiary" =&gt; <i>list</I> of references to <a href="ds_diaryentry_hash.html">Diary Entry Structures</a>,
+ "changeDiary"  =&gt; <i>list</I> of references to <a href="ds_diaryentry_hash.html">Diary Entry Structures</a>,
  "enable"       =&gt; integer boolean,
  "helpText"     =&gt; string,
 ["lastChanged"  =&gt; integer,]
