@@ -4,7 +4,7 @@
 </HEAD>
 <BODY BGCOLOR="#FFFFFF">
 
-   <H2><CODE>ars_GetListServer(ctrl)</CODE></H2>
+   <H2><CODE>ars_GetListServer()</CODE></H2>
 
       This function determines what servers are available from the machine
       that the script is running on.<P>
@@ -20,7 +20,7 @@
       <P>Example:
 
 <PRE>
-      @servers = ars_GetListServer($c);
+      @servers = ars_GetListServer();
       for($i = 0; $i &lt; $#servers ; $i++) {
            print "$servers[$i]\n";
       }
