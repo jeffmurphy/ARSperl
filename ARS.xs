@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.26 1997/02/20 20:27:47 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.27 1997/03/25 19:20:06 jmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.26 1997/02/20 20:27:47 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.27  1997/03/25 19:20:06  jmurphy
+fixed ars_GetListSchema
+
 Revision 1.26  1997/02/20 20:27:47  jcmurphy
 added some minor code to handle decoding TR. and DB. values in qualifications
 
@@ -2397,7 +2400,7 @@ ars_GetListSchema(ctrl,changedsince=0,...)
 	    name = SvPV(ST(3), na);
 	  ret = ARGetListSchema(ctrl, changedsince, schemaType, name, &nameList, &status);
 #else
-	  if (items != 2) {
+	  if (items != 2 && items != 1) {
 	    ars_errstr = "usage: ars_GetListSchema(ctrl,changedsince=0)";
 	    goto getListSchema_end;
 	  }
