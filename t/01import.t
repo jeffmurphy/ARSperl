@@ -46,7 +46,7 @@ my $rv = ars_Import($ctrl,
 	);
 
 
-if($rv == 1) {
+if(defined($rv) && ($rv == 1)) {
 	print "ok\n";
 } else {
 	print "not ok [$ars_errstr]\n";

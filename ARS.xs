@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.73 2000/09/06 18:27:53 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.74 2000/09/25 16:49:31 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -1975,6 +1975,8 @@ ars_Import(ctrl,importOption=AR_IMPORT_OPT_CREATE,importBuf,...)
 			((ars_ctrl *)ctrl)->queries++;
 #endif
 			if (ARError(ret, status)) {
+				RETVAL = 0;
+			} else {
 				RETVAL = 1;
 			}
 		} else {
