@@ -10,13 +10,14 @@
 {
  "schema"       =&gt; string,
  "server"       =&gt; string,
- "labelField"   =&gt; integer,
+ "labelField"   =&gt; ref to array of integers, 
  "valueField"   =&gt; integer,
  "sortOnLabel"  =&gt; integer boolean,
  "qualifier"    =&gt; internal pointer
 }
 </PRE>
 
+When compiled against pre-5.0 APIs, labelField will always contain exactly one value.
 <P>
 <HR WIDTH="30%">
 <P>

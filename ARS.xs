@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.89 2003/04/02 05:56:17 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.90 2003/04/16 01:40:02 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -810,7 +810,7 @@ ars_GetEntry(ctrl,schema,entry_id,...)
 	}
 
 void
-ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,firstRetrieve,...)
+ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve=0,firstRetrieve=0,...)
 	ARControlStruct *	ctrl
 	char *			schema
 	ARQualifierStruct *	qualifier
@@ -1544,8 +1544,12 @@ ars_GetCharMenu(ctrl,name)
 					 newRV_noinc((SV *) a), 0);
 			}
 #else
-			hv_store(menuDef,  "labelField", strlen("labelField") ,
-				newSViv(menuDefn.u.menuQuery.labelField), 0);
+			{
+				AV *a = newAV();
+				av_push(a, newSViv(menuDefn.u.menuQuery.labelField));
+				hv_store(menuDef, "labelField", strlen("labelField"),
+					newRV_noinc((SV *)a), 0);
+			}
 #endif
 			hv_store(menuDef,  "valueField", strlen("valueField") ,
 				newSViv(menuDefn.u.menuQuery.valueField), 0);

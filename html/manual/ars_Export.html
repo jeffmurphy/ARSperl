@@ -4,7 +4,7 @@
 </HEAD>
 <BODY BGCOLOR="#FFFFFF">
 
-    <H2><CODE>ars_Export(ctrl, displayTag, type, name)</CODE></H2>
+    <H2><CODE>ars_Export(ctrl, displayTag, vuiType, type1, name1, type2, name2, ...)</CODE></H2>
 
 	Returns a scalar consisting of the export text for the
 	requested item name of the given type. Valid types are:
@@ -24,10 +24,33 @@
              <LI> "container" 
              <LI> "dist_pool" 
              <LI> "schema_view_2" 
+		<li> "vui"
+		<li> "field"
+<li>  "xml_schema"
+<li>  "xml_filter"
+<li>  "xml_active_link"
+<li>  "xml_char_menu"
+<li>  "xml_escalation"
+<li>  "xml_dist_map"
+<li>  "xml_container"
+<li>  "xml_dist_pool" 
+<li>  "xml_vui" 
+<li>  "xml_field" 
+
 	</UL>
 	<P>
         <code>displayTag</code> is the particular view to export. If you pass in 
 	an empty string for this parameter, all views will be exported. <P>
+
+	<code>vuiType</code> is one of:<P>
+<PRE>
+	&ARS::AR_VUI_TYPE_NONE (the default)
+	&ARS::AR_VUI_TYPE_WINDOWS (fields in ARSystem Windows User Tool)
+	&ARS::AR_VUI_TYPE_WEB (fields in view can be adjusted)
+	&ARS::AR_VUI_TYPE_WEB_ABS_POS (fields in view are fixed)
+	&ARS::AR_VUI_TYPE_WIRELESS (undocumented?)
+</PRE><P>
+
 	Note that note all of the above types are available in earlier 
 	versions of ARSystem. The above list is valid as of ARSystem v4.5. <P>
 	It's recommended that if you want to export schema definitions you
@@ -55,7 +78,7 @@
 
 <p>
 <address>
-Last changes to this page 7th July 2000 by jcmurphy@arsperl.org<BR>
+Last changes to this page 15 Apr 2003 by jcmurphy@arsperl.org<BR>
 &#169; J.C.Murphy, J.W.Murphy 1997 arsperl@arsperl.org
 </address>
 

@@ -1,4 +1,4 @@
-$Header: /cvsroot/arsperl/ARSperl/RELNOTES,v 1.11 2003/03/28 05:51:56 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/RELNOTES,v 1.12 2003/04/16 01:40:02 jcmurphy Exp $
 
 Release Notes for ARSperl
 
@@ -39,6 +39,16 @@ will need to be editted (unless you are using the OO layer).
 	Function			What's Changed
 	--------------------------------------------------------------
 	ars_GetListEntry		additional required 
+
+The following functions have altered return values.
+
+	Function			What's Changed
+	--------------------------------------------------------------
+	ars_GetCharMenu			for query menus, the 
+					labelField is no longer
+					a scalar. it's now an
+					array ref.
+
 	
 1.68 Notes
 ----------
