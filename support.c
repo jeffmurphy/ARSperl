@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.25 1999/01/04 21:04:27 jcmurphy Exp $
+$header: /u1/project/ARSperl/ARSperl/RCS/support.c,v 1.25 1999/01/04 21:04:27 jcmurphy Exp jcmurphy $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -24,6 +24,9 @@ $Header: /cvsroot/arsperl/ARSperl/support.c,v 1.25 1999/01/04 21:04:27 jcmurphy 
     LOG:
 
 $Log: support.c,v $
+Revision 1.26  1999/03/12 07:27:16  jcmurphy
+1.6400 BETA - OO layer and attachments
+
 Revision 1.25  1999/01/04 21:04:27  jcmurphy
 fixed some typos for compiling against 2.x libs
 
@@ -161,6 +164,8 @@ mallocnn(int s)
 
   if (! m)
     croak("can't malloc");
+
+  memset(m, 0, s?s:1);
 
   return m;
 }
@@ -575,6 +580,10 @@ perl_ARValueStruct_Assign(ARControlStruct *ctrl, ARValueStruct *in) {
 			 (ARS_fn)perl_ARCoordStruct,
 			 sizeof(ARCoordStruct));
 #endif
+#if AR_EXPORT_VERSION >= 4
+  case AR_DATA_TYPE_ATTACH:
+    return perl_ARAttach(ctrl, in->u.attachVal);
+#endif
   case AR_DATA_TYPE_NULL:
   default:
     return newSVsv(&sv_undef); /* FIX */
@@ -640,6 +649,10 @@ perl_ARValueStruct(ARControlStruct *ctrl, ARValueStruct *in) {
 			 (ARList *)in->u.coordListVal,
 			 (ARS_fn)perl_ARCoordStruct,
 			 sizeof(ARCoordStruct));
+#endif
+#if AR_EXPORT_VERSION >= 4
+  case AR_DATA_TYPE_ATTACH:
+    return perl_ARAttach(ctrl, in->u.attachVal);
 #endif
   case AR_DATA_TYPE_NULL:
   default:
@@ -1570,6 +1583,32 @@ perl_ARSortList(ARControlStruct *ctrl, ARSortList *in) {
 }
 
 SV *
+perl_ARAttach(ARControlStruct *ctrl, ARAttachStruct *in) {
+  HV   *hash   = newHV();
+  SV   *buffer;
+  SV   *name;
+  SV   *size;
+  SV   *csize;
+  char *str = "Use ars_GetEntryBLOB or OO->getAttachment to extract the attachment";
+  
+  /*
+   * at this point, the loc structure is not actually used ...
+   */
+
+  buffer = newSVpv(VNAME(str));
+  name   = newSVpv(VNAME(in->name));
+  size   = newSViv(in->origSize);
+  csize  = newSViv(in->compSize);
+  
+  hv_store(hash, VNAME("name"), name, 0);
+  hv_store(hash, VNAME("value"), buffer, 0);
+  hv_store(hash, VNAME("origSize"), size, 0);
+  hv_store(hash, VNAME("compSize"), csize, 0);
+
+  return newRV((SV *)hash);
+}
+
+SV *
 perl_ARByteList(ARControlStruct *ctrl, ARByteList *in) {
   HV *hash      = newHV();
   SV *byte_list = newSVpv((char *)in->bytes, in->numItems);
@@ -2213,7 +2252,8 @@ ARGetFieldCached(ARControlStruct *ctrl, ARNameType schema, ARInternalId id,
 
 int
 sv_to_ARValue(ARControlStruct *ctrl, SV *in, unsigned int dataType, 
-	      ARValueStruct *out) {
+	      ARValueStruct *out) 
+{
   AV           *array, *array2;
   HV           *hash;
   SV          **fetch, *type, *val, **fetch2;
@@ -2290,6 +2330,109 @@ sv_to_ARValue(ARControlStruct *ctrl, SV *in, unsigned int dataType,
     case AR_DATA_TYPE_ULONG:
       out->u.ulongVal = SvIV(in); /* FIX -- does perl have ulong ? */
       break;
+#if AR_EXPORT_VERSION >= 4
+    case AR_DATA_TYPE_ATTACH:
+      /* value must be a hash reference */
+      if(SvROK(in)) {
+	if(SvTYPE(hash = (HV *)SvRV(in)) == SVt_PVHV) {
+	  ARAttachStruct *attachp = MALLOCNN(sizeof(ARLocStruct));
+	  ARLocStruct    *locp    = &(attachp->loc);
+	  long            size    = 0;
+
+	  /* the hash should contain keys:
+	   *  file (a filename) or
+	   *  buffer (a buffer) and all of:
+	   *  size (length of file or buffer)
+	   */
+
+	  /* first: decode the size key */
+
+	  fetch  = hv_fetch(hash, VNAME("size"), FALSE);
+	  if(!fetch) {
+	    safefree(attachp);
+	    ARError_add(AR_RETURN_ERROR, AP_ERR_ATTACH, 
+			"Must specify 'size' key.");
+	    return -1;
+	  }
+
+	  if (! (SvOK(*fetch) && SvTYPE(*fetch) != SVt_RV)) {
+	    safefree(attachp);
+	    ARError_add(AR_RETURN_ERROR, AP_ERR_ATTACH,
+			"'size' key does not map to scalar value.");
+	    return -1;
+	  }
+
+	  size   = SvIV(*fetch);
+
+	  /* next: determine if we are dealing with an
+	   * in core buffer or a filename and setup the
+	   * AttachStruct.name field accordingly
+	   */
+
+	  fetch  = hv_fetch(hash, VNAME("file"), FALSE);
+	  fetch2 = hv_fetch(hash, VNAME("buffer"), FALSE);
+
+	  /* either/or must be specifed: not both and not neither */
+
+	  if ((!fetch && !fetch2) || (fetch && fetch2)) {
+	    safefree(attachp);
+	    ARError_add(AR_RETURN_ERROR, AP_ERR_ATTACH, 
+			"Must specify one either 'file' or 'buffer' key.");
+	    return -1;
+	  }
+
+	  /* we've been given a filename */
+
+	  if(fetch) {  
+	    char   *filename;
+	    STRLEN  filenamelen;
+
+	    if (! (SvOK(*fetch) && SvTYPE(*fetch) != SVt_RV)) {
+	      safefree(attachp);
+	      ARError_add(AR_RETURN_ERROR, AP_ERR_ATTACH,
+			  "'file' key does not map to scalar value.");
+	      return -1;
+	    }
+	    
+	    locp->locType     = AR_LOC_FILENAME;
+
+	    filename          = SvPV(*fetch, filenamelen);
+	    attachp->name     = MALLOCNN(filenamelen+1);
+	    memcpy(attachp->name, filename, filenamelen);
+
+	    locp->u.filename  = MALLOCNN(filenamelen+1);
+	    memcpy(locp->u.filename, filename, filenamelen);
+
+	    attachp->origSize = size;
+	  } 
+
+	  /* else we've been given a buffer */
+
+	  else {  
+	    if (! (SvOK(*fetch2) && SvTYPE(*fetch2) != SVt_RV)) {
+	      safefree(attachp);
+	      ARError_add(AR_RETURN_ERROR, AP_ERR_ATTACH,
+			  "'buffer' key does not map to scalar value.");
+	      return -1;
+	    }
+	    
+	    attachp->name       = strdup("Anonymous In-core Buffer");
+	    locp->locType       = AR_LOC_BUFFER;
+	    locp->u.buf.bufSize = size;
+	    locp->u.buf.buffer  = MALLOCNN(size);
+	    memcpy(locp->u.buf.buffer, SvPV(*fetch2, PL_na), size);
+	  }
+	  
+	  out->u.attachVal = attachp;
+	  break;
+	}
+      }
+      ARError_add(AR_RETURN_ERROR, AP_ERR_ATTACH, 
+		  "Non hash-reference passed as attachment value.");
+      return -1;
+      break;
+#endif
+
     case AR_DATA_TYPE_COORDS:
       if (SvTYPE(array = (AV *)SvRV(in)) == SVt_PVAV) {
 	len = av_len(array) + 1;

@@ -1,4 +1,4 @@
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.28 1999/01/04 21:08:20 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.29 1999/03/12 07:27:16 jcmurphy Exp $
 
 CHANGES for ARSperl
 
@@ -13,6 +13,26 @@ previous versions of arsperl and may require altering of some arsperl
 scripts.
 
 MM/DD/YY
+=======================================================================
+#######################################################################
+=======================================================================
+03/12/99        (1.6400 BETA)
+
+  o (JCM)  added new LIBS line to Makefile.PL to cover NCR Unix
+           ("Hill, David K" <david.k.hill@intel.com>)
+  o (JCM)  added ars_GetEntryBLOB (attachment field handling) 
+           thanks to  "Kaelin Colclasure" <kaelin@talarian.com>
+           for supplying part of the code for the BLOB functions.
+  o (JCM)  simplified Makefile.PL configuration steps
+  o (JCM)  added attachment example scripts
+  o (JCM)  added basic OO layer
+  o (JCM)  added small test suite
+  o (JCM)  fixed some broken 4.0 related conditional compilation
+           stuff
+  o (JCM)  makefile now automatically converts C header files into
+           perl files so that all constants (C 'defines') are
+           available.
+
 =======================================================================
 #######################################################################
 =======================================================================

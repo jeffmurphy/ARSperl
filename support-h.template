@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.4 1999/01/04 21:05:14 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.5 1999/03/12 07:27:16 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -24,6 +24,9 @@ $Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.4 1999/01/04 21:05:14 j
     LOG:
 
 $Log: support-h.template,v $
+Revision 1.5  1999/03/12 07:27:16  jcmurphy
+1.6400 BETA - OO layer and attachments
+
 Revision 1.4  1999/01/04 21:05:14  jcmurphy
 fixed some conditional compilation typos/omissions
 
@@ -337,6 +340,7 @@ EXTERN SV *perl_ARCoordStruct(ARControlStruct *ctrl,  ARCoordStruct *);
 EXTERN int perl_BuildEntryList(ARControlStruct *ctrl,  AREntryIdList *entryList, 
 				char *entry_id);
 EXTERN SV *perl_ARAssignSQLStruct(ARControlStruct *ctrl,  ARAssignSQLStruct *in);
+EXTERN SV *perl_ARAttach(ARControlStruct *ctrl,  ARAttachStruct *in);
 #endif
 
 #ifndef BSD
@@ -408,5 +412,6 @@ int  copymem(MEMCAST *m1, MEMCAST *m2, int size);
 #define AP_ERR_NEEDKEYS     80022, "Required hash keys do not exists"
 #define AP_ERR_NEEDKEYSKEYS 80023 /* specify what keys */
 #define AP_ERR_PREREVFAIL   80024, "Failed to convert some perl structures to ars structures. Create/Set operation aborted."
+#define AP_ERR_ATTACH       80025  /* roll your own text */
 
 #endif /* __support_h_ */

@@ -17,111 +17,6 @@
 #    Mailing List (must be subscribed to post):
 #    arsperl@arsinfo.cit.buffalo.edu
 #
-# $Log: ARS.pm,v $
-# Revision 1.36  1999/01/04 21:05:50  jcmurphy
-# v1.63
-#
-# Revision 1.35  1998/12/28 15:45:09  jcmurphy
-# v1.62
-#
-# Revision 1.34  1998/09/16 14:18:42  jcmurphy
-# v1.61
-#
-# Revision 1.33  1998/09/11 18:00:33  jcmurphy
-# updated decodeStatusHistory helper function
-#
-# Revision 1.32  1998/08/07 18:39:28  jcmurphy
-# 1.6002
-#
-# Revision 1.31  1998/05/04 17:40:14  jcmurphy
-# 1.6001
-#
-# Revision 1.30  1998/03/31 23:30:29  jcmurphy
-# 1.6000 (beta) includes NT patch from  Bill Middleton <wjm@metronet.com>
-#
-# Revision 1.29  1998/03/31 15:54:25  jcmurphy
-# version=1.56
-#
-# Revision 1.28  1998/02/13 18:46:24  jcmurphy
-# 1.55
-#
-# Revision 1.27  1998/02/09 17:58:08  jcmurphy
-# updated version to 1.54
-#
-# Revision 1.26  1998/02/09 17:57:22  jcmurphy
-# fixed bug in ars_EncodeDiary()
-#
-# Revision 1.25  1997/11/26 20:06:48  jcmurphy
-# 1.53
-#
-# Revision 1.24  1997/11/10 23:50:36  jcmurphy
-# 1.5206
-#
-# Revision 1.23  1997/11/04 18:19:09  jcmurphy
-# version # update
-#
-# Revision 1.22  1997/10/29 21:57:34  jcmurphy
-# version number change
-#
-# Revision 1.21  1997/10/29 21:54:07  jcmurphy
-# 1.5204
-#
-# Revision 1.20  1997/10/20 21:00:05  jcmurphy
-# 1.5203 beta. code cleanup. winnt additions. malloc/free
-# debugging code.
-#
-# Revision 1.19  1997/10/13 12:26:29  jcmurphy
-# 1.5202
-#
-# Revision 1.18  1997/10/09 15:21:33  jcmurphy
-# 1.5201 version
-#
-# Revision 1.17  1997/10/09 00:57:56  jcmurphy
-# version update. added ARS::DEBUGGING
-#
-# Revision 1.16  1997/10/09 00:49:46  jcmurphy
-# 1.52: uninit'd var bug fix
-#
-# Revision 1.15  1997/10/07 14:29:01  jcmurphy
-# *** empty log message ***
-#
-# Revision 1.14  1997/09/04 00:21:10  jcmurphy
-# *** empty log message ***
-#
-# Revision 1.13  1997/08/05 21:20:04  jcmurphy
-# 1.50 dev1
-#
-# Revision 1.12  1997/07/02 15:51:45  jcmurphy
-# changed ars_errstr, added arserr_hash to exports, remove tie to main
-# on ars_errstr
-#
-# Revision 1.11  1997/02/18 16:38:20  jmurphy
-# added a END block to call ARTermination
-#
-# Revision 1.10  1997/02/17 16:21:57  jcmurphy
-# added ars_GetCurrentServer so you can determine what server you connected to (if you didnt specify one)
-#
-# Revision 1.9  1997/02/13 15:06:43  jcmurphy
-# added NT* routines
-#
-# Revision 1.8  1996/11/21 20:03:42  jcmurphy
-# GetFilter(), GetServerStatistics(), GetCharMenu() added.
-# ARServerStats hash added to make using GetServerStatistics
-# easier.
-#
-# Revision 1.7  1996/10/31  16:43:59  jmurphy
-# ars_Import
-#
-# Revision 1.6  1996/10/31  16:42:53  jmurphy
-# *** empty log message ***
-#
-# Revision 1.5  1996/03/29  20:15:08  jcmurphy
-# added ars_padEntryid to export list
-#
-# Revision 1.4  1996/03/28 02:14:37  jcmurphy
-# renamed pad_entryid to ars_padEntryid and added rcs log field.
-#
-#
 
 # Routines for grabbing the current error message "stack" 
 # by simply referring to the $ars_errstr scalar.
@@ -160,14 +55,25 @@ sub FETCH {
 
 package ARS;
 
+require 5.000;
+use strict "vars";
 require Exporter;
 require DynaLoader;
-#require AutoLoader;
+require Carp unless $^S;
 use AutoLoader 'AUTOLOAD';
 use Config;
 
-@ISA = qw(Exporter DynaLoader);
-@EXPORT = qw(isa_int isa_float isa_string ars_LoadQualifier ars_Login 
+require 'ARSar-h.pm';
+require 'ARSarerrno-h.pm';
+require 'ARSnt-h.pm';
+require 'ARSnterrno-h.pm';
+require 'ARSnparm.pm';
+require 'ARSOOform.pm';
+require 'ARSOOmsgs.pm';
+require 'ARSOOsup.pm';
+
+@ARS::ISA = qw(Exporter DynaLoader);
+@ARS::EXPORT = qw(isa_int isa_float isa_string ars_LoadQualifier ars_Login 
 ars_Logoff ars_GetListField ars_GetFieldByName ars_GetFieldTable 
 ars_DeleteEntry ars_GetEntry ars_GetListEntry ars_GetListSchema 
 ars_GetListServer ars_GetActiveLink ars_GetCharMenuItems ars_GetSchema 
@@ -186,31 +92,18 @@ ars_DeleteEscalation ars_DeleteField ars_DeleteSchema
 ars_DeleteVUI ars_ExecuteAdminExtension ars_ExecuteProcess
 ars_GetAdminExtension ars_GetEscalation ars_GetFullTextInfo
 ars_GetListGroup ars_GetListSQL ars_GetListUser
-ars_GetListVUI ars_GetServerInfo
+ars_GetListVUI ars_GetServerInfo ars_GetEntryBLOB
 ars_CreateActiveLink ars_CreateAdminExtension
 ars_GetControlStructFields ars_GetVUI
 $ars_errstr %ARServerStats %ars_errhash
 ars_decodeStatusHistory ars_APIVersion
 );
 
-$VERSION   = '1.63';
-$DEBUGGING = 0;
+$ARS::VERSION   = '1.6400';
+$ARS::DEBUGGING = 0;
 
-bootstrap ARS $VERSION;
-tie $ars_errstr, ARS::ERRORSTR;
-
-$AR_EXECUTE_ON_NONE =          0;
-$AR_EXECUTE_ON_BUTTON =        1;
-$AR_EXECUTE_ON_RETURN =        2;
-$AR_EXECUTE_ON_SUBMIT =        4;
-$AR_EXECUTE_ON_MODIFY =        8;
-$AR_EXECUTE_ON_DISPLAY =      16;
-$AR_EXECUTE_ON_MODIFY_ALL =   32;
-$AR_EXECUTE_ON_MENU =         64;
-$AR_EXECUTE_ON_MENU_CHOICE = 128;
-$AR_EXECUTE_ON_LOOSE_FOCUS = 256;
-$AR_EXECUTE_ON_SET_DEFAULT = 512;
-$AR_EXECUTE_ON_QUERY =      1024;
+bootstrap ARS $ARS::VERSION;
+tie $ARS::ars_errstr, ARS::ERRORSTR;
 
 # This HASH is used by the ars_GetServerStatistics call.
 # Refer to your ARS API Programmer's Manual or the "ar.h"
@@ -223,7 +116,7 @@ $AR_EXECUTE_ON_QUERY =      1024;
 #          $ARServerStats{'CPU'});
 #
 
-%ARServerStats = (
+%ARS::ARServerStats = (
  'START_TIME'      ,1,
  'BAD_PASSWORD'    ,2,
  'NO_WRITE_TOKEN'  ,3,
@@ -282,28 +175,6 @@ $AR_EXECUTE_ON_QUERY =      1024;
  'SINCE_START'    ,56
 );
 
-# ROUTINE
-#   AR_DAY(mask, dayNumber)
-#   AR_HOUR(mask, hourNumber)
-#
-# DESCRIPTION
-#   Used to analyze bitmask returned by ars_GetEscalation()
-#
-# RETURNS
-#   1 if that day or hour is set in the mask
-#   0 if that day or hour is not set in the mask
-
-sub AR_DAY {
-    my($x, $y) = (shift, shift);
-    return (($x >> $y) & 0x1);
-}
-
-sub AR_HOUR {
-    my($x, $y) = (shift, shift);
-    return (($x >> $y) & 0x1);
-}
-
-$field_entryId = 1;
 
 # ROUTINE
 #   ars_simpleMenu(menuItems, prepend)
@@ -355,8 +226,9 @@ sub ars_padEntryid {
     my($schema) = shift;
     my($entry_id) = shift;
     my($field);
-    
-    ($field = ars_GetField($c, $schema, $field_entryId)) ||
+
+    # entry id field is field id #1
+    ($field = ars_GetField($c, $schema, 1)) ||
 	return undef;
     return ("0"x($field->{limit}{maxLength}-length($entry_id))).$entry_id;
 }
@@ -439,12 +311,6 @@ sub ars_EncodeDiary {
 
 # call ARInitialization
 ARS::__ars_init() if(&ARS::ars_APIVersion() < 4);
-
-# call ARTermination when the package is terminated
-# Can't call this when using AutoLoader (?) (Murray Nesbitt <murray@ActiveState.com>)
-#END {
-#  ARS::__ars_Termination() if(&ARS::ars_APIVersion() < 4);
-#}
 
 1;
 __END__
