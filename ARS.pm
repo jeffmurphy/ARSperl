@@ -103,7 +103,7 @@ $ars_errstr %ARServerStats %ars_errhash
 ars_decodeStatusHistory ars_APIVersion
 );
 
-$ARS::VERSION   = '1.69';
+$ARS::VERSION   = '1.70';
 $ARS::DEBUGGING = 0;
 
 # definitions required for backwards compatibility
