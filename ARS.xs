@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.18 1997/02/17 16:53:35 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.19 1997/02/18 16:37:32 jmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -27,6 +27,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.18 1997/02/17 16:53:35 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.19  1997/02/18 16:37:32  jmurphy
+a couple fixes.  added destructors for control struct, qualifier struct
+
 Revision 1.18  1997/02/17 16:53:35  jcmurphy
 commented ARTermination back out for a little bit longer.
 
@@ -1100,7 +1103,7 @@ SV *perl_ARSortList(ARSortList *in) {
 
 SV *perl_ARByteList(ARByteList *in) {
   HV *hash = newHV();
-  SV *byte_list = newSVpv(in->bytes, in->numItems);
+  SV *byte_list = newSVpv((char *)in->bytes, in->numItems);
   
   switch (in->type) {
   case AR_BYTE_LIST_SELF_DEFINED:
@@ -1600,6 +1603,8 @@ ARGetFieldCached(ARControlStruct *ctrl, ARNameType schema, ARInternalId id,
 
 MODULE = ARS		PACKAGE = ARS		PREFIX = ARS
 
+PROTOTYPES: ENABLE
+
 int
 isa_int(...)
 	CODE:
@@ -1662,7 +1667,8 @@ ars_LoadQualifier(ctrl,schema,qualstring)
 	  int ret;
 	  ARQualifierStruct *qual = mallocnn(sizeof(ARQualifierStruct));
 	  ARStatusList status;
-	
+	  
+	  /* this gets freed below in the ARQualifierStructPTR package */
 	  ret = ARLoadARQualifierStruct(ctrl, schema, NULL, qualstring, qual, &status);
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
@@ -1678,6 +1684,19 @@ ars_LoadQualifier(ctrl,schema,qualstring)
 	}
 	OUTPUT:
 	RETVAL
+
+void
+__ars_Termination()
+	CODE:
+	{
+	  int ret;
+	  ARStatusList status;
+	  
+	  ret = ARTermination(&status);
+	  if (ARError(ret, status)) {
+	    warn("failed in ARTermination: %s\n", ars_errstr);
+	  }
+	}
 
 void
 __ars_init()
@@ -1717,6 +1736,7 @@ ars_Login(server,username,password)
 	    RETVAL = NULL;
 	    goto ar_login_end;
 	  }
+	  /* this gets freed below in the ARControlStructPTR package */
 	  ctrl = (ARControlStruct *)mallocnn(sizeof(ars_ctrl));
 	  ((ars_ctrl *)ctrl)->queries = 0;
 	  ((ars_ctrl *)ctrl)->startTime = 0;
@@ -2245,25 +2265,33 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,...)
 		    SvROK(*array_entry) &&
 		    SvTYPE(field_hash = (HV*)SvRV(*array_entry)) == SVt_PVHV) {
 		  /* get fieldId, columnWidth and separator from hash */
-		  if (! (hash_entry = hv_fetch(field_hash, "fieldId", 7, 0)))
-		    goto bad_get_list;
-		  getListFields.fieldsList[i].fieldId = SvIV(*hash_entry);
-		  if (! (hash_entry = hv_fetch(field_hash, "columnWidth", 11, 0)))
-		    goto bad_get_list;
+		  if (! (hash_entry = hv_fetch(field_hash, "fieldId", 7, 0))) {
+		    ars_errstr = "bad getListFields";
+#ifndef WASTE_MEM
+		    free(getListFields.fieldsList);
+#endif
+		    goto getlistentry_end;
+		  }
+		  printf("field_id: %i\n", getListFields.fieldsList[i].fieldId = SvIV(*hash_entry));
+		  if (! (hash_entry = hv_fetch(field_hash, "columnWidth", 11, 0))) {
+		    ars_errstr = "bad getListFields";
+#ifndef WASTE_MEM
+		    free(getListFields.fieldsList);
+#endif
+		    goto getlistentry_end;
+		  }
 		  getListFields.fieldsList[i].columnWidth = SvIV(*hash_entry);
-		  if (! (hash_entry = hv_fetch(field_hash, "separator", 9, 0)))
-		    goto bad_get_list;
+		  if (! (hash_entry = hv_fetch(field_hash, "separator", 9, 0))) {
+		    ars_errstr = "bad getListFields";
+#ifndef WASTE_MEM
+		    free(getListFields.fieldsList);
+#endif
+		    goto getlistentry_end;
+		  }
 		  strncpy(getListFields.fieldsList[i].separator,
 			  SvPV(*hash_entry, na),
 			  sizeof(getListFields.fieldsList[i].separator));
 		}
-	      bad_get_list:;
-		/* not a hash reference! */
-		ars_errstr = "bad getListFields";
-#ifndef WASTE_MEM
-		free(getListFields.fieldsList);
-#endif
-		goto getlistentry_end;
 	      }
 	    } else {
 	      ars_errstr = "getListFields must be a reference to an array of field ids";
@@ -2286,6 +2314,7 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,...)
 	    sortList.sortList[i].sortOrder = SvIV(ST(i*2+field_off+1));
 	  }
 #if AR_EXPORT_VERSION >= 3
+	  printf("getlist: %x\n", getList);
 	  ret = ARGetListEntry(ctrl, schema, qualifier, getList, &sortList, maxRetrieve, &entryList, &num_matches, &status);
 #else
 	  ret = ARGetListEntry(ctrl, schema, qualifier, &sortList, maxRetrieve, &entryList, &num_matches, &status);
@@ -3623,3 +3652,30 @@ ars_NTNotificationServer(serverHost, user, notifyText, notifyCode, notifyCodeTex
 	OUTPUT:
 	RETVAL
 
+#
+# Destructors for Blessed C structures
+#
+
+MODULE = ARS		PACKAGE = ARControlStructPtr
+
+void
+DESTROY(ctrl)
+	ARControlStruct *	ctrl
+	CODE:
+	{
+#ifndef WASTE_MEM
+	  free(ctrl);
+#endif
+	}
+
+MODULE = ARS		PACKAGE = ARQualifierStructPtr
+
+void
+DESTROY(qual)
+	ARQualifierStruct *	qual
+	CODE:
+	{
+#ifndef WASTE_MEM
+	  FreeARQualifierStruct(qual, 1);
+#endif
+	}
