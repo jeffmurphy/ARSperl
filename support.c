@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.10 1997/11/04 18:18:19 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.11 1997/11/10 23:50:36 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,11 @@ $Header: /cvsroot/arsperl/ARSperl/support.c,v 1.10 1997/11/04 18:18:19 jcmurphy 
     LOG:
 
 $Log: support.c,v $
+Revision 1.11  1997/11/10 23:50:36  jcmurphy
+1.5206: added refreshCode to GetCharMenu().
+added ars_GetVUI to EXPORTS in .pm file
+fixed bug in 1.5205's groupList alteration
+
 Revision 1.10  1997/11/04 18:18:19  jcmurphy
 1.5205: perl_permissionsList update
 
@@ -843,7 +848,9 @@ perl_expandARCharMenuStruct(_AWPC_ ARControlStruct *c, ARCharMenuStruct *in) {
     which = &menu;
   } else
     which = in;
+
   array = newAV();
+
   for (i=0; i < which->u.menuList.numItems; i++) {
     string = which->u.menuList.charMenuList[i].menuLabel;
     av_push(array, newSVpv(string, strlen(string)));
@@ -865,8 +872,23 @@ perl_expandARCharMenuStruct(_AWPC_ ARControlStruct *c, ARCharMenuStruct *in) {
       break;
     }
   }
+
   return newRV((SV *)array);
 }
+
+SV *
+perl_MenuRefreshCode2Str(_AWPC_ unsigned int rc)
+{
+  int i;
+
+  for(i = 0 ;
+      CharMenuRefreshCodeTypeMap[i].number != TYPEMAP_LAST &&
+      CharMenuRefreshCodeTypeMap[i].number != rc ;
+      i++);
+
+  return newSVpv(CharMenuRefreshCodeTypeMap[i].name, 0);
+}
+
 
 SV *
 perl_AREntryListFieldStruct(_AWPC_ AREntryListFieldStruct *in) {
@@ -1118,6 +1140,7 @@ perl_ARPermissionList(_AWPC_ ARPermissionList *in, int permType) {
   switch(permType) {
   case PERMTYPE_SCHEMA:
     tmap = (struct TypeMapStruct *)SchemaPermissionTypeMap;
+    break;
   case PERMTYPE_FIELD:
   default:
     tmap = (struct TypeMapStruct *)FieldPermissionTypeMap;

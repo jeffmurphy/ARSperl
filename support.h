@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.8 1997/11/04 18:16:04 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.9 1997/11/10 23:50:36 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,11 @@ $Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.8 1997/11/04 18:16:04 jcmu
     LOG:
 
 $Log: support.h,v $
+Revision 1.9  1997/11/10 23:50:36  jcmurphy
+1.5206: added refreshCode to GetCharMenu().
+added ars_GetVUI to EXPORTS in .pm file
+fixed bug in 1.5205's groupList alteration
+
 Revision 1.8  1997/11/04 18:16:04  jcmurphy
 1.5205: permissions list map
 
@@ -110,6 +115,16 @@ typedef struct {
 struct TypeMapStruct {
   unsigned int  number;
   char         *name;
+};
+
+static struct {
+  unsigned int  number;
+  char         *name;
+} CharMenuRefreshCodeTypeMap[] = {
+  { AR_MENU_REFRESH_CONNECT,  "connect" },
+  { AR_MENU_REFRESH_OPEN,     "open" },
+  { AR_MENU_REFRESH_INTERVAL, "interval" },
+  { TYPEMAP_LAST, "" }
 };
 
 #define PERMTYPE_SCHEMA 0
@@ -369,6 +384,7 @@ EXTERN int          ARError_add(_AWPC_ unsigned int type, long num, char *text);
 EXTERN int          ARError(_AWPC_ int returncode, ARStatusList status);
 EXTERN int          NTError(_AWPC_ int returncode, NTStatusList status);
 
+EXTERN SV *perl_MenuRefreshCode2Str(_AWPC_ unsigned int rc);
 EXTERN SV *perl_ARPermissionList(_AWPC_ ARPermissionList *in, int);
 EXTERN SV *perl_ARStatusStruct(_AWPC_ ARStatusStruct *);
 EXTERN SV *perl_ARInternalId(_AWPC_ ARInternalId *);
@@ -402,7 +418,8 @@ EXTERN void dup_FieldValueOrArith(_AWPC_ ARFieldValueOrArithStruct *,
 				  ARFieldValueOrArithStruct *);
 EXTERN ARRelOpStruct *dup_RelOp(_AWPC_ ARRelOpStruct *);
 EXTERN ARQualifierStruct *dup_qualifier(_AWPC_ ARQualifierStruct *);
-EXTERN ARQualifierStruct *dup_qualifier2(_AWPC_ ARQualifierStruct *in, ARQualifierStruct *out, int level);
+EXTERN ARQualifierStruct *dup_qualifier2(_AWPC_ ARQualifierStruct *in, 
+					 ARQualifierStruct *out, int level);
 EXTERN SV *perl_ARArithOpStruct(_AWPC_ ARArithOpStruct *);
 EXTERN SV *perl_ARQueryValueStruct(_AWPC_ ARQueryValueStruct *);
 EXTERN SV *perl_ARFieldValueOrArithStruct(_AWPC_ ARFieldValueOrArithStruct *);

@@ -1,10 +1,19 @@
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.13 1997/11/04 18:15:20 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.14 1997/11/10 23:50:36 jcmurphy Exp $
 
 CHANGES for ARSperl
 
 Revision history for ARSperl.
 
 MM/DD/YY
+=======================================================================
+#######################################################################
+=======================================================================
+11/19/97        (1.5206)
+ 
+  o (JCM)  added ars_GetVUI to the ARS.pm exports line.
+  o (JCM)  added refreshCode to GetCharMenu hash
+  o (JCM)  fixed bug in groupList value change in 1.5205
+
 =======================================================================
 #######################################################################
 =======================================================================

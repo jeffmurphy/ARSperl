@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.40 1997/11/04 18:15:56 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.41 1997/11/10 23:50:36 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,11 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.40 1997/11/04 18:15:56 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.41  1997/11/10 23:50:36  jcmurphy
+1.5206: added refreshCode to GetCharMenu().
+added ars_GetVUI to EXPORTS in .pm file
+fixed bug in 1.5205's groupList alteration
+
 Revision 1.40  1997/11/04 18:15:56  jcmurphy
 1.5205
 
@@ -1166,7 +1171,9 @@ ars_GetCharMenu(ctrl,name)
 	  (void) ARError_reset(_PPERL_);
 	  ZEROMEM(&status, ARStatusList);
 	  RETVAL = newHV();
-	  ret = ARGetCharMenu(ctrl, name, &refreshCode, &menuDefn, &helpText, &timestamp, owner, lastChanged, &changeDiary, &status);
+	  ret = ARGetCharMenu(ctrl, name, &refreshCode, &menuDefn, &helpText, 
+			      &timestamp, owner, lastChanged, &changeDiary, 
+			      &status);
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
 #endif
@@ -1181,6 +1188,8 @@ ars_GetCharMenu(ctrl,name)
 			hv_store(RETVAL, VNAME("changeDiary"),
 				newSVpv(changeDiary, 0), 0);
 		hv_store(RETVAL, VNAME("menuType"), newSViv(menuDefn.menuType), 0);
+		hv_store(RETVAL, VNAME("refreshCode"), 
+			perl_MenuRefreshCode2Str(_PPERLC_ refreshCode), 0);
 		switch(menuDefn.menuType) {
 		case AR_CHAR_MENU_QUERY:
 			hv_store(menuDef, VNAME("schema"), 
