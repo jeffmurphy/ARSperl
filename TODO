@@ -50,10 +50,6 @@ ARSetVUI
    o if unknown param, error
 
 
-Also, ARSperl upto 1.66 does not return the unsigned integer "Schema
-Type" in a call to ars_GetSchema.  Could "Schema Type" be returned in
-the next release of ARSperl please? 
-
 
 
 Howdy everyone:

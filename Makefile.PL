@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.15 2000/07/04 14:44:22 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.16 2000/07/05 18:59:47 jcmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -13,6 +13,9 @@
 #    run with "perl Makefile.PL" then type "make"
 #
 # $Log: Makefile.PL,v $
+# Revision 1.16  2000/07/05 18:59:47  jcmurphy
+# *** empty log message ***
+#
 # Revision 1.15  2000/07/04 14:44:22  jcmurphy
 # *** empty log message ***
 #
@@ -103,17 +106,32 @@ elsif($ARSVERSION >= 2.0 && $ARSVERSION < 3.0) {
   $AUTODEFINES .= " -DARS20 " if($ARSVERSION == 2.0);
 }
 
-$AUTODEFINES .= " -DPERL_PATCHLEVEL_IS=$Config{'patchlevel'} -DPERL_SUBVERSION_IS=$Config{'subversion'} -DPERL_BASEREV_IS=".($Config{'baserev'}*10)." ";
+# e.g for 5.004_03 ..
+#
+# baserev = 5.0 ( = PERL_REVISION as of 5.6.0)
+# PATCHLEVEL = 4
+# SUBVERSION = 3 ( = PERL_SUBVERSION as of 5.6.0)
+#
+# baserev/SUBVERSION still work in 5.6.0, but who knows for how long.
+
+print "Building against perl $]\n";
+
+$AUTODEFINES .= " -DPERL_PATCHLEVEL_IS=$Config{'PATCHLEVEL'} -DPERL_SUBVERSION_IS=$Config{'SUBVERSION'} -DPERL_BASEREV_IS=".($Config{'baserev'}*10)." ";
 
 if($Config{'baserev'} == 5 &&
-   $Config{'patchlevel'} == 4 &&
-   $Config{'subversion'} == 3) {
+   $Config{'PATCHLEVEL'} == 4 &&
+   $Config{'SUBVERSION'} == 3) {
 	print "\n\nWARNING: Perl-5.004_03 contained a bugged 'h2ph' application.\nYou should examine line 100 of perl's 'h2ph' script and be sure that it\n
 produces correct syntax (it's missing a close-parenthesis)\n";
+	print "\nsleeping for 5 seconds. press control-c to abort.\n\n";
+	sleep 5;
 }
 
-push(@extras, CAPI => 'TRUE') if ($] >= 5.005 and $^O eq 'MSWin32'
-				  and $Config{archname} =~ /-object\b/i);
+push(@extras, CAPI => 'TRUE') if ($] >= 5.005       &&
+                                  $^O eq 'MSWin32'  && 
+				  (($Config{archname} =~ /-object\b/i) ||
+                                   ($Config{archname} =~ /-multi-thread\b/i))
+                                 );
 
 $ARS_LDPATH = "-L$ARSAPI/lib";
 $INCLUDES   = "-I$ARSAPI/include";
