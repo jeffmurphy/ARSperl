@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.6 1997/10/09 15:21:33 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.7 1997/10/20 21:00:41 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,10 @@ $Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.6 1997/10/09 15:21:33 jcmu
     LOG:
 
 $Log: support.h,v $
+Revision 1.7  1997/10/20 21:00:41  jcmurphy
+5203 beta. code cleanup. winnt additions. malloc/free
+debugging code.
+
 Revision 1.6  1997/10/09 15:21:33  jcmurphy
 1.5201: code cleaning
 
@@ -104,22 +108,22 @@ static struct {
   unsigned int  number;
   char         *name;
 } DataTypeMap[] = {
-  { AR_DATA_TYPE_NULL,     "NULL" },
-  { AR_DATA_TYPE_KEYWORD,  "KEYWORD" },
-  { AR_DATA_TYPE_INTEGER,  "INTEGER" },
-  { AR_DATA_TYPE_REAL,     "REAL" },
-  { AR_DATA_TYPE_CHAR,     "CHAR" },
-  { AR_DATA_TYPE_DIARY,    "DIARY" },
-  { AR_DATA_TYPE_ENUM,     "ENUM" },
-  { AR_DATA_TYPE_TIME,     "TIME" },
-  { AR_DATA_TYPE_BITMASK,  "BITMASK" },
+  { AR_DATA_TYPE_NULL,     "null" },
+  { AR_DATA_TYPE_KEYWORD,  "keyword" },
+  { AR_DATA_TYPE_INTEGER,  "integer" },
+  { AR_DATA_TYPE_REAL,     "real" },
+  { AR_DATA_TYPE_CHAR,     "char" },
+  { AR_DATA_TYPE_DIARY,    "diary" },
+  { AR_DATA_TYPE_ENUM,     "enum" },
+  { AR_DATA_TYPE_TIME,     "time" },
+  { AR_DATA_TYPE_BITMASK,  "bitmask" },
 #if AR_EXPORT_VERSION >= 3
-  { AR_DATA_TYPE_BYTES,    "BYTES" },
-  { AR_DATA_TYPE_JOIN,     "JOIN" },
-  { AR_DATA_TYPE_TRIM,     "TRIM" },
-  { AR_DATA_TYPE_CONTROL,  "CONTROL" },
-  { AR_DATA_TYPE_ULONG,    "ULONG" },
-  { AR_DATA_TYPE_COORDS,   "COORDS" },
+  { AR_DATA_TYPE_BYTES,    "bytes" },
+  { AR_DATA_TYPE_JOIN,     "join" },
+  { AR_DATA_TYPE_TRIM,     "trim" },
+  { AR_DATA_TYPE_CONTROL,  "control" },
+  { AR_DATA_TYPE_ULONG,    "ulong" },
+  { AR_DATA_TYPE_COORDS,   "coords" },
 #endif
   { TYPEMAP_LAST, "" }
 };
@@ -293,58 +297,85 @@ static struct {
   { "CASE_SENSITIVE", 54 }
 };
 
+/* lame Win32 stuff 
+ *   FIX - can't we just use the CPERLarg stuff in perl's config.h
+ *         file?
+ *
+ *   use in function declarations:
+ *      AWP  - arsperl windows paramter
+ *      AWPC - same thing, but with a comma
+ *   use in function calls:
+ *      PPERL  - pPerl argument for no-arg functions
+ *      PPERLC - pPerl arg + comma for arg functions
+ */
+
+#ifdef _WIN32
+# define _AWPC_   CPerl * pPerl,
+# define _AWP_    CPerl * pPerl
+# define _PPERLC_ pPerl,
+# define _PPERL_  pPerl
+#else
+# define _AWPC_ 
+# define _AWP_
+# define _PPERLC_
+# define _PPERL_
+#endif
+
 /* typedef SV* (*ARS_fn)(void *); */
-typedef void *(*ARS_fn)();
+typedef void *(*ARS_fn)(_AWPC_ void *b);
 
-EXTERN void zeromem(void *m, int s);
-EXTERN void *mallocnn(int s);
-EXTERN int ARError_reset();
-EXTERN int ARError_add(unsigned int type, long num, char *text);
-EXTERN int ARError(int returncode, ARStatusList status);
-EXTERN int NTError(int returncode, NTStatusList status);
+EXTERN void         zeromem(void *m, int s);
+EXTERN void        *mallocnn(int s);
+EXTERN void        *debug_mallocnn(int s, char *file, char *func, int line);
+EXTERN void         debug_free(void *p, char *file, char *func, int line);
 EXTERN unsigned int strsrch(register char *s, register char c);
-EXTERN char *strappend(char *buf, char *arg);
+EXTERN char        *strappend(char *b, char *a);
 
+EXTERN int          ARError_reset(_AWP_);
+EXTERN int          ARError_add(_AWPC_ unsigned int type, long num, char *text);
+EXTERN int          ARError(_AWPC_ int returncode, ARStatusList status);
+EXTERN int          NTError(_AWPC_ int returncode, NTStatusList status);
 
-EXTERN SV *perl_ARPermissionList(ARPermissionList *in);
-EXTERN SV *perl_ARStatusStruct(ARStatusStruct *);
-EXTERN SV *perl_ARInternalId(ARInternalId *);
-EXTERN SV *perl_ARNameType(ARNameType *);
-EXTERN SV *perl_ARList(ARList *, ARS_fn, int);
-EXTERN SV *perl_ARValueStruct(ARValueStruct *);
-EXTERN SV *perl_ARValueStructType(ARValueStruct *in);
-EXTERN SV *perl_dataType_names(unsigned int *);
-EXTERN SV *perl_ARStatHistoryValue(ARStatHistoryValue *);
-EXTERN SV *perl_ARAssignFieldStruct(ARAssignFieldStruct *);
-EXTERN SV *perl_ARAssignStruct(ARAssignStruct *);
-EXTERN SV *perl_ARFieldAssignStruct(ARFieldAssignStruct *);
-EXTERN SV *perl_ARDisplayStruct(ARDisplayStruct *);
-EXTERN SV *perl_ARMacroParmStruct(ARMacroParmStruct *);
-EXTERN SV *perl_ARActiveLinkMacroStruct(ARActiveLinkMacroStruct *);
-EXTERN SV *perl_ARFieldCharacteristics(ARFieldCharacteristics *);
-EXTERN SV *perl_ARDDEStruct(ARDDEStruct *);
-EXTERN SV *perl_ARActiveLinkActionStruct(ARActiveLinkActionStruct *);
-EXTERN SV *perl_ARFilterActionStruct(ARFilterActionStruct *);
-EXTERN SV *perl_expandARCharMenuStruct(ARControlStruct *, ARCharMenuStruct *);
-EXTERN SV *perl_AREntryListFieldStruct(AREntryListFieldStruct *);
-EXTERN SV *perl_ARIndexStruct(ARIndexStruct *);
-EXTERN SV *perl_ARFieldLimitStruct(ARFieldLimitStruct *);
-EXTERN SV *perl_ARFunctionAssignStruct(ARFunctionAssignStruct *);
-EXTERN SV *perl_ARArithOpAssignStruct(ARArithOpAssignStruct *);
-EXTERN void dup_Value(ARValueStruct *, ARValueStruct *);
-EXTERN ARArithOpStruct *dup_ArithOp(ARArithOpStruct *);
-EXTERN void dup_ValueList(ARValueList *, ARValueList *);
-EXTERN ARQueryValueStruct *dup_QueryValue(ARQueryValueStruct *);
-EXTERN void dup_FieldValueOrArith(ARFieldValueOrArithStruct *,ARFieldValueOrArithStruct *);
-EXTERN ARRelOpStruct *dup_RelOp(ARRelOpStruct *);
-EXTERN ARQualifierStruct *dup_qualifier(ARQualifierStruct *);
-EXTERN ARQualifierStruct *dup_qualifier2(ARQualifierStruct *in, ARQualifierStruct *out, int level);
-EXTERN SV *perl_ARArithOpStruct(ARArithOpStruct *);
-EXTERN SV *perl_ARQueryValueStruct(ARQueryValueStruct *);
-EXTERN SV *perl_ARFieldValueOrArithStruct(ARFieldValueOrArithStruct *);
-EXTERN SV *perl_relOp(ARRelOpStruct *);
-EXTERN HV *perl_qualifier(ARQualifierStruct *);
-EXTERN int ARGetFieldCached(ARControlStruct *, ARNameType, ARInternalId,
+EXTERN SV *perl_ARPermissionList(_AWPC_ ARPermissionList *in);
+EXTERN SV *perl_ARStatusStruct(_AWPC_ ARStatusStruct *);
+EXTERN SV *perl_ARInternalId(_AWPC_ ARInternalId *);
+EXTERN SV *perl_ARNameType(_AWPC_ ARNameType *);
+EXTERN SV *perl_ARList(_AWPC_ ARList *, ARS_fn, int);
+EXTERN SV *perl_ARValueStruct(_AWPC_ ARValueStruct *);
+EXTERN SV *perl_ARValueStructType(_AWPC_ ARValueStruct *in);
+EXTERN SV *perl_dataType_names(_AWPC_ unsigned int *);
+EXTERN SV *perl_ARStatHistoryValue(_AWPC_ ARStatHistoryValue *);
+EXTERN SV *perl_ARAssignFieldStruct(_AWPC_ ARAssignFieldStruct *);
+EXTERN SV *perl_ARAssignStruct(_AWPC_ ARAssignStruct *);
+EXTERN SV *perl_ARFieldAssignStruct(_AWPC_ ARFieldAssignStruct *);
+EXTERN SV *perl_ARDisplayStruct(_AWPC_ ARDisplayStruct *);
+EXTERN SV *perl_ARMacroParmStruct(_AWPC_ ARMacroParmStruct *);
+EXTERN SV *perl_ARActiveLinkMacroStruct(_AWPC_ ARActiveLinkMacroStruct *);
+EXTERN SV *perl_ARFieldCharacteristics(_AWPC_ ARFieldCharacteristics *);
+EXTERN SV *perl_ARDDEStruct(_AWPC_ ARDDEStruct *);
+EXTERN SV *perl_ARActiveLinkActionStruct(_AWPC_ ARActiveLinkActionStruct *);
+EXTERN SV *perl_ARFilterActionStruct(_AWPC_ ARFilterActionStruct *);
+EXTERN SV *perl_expandARCharMenuStruct(_AWPC_ ARControlStruct *, ARCharMenuStruct *);
+EXTERN SV *perl_AREntryListFieldStruct(_AWPC_ AREntryListFieldStruct *);
+EXTERN SV *perl_ARIndexStruct(_AWPC_ ARIndexStruct *);
+EXTERN SV *perl_ARFieldLimitStruct(_AWPC_ ARFieldLimitStruct *);
+EXTERN SV *perl_ARFunctionAssignStruct(_AWPC_ ARFunctionAssignStruct *);
+EXTERN SV *perl_ARArithOpAssignStruct(_AWPC_ ARArithOpAssignStruct *);
+EXTERN void dup_Value(_AWPC_ ARValueStruct *, ARValueStruct *);
+EXTERN ARArithOpStruct *dup_ArithOp(_AWPC_ ARArithOpStruct *);
+EXTERN void dup_ValueList(_AWPC_ ARValueList *, ARValueList *);
+EXTERN ARQueryValueStruct *dup_QueryValue(_AWPC_ ARQueryValueStruct *);
+EXTERN void dup_FieldValueOrArith(_AWPC_ ARFieldValueOrArithStruct *,
+				  ARFieldValueOrArithStruct *);
+EXTERN ARRelOpStruct *dup_RelOp(_AWPC_ ARRelOpStruct *);
+EXTERN ARQualifierStruct *dup_qualifier(_AWPC_ ARQualifierStruct *);
+EXTERN ARQualifierStruct *dup_qualifier2(_AWPC_ ARQualifierStruct *in, ARQualifierStruct *out, int level);
+EXTERN SV *perl_ARArithOpStruct(_AWPC_ ARArithOpStruct *);
+EXTERN SV *perl_ARQueryValueStruct(_AWPC_ ARQueryValueStruct *);
+EXTERN SV *perl_ARFieldValueOrArithStruct(_AWPC_ ARFieldValueOrArithStruct *);
+EXTERN SV *perl_relOp(_AWPC_ ARRelOpStruct *);
+EXTERN HV *perl_qualifier(_AWPC_ ARQualifierStruct *);
+EXTERN int ARGetFieldCached(_AWPC_ ARControlStruct *, ARNameType, ARInternalId,
 #if AR_EXPORT_VERSION >= 3
 		     ARNameType, ARFieldMappingStruct *,
 #endif
@@ -359,23 +390,23 @@ EXTERN int ARGetFieldCached(ARControlStruct *, ARNameType, ARInternalId,
 		     char **, ARTimestamp *,
 		     ARNameType, ARNameType, char **,
 		     ARStatusList *);
-EXTERN SV *perl_ARPermissionStruct(ARPermissionStruct *);
-EXTERN int sv_to_ARValue(SV *in, unsigned int dataType, ARValueStruct *out);
+EXTERN SV *perl_ARPermissionStruct(_AWPC_ ARPermissionStruct *);
+EXTERN int sv_to_ARValue(_AWPC_ SV *in, unsigned int dataType, ARValueStruct *out);
 #if AR_EXPORT_VERSION >= 3
-EXTERN SV *perl_ARPropStruct(ARPropStruct *);
-EXTERN SV *perl_ARDisplayInstanceStruct(ARDisplayInstanceStruct *);
-EXTERN SV *perl_ARDisplayInstanceList(ARDisplayInstanceList *);
-EXTERN SV *perl_ARFieldMappingStruct(ARFieldMappingStruct *);
-EXTERN SV *perl_ARJoinMappingStruct(ARJoinMappingStruct *);
-EXTERN SV *perl_ARViewMappingStruct(ARViewMappingStruct *);
-EXTERN SV *perl_ARJoinSchema(ARJoinSchema *);
-EXTERN SV *perl_ARViewSchema(ARViewSchema *);
-EXTERN SV *perl_ARCompoundSchema(ARCompoundSchema *);
-EXTERN SV *perl_ARSortList(ARSortList *);
-EXTERN SV *perl_ARByteList(ARByteList *);
-EXTERN SV *perl_ARCoordStruct(ARCoordStruct *);
-EXTERN int perl_BuildEntryList(AREntryIdList *entryList, char *entry_id);
-EXTERN SV *perl_ARAssignSQLStruct(ARAssignSQLStruct *in);
+EXTERN SV *perl_ARPropStruct(_AWPC_ ARPropStruct *);
+EXTERN SV *perl_ARDisplayInstanceStruct(_AWPC_ ARDisplayInstanceStruct *);
+EXTERN SV *perl_ARDisplayInstanceList(_AWPC_ ARDisplayInstanceList *);
+EXTERN SV *perl_ARFieldMappingStruct(_AWPC_ ARFieldMappingStruct *);
+EXTERN SV *perl_ARJoinMappingStruct(_AWPC_ ARJoinMappingStruct *);
+EXTERN SV *perl_ARViewMappingStruct(_AWPC_ ARViewMappingStruct *);
+EXTERN SV *perl_ARJoinSchema(_AWPC_ ARJoinSchema *);
+EXTERN SV *perl_ARViewSchema(_AWPC_ ARViewSchema *);
+EXTERN SV *perl_ARCompoundSchema(_AWPC_ ARCompoundSchema *);
+EXTERN SV *perl_ARSortList(_AWPC_ ARSortList *);
+EXTERN SV *perl_ARByteList(_AWPC_ ARByteList *);
+EXTERN SV *perl_ARCoordStruct(_AWPC_ ARCoordStruct *);
+EXTERN int perl_BuildEntryList(_AWPC_ AREntryIdList *entryList, char *entry_id);
+EXTERN SV *perl_ARAssignSQLStruct(_AWPC_ ARAssignSQLStruct *in);
 #endif
 
 #ifndef BSD
@@ -390,29 +421,17 @@ EXTERN int  compmem(MEMCAST *m1, MEMCAST *m2, int size);
 EXTERN void zeromem(MEMCAST *m, int size);
 EXTERN int  copymem(MEMCAST *m1, MEMCAST *m2, int size);
 
-#ifndef ARSPERL_MEMDEBUG
-
-/* "normal" MALLOCNN macro that simply calls mallocnn() */
-
-#define MALLOCNN(X) mallocnn(X) 
-
+#ifndef ARSPERL_MALLOCDEBUG
+# define MALLOCNN(X) mallocnn(X) 
 #else /* we want to debug memory allocations */
+# define MALLOCNN(X) debug_mallocnn(X, __FILE__, __FUNCTION__, __LINE__) 
+#endif /* malloc debugging */
 
-/* debugging MALLOCNN macro
- * if you don't have gcc (why don't you?) then don't bother
- * trying to use this. this can't be used within if() constructs
- * (obviously). and if you use it in parameter declarations, make
- * sure it is the last in the list.
- */
-
-#define MALLOCNN(X) mallocnn(X); \
-  { printf("mallocnn(%d) called from %s::%s(), line %d\n", X, \
-	   __FILE__?__FILE__:"UNKNOWN", \
-           __FUNCTION__?__FUNCTION__:"UNKNOWN" , \
-           __LINE__); \
-  }
-
-#endif /* memory debugging */
+#ifndef ARSPERL_FREEDEBUG
+# define FREE(X) free(X)
+#else
+# define FREE(X) debug_free(X, __FILE__, __FUNCTION__, __LINE__)
+#endif /* free debugging */
 
 #define CPNULL (char *)NULL
 
@@ -429,7 +448,7 @@ EXTERN int  copymem(MEMCAST *m1, MEMCAST *m2, int size);
 
 /* defines used by the ARError* functions */
 
-#define ERRHASH "ARS::ars_errhash"
+#define ERRHASH  "ARS::ars_errhash"
 #define EH_COUNT "numItems"
 #define EH_TYPE  "messageType"
 #define EH_NUM   "messageNum"
