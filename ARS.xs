@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.54 1998/12/28 15:45:25 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.55 1999/01/04 20:44:33 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -21,6 +21,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.54 1998/12/28 15:45:25 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.55  1999/01/04 20:44:33  jcmurphy
+added v4.0 specific ifdef
+
 Revision 1.54  1998/12/28 15:45:25  jcmurphy
 v1.62
 
@@ -327,7 +330,9 @@ ars_Login(server,username,password)
 		perror("gettimeofday");
 #endif
 	  ctrl->cacheId = 0;
+#if AR_EXPORT_VERSION >= 4
 	  ctrl->sessionId = 0;
+#endif
 	  ctrl->operationTime = 0;
 	  strncpy(ctrl->user, username, sizeof(ctrl->user));
 	  ctrl->user[sizeof(ctrl->user)-1] = 0;
