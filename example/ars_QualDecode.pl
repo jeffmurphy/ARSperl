@@ -1,3 +1,25 @@
+#
+# $header$
+#
+# MODULE
+#   ars_QualDecode.pl
+#
+# DESCRIPTION
+#   this module is designed to be "required" by another
+#   perl script (your script). it includes a routine
+#   and some helpers. the only only you need to 
+#   be concerned with is Decode_QualHash.
+#
+# AUTHOR
+#   jeff murphy
+#
+# $Log: ars_QualDecode.pl,v $
+# Revision 1.2  1997/02/20 19:35:29  jcmurphy
+# *** empty log message ***
+#
+#
+#
+
 # ROUTINE
 #   Decode_QualHash($ctrl, $schema, $qualhash)
 #
@@ -9,6 +31,9 @@
 # NOTES
 #   This routine over parenthesises, but should
 #   yield correct results nonetheless.
+#
+#   We need the ctrl struct and schema name so
+#   we can reverse map from fieldId's to field names.
 #
 # RETURNS
 #   a scalar on success

@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/GetFilter.pl,v 1.1 1996/11/21 20:13:52 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/GetFilter.pl,v 1.2 1997/02/20 19:33:15 jcmurphy Exp $
 #
 # NAME
 #   GetFilter.pl
@@ -16,12 +16,19 @@
 #   jcmurphy@acsu.buffalo.edu
 #
 # $Log: GetFilter.pl,v $
+# Revision 1.2  1997/02/20 19:33:15  jcmurphy
+# *** empty log message ***
+#
 # Revision 1.1  1996/11/21 20:13:52  jcmurphy
 # Initial revision
 #
 #
 
 use ARS;
+
+$debug = 0;
+
+require 'ars_QualDecode.pl';
 
 # SUBROUTINE
 #   printl
@@ -71,7 +78,11 @@ print "Order       : ".$finfo->{"order"}."\n";
 print "Schema      : \"".$finfo->{"schema"}."\"\n";
 print "opSet       : ".Decode_opSetMask($finfo->{"opSet"})."\n";
 print "Enable      : ".$finfo->{"enable"}."\n";
-print "Query       : ".$finfo->{"query"}."\n";
+
+$dq = ars_perl_qualifier($finfo->{"query"});
+$qualtext = ars_Decode_QualHash($ctrl, $finfo->{"schema"}, $dq);
+
+print "Query       : ".$qualtext."\n";
 print "actionList  : \n";
 
 ProcessActions(@{$finfo->{actionList}});
