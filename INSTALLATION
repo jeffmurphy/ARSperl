@@ -1,4 +1,4 @@
-$Header: /cvsroot/arsperl/ARSperl/INSTALLATION,v 1.5 1998/12/28 15:46:10 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/INSTALLATION,v 1.6 1999/09/03 13:44:00 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -27,7 +27,7 @@ Corporation, Action Request System, and AR System are trademarks of Remedy
 Corporation.
 
 This extension is offered completely for free and without support
-of any. Use at you own risk!  
+of any kind. Use at you own risk!  
 
 PREPARATION
 
