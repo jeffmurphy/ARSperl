@@ -98,6 +98,41 @@
  We have some <A HREF="http://smurfland.cit.buffalo.edu/ARSperl/FAQs/"> useful 
  excerpts from the mailing lists online.</A>
 
+ <H2> Bug Reports </H2>
+
+ If you come across a bug (i.e. it crashes with a SEGV or something like
+ that) you can report them to: <P>
+
+ <UL><CODE>arsperl-bugs@smurfland.cit.buffalo.edu</CODE></UL><P>
+
+ Be sure to include the following information in your message: <P>
+ <OL>  
+  <LI> OS (operating system) version (example: Solaris 2.5)
+  <LI> Perl version (example: 5.003)
+  <LI> ARS version (example: 2.1.3)
+  <LI> ARSperl version (example: 1.42)
+  <LI> A fragment of the script that causes the crash. <BR>
+       Example:
+       <PRE>
+       ars_CreateEntry($ctrl, $schema, $id, $val, $id2, $val2);
+       </PRE>
+  <LI> The values of any parameters that you pass to the call that
+       fails. <BR>
+       Example: 
+       <PRE>
+        $schema = "AD-Help Desk"
+        $id = 12345678
+        $val = "foo"
+        $id = 24681357
+        $val = "yadda"
+       </PRE>
+       The best way to obtain these values is to use a "print" statement
+       <I>right before the call that fails</I>.
+ </OL>
+
+ If you have <I><B>any other questions or comments</B></I> you 
+ should subscribe to the <B>mailing list</B> and ask them there. 
+
  <H2> Mailing List </H2>
 
  A mailing list is available for discussions of this perl extension.
