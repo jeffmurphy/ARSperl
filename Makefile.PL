@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.11 2000/02/17 04:49:42 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.12 2000/04/05 14:09:46 jcmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -13,6 +13,9 @@
 #    run with "perl Makefile.PL" then type "make"
 #
 # $Log: Makefile.PL,v $
+# Revision 1.12  2000/04/05 14:09:46  jcmurphy
+# 1.67 - bug in getsql, addition of setserver port
+#
 # Revision 1.11  2000/02/17 04:49:42  jcmurphy
 # ars_SetServerPort
 #
@@ -51,7 +54,7 @@ $debug = 0;
 # STEP 1 -> Set the path to your ARS API directory
 
 $ARSAPI     = "/usr/ars/api";
-#$ARSAPI     = "/u1/project/ARSperl/api/sol2/api3.2";
+#$ARSAPI     = "/u1/project/ARSperl/api/sol2/api4.5";
 #$ARSAPI     = "/u1/project/ARSperl/api/linux/4.0";
 #$ARSAPI     = "/home/jcmurphy/arsperl/api";
 

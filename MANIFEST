@@ -68,6 +68,8 @@ example/ars_QualDecode.pl
 example/ars_decodeStatusHistory.pl
 example/attachTest.pl
 example/getAttachment-OO.pl
+example/.#ars_GetListSQL.pl.1.1
+example/ars_GetListContainer.pl
 html/manual/ars_APIVersion.html
 html/manual/AR_DAY.html
 html/manual/AR_HOUR.html
