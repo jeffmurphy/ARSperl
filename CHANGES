@@ -11,7 +11,7 @@ previous versions of arsperl and may require altering of some arsperl
 scripts.
 
 
-Released: x/x/2000 Version: 1.69
+Released: 8/31/2000 Version: 1.69
 
 
 (JCM)   added ars_SetServerInfo() call
@@ -524,5 +524,5 @@ Released: 01/12/96 Version: 1.0beta
 
 arsperl@arsperl.org
 
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.38 2000/08/31 05:18:40 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.39 2000/08/31 20:54:58 jcmurphy Exp $
 

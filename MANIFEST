@@ -71,6 +71,7 @@ example/ars_decodeStatusHistory.pl
 example/attachTest.pl
 example/getAttachment-OO.pl
 example/ars_GetListContainer.pl
+example/ars_SetServerInfo.pl
 html/manual/ars_APIVersion.html
 html/manual/AR_DAY.html
 html/manual/AR_HOUR.html
@@ -198,6 +199,7 @@ html/manual/skel.html
 html/manual/toc.html
 html/manual/arrow.gif
 html/manual/ds_schematype.html
+html/manual/ars_SetServerInfo.html
 html/AddUsersToGroup.html
 html/DelUsersFromGroup.html
 html/DumpSetup.html
@@ -210,10 +212,11 @@ html/install.html
 html/usage.html
 html/arsperl-logo.gif
 t/aptest40.def
+t/10entry.t
+t/aptest.def
 t/00connect.t
 t/01import.t
-t/aptest.def
-t/10entry.t
 infra/mkchanges.pl
+infra/c4asp.bat
 infra/pcpp.pl
 changes.dat

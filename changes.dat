@@ -1,4 +1,4 @@
-released=x/x/2000 version=1.69
+released=8/31/2000 version=1.69
 JCM added ars_SetServerInfo() call
 JCM added infra/pcpp.pl which is used to convert the xs
     and c files into something that will compile against
