@@ -134,6 +134,26 @@
     you will have the option of specifying either.
 
 <P>
+<DT><A NAME="merge"><B>merge()</B></A>
+<PRE>
+   $f->merge(-type   =&gt; numeric value,
+             -values =&gt; { field1 =&gt; value1, ...});
+</PRE>
+
+    This method allows you to "merge" the given fields/values into 
+    a form. The merge operation is fairly powerful, allowing you
+    to bypass the usual pattern, "not-null", etc, checks that are 
+    enforced on set() and create() operations. In addition,
+    the merge() operation allows you to over-write existing entries
+    (including their diary fields). This call  
+    currently does not obey the VUI setting. You may specify the
+    enumeration field text instead of the enumeration value. In the future, 
+    you will have the option of specifying either. In the future, 
+    this call will also do the right thing for diary fields. Currently, 
+    you need to pass the <I>encoded</I> diary to this
+	routine. See <A HREF="ars_EncodeDiary.html">ars_EncodeDiary</A>.
+
+<P>
 <DT><A NAME="get"><B>get()</B></A>
 <PRE>
    ($value1, ...) = $f->get(-entry =&gt; scalar string,

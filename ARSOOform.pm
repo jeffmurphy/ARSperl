@@ -236,6 +236,65 @@ sub delete {
     }
 }
 
+# merge(-type => mergeType, -values => { field1 => value1, ... })
+
+sub merge {
+	my ($this) = shift;
+	my ($type, $vals) = 
+	  ARS::rearrange([TYPE,[VALUE,VALUES]],@_);
+
+	$this->{'connection'}->pushMessage(&ARS::AR_RETURN_ERROR,
+					   81000,
+					   "usage: form->merge(-type => mergeType, -values => { field1 => value1, ... })\ntype and values parameters are required.")
+	  unless(defined($type) && defined($vals));
+	
+	$this->{'connection'}->pushMessage(&ARS::AR_RETURN_ERROR,
+					   81000,
+					   "usage: form->merge(-type => mergeType, -values => { field1 => value1, ... })\nvalues parameter must be HASH ref.") 
+	  unless ref($vals) eq "HASH";
+	
+	my (%realmap);
+	
+	# as we work thru each value, we need to perform translations for
+	# enum fields.
+	
+	foreach (keys %{$vals}) {
+		my ($rv) = $this->value2internal(-field => $_,
+						 -value => $vals->{$_});
+		#print "[form->merge] realval for $_ = $rv\n";
+		$realmap{$this->getFieldID($_)} = $rv;
+	}
+
+	print "merge/type=$type\n" if $this->{'connection'}->{'.debug'};
+
+	my ($rv) = ARS::ars_MergeEntry($this->{'connection'}->{'ctrl'},
+				       $this->{'form'},
+				       $type,
+				       %realmap);
+	
+
+	$this->{'connection'}->tryCatch();
+
+	# if ($rv is "") and there are no FATAL or ERRORs and
+	# an entry id was in our vals realmap hash, then this was
+	# a successful "OVERWRITE" or "MERGE" operation. lets return
+	# the entry-id. if $rv is no "", then whatever operation this
+	# was - it was successful. if it's "" and we had no entry-id
+	# specified - or we did have one specified and there are FATALs
+	# or ERRORs then something is wrong. complicated, but that's how
+	# the C API works. we try to make the OO layer a little nicer for
+	# the end user.
+
+	if(($rv eq "") && defined($realmap{1})) {
+		if(!$this->{'connection'}->hasFatals() &&
+		   !$this->{'connection'}->hasErrors()) {
+			$rv = $realmap{1};
+		}
+	}
+		   
+	return $rv;
+}
+
 # set(-entry => id, -gettime => tstamp, -values => { field1 => value1, ... })
 
 sub set {

@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.36 2001/10/24 14:21:27 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.37 2001/10/24 15:18:06 jcmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -25,7 +25,7 @@ $debug = 0;
 
 $ARSAPI     = "/usr/ar/api";
 $ARSAPI     = "/u1/project/ARSperl/api/sol2/api4.5.2";
-$ARSAPI     = "/u1/project/ARSperl/api/linux/4.5";
+#$ARSAPI     = "/u1/project/ARSperl/api/linux/4.5";
 #$ARSAPI     = "/home/jcmurphy/arsperl/api/4.5";
 
 # STEP 2 -> Choose your version of ARS

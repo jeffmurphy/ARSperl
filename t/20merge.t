@@ -2,7 +2,7 @@
 use ARS;
 require './t/config.cache';
 
-my $maxtest = 4;
+my $maxtest = 5;
 
 print "1..$maxtest\n";
 
@@ -56,11 +56,12 @@ if(!defined($eid)) {
 # replace the entry with something new. we should get the 
 # same entry-id back
 
-my $eid2 = ars_MergeEntry($c, "ARSperl Test", 4, 
-			 1, $eid,
-			 $fids{'Submitter'}, 'jcm',
-			 $fids{'Short Description'}, 'foobar2',
-			 $fids{'Status'}, 1);
+my $eid2 = ars_MergeEntry($c, "ARSperl Test", 
+			  &ARS::AR_MERGE_ENTRY_DUP_MERGE, 
+			  1, $eid,
+			  $fids{'Submitter'}, 'jcm',
+			  $fids{'Short Description'}, 'foobar2',
+			  $fids{'Status'}, 1);
 
 if(!defined($eid2)) {
 	print "not ok [4] ndef eid  [$ars_errstr]\n";
@@ -77,13 +78,48 @@ elsif($eid2 eq "") {
 			}
 		}
 	}
-	#ars_DeleteEntry($c, "ARSperl Test", $eid2);
 } 
 
 print "ok [4]\n";
 
 
-ars_DeleteEntry($c, "ARSperl Test", $eid);
+# now do it again, but via the OO layer
 
+my $ooc = new ARS(-ctrl  => $c,
+		  -catch => { ARS::AR_RETURN_ERROR => undef,
+			      ARS::AR_RETURN_WARNING => undef,
+			      ARS::AR_RETURN_FATAL => undef
+			    },
+		  -debug => undef
+		 );
+
+
+my $oof = $ooc->openForm(-form => 'ARSperl Test');
+
+$eid2 = $oof->merge(-type => &ARS::AR_MERGE_ENTRY_DUP_MERGE, 
+		    -values => {
+				'Request ID' => $eid, 
+				'Submitter' => 'xyz',
+				'Short Description' => 'oo-foobar',
+				'Status' => 'Rejected'
+				}
+		    );
+
+# since we disabled exception handling (in the 'new' above)
+# we can test $eid2 
+
+if($eid2 eq $eid) {
+	print "ok [5]\n";
+} else {
+	# if $eid2 is "", then the op failed completely
+	# if $eid2 ne $eid, then the op succeeded, but 
+	#    created a new entry - which shouldnt happen
+	#    since we specified DUP_MERGE _unless_ you
+	#    forgot to specify an entry-id in your values 
+	#    hash
+	print "not ok [5] (eid2=$eid2 ; eid=$eid ; err=$ars_errstr)\n";
+}
+
+ars_DeleteEntry($c, "ARSperl Test", $eid);
 
 exit 0;
