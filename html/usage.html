@@ -1,0 +1,726 @@
+<HTML>
+<HEAD>
+<TITLE>ARSperl: Usage</TITLE>
+</HEAD>
+
+<BODY>
+
+<H2>Using the ARS Perl extension</H2>
+
+<H3>Note</H3>
+
+This documentation is under construction.
+
+<HR>
+
+<H3>Contents</H3>
+
+<UL>
+    <LI><A HREF="#loading">Loading the extension</A>
+    <LI><A HREF="#variables">Reserved variables</A>
+    <UL>
+        <LI><A HREF="#ars_errstr">ars_errstr</A>
+    </UL>
+    <LI><A HREF="#functions">Functions overview</A>
+    <UL>
+        <LI><A HREF="#ars_Login">ars_Login</A>
+        <LI><A HREF="#ars_Logoff">ars_Logoff</A>
+        <LI><A HREF="#ars_LoadQualifier">ars_LoadQualifier</A>
+        <LI><A HREF="#ars_GetListField">ars_GetListField</A>
+        <LI><A HREF="#ars_GetFieldByName">ars_GetFieldByName</A>
+        <LI><A HREF="#ars_GetFieldTable">ars_GetFieldTable</A>
+        <LI><A HREF="#ars_CreateEntry">ars_CreateEntry</A>
+        <LI><A HREF="#ars_DeleteEntry">ars_DeleteEntry</A>
+        <LI><A HREF="#ars_GetEntry">ars_GetEntry</A>
+        <LI><A HREF="#ars_GetListEntry">ars_GetListEntry</A>
+        <LI><A HREF="#ars_GetListSchema">ars_GetListSchema</A>
+        <LI><A HREF="#ars_GetListServer">ars_GetListServer</A>
+        <LI><A HREF="#ars_GetActiveLink">ars_GetActiveLink</A>
+        <LI><A HREF="#ars_GetCharMenuItems">ars_GetCharMenuItems</A>
+        <LI><A HREF="#ars_GetSchema">ars_GetSchema</A>
+        <LI><A HREF="#ars_GetListActiveLink">ars_GetListActiveLink</A>
+        <LI><A HREF="#ars_GetField">ars_GetField</A>
+        <LI><A HREF="#ars_SetEntry">ars_SetEntry</A>
+    </UL>
+    <LI><A HREF="#helper">Perl helper functions</A>
+    <UL>
+        <LI><A HREF="#ars_simpleMenu">ars_simpleMenu</A>
+    </UL>
+    <LI><A HREF="#datastruct">Data structures</A>
+</UL>
+
+<HR>
+
+<A NAME="loading">
+<H3>Loading</H3>
+</A>
+
+To load the extension you must have '<B>use ARS;</B>' at the
+beginning of a perl script.  The added perl functions more or less match
+the ones in the C API. It should be noted that, at present, only functions
+pertinent to client usage are integrated. Functions that would be used, for
+instance, by the admin application are not integrated <I>(i.e. functions for
+creating schemas,active links, etc. Only functions to fetch schemas, active
+links, submit and modify data are available)</I>.  
+
+<HR>
+
+<A NAME="variables">
+<H3>SPECIAL VARIABLES</H3>
+</A>
+
+<DL>
+   <A NAME="ars_errstr"></A>
+   <DT><CODE>$ars_errstr</CODE><DD>
+
+   Error and warning messages from the C or Perl API are placed in 
+   this variable.
+</DL>
+
+<HR>
+
+<A NAME="functions">
+<H3>FUNCTION LIST</H3>
+</A>
+
+<DL>
+   <A NAME="ars_Login"></A>
+   <DT><CODE>ars_Login(server,username,password)</CODE><DD>
+
+      Attempts to login to the server.<P>
+
+      <DL>
+         <DT><B>On success</B><DD>
+                Returns a scalar control record.
+         <DT><B>On failure</B><DD>
+                Returns <CODE>undef</CODE>.
+      </DL>
+
+      <P>Example:
+
+      <PRE>
+      ($c = ars_Login("server","jmurphy","blah")) || die "can't login";
+      </PRE>
+
+   <A NAME="ars_Logoff"></A>
+   <DT><CODE>ars_Logoff(ctrl)</CODE><DD>
+
+      Closes an active session for the control record given.<P>
+
+      No return values.
+
+      <P>Example:
+
+      <PRE>
+      ars_Logoff($c);
+      </PRE>
+
+   <A NAME="ars_LoadQualifier"></A>
+   <DT><CODE>ars_LoadQualifier(ctrl,schema,qualstring)</CODE><DD>
+
+      Converts a qualifier string into a scalar qualifier record.<P>
+
+      <DL>
+         <DT><B>On success</B><DD>
+                Returns the qualifier record.
+         <DT><B>On failure</B>
+                Returns <CODE>undef</CODE>.
+      </DL>
+
+      <P>Example:
+
+      <PRE>
+      ($q = ars_LoadQualifier($c, "User", "'Login name' = \"jmurphy\"")) ||
+	    print "error!";
+      </PRE>
+
+   <A NAME="ars_GetListField"></A>
+   <DT><CODE>ars_GetListField(control,schema,changedsince=0)</CODE><DD>
+   
+      Fetches the Field ID's for all fields in the schema
+      specified. <CODE>changedsince</CODE> is an optional unix timestamp
+      and defaults to 0.<P>
+
+      <DL>
+          <DT><B>On success</B><DD>
+              Returns an array of field ids.
+          <DT><B>On failure</B><DD>
+              Returns <CODE>undef</CODE>.
+      </DL>
+      
+      <P>Example:
+
+      <PRE>
+      @fields = ars_GetListField($c, "User");
+      </PRE>
+
+   <A NAME="ars_GetFieldByName"></A>
+   <DT><CODE>ars_GetFieldByName(control,schema,field_name)</CODE><DD>
+
+      An easier way of looking up field attributes. This function allows
+      you to retrieve the Field ID (used by many functions) by just 
+      knowing the field name and schema name. <P>
+
+      <DL>
+          <DT><B>On success</B><DD>
+              Returns the field id.
+          <DT><B>On failure</B><DD>
+              Returns <CODE>undef</CODE>.
+      </DL>
+
+      <P>Example:
+
+      <PRE>    
+      $id = ars_GetFieldByName($c, "User", "Login name");
+      </PRE>
+
+   <A NAME="ars_GetFieldTable"></A>
+   <DT><CODE>ars_GetFieldTable(control,schema)</CODE><DD>
+
+      This function is a combination of the above two. It populates an
+      associative array with field names and values. The key of the array
+      is the field name and the value of the array is the field id. In most
+      cases, it is more efficient to call this and use the below example
+      for retrieving field id's. <P>
+
+      <DL>
+          <DT><B>On success</B><DD>
+              Returns an associative array of all fields in the schema.
+          <DT><B>On failure</B><DD>
+              Returns <CODE>undef</CODE>.
+      </DL>
+
+      <P>Example:
+
+      <PRE>
+      %fields = ars_GetFieldTable($c, "User");
+      if(defined($fields{"Login name"}) {
+          $id = $fields{"Login name"};
+      } else {
+          print "Field doesnt exist!\n";
+      }
+      </PRE>
+
+   <A NAME="ars_CreateEntry"></A>
+   <DT><CODE>ars_CreateEntry(ctrl, schema, field_name1, value1, ...)</CODE><DD>
+   
+      This function creates a new entry (row) in the schema. This is 
+      the same as ``submitting a new ticket''. Alternating field ids and
+      values should follow the schema name.  Data types are automatically
+      converted.<P>
+
+      <DL>
+          <DT><B>On success</B><DD>
+              Returns the new entry id.
+          <DT><B>On failure</B><DD>
+              Returns <CODE>undef</CODE>.
+      </DL>
+
+      <P>Example:
+
+      <PRE>
+      ($entry_id = ars_CreateEntry($c, "Schema01", $id, $val)) || 
+            print "submission failed\n"; 
+      </PRE>
+
+   <A NAME="ars_DeleteEntry"></A>
+   <DT><CODE>ars_DeleteEntry(ctrl,schema,entry_id)</CODE><DD>
+
+      This function deletes the entry (row) in the schema matching 
+      <CODE>entry_id</CODE>.<P>
+
+      <DL>
+          <DT><B>On success</B><DD>
+              Returns 0.
+          <DT><B>On failure</B><DD>
+              Returns -1.
+      </DL>
+
+      <P>Example:
+
+      <PRE>
+      ars_DeleteEntry(ctrl,"Schema01",$entry_id);
+      </PRE>
+
+   <A NAME="ars_GetEntry"></A>
+   <DT><CODE>ars_GetEntry(ctrl,schema,entry_id,...)</CODE><DD>
+
+      This function returns a list (associative array) of values and field
+      ids for a particular schema and entry id. If you specify any 
+      field ids after the <CODE>entry_id</CODE> parameter, only the values
+      for those fields will be returned. If no field ids are given after
+      <CODE>entry_id</CODE>, then all (fieldid, value) pairs are
+      retrieved.<P>
+
+      <DL>
+          <DT><B>On success</B><DD>
+              Returns an associative array. The key of the array
+              is the field id and the value of the array are
+              the values of the fields as retrieved from the 
+              server.
+          <DT><B>On failure</B><DD>
+              Returns <CODE>undef</CODE>.
+      </DL>
+
+      <P>Example:
+
+      <PRE>
+      %vals = ars_GetEntry($c, "User", $entry_id);
+      print "Login name = ".$vals{"Login name"}."\n";
+      </PRE>
+
+   <A NAME="ars_GetListEntry"></A>
+   <DT><CODE>ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,...)</CODE><DD>
+
+      This function is used to retrieve the list of <CODE>entry_id</CODE>'s
+      from the specified schema. The entries are returned as a list 
+      (associative array) of <I>(entry_id, short-description)</I> pairs. 
+      This function requires a Qualifier. If you wish to retrieve all 
+      entries in the schema (upto the maximum you specified) you should
+      load a Qualifier with something like <CODE>(1 = 1)</CODE>.
+      Optional field ids may be given after maxRetrieve to specify the
+      sorting order. If you specify <CODE>maxRetrieve = 0</CODE> then
+      all of the entries will be returned (or the maximum allow by the
+      server administrator, which ever is less). <P>
+
+      <B>Note!</B> The "Short-Description" mentioned above is <I>not</I>
+      the contents of the "short-description" field in the schema. It is,
+      in fact, the contents of the "Query List Fields" for this schema.
+      See <I>List_Entries.pl</I> for an example. <P>
+
+      <DL>
+          <DT><B>On success</B><DD>
+               Returns a list (associative array) of 
+               <I>(entry_id, short-description)</I> pairs.
+          <DT><B>On failure</B><DD>
+               Returns <CODE>undef</CODE>.
+      </DL>
+
+      <P>Example:
+
+      <PRE>
+      %entries = ars_GetListEntry($c, "User", $q, 100);
+      foreach $entry_id (sort keys %entries) {
+          print "EntryID: $entry_id Short-Descrip: $entries{$entry_id}\n";
+      }
+      </PRE>
+
+   <A NAME="ars_GetListSchema"></A>
+   <DT><CODE>ars_GetListSchema(ctrl, changedsince=0)</CODE><DD>
+
+      This function fetches the list of all schemas available to the user.
+      <CODE>changedsince</CODE> is an optional timestamp that will cause
+      only schemas newer than that time to be returned. <P>
+
+      <DL>
+          <DT><B>On success</B><DD>
+              Returns an array of schema's available. 
+          <DT><B>On failure</B><DD>
+              Returns <CODE>undef</CODE>.
+      </DL>
+
+      <P>Example:
+
+      <PRE>
+      @schemas = ars_GetListSchema($c);
+      for($i = 0; $i < $#schemas ; $i++) {
+           print "$schemas[$i]\n";
+      }
+      </PRE>
+
+   <A NAME="ars_GetListServer"></A>
+   <DT><CODE>ars_GetListServer(ctrl)</CODE><DD>
+
+      This function determines what servers are available from the machine
+      that the script is running on.<P>
+
+      <DL>
+          <DT><B>On success</B><DD>
+              Returns an array of one or more servers as defined in 
+              the <CODE>/etc/ar</CODE> file.
+          <DT><B>On failure</B><DD>
+              Returns <CODE>undef</CODE>.
+      </DL>
+
+      <P>Example:
+
+      <PRE>
+      @servers = ars_GetListServer($c);
+      for($i = 0; $i < $#servers ; $i++) {
+           print "$servers[$i]\n";
+      }
+      </PRE>
+
+   <A NAME="ars_GetActiveLink"></A>
+   <DT><CODE>ars_GetActiveLink(ctrl,name)</CODE><DD>
+
+      This function fetches information regarding a specified active link. 
+      See <A HREF="#datastruct">Data Structures</A> below.<P>
+
+      <DL>
+          <DT><B>On success</B><DD>
+              A scalar pointer to the active link attributes.
+          <DT><B>On failure</B><DD>
+              <CODE>undef</CODE>.
+      </DL>
+
+      <P>Example:
+
+      <PRE>
+      $alink = ars_GetActiveLink($c, "AR-Assets-GetContactinfo");
+      </PRE>
+
+   <A NAME="ars_GetCharMenuItems"></A>
+   <DT><CODE>ars_GetCharMenuItems(ctrl,name)</CODE><DD>
+
+      This function builds a "linked list" of menu items. It returns an
+      array pointer to the top level menu that is made up of 
+      <I>(name, value)</I> pairs. If the <I>value</I> is, in turn, another
+      array pointer, then it points to a submenu structure. <P>
+
+      <B>Illustration</B>
+      <PRE>
+      @menu_struct
+       ($name = "Item1"   , $value = "This is item1")
+             .
+             .
+             .
+       ($name = "Sub Menu", $value = array reference)
+                                +------> @sub_menu_struct
+                                          ($name = "SubItem1", $value = ...)
+                                    . 
+                                    .
+                                    .
+      </PRE>
+      See <I>Show_Menu.pl</I> for a demonstration of using this function 
+      and its output.<P>
+
+      <DL>
+          <DT><B>On success</B><DD>
+              A reference to an array.
+          <DT><B>On failure</B><DD>
+              <CODE>undef</CODE>.
+      </DL>
+
+      <P>Example:
+
+      <PRE>
+      $m = ars_GetCharMenuItems($ctrl, $menu_name));
+      @menu_struct = @$m;
+      </PRE>
+
+   <A NAME="ars_GetSchema"></A>
+   <DT><CODE>ars_GetSchema(ctrl,name)</CODE><DD>
+
+      This function fetches the schema attributes. 
+      See <A HREF="#datastruct">Data Structures</A> below.
+      <P>
+
+      <DL>
+          <DT><B>On success</B><DD>
+              A scalar reference to the schema attributes.
+          <DT><B>On failure</B><DD>
+              <CODE>undef</CODE>
+      </DL>
+
+      <P>Example:
+
+      <PRE>
+      $s = ars_GetSchema($c, "Group");
+      </PRE>
+
+   <A NAME="ars_GetListActiveLink"></A>
+   <DT><CODE>ars_GetListActiveLink(ctrl,schema=NULL,changedSince=0)</CODE><DD>
+
+      This function will look up the names of all active links, or a subset
+      restricted to a certain schema name (if you provide a schema name).<P>
+
+      <DL>
+          <DT><B>On success</B><DD>
+              An array of Active Link names.
+          <DT><B>On failure</B><DD>
+              <CODE>undef</CODE>
+      </DL>
+
+      <P>Example:
+
+      <PRE>
+      @alink_names = ars_GetListActiveLink($c); # get all active links
+      @alink_names = ars_GetListActiveLink($c, "Group"); 
+                           # get all active links associated with the
+                           # "Group" schema.
+      </PRE>
+
+   <A NAME="ars_GetField"></A>
+   <DT><CODE>ars_GetField(ctrl,schema,id)</CODE><DD>
+
+      returns a hash reference to information about a field.
+
+      <DL>
+          <DT><B>On success</B><DD>
+
+          <DT><B>On failure</B><DD>
+
+      </DL>
+
+      <P>Example:
+
+      <PRE>
+      </PRE>
+
+   <A NAME="ars_SetEntry"></A>
+   <DT><CODE>ars_SetEntry(ctrl,schema,entry_id,getTime,...)</CODE><DD>
+
+      Modifies the value of an entry in a schema.  alternating field ids and
+      values should be given after getTime.
+
+      <DL>
+          <DT><B>On success</B><DD>
+
+          <DT><B>On failure</B><DD>
+
+      </DL>
+
+      <P>Example:
+
+      <PRE>
+      </PRE>
+
+
+</DL>
+
+<HR>
+
+<A NAME="helper"></A>
+<H3> Helper Functions </H3>
+
+The following are some functions that are not part of the C extension 
+code. These are simple functions that are part of the ARS Perl Module.
+They are intended to make life a little easier in some (specific) cases.
+ 
+</DL>
+   <A NAME="ars_simpleMenu"></A>
+   <DT><CODE>ars_simpleMenu(menu)</CODE><DD>
+
+      This is a perl routine in the ARS.pm perl module. It is primarily
+      intended to make life a little easier for the Web client demo script.
+      It converts a menu returned by ars_GetCharMenuItems to a single level
+      menu seperating labels with '/'. This was added because of
+      limitations in HTML.<P>
+
+      <DL>
+          <DT><B>On success</B><DD>
+              An array of menu items.
+          <DT><B>On failure</B><DD>
+              <CODE>undef</CODE>
+      </DL>
+
+      <P>Example:
+
+      <PRE>
+      @sm = ars_simpleMenu(ars_GetCharMenuItems($ctrl, $menu_name));
+      </PRE>
+</DL>
+
+<HR>
+
+<A NAME="datastruct"></A>
+<H3> Data Structures </H3>
+
+<B>Contents</B>
+<UL>
+  <A HREF="as">    Assign Structure</A><BR>
+  <A HREF="afs">   Assign Field Structure</A><BR>
+  <A HREF="alas">  Active Link Action Structure</A><BR>
+  <A HREF="alms">  Active Link Macro Structure</A><BR>
+  <A HREF="aoas">  Arith Op Assign Structure</A><BR>
+  <A HREF="ds">    Display Structure</A><BR>
+  <A HREF="elfs">  Entry List Field Structure</A><BR>
+  <A HREF="fas">   Field Assign Structure</A><BR>
+  <A HREF="fc">    Field Characteristics</A><BR>
+  <A HREF="fls">   Field Limit Structure</A><BR>
+  <A HREF="fncas"> Function Assign Structure</A><BR>
+  <A HREF="is">    Index Structure</A><BR>
+  <A HREF="mps">   Macro Parm Structure</A><BR>
+  <A HREF="shv">   Status History Value</A><BR>
+</UL>
+
+<A NAME="shv"></A>
+<H4>Status History Value</H4>
+
+<PRE>
+{"userOrTime"		=> integer,
+ "enumVal"		=> integer}
+</PRE>
+
+<A NAME="afs"></A>
+<H4>Assign Field Structure</H4>
+
+<PRE>
+{"server"		=> string,
+ "schema"		=> string,
+ "qualifier"		=> reference to qualifier,
+ "fieldId"		=> integer,
+			or
+ "statHistory"		=> reference to <A HREF="#shv">Status History Value</A>}
+</PRE>
+
+<A NAME="fas"></A>
+<H4>Field Assign Structure</H4>
+
+<PRE>
+{"fieldId"		=> integer,
+ "assignment"		=> reference to <A HREF="#as">Assign Struct</A>}
+</PRE>
+
+<A NAME="ds"></A>
+<H4>Display Structure</H4>
+
+<PRE>
+{"displayTag"		=> string,
+ "label"		=> string,
+ "labelLocation"	=> "Left" or "Top"
+ "type"			=> "NONE" or "TEXT" or "NUMTEXT" or "CHECKBOX" or
+			   "CHOICE" or "BUTTON"
+ "length"		=> integer,
+ "numRows"		=> integer,
+ "option"		=> "VISIBLE" or "HIDDEN"
+ "x"			=> integer,
+ "y"			=> integer}
+</PRE>
+
+<A NAME="mps"></A>
+<H4>Macro Parm Structure</H4>
+
+<PRE>
+(name : string, value : string)
+</PRE>
+
+<A NAME="alms"></A>
+<H4>Active Link Macro Structure</H4>
+
+<PRE>
+{"macroParms"		=> array of references to <A HREF="#mps">Macro Parm Structure</A>,
+ "macroText"		=> string,
+ "macroName"		=> string}
+</PRE>
+
+<A NAME="fc"></A>
+<H4>Field Characteristics</H4>
+
+<PRE>
+{"accessOption"		=> integer,
+ "focus"		=> integer,
+ ["display"		=> reference to <A HREF="#ds">Display Structure</A>,]
+ ["charMenu"		=> string,]
+ "fieldId"		=> integer}
+</PRE>
+
+<A NAME="alas"></A>
+<H4>Active Link Action Structure</H4>
+
+<PRE>
+{"macro"		=> reference to <A HREF="#alams">Active Link Macro Structure</A>,
+ or "assign_fields"	=> reference to <A HREF="#fas">Field Assign Structure</A>,
+ or "process"		=> string,
+ or "message"		=> string,
+ or "characteristics"	=> <A NAME="#fc">Field Characteristics</A>,
+ or "dde"		=> not implemented,
+ or "none"		=> undef}
+</PRE>
+
+<CODE>"Message"</CODE> is formatted as:<P>
+
+<CODE>This is the text</CODE><P>
+
+You can parse this with a regular expression.
+
+<A NAME="elfs"></A>
+<H4>Entry List Field Structure</H4>
+
+<PRE>
+{"fieldId"		=> integer,
+ "columnWidth"		=> integer,
+ "separator"		=> string}
+</PRE>
+
+<A NAME="is"></A>
+<H4>Index Structure</H4>
+
+<PRE>
+{["unique"		=> 1,]
+ "fieldIds"		=> reference to a list of integers (internal ids)}
+</PRE>
+
+<A NAME="fls"></A>
+<H4>Field Limit Structure</H4>
+
+<PRE>
+; integer
+{"min"			=> integer,
+ "max"			=> integer}
+	or
+; real
+{"min"			=> float,
+ "max"			=> float,
+ "precision"		=> integer}
+	or
+; char
+{"maxLength"		=> integer,
+ "menuStyle"		=> "append" or "overwrite",
+ "match"		=> "anywhere" or "leading" or "equal",
+ "charMenu"		=> string,
+ "pattern"		=> string,
+ "fullTextOptions"	=> "none" or "indexed"}
+	or
+; diary
+{"fullTextOptions"	=> "none" or "indexed"}
+	or
+; enum and bitmask
+array of strings
+	or
+undef
+</PRE>
+
+<A NAME="as"></A>
+<H4>Assign Structure</H4>
+
+<PRE>
+{"none"			=> undef,
+ or "value"		=> reference to <A HREF="#vs">Value Structure</A>,
+ or "field"		=> reference to <A HREF="#afs">Assign Field Structure</A>,
+ or "process"		=> string,
+ or "arith"		=> reference to <A HREF="#aoas">Arith Op Assign Structure</A>,
+ or "function"		=> reference to <A HREF="#fncas">Function Assign Structure</A>,
+ or "dde"		=> not implemented}
+</PRE>
+
+<A NAME="fncas"></A>
+<H4>Function Assign Structure</H4>
+
+<PRE>
+(function : string, parameter...)
+</PRE>
+
+<A NAME="aoas"></A>
+<H4>Arith Op Assign Structure</H4>
+
+<PRE>
+{"oper"			=> "+" or "-" or "*" or "/" or "%",
+ "left"			=> reference to <A HREF="#as">Assign Structure</A>,
+ ["right"		=> reference to <A HREF="#as">Assign Structure</A>]}
+</PRE>
+
+<A NAME="vs"></A>
+<H4>Value Structure</H4>
+
+ARValueStruct is just converted to the associated perl type, except for
+keywords.  Keywords are denoted by a string surrounded by nulls.  For example,
+$TIMESTAMP$ is converted to the perl string "\0timestamp\0".  C doesn't
+allow nulls in strings so this doesn't introduce any ambiguity.
+
+<HR>
+Last Updated: 01/12/96<BR>
+<I>arsperl@smurfland.cit.buffalo.edu</I>
+</BODY>
+</HTML>
