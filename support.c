@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.9 1997/10/20 21:00:41 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.10 1997/11/04 18:18:19 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/support.c,v 1.9 1997/10/20 21:00:41 jcmurphy E
     LOG:
 
 $Log: support.c,v $
+Revision 1.10  1997/11/04 18:18:19  jcmurphy
+1.5205: perl_permissionsList update
+
 Revision 1.9  1997/10/20 21:00:41  jcmurphy
 5203 beta. code cleanup. winnt additions. malloc/free
 debugging code.
@@ -139,7 +142,7 @@ debug_mallocnn(int s, char *file, char *func, int line)
 void
 debug_free(void *p, char *file, char *func, int line) 
 {
-  printf("free(%d) called from %s::%s(), line %d\n", p, 
+  printf("free(0x%X) called from %s::%s(), line %d\n", p, 
 	 file ? file : "UNKNOWN" , 
 	 func ? func : "UNKNOWN" , 
 	 line ); 
@@ -1106,28 +1109,29 @@ perl_ARArithOpAssignStruct(_AWPC_ ARArithOpAssignStruct *in) {
 }
 
 SV *
-perl_ARPermissionList(_AWPC_ ARPermissionList *in) {
-  HV   *hash = newHV();
-  char  groupid[20];
-  int   i;
-  
-  for (i=0; i<in->numItems; i++) {
-    sprintf(groupid, "%i", (int)in->permissionList[i].groupId);
-    switch (in->permissionList[i].permissions) {
-    case AR_PERMISSIONS_NONE:
-      hv_store(hash, VNAME(groupid), newSVpv("none",0), 0);
-      break;
-    case AR_PERMISSIONS_VIEW:
-      hv_store(hash, VNAME(groupid), newSVpv("view",0), 0);
-      break;
-    case AR_PERMISSIONS_CHANGE:
-      hv_store(hash, VNAME(groupid), newSVpv("change",0), 0);
-      break;
-    default:
-      hv_store(hash, VNAME(groupid), newSVpv("unknown",0), 0);
-      break;
-    }
+perl_ARPermissionList(_AWPC_ ARPermissionList *in, int permType) {
+  HV                   *hash = newHV();
+  char                  groupid[20];
+  int                   i, j;
+  struct TypeMapStruct *tmap;
+
+  switch(permType) {
+  case PERMTYPE_SCHEMA:
+    tmap = (struct TypeMapStruct *)SchemaPermissionTypeMap;
+  case PERMTYPE_FIELD:
+  default:
+    tmap = (struct TypeMapStruct *)FieldPermissionTypeMap;
   }
+
+  for (i = 0; i < in->numItems; i++) {
+    sprintf(groupid, "%i", (int)in->permissionList[i].groupId);
+    for(j = 0 ; tmap[j].number != TYPEMAP_LAST ; j++) {
+      if(tmap[j].number == in->permissionList[i].permissions)
+	break;
+    }
+    hv_store(hash, VNAME(groupid), newSVpv(VNAME(tmap[j].name)), 0);
+  }
+
   return newRV((SV *)hash);
 }
 
@@ -1232,7 +1236,7 @@ perl_ARDisplayInstanceList(_AWPC_ ARDisplayInstanceList *in) {
    * that to perl_ARList
    */
 
-  hv_store(hash, "dInstanceList", strlen("dInstanceList"),
+  hv_store(hash, VNAME("dInstanceList"),
 	   perl_ARList(_PPERLC_ 
 		       (ARList *)&in->numItems,
 		       (ARS_fn)perl_ARDisplayInstanceStruct,
@@ -1762,7 +1766,7 @@ ARGetFieldCached(_AWPC_ ARControlStruct *ctrl, ARNameType schema, ARInternalId i
   if (fieldMap || option || createMode || defaultVal || perm || limit ||
       display || help || timestamp || owner || lastChanged || changeDiary) {
     (void) ARError_add(_PPERLC_ ARSPERL_TRACEBACK, 1, 
-		       "ARGetFieldCached (internal error): not all parameters specified.");
+		       "ARGetFieldCached: uncached parameter requested.");
     goto cache_fail;
   }
 #else
@@ -1770,7 +1774,7 @@ ARGetFieldCached(_AWPC_ ARControlStruct *ctrl, ARNameType schema, ARInternalId i
   if (option || createMode || defaultVal || perm || limit || help ||
       timestamp || owner || lastChanged || changeDiary) {
     (void) ARError_add(_PPERLC_ ARSPERL_TRACEBACK, 1,
-		       "ARGetFieldCached (internal error): not all parameters specified.");
+		       "ARGetFieldCached: uncached parameter requested.");
     goto cache_fail;
   }
 #endif  
