@@ -21,6 +21,10 @@
 #    Comments to: arsperl@smurfland.cit.buffalo.edu
 #
 # $Log: ARS.pm,v $
+# Revision 1.20  1997/10/20 21:00:05  jcmurphy
+# 1.5203 beta. code cleanup. winnt additions. malloc/free
+# debugging code.
+#
 # Revision 1.19  1997/10/13 12:26:29  jcmurphy
 # 1.5202
 #
@@ -141,7 +145,7 @@ ars_CreateActiveLink ars_CreateAdminExtension
 $ars_errstr %ARServerStats %ars_errhash
 );
 
-$VERSION   = '1.5202';
+$VERSION   = '1.5203';
 $DEBUGGING = 0;
 
 bootstrap ARS $VERSION;
