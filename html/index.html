@@ -7,14 +7,43 @@
 
  <H2> Overview </H2>
 
- ARSperl is an integration kit for Perl5.0 and Remedy ARS 2.x API. It 
+ ARSperl is an integration kit for Perl5.x and Remedy ARS 2.x API. It 
  provides a subset of the functionality found in the C API. The source
  code to the integration kit and example scripts is made available under the 
  <A HREF="copying.html">GPL</A>.
 
  <H2> Version </H2>
 
- The current release it Version 1.2
+ The current release it Version 1.3
+
+ <H2> Release Notes </H2>
+
+ <DL>
+    <DT> 1.3 <DD>
+    <UL>
+      <LI> Profiling code added to keep track of number of
+	    queries made.
+
+      <LI> Field caching code added to make some of the functions
+	    more efficient.
+
+      <LI> New functions: ars_GetFilter(), ars_GetCharMenu(), 
+		ars_GetServerStatistics
+
+      <LI> Internal GetField call now caches results to minimize
+		number of queries made.
+
+      <LI> Examples of new functions. 
+
+      <LI> <A HREF="WhoUsesIt.html">"WhoUsesIt.pl" utility</A>
+
+    </UL>
+    <P> 
+    <DT> 1.22 <DD>
+    fixed the bug in arsperl that caused SetEntry to not always work
+    correctly.  The bug only appeared when you passed that fields in an
+    array.
+ </DL>
 
  <H2> Support OS's </H2>
 
@@ -24,7 +53,13 @@
      <LI> Solaris 2.x
      <LI> SunOS 4.x
      <LI> Irix
+     <LI> HPUX
  </UL>
+
+ <H2> FAQs </H2>
+
+ We have some <A HREF="http://smurfland.cit.buffalo.edu/ARSperl/FAQs/"> useful 
+ excerpts from the mailing lists online.</A>
 
  <H2> Mailing List </H2>
 
@@ -38,16 +73,7 @@
    ignored.
  </UL>
 
- <H3> Installation </H3>
-
- <UL> 
-      <LI> Download
-      <LI> Unpack
-      <LI> Make makefile
-      <LI> make
-      <LI> make install
-      <LI> adjust first line of demos
- </UL>
+ <H3> <A HREF="install.html">Installation</A> </H3>
 
  <H3> Programmer's Guide </H3>
 

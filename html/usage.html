@@ -7,6 +7,8 @@
 
 <H2>Using the ARS Perl extension</H2>
 
+$Id: usage.html,v 1.5 1996/11/21 19:48:22 jcmurphy Exp $
+
 <H3>Note</H3>
 
 This documentation is under construction.
@@ -46,6 +48,9 @@ This documentation is under construction.
         <LI><A HREF="#ars_SetEntry">ars_SetEntry</A>
         <LI><A HREF="#ars_CreateEntry">ars_CreateEntry</A>
         <LI><A HREF="#ars_DeleteEntry">ars_DeleteEntry</A>
+        <LI><A HREF="#ars_GetFilter">ars_GetFilter</A>
+        <LI><A HREF="#ars_GetCharMenu">ars_GetCharMenu</A>
+        <LI><A HREF="#ars_GetServerStatistics">ars_GetServerStatistics</A>
     </UL>
     <LI><A HREF="#helper">Perl helper functions</A>
     <UL>
@@ -485,13 +490,54 @@ links, submit and modify data are available)</I>.
    <A NAME="ars_GetField"></A>
    <DT><CODE>ars_GetField(ctrl,schema,id)</CODE><DD>
 
-      returns a hash reference to information about a field.
+      Returns a hash reference to information about a field. The hash
+      will contain the following elements: <P>
+
+      <DL>
+        <DT> fieldId <DD>
+             the field id of the field
+        <DT> createMode <DD>
+             will be one of: <I>open</I>, <I>protected</I>
+        <DT> option <DD>
+             
+        <DT> dataType <DD>
+             will be one of: <I>keyword, integer, real, char, diary, enum,
+             time,</I> or <I>bitmask</I>.
+        <DT> defaultVal <DD>
+        <DT> limit <DD>
+             this is a hash. it's keys are (depending upon the dataType):
+             <DL>
+                <DT> min, max, precision <DD>
+                     used the integer and real types (precision is only for
+                     reals).
+                <DT> maxLength <DD>
+                     used for char type.
+                <DT> menuStyle <DD>
+                     will be either <I>append</I> or  <I>overwrite</I>
+                <DT> match <DD>
+                     will be one of: <I>anywhere, leading</I> or <I>equal</I>
+                <DT> charMenu <DD> 
+                     contains the name of the menu attached to this field.
+                <DT> pattern <DD>
+                     contains the pattern to match the field against.
+                <DT> fullTextOptions <DD>
+                     will be one either <I>none</I> or <I>indexed</I>
+              </DL>
+        <DT> displayList <DD>
+        <DT> helpText <DD>
+        <DT> timestamp <DD>
+        <DT> owner <DD>
+        <DT> lastChanged <DD>
+        <DT> changeDiary <DD>
+      </DL>
+
+      <P>
 
       <DL>
           <DT><B>On success</B><DD>
-
+              a hash
           <DT><B>On failure</B><DD>
-
+              undef
       </DL>
 
       <P>Example:
@@ -507,9 +553,9 @@ links, submit and modify data are available)</I>.
 
       <DL>
           <DT><B>On success</B><DD>
-
+              Returns True (1)
           <DT><B>On failure</B><DD>
-
+              Returns undefined
       </DL>
 
       <P>Example:
@@ -599,6 +645,75 @@ links, submit and modify data are available)</I>.
 		returns undef
       </DL>
       <P>
+
+    <A NAME="ars_GetFilter"></A>
+    <DT><CODE>ars_GetFilter(ctrl, name)</CODE><DD>
+
+	Returns a HASH consisting of filter attributes. <CODE>name</CODE>
+        is the actual filter name as shown in the ARAdmin tool. See also:
+        <A HREF="#ars_GetListFilter">ars_GetListFilter</A> and 
+        <A HREF="#getfilter_hash">GetFilter Hash Values</A>.
+
+	<P>
+      <DL>
+          <DT><B>On success</B><DD>
+		returns a HASH
+          <DT><B>On failure</B><DD>
+		returns undef
+      </DL>
+      <P>
+
+    <A NAME="ars_GetCharMenu"></A>
+    <DT><CODE>ars_GetCharMenu(ctrl, name)</CODE><DD>
+
+	Returns a HASH consisting of menu attributes. <CODE>name</CODE>
+        is the actual menu name as shown in the ARAdmin tool. See also:
+        <A HREF="#getcharmenu_hash">GetCharMenu Hash Values</A>.
+
+	<P>
+        <B>Note</B>: This function returns information <I>about</I> the
+        menu. It does not return the actual menu items. See 
+        <A HREF="#ars_GetCharMenuItems">ars_GetCharMenuItems</A> for that.
+      <DL>
+          <DT><B>On success</B><DD>
+		returns a HASH
+          <DT><B>On failure</B><DD>
+		returns undef
+      </DL>
+      <P>
+
+    <A NAME="ars_GetServerStatistics"></A>
+    <DT><CODE>ars_GetServerStatistics(ctrl, statisticNumber)</CODE><DD>
+
+	Returns a HASH consisting of server statistics. <CODE>statisticNumber</CODE>
+        is the enumerated statistic value as listed in the <CODE>ar.h</CODE>
+        header file. In addition, you can use the <CODE>ARServerStats</CODE>
+        hash to convert from a statistic name to a statistic number.
+
+	<P>
+        Here is an example:<P>
+
+        <PRE>
+	%stats = ars_GetServerStatistics($ctrl, $ARServerStats{'START_TIME'},
+						$ARServerStats{'API_REQUESTS'});
+        </PRE>
+
+	This will return a HASH where the key is the enumerated value of the
+	requested statistic and the value of the hash is the actual statistic
+	value. To reference a statistic in the above HASH you can do this:
+
+	<PRE>
+	print $stats{$ARServerStats{'START_TIME'}}."\n";
+	</PRE>
+
+        <DL>
+          <DT><B>On success</B><DD>
+		returns a HASH
+          <DT><B>On failure</B><DD>
+		returns undef
+        </DL>
+       <P>
+
 </DL>
 
 <HR>
@@ -647,20 +762,20 @@ They are intended to make life a little easier in some (specific) cases.
 
 <B>Contents</B>
 <UL>
-  <A HREF="as">    Assign Structure</A><BR>
-  <A HREF="afs">   Assign Field Structure</A><BR>
-  <A HREF="alas">  Active Link Action Structure</A><BR>
-  <A HREF="alms">  Active Link Macro Structure</A><BR>
-  <A HREF="aoas">  Arith Op Assign Structure</A><BR>
-  <A HREF="ds">    Display Structure</A><BR>
-  <A HREF="elfs">  Entry List Field Structure</A><BR>
-  <A HREF="fas">   Field Assign Structure</A><BR>
-  <A HREF="fc">    Field Characteristics</A><BR>
-  <A HREF="fls">   Field Limit Structure</A><BR>
-  <A HREF="fncas"> Function Assign Structure</A><BR>
-  <A HREF="is">    Index Structure</A><BR>
-  <A HREF="mps">   Macro Parm Structure</A><BR>
-  <A HREF="shv">   Status History Value</A><BR>
+  <A HREF="#as">    Assign Structure</A><BR>
+  <A HREF="#afs">   Assign Field Structure</A><BR>
+  <A HREF="#alas">  Active Link Action Structure</A><BR>
+  <A HREF="#alms">  Active Link Macro Structure</A><BR>
+  <A HREF="#aoas">  Arith Op Assign Structure</A><BR>
+  <A HREF="#ds">    Display Structure</A><BR>
+  <A HREF="#elfs">  Entry List Field Structure</A><BR>
+  <A HREF="#fas">   Field Assign Structure</A><BR>
+  <A HREF="#fc">    Field Characteristics</A><BR>
+  <A HREF="#fls">   Field Limit Structure</A><BR>
+  <A HREF="#fncas"> Function Assign Structure</A><BR>
+  <A HREF="#is">    Index Structure</A><BR>
+  <A HREF="#mps">   Macro Parm Structure</A><BR>
+  <A HREF="#shv">   Status History Value</A><BR>
 </UL>
 
 <A NAME="shv"></A>
@@ -837,8 +952,110 @@ keywords.  Keywords are denoted by a string surrounded by nulls.  For example,
 $TIMESTAMP$ is converted to the perl string "\0timestamp\0".  C doesn't
 allow nulls in strings so this doesn't introduce any ambiguity.
 
+<A NAME="getfilter_hash"></A>
+<H4>GetFilter Hash Values</H4>
+
+<PRE>
+{
+"name"		=> string,
+"order"		=> integer,
+"schema"	=> string,
+"opSet"		=> integer bitmask,
+"enable"	=> integer boolean,
+"query"		=> reference to internal struct,
+"actionList"    => <I>list</I> of references to <A HREF="#getfilter_acthash">Action Hash</A>
+"helpText"	=> string,
+"timestamp"	=> integer,
+"owner"		=> string,
+"lastChanged"	=> integer,
+"changeDiary"	=> encoded string
+}
+</PRE>
+
+<A NAME="getfilter_acthash"></A>
+<H4>GetFilter Action Hash Values</H4>
+
+<PRE>
+{
+"notify"	=> reference to <A HREF="#getfilter_acthash_notifyhash">Notify Hash</A>
+"assign_fields"	=> reference to <A HREF="#fas">Field Assign Structure</A>
+"message"	=> string of form "<CODE>Type # Num # Text [X..]</CODE>",
+"process"	=> string
+}
+</PRE>
+
+<A NAME="getfilter_acthash_notifyhash"></A>
+<H4>GetFilter Action Hash/Notify Hash Values</H4>
+
+<PRE>
+{
+"notifyText"		=> string,
+"notifyPriority" 	=> integer,
+"notifyMechanism"	=> integer enumeration,
+"notifyMechanismXRef"	=> unknown,
+"subjectText"		=> string,
+"fieldIdListType"	=> integer enumeration,
+"fieldList"		=> integer list (where applicable)
+}
+</PRE>
+
+<A NAME="getcharmenu_hash"></A>
+<H4>GetCharMenu Hash</H4>
+
+<PRE>
+{
+"name"		=> string,
+"helpText"	=> string,
+"timestamp"	=> integer,
+"owner"		=> string,
+"lastChanged"	=> string,
+"changeDiary"	=> encoded string,
+"schema"	=> string
+"menuType"	=> integer enumeration,
+"menuQuery"     => reference to <A HREF="#charmenu_query_hash">CharMenu Query Hash</A> (if menuType is Query)
+"menuSQL"       => reference to <A HREF="#charmenu_sql_hash">CharMenu SQL Hash</A> (if menuType is SQL)
+"menuFile"      => reference to <A HREF="#charmenu_file_hash">CharMenu File Hash</A> (if menuType is File)
+}
+</PRE>
+
+<A NAME="charmenu_query_hash"></A>
+<H4>GetCharMenu Query Hash</H4>
+
+<PRE>
+{
+"schema"	=> string,
+"server"	=> string,
+"labelField"	=> integer,
+"valueField"	=> integer,
+"sortOnLabel"	=> integer boolean,
+"qualifier"	=> internal pointer
+}
+</PRE>
+
+<A NAME="charmenu_sql_hash"></A>
+<H4>GetCharMenu SQL Hash</H4>
+
+<PRE>
+{
+"server"	=> string,
+"sqlCommand"	=> string,
+"labelIndex"	=> integer,
+"valueIndex"	=> integer,
+}
+</PRE>
+
+<A NAME="charmenu_file_hash"></A>
+<H4>GetCharMenu File Hash</H4>
+
+<PRE>
+{
+"fileLocation"	=> integer enumertion,
+"filename"	=> string
+}
+</PRE>
+
+
 <HR>
-Last Updated: 01/12/96<BR>
 <I>arsperl@smurfland.cit.buffalo.edu</I>
 </BODY>
 </HTML>
