@@ -21,6 +21,9 @@
 #    Comments to: arsperl@smurfland.cit.buffalo.edu
 #
 # $Log: ARS.pm,v $
+# Revision 1.15  1997/10/07 14:29:01  jcmurphy
+# *** empty log message ***
+#
 # Revision 1.14  1997/09/04 00:21:10  jcmurphy
 # *** empty log message ***
 #
@@ -115,7 +118,7 @@ ars_CreateActiveLink ars_CreateAdminExtension
 $ars_errstr %ARServerStats %ars_errhash
 );
 
-$VERSION = '1.50';
+$VERSION = '1.51';
 
 bootstrap ARS $VERSION;
 tie $ars_errstr, ARS::ERRORSTR;
