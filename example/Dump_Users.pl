@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/Dump_Users.pl,v 1.4 1998/12/28 15:23:29 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/Dump_Users.pl,v 1.5 1999/05/05 19:57:59 rgc Exp $
 #
 # EXAMPLE
 #    Dump_Users.pl
@@ -19,6 +19,9 @@
 # 01/12/96
 #
 # $Log: Dump_Users.pl,v $
+# Revision 1.5  1999/05/05 19:57:59  rgc
+# DumpUsers.
+#
 # Revision 1.4  1998/12/28 15:23:29  jcmurphy
 # fixed up "Login name" query for ARS4.0 ("Login Name")
 #
@@ -56,9 +59,7 @@ if(!defined($password)) {
 ($qual = ars_LoadQualifier($ctrl,$SCHEMA,"(1 = 1)")) ||
     die "error in ars_LoadQualifier: $ars_errstr";
 
-# Retrieve all of the entry-id's for the schema.
 
-%entries = ars_GetListEntry($ctrl, $SCHEMA, $qual, 0);
 
 # Retrieve the fieldid's for the "Login name" and "Full name" fields.
 # As of ARS4.0, "name" has become "Name", so we'll check for both fields
@@ -70,6 +71,12 @@ if(!defined($loginname_fid)) {
     die "no such field in this schema: 'Login name'";
 }
 
+# Retrieve all of the entry-id's for the schema.
+
+@entries = ars_GetListEntry($ctrl, $SCHEMA, $qual, 0, 
+			$loginname_fid, &ARS::AR_SORT_ASCENDING);
+
+
 
 ($fullname_fid = ars_GetFieldByName($ctrl, $SCHEMA, "Full Name")) ||
     die "no such field in this schema: 'Full Name'";
@@ -78,11 +85,12 @@ if(!defined($loginname_fid)) {
 
 printf("%-30s %-45s\n", "Login name", "Full name");
 
-foreach $entry_id (sort keys %entries) {
+for ($i =0; $i <= $#entries; $i+=2) {
+#foreach $entry_id (sort keys %entries) {
 
     # Retrieve the (fieldid, value) pairs for this entry
 
-    %e_vals = ars_GetEntry($ctrl, $SCHEMA, $entry_id);
+    %e_vals = ars_GetEntry($ctrl, $SCHEMA, $entries[$i]);
 
     # Print out the Login name and Full name for each record
 
