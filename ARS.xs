@@ -1,8 +1,9 @@
 /*
-    ARSperl - An ARS2.0 / Perl5.0 Integration Kit
+    ARSperl - An ARS2.x / Perl5.x Integration Kit
 
-    Copyright (C) 1995 Joel Murphy, jmurphy@acsu.buffalo.edu
-                       Jeff Murphy, jcmurphy@acsu.buffalo.edu
+    Copyright (C) 1995,1996 
+	Joel Murphy, jmurphy@acsu.buffalo.edu
+        Jeff Murphy, jcmurphy@acsu.buffalo.edu
  
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -472,6 +473,8 @@ SV *perl_ARActiveLinkActionStruct(ARActiveLinkActionStruct *in) {
 
 SV *perl_ARFilterActionNotify(ARFilterActionNotify *in) {
   HV *hash=newHV();
+  AV *array=newAV();
+  int i;
   hv_store(hash, "user", strlen("user"),
  	   newSVpv(in->user, 0), 0);
   if(in->notifyText) 
@@ -486,9 +489,12 @@ SV *perl_ARFilterActionNotify(ARFilterActionNotify *in) {
   if(in->subjectText)
 	hv_store(hash, "subjectText", strlen("subjectText"),
 		 newSVpv(in->subjectText, 0), 0);
-/*  hv_store(hash, "fieldIdListType", strlen("fieldIdListType"),
+  hv_store(hash, "fieldIdListType", strlen("fieldIdListType"),
 	   newSViv(in->fieldIdListType), 0);
-  */
+  hv_store(hash, "fieldList", strlen("fieldList"),
+           perl_ARList((ARList *)&in->fieldIdList,
+	   (ARS_fn)perl_ARInternalId,
+           sizeof(ARInternalId)), 0);
   return newRV((SV *)hash);
 }
 
@@ -1960,6 +1966,151 @@ ars_GetFilter(ctrl,name)
 	      free(helpText);
 	    if(changeDiary)
 	      free(changeDiary);
+#endif
+	  }
+	}
+	OUTPUT:
+	RETVAL
+
+void
+ars_GetServerStatistics(ctrl,...)
+	ARControlStruct *	ctrl
+	PPCODE:
+	{
+	  ARServerInfoRequestList requestList;
+	  ARServerInfoList serverInfo;
+	  int i, ret;
+	  ARStatusList status;
+
+	  if(items < 1) {
+		ars_errstr = "invalid number of arguments";
+	  } else {
+		requestList.numItems = items - 1;
+		requestList.requestList = mallocnn(sizeof(unsigned int) * (items-1));
+		if(requestList.requestList) {
+			for(i=1; i<items; i++) {
+				requestList.requestList[i-1] = SvIV(ST(i));
+			}
+			ret = ARGetServerStatistics(ctrl, &requestList, &serverInfo, &status);
+#ifdef PROFILE
+			((ars_ctrl *)ctrl)->queries++;
+#endif
+			if(ARError(ret, status)) {
+#ifndef WASTE_MEM
+				free(requestList.requestList);
+#endif
+			} else {
+				for(i=0; i<serverInfo.numItems; i++) {
+					XPUSHs(sv_2mortal(newSViv(serverInfo.serverInfoList[i].operation)));
+					switch(serverInfo.serverInfoList[i].value.dataType) {
+					case AR_DATA_TYPE_ENUM:
+					case AR_DATA_TYPE_TIME:
+					case AR_DATA_TYPE_BITMASK:
+					case AR_DATA_TYPE_INTEGER:
+						XPUSHs(sv_2mortal(newSViv(serverInfo.serverInfoList[i].value.u.intVal)));
+						break;
+					case AR_DATA_TYPE_REAL:
+						XPUSHs(sv_2mortal(newSVnv(serverInfo.serverInfoList[i].value.u.realVal)));
+						break;
+					case AR_DATA_TYPE_CHAR:
+						XPUSHs(sv_2mortal(newSVpv(serverInfo.serverInfoList[i].value.u.charVal,
+							strlen(serverInfo.serverInfoList[i].value.u.charVal))));
+						break;
+					}
+				}
+#ifndef WASTE_MEM
+				FreeARServerInfoList(serverInfo, FALSE);
+				free(requestList.requestList);
+#endif
+			}
+		} else {
+			ars_errstr = "mallocnn failed to allocated space";
+		}
+	  }
+	}
+
+HV *
+ars_GetCharMenu(ctrl,name)
+	ARControlStruct *	ctrl
+	char *			name
+	CODE:
+	{
+	  unsigned int       refreshCode;
+	  ARCharMenuStruct   menuDefn;
+	  char	            *helpText;
+	  ARTimestamp	     timestamp;
+	  ARNameType	     owner;
+	  ARNameType	     lastChanged;
+	  char		    *changeDiary;
+	  ARStatusList	     status;
+	  int                ret, i;
+	  HV		    *menuDef = newHV();
+	  SV		    *ref;
+
+	  RETVAL = newHV();
+	  ret = ARGetCharMenu(ctrl, name, &refreshCode, &menuDefn, &helpText, &timestamp, owner, lastChanged, &changeDiary, &status);
+#ifdef PROFILE
+	  ((ars_ctrl *)ctrl)->queries++;
+#endif
+	  if(!ARError(ret, status)) {
+		hv_store(RETVAL, "name", strlen("name"),
+				newSVpv(name, 0), 0);
+		if(helpText)
+			hv_store(RETVAL, "helpText", strlen("helpText"),
+				newSVpv(helpText,0), 0);
+		hv_store(RETVAL, "timestamp", strlen("timestamp"),
+			newSViv(timestamp), 0);
+		hv_store(RETVAL, "owner", strlen("owner"),
+			newSVpv(owner, 0), 0);
+		hv_store(RETVAL, "lastChanged", strlen("lastChanged"),
+			newSVpv(lastChanged, 0), 0);
+		if(changeDiary)
+			hv_store(RETVAL, "changeDiary", strlen("changeDiary"),
+				newSVpv(changeDiary, 0), 0);
+		hv_store(RETVAL, "menuType", strlen("menuType"),
+			newSViv(menuDefn.menuType), 0);
+		switch(menuDefn.menuType) {
+		case AR_CHAR_MENU_QUERY:
+			hv_store(menuDef, "schema", strlen("schema"),
+				newSVpv(menuDefn.u.menuQuery.schema, 0), 0);
+			hv_store(menuDef, "server", strlen("server"),
+				newSVpv(menuDefn.u.menuQuery.server, 0), 0);
+			hv_store(menuDef, "labelField", strlen("labelField"),
+				newSViv(menuDefn.u.menuQuery.labelField), 0);
+			hv_store(menuDef, "valueField", strlen("valueField"),
+				newSViv(menuDefn.u.menuQuery.valueField), 0);
+			hv_store(menuDef, "sortOnLabel", strlen("sortOnLabel"),
+				newSViv(menuDefn.u.menuQuery.sortOnLabel), 0);
+			ref = newSViv(0);
+			sv_setref_pv(ref, "ARQualifierStructPtr", (void *)&(menuDefn.u.menuQuery.qualifier));
+			hv_store(RETVAL, "qualifier", strlen("qualifier"), ref, 0);
+			hv_store(RETVAL, "menuQuery", strlen("menuQuery"),
+				newRV((SV *)menuDef), 0);
+			break;
+		case AR_CHAR_MENU_FILE:
+			hv_store(menuDef, "fileLocation", strlen("fileLocation"),
+				newSViv(menuDefn.u.menuFile.fileLocation), 0);
+			hv_store(menuDef, "filename", strlen("filename"),
+				newSVpv(menuDefn.u.menuFile.filename, 0), 0);
+			hv_store(RETVAL, "menuFile", strlen("menuFile"),
+				newRV((SV *)menuDef), 0);
+			break;
+		case AR_CHAR_MENU_SQL:
+			hv_store(menuDef, "server", strlen("server"),
+				newSVpv(menuDefn.u.menuSQL.server, 0), 0);
+			hv_store(menuDef, "sqlCommand", strlen("sqlCommand"),
+				newSVpv(menuDefn.u.menuSQL.sqlCommand, 0), 0);
+			hv_store(menuDef, "labelIndex", strlen("labelIndex"),
+				newSViv(menuDefn.u.menuSQL.labelIndex), 0);
+			hv_store(menuDef, "valueIndex", strlen("valueIndex"),
+				newSViv(menuDefn.u.menuSQL.valueIndex), 0);
+			hv_store(RETVAL, "menuSQL", strlen("menuSQL"),
+				newRV((SV *)menuDef), 0);
+			break;
+		}
+#ifndef WASTE_MEM
+		FreeARCharMenuStruct(&menuDefn, FALSE);
+		if(helpText) free(helpText);
 #endif
 	  }
 	}
