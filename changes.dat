@@ -1,4 +1,7 @@
 released=x/x/2000 version=1.69
+JCM added infra/pcpp.pl which is used to convert the xs
+    and c files into something that will compile against
+    activestate perl 5.6
 JCM modifications to Makefile.PL to ease win32 compilations
 JCM fixed bug in support.c:lookUpTypeName
 JCM enhanced ars_Export to handle all possible export types

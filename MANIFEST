@@ -215,4 +215,5 @@ t/01import.t
 t/aptest.def
 t/10entry.t
 infra/mkchanges.pl
+infra/pcpp.pl
 changes.dat

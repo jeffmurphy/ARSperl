@@ -1016,10 +1016,11 @@ perl_ARActiveLinkActionStruct(ARControlStruct * ctrl, ARActiveLinkActionStruct *
 		hv_store(hash, VNAME("process"), newSVpv(in->u.process, 0), 0);
 		break;
 	case AR_ACTIVE_LINK_ACTION_MESSAGE:
-		hv_store(hash, VNAME("message"),
 #if AR_EXPORT_VERSION >= 4
+		hv_store(hash, VNAME("message"),
 			 perl_ARMessageStruct(ctrl, &(in->u.message)), 0);
 #else
+		hv_store(hash, VNAME("message"),
 			 perl_ARStatusStruct(ctrl, &(in->u.message)), 0);
 #endif
 		break;
