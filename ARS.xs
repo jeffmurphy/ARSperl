@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.48 1998/08/07 16:21:48 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.49 1998/08/07 18:39:14 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.48 1998/08/07 16:21:48 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.49  1998/08/07 18:39:14  jcmurphy
+modified ars_ServerInfo routine a little
+
 Revision 1.48  1998/08/07 16:21:48  jcmurphy
 added check to ensure that ServerInfoMap has what we want.
 otherwise we'll core.
@@ -2666,7 +2669,10 @@ ars_GetServerInfo(ctrl, ...)
 #endif
 	     if(!ARError( ret, status)) {
 	        for(i = 0 ; i < serverInfo.numItems ; i++) {
-		   if(serverInfo.serverInfoList[i].operation <= SERVERINFOMAPMAX) {
+		/* provided we have a mapping for the operation code, 
+		 * push out it's translation. else push out the code itself
+		 */
+		   if(serverInfo.serverInfoList[i].operation <= AR_MAX_SERVER_INFO_USED) {
 	  	      XPUSHs(sv_2mortal(newSVpv(ServerInfoMap[serverInfo.serverInfoList[i].operation].name, 0)));
 		   } else {
 		      XPUSHs(sv_2mortal(newSViv(serverInfo.serverInfoList[i].operation)));
