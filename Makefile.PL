@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.48 2003/04/06 03:06:26 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.49 2003/04/16 19:10:45 jcmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -205,7 +205,7 @@ WriteMakefile(
 # don't fiddle with this
 
               'realclean' => {
-		 'FILES' => 'support.h ARSar-h.pm ARSarerrno-h.pm ARSnt-h.pm ARSnterrno-h.pm t/config.cache serverTypeInfoHints.h *~ .purify' 
+		 'FILES' => 'support.h ARSar-h.pm ARSarerrno-h.pm ARSnt-h.pm ARSnterrno-h.pm t/config.cache serverTypeInfoHints.h *~ .purify *-h.pm _h2ph_pre.ph ' 
 	      } 
 );
 
