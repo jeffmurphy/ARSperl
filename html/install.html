@@ -3,23 +3,28 @@
   <TITLE> ARSperl: Installation Notes </TITLE>
  </HEAD>
 
- <BODY>
+ <BODY BGCOLOR="#FFFFFF">
  <H2> Installation of ARSperl </H2>
 
  <OL>
    <LI> <A HREF="ARSperl.tgz">Download the distribution</A> (tar/gzip - 80K)
-        <BR><A HREF="ftp://smurfland.cit.buffalo.edu/pub/utils/Perl/ARSperl.tgz">also available via ftp</A>
+        (<A HREF="ftp://smurfland.cit.buffalo.edu/pub/utils/Perl/ARSperl.tgz">also available via ftp</A>)
    <LI> Unpack (requires gzip and tar)
-   <LI> Edit the Makefile.PL and change the paths to reflect where your
-        Remedy ARS API is located
+   <LI> Edit the Makefile.PL and follow the brief instructions at the top of it.
    <LI> Type "perl Makefile.PL"
    <LI> Type "make"
-   <LI> Cross fingers.
    <LI> Type "make install" (may require special permission). This will
         install the perl extension into the perl lib directory (typically, 
         /usr/local/lib/perl5)
    <LI> Try one of the example scripts.
  </OL>
+
+ <H2> Notes </H2>
+
+ HPUX users will need to compile the extension statically into the Perl binary.
+ See <A HREF="http://smurfland.cit.buffalo.edu/ARSperl/FAQs/">the ARSperl FAQ</A>
+ section for details.
+ 
  <HR>
  <I>arsperl@smurfland.cit.buffalo.edu</I>
  </BODY>
