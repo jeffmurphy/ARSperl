@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.47 1998/05/04 17:38:37 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.48 1998/08/07 16:21:48 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,10 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.47 1998/05/04 17:38:37 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.48  1998/08/07 16:21:48  jcmurphy
+added check to ensure that ServerInfoMap has what we want.
+otherwise we'll core.
+
 Revision 1.47  1998/05/04 17:38:37  jcmurphy
 patch for ars_CreateEntry() by Bill Middleton <wjm@metronet.com>
 
@@ -2653,19 +2657,21 @@ ars_GetServerInfo(ctrl, ...)
 		rlist[count++] = SvIV(ST(i));
 	     }
 	  }
-
 	  if(count > 0) {
 	     requestList.numItems = count;
 	     requestList.requestList = rlist;
-
 	     ret = ARGetServerInfo(ctrl, &requestList, &serverInfo, &status);
 #ifdef PROFILE
 	     ((ars_ctrl *)ctrl)->queries++;
 #endif
 	     if(!ARError( ret, status)) {
 	        for(i = 0 ; i < serverInfo.numItems ; i++) {
-	  	   XPUSHs(sv_2mortal(newSVpv(ServerInfoMap[serverInfo.serverInfoList[i].operation].name, 0)));
-		   XPUSHs(perl_ARValueStruct(&(serverInfo.serverInfoList[i].value)));
+		   if(serverInfo.serverInfoList[i].operation <= SERVERINFOMAPMAX) {
+	  	      XPUSHs(sv_2mortal(newSVpv(ServerInfoMap[serverInfo.serverInfoList[i].operation].name, 0)));
+		   } else {
+		      XPUSHs(sv_2mortal(newSViv(serverInfo.serverInfoList[i].operation)));
+		   }
+		      XPUSHs(perl_ARValueStruct(&(serverInfo.serverInfoList[i].value)));
 	        }
 	     }
 #ifndef WASTE_MEM
