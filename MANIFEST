@@ -245,6 +245,3 @@ t/02export.t
 t/10alink.t
 t/10getescalation.t
 t/10getlist.t
-.#ARS.xs.1.92
-support.c.orig
-Makefile.PL.orig

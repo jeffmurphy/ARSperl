@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.55 2004/09/13 18:38:01 jmccarrell Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.56 2004/09/19 22:27:24 jeffmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -30,7 +30,7 @@ $debug = 0;
 #$ARSAPI     = "/u1/project/ARSperl/api/linux/4.5";
 #$ARSAPI     = "/u1/project/ARSperl/api/linux/4.0";
 #$ARSAPI     = "/u1/project/ARSperl/api/linux/5.1.1";
-#$ARSAPI     = "/home/jcmurphy/arsperl/api/5.1";
+$ARSAPI     = "/home/jcmurphy/arsperl/api/5.1";
 # $ARSAPI     = q{\\\\ess7\devkits\ars\4.5\drops\drop4.5FCS\winnt};
 # $ARSAPI     = q{\\\\ess7\devkits\ars\4.5\drops\drop4.5.1FCS\winnt};
 # $ARSAPI     = q{\\\\ess7\devkits\ars\4.5\drops\drop4.5.2FCS\winnt};
@@ -40,7 +40,7 @@ $debug = 0;
 # $ARSAPI     = q{\\\\ess7\devkits\ars\5.1.1\fcs\winnt};
 # $ARSAPI     = q{\\\\ess7\devkits\ars\5.1.2\fcs\winnt};
 # $ARSAPI     = q{\\\\ess7\devkits\ars\6.0\fcs\winnt};
-$ARSAPI      = q{c:\Progra~1\ARSystem6.0.1\Arserver\Api};
+#$ARSAPI      = q{c:\Progra~1\ARSystem6.0.1\Arserver\Api};
 # $ARSAPI      = q{c:\Program Files\ARSystem6.0.1\Arserver\Api};
 # $ARSAPI     = q{\\\\ess7\devkits\ars\6.3\current\winnt};
 
@@ -57,7 +57,7 @@ $ARSAPI      = q{c:\Progra~1\ARSystem6.0.1\Arserver\Api};
 #              your version (e.g. for 4.5 you would specify 4.0, NOT
 #	       4.52)
 #
-$ARSVERSION = 6.0;
+$ARSVERSION = 5.0;
 
 # STEP 3 -> Choose whether or not to enable encryption
 #

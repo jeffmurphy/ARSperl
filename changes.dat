@@ -1,3 +1,7 @@
+released=09/20/2004 version=1.82
+QGM AR 6.x compatibility, AR encryption compatibility
+JMc Makefile.PL changes, code cleanup for Windows build
+
 released=08/09/2003 version=1.81
 JCM memory/multithreaded issue with errhash fixed { steve.drew  at hp.com }
 JCM uninitialized variable issue fixed { steve.drew  at  hp.com }
