@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.1 1998/08/07 18:38:23 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.2 1998/09/11 19:36:44 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.1 1998/08/07 18:38:23 j
     LOG:
 
 $Log: support-h.template,v $
+Revision 1.2  1998/09/11 19:36:44  jcmurphy
+added perl_diary prototype
+
 Revision 1.1  1998/08/07 18:38:23  jcmurphy
 Initial revision
 
@@ -244,6 +247,7 @@ EXTERN int          ARError_add( unsigned int type, long num, char *text);
 EXTERN int          ARError( int returncode, ARStatusList status);
 EXTERN int          NTError( int returncode, NTStatusList status);
 
+EXTERN SV *perl_diary(ARDiaryStruct *in);
 EXTERN SV *perl_MenuRefreshCode2Str( unsigned int rc);
 EXTERN SV *perl_ARPermissionList( ARPermissionList *in, int);
 EXTERN SV *perl_ARStatusStruct( ARStatusStruct *);
