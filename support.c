@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.13 1998/02/13 18:44:34 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.14 1998/02/25 19:22:43 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,10 @@ $Header: /cvsroot/arsperl/ARSperl/support.c,v 1.13 1998/02/13 18:44:34 jcmurphy 
     LOG:
 
 $Log: support.c,v $
+Revision 1.14  1998/02/25 19:22:43  jcmurphy
+applied fixes to dup_FieldValueOrArith to handle
+AR_FIELD_CURRENT, FIELD_TRAN and _DB
+
 Revision 1.13  1998/02/13 18:44:34  jcmurphy
 patched BuildEntryIdList by Ulrich Pfeifer <pfeifer@wait.de>
 patch includes strncpy and terminating null to make it
@@ -1456,6 +1460,9 @@ dup_FieldValueOrArith(_AWPC_ ARFieldValueOrArithStruct *n,
   n->tag = in->tag;
 
   switch (in->tag) {
+  case AR_FIELD_CURRENT:
+  case AR_FIELD_TRAN:
+  case AR_FIELD_DB:
   case AR_FIELD:
     n->u.fieldId = in->u.fieldId;
     break;
