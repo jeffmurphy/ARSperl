@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.39 1997/10/29 21:54:19 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.40 1997/11/04 18:15:56 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.39 1997/10/29 21:54:19 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.40  1997/11/04 18:15:56  jcmurphy
+1.5205
+
 Revision 1.39  1997/10/29 21:54:19  jcmurphy
 1.5204: added ars_GetControlStructFields()
 
@@ -1295,7 +1298,7 @@ ars_GetSchema(ctrl,name)
 	  if (!ARError(_PPERLC_ ret,status)) {
 #if AR_EXPORT_VERSION >= 3
 	    hv_store(RETVAL, VNAME("groupList"),
-		     perl_ARPermissionList(_PPERLC_ &groupList), 0);
+		     perl_ARPermissionList(_PPERLC_ &groupList, PERMTYPE_SCHEMA), 0);
 #else
 	    hv_store(RETVAL, VNAME("groupList"),
 		     perl_ARList(_PPERLC_ 
@@ -1416,6 +1419,9 @@ ars_GetField(ctrl,schema,id)
 #else
 	  ret = ARGetFieldCached(ctrl, schema, id, &dataType, &option, &createMode, &defaultVal, NULL /* &permissions */, &limit, &displayList, &helpText, &timestamp, owner, lastChanged, &changeDiary, &Status);
 #endif
+#ifdef PROFILE
+	  ((ars_ctrl *)ctrl)->queries++;
+#endif
 	  if (! ARError(_PPERLC_ ret, Status)) {
 	    /* store field id for convenience */
 	    hv_store(RETVAL, VNAME("fieldId"), newSViv(id), 0);
@@ -1475,9 +1481,12 @@ ars_GetField(ctrl,schema,id)
 #else
 	    ret = ARGetField(ctrl, schema, id, NULL, NULL, NULL, NULL, &permissions, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &Status);
 #endif
+#ifdef PROFILE
+	    ((ars_ctrl *)ctrl)->queries++;
+#endif
 	    if (ret == 0) {
 	      hv_store(RETVAL, VNAME("permissions"), 
-		       perl_ARPermissionList(_PPERLC_ &permissions), 0);
+		       perl_ARPermissionList(_PPERLC_ &permissions, PERMTYPE_FIELD), 0);
 #ifndef WASTE_MEM
 	      FreeARPermissionList(&permissions,FALSE);
 #endif
