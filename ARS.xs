@@ -2303,6 +2303,75 @@ ars_Export(ctrl,displayTag,...)
 	export_end:;
 	}
 
+int
+ars_Import(ctrl,importBuf,...)
+	ARControlStruct *	ctrl
+	char *			importBuf
+	CODE:
+	{
+	  int ret = 1, i, a, c = (items - 2) / 2;
+	  ARStructItemList *structItems = NULL;
+	  ARStatusList status;
+	  
+	  if (items % 2) {
+	    ars_errstr = "Invalid number of arguments";
+	  } else {
+	    if (c > 0) {
+	      structItems = mallocnn(sizeof(ARStructItemList));
+	      structItems->numItems = c;
+	      structItems->structItemList = mallocnn(sizeof(ARStructItemStruct)*c);
+	      for (i=0; i<c; i++) {
+		a = i*2+2;
+		if (strcmp(SvPV(ST(a),na),"Schema")==0)
+		  structItems->structItemList[i].type=AR_STRUCT_ITEM_SCHEMA;
+		else if (strcmp(SvPV(ST(a),na),"Schema_Defn")==0)
+		  structItems->structItemList[i].type=AR_STRUCT_ITEM_SCHEMA_DEFN;
+		else if (strcmp(SvPV(ST(a),na),"Schema_View")==0)
+		  structItems->structItemList[i].type=AR_STRUCT_ITEM_SCHEMA_VIEW;
+		else if (strcmp(SvPV(ST(a),na),"Schema_Mail")==0)
+		  structItems->structItemList[i].type=AR_STRUCT_ITEM_SCHEMA_MAIL;
+		else if (strcmp(SvPV(ST(a),na),"Filter")==0)
+		  structItems->structItemList[i].type=AR_STRUCT_ITEM_FILTER;
+		else if (strcmp(SvPV(ST(a),na),"Active_Link")==0)
+		  structItems->structItemList[i].type=AR_STRUCT_ITEM_ACTIVE_LINK;
+		else if (strcmp(SvPV(ST(a),na),"Admin_Ext")==0)
+		  structItems->structItemList[i].type=AR_STRUCT_ITEM_ADMIN_EXT;
+		else if (strcmp(SvPV(ST(a),na),"Char_Menu")==0)
+		  structItems->structItemList[i].type=AR_STRUCT_ITEM_CHAR_MENU;
+		else if (strcmp(SvPV(ST(a),na),"Escalation")==0)
+		  structItems->structItemList[i].type=AR_STRUCT_ITEM_ESCALATION;
+		else {
+		  ars_errstr = "Unknown import type";
+#ifndef WASTE_MEM
+		  free(structItems->structItemList);
+		  free(structItems);
+#endif
+		  goto export_end;
+		}
+		strncpy(structItems->structItemList[i].name,SvPV(ST(a+1),na), sizeof(ARNameType));
+		structItems->structItemList[i].name[sizeof(ARNameType)-1] = '\0';
+	      }
+	    }
+	    ret = ARImport(ctrl, structItems, importBuf, &status);
+#ifdef PROFILE
+	    ((ars_ctrl *)ctrl)->queries++;
+#endif
+	    if (ARError(ret, status)) {
+#ifndef WASTE_MEM
+	      if (structItems) {
+		free(structItems->structItemList);
+		free(structItems);
+	      }
+#endif
+	      goto export_end;
+	    }
+	  }
+	export_end:;
+	  RETVAL = ! ret;
+	}
+	OUTPUT:
+	RETVAL
+
 void
 ars_GetListFilter(control,schema=NULL,changedsince=0)
 	ARControlStruct *	control
