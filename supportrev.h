@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.4 1997/10/06 13:39:48 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.5 1997/10/07 14:29:49 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.4 1997/10/06 13:39:48 jcmurph
     LOG:
 
 $Log: supportrev.h,v $
+Revision 1.5  1997/10/07 14:29:49  jcmurphy
+1.51
+
 Revision 1.4  1997/10/06 13:39:48  jcmurphy
 fix up some compilation warnings
 
@@ -80,6 +83,7 @@ EXTERN int rev_ARMacroParmList(HV *h, char *k, ARMacroParmList *m);
 EXTERN int rev_ARByteList(HV *h, char *k, ARByteList *b);
 EXTERN int rev_ARCoordList(HV *h, char *k, ARCoordList *m);
 EXTERN int rev_ARPropList(HV *h, char *k, ARPropList *m);
+EXTERN int rev_ARAssignSQLStruct(HV *h, char *k, ARAssignSQLStruct *s);
 #endif
 
 #endif /* __supportrev_h_ */

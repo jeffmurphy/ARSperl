@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.4 1997/10/06 13:39:40 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.5 1997/10/07 14:29:44 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.4 1997/10/06 13:39:40 jcmurph
     LOG:
 
 $Log: supportrev.c,v $
+Revision 1.5  1997/10/07 14:29:44  jcmurphy
+1.51
+
 Revision 1.4  1997/10/06 13:39:40  jcmurphy
 fix up some compilation warnings
 
@@ -938,6 +941,78 @@ rev_ARAssignStruct_helper(HV *h, ARAssignStruct *m)
   return rv;  
 }
 
+#if AR_EXPORT_VERSION >= 3
+int
+rev_ARAssignSQLStruct(HV *h, char *k, ARAssignSQLStruct *s)
+{
+  SV   **h_sv = hv_fetch(h, VNAME(k), 0);
+  SV   **svp;
+  HV    *hr;
+  int    rv = 0;
+  STRLEN len;
+
+
+  /* dereference the hash key and extract it */
+
+  if(SvROK(*h_sv) && SvTYPE(SvRV(*h_sv)) == SVt_PVHV) {
+    hr = (HV *)SvRV(*h_sv);
+  } else {
+    ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, 
+		"rev_ARAssignSQLStruct: hash key 'sql' doesn't contain a hash reference.");
+    return -1;
+  }
+
+  /* make sure the hash contains the keys we need */
+
+  if(!(hv_exists(hr, "server", 0) &&
+       hv_exists(hr, "sqlCommand", 0) &&
+       hv_exists(hr, "valueIndex", 0) &&
+       hv_exists(hr, "noMatchOption", 0) &&
+       hv_exists(hr, "multiMatchOption", 0))) {
+
+    ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, 
+		"rev_ARAssignSQLStruct: required hash key not found");
+    return -1;
+  } 
+
+  /* copy the key values into the buffer */
+
+  rv += strcpyHVal(hr, "server", s->server, AR_MAX_SERVER_SIZE + 1);
+
+  svp = hv_fetch(hr, VNAME("sqlCommand"), 0);
+  SvPV(*svp, len);
+
+  rv += strcpyHVal(hr, "sqlCommand", s->sqlCommand, len); /* FIX */
+
+  rv += uintcpyHVal(hr, "valueIndex", &(s->valueIndex));
+  svp = hv_fetch(hr, VNAME("noMatchOption"), 0);
+  if(svp && *svp) {
+    char *c = SvPV(*svp, na);
+    if(rev_ARAssignFieldStructStr2NMO(c, &(s->noMatchOption)) != 0) {
+      s->noMatchOption = AR_NO_MATCH_ERROR;
+      ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, 
+		  "rev_ARAssignSQLStruct: unknown noMatchOption string:");
+      ARError_add(AR_RETURN_WARNING, AP_ERR_CONTINUE, 
+		  c);
+    }
+  }
+ 
+  svp = hv_fetch(hr, VNAME("multiMatchOption"), 0);
+  if(svp && *svp) {
+    char *c = SvPV(*svp, na);
+    if(rev_ARAssignFieldStructStr2MMO(c, &(s->multiMatchOption)) != 0) {
+      s->multiMatchOption = AR_MULTI_MATCH_ERROR;
+      ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, 
+		  "rev_ARAssignSQLStruct: unknown multiMatchOption string:");
+      ARError_add(AR_RETURN_WARNING, AP_ERR_CONTINUE, 
+		  c);
+    }
+  }
+
+  return rv;
+}
+#endif /* ARS 3.x */
+
 /* ROUTINE
  *   rev_ARValueStruct(hash, value-key, type-key, valueStruct)
  *
@@ -1363,15 +1438,16 @@ rev_ARAssignFieldStruct_helper(HV *h, ARAssignFieldStruct *m)
   ARQualifierStruct  *qp;
   SV                **qpsv, **svp;
 
-  if(hv_exists(h, "server", 0) &&
-     hv_exists(h, "schema", 0) &&
-     hv_exists(h, "qualifier", 0) &&
+  if(!(hv_exists(h, "server", 0) &&
+       hv_exists(h, "schema", 0) &&
+       hv_exists(h, "qualifier", 0) &&
 #if AR_EXPORT_VERSION >= 3
-     hv_exists(h, "noMatchOption", 0) &&
-     hv_exists(h, "multiMatchOption", 0) &&
+       hv_exists(h, "noMatchOption", 0) &&
+       hv_exists(h, "multiMatchOption", 0) &&
 #endif
-     (hv_exists(h, "fieldId", 0) ||
-      hv_exists(h, "statHistory", 0)) ) {
+       (hv_exists(h, "fieldId", 0) ||
+	hv_exists(h, "statHistory", 0)))
+     ) {
 
     ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARAssignFieldStruct_helper: required hash key not found");
@@ -1394,14 +1470,14 @@ rev_ARAssignFieldStruct_helper(HV *h, ARAssignFieldStruct *m)
   svp = hv_fetch(h, VNAME("noMatchOption"), 0);
   if(svp && *svp) {
     char *c = SvPV(*svp, na);
-    if(rev_AssignFieldStructStr2NMO(c, &(m->noMatchOption)) != 0)
+    if(rev_ARAssignFieldStructStr2NMO(c, &(m->noMatchOption)) != 0)
       m->noMatchOption = AR_NO_MATCH_ERROR;
   }
 
   svp = hv_fetch(h, VNAME("multiMatchOption"), 0);
   if(svp && *svp) {
     char *c = SvPV(*svp, na);
-    if(rev_AssignFieldStructStr2MMO(c, &(m->multiMatchOption)) != 0) 
+    if(rev_ARAssignFieldStructStr2MMO(c, &(m->multiMatchOption)) != 0) 
       m->multiMatchOption = AR_MULTI_MATCH_ERROR;
   }
 #endif
@@ -1958,7 +2034,7 @@ rev_ARPropList_helper(HV *h, ARPropList *m, int idx)
      hv_exists(h, VNAME("value")) &&
      hv_exists(h, VNAME("valueType"))) {
 
-    rv += longcpyHVal(h, "prop", &(m->props[idx].prop));
+    rv += ulongcpyHVal(h, "prop", &(m->props[idx].prop));
     rv += rev_ARValueStruct(h, "value", "valueType", &(m->props[idx].value));
 
     return rv;

@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.4 1997/10/06 13:39:30 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.5 1997/10/07 14:29:33 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/support.c,v 1.4 1997/10/06 13:39:30 jcmurphy E
     LOG:
 
 $Log: support.c,v $
+Revision 1.5  1997/10/07 14:29:33  jcmurphy
+1.51
+
 Revision 1.4  1997/10/06 13:39:30  jcmurphy
 fix up some compilation warnings
 
@@ -981,6 +984,12 @@ perl_ARAssignStruct(ARAssignStruct *in) {
     hv_store(hash, VNAME("dde"),
 	     perl_ARDDEStruct(in->u.dde), 0);
     break;
+#if AR_EXPORT_VERSION >= 3
+  case AR_ASSIGN_TYPE_SQL:
+    hv_store(hash, VNAME("sql"),
+	     perl_ARAssignSQLStruct(in->u.sql), 0);
+    break;
+#endif /* ARS 3.x */
   default:
     hv_store(hash, VNAME("none"),
 	     &sv_undef, 0);
@@ -988,6 +997,56 @@ perl_ARAssignStruct(ARAssignStruct *in) {
   }
   return newRV((SV *)hash);
 }
+
+#if AR_EXPORT_VERSION >= 3
+SV *
+perl_ARAssignSQLStruct(ARAssignSQLStruct *in)
+{
+  HV *hash = newHV();
+  int i;
+
+  hv_store(hash, VNAME("server"), newSVpv(in->server, 0), 0);
+  hv_store(hash, VNAME("sqlCommand"), newSVpv(in->sqlCommand, 0), 0);
+  hv_store(hash, VNAME("valueIndex"), newSViv(in->valueIndex), 0);
+
+  /* translate the noMatchOption value into english */
+
+  for(i = 0 ; NoMatchOptionMap[i].number != -1 ; i++) 
+    if(NoMatchOptionMap[i].number == in->noMatchOption)
+      break;
+
+  if(NoMatchOptionMap[i].number == -1) {
+    char optnum[25];
+    sprintf(optnum, "%u", in->noMatchOption);
+    ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
+		"perl_ARAssignSQLStruct: unknown noMatchOption value");
+    ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, optnum);
+  }
+
+  /* if we didn't find a match, store "" */
+
+  hv_store(hash, VNAME("noMatchOption"), newSVpv(NoMatchOptionMap[i].name, 0), 0);
+
+  /* translate the multiMatchOption value into english */
+
+  for(i = 0 ; MultiMatchOptionMap[i].number != -1 ; i++) 
+    if(MultiMatchOptionMap[i].number == in->multiMatchOption)
+      break;
+
+  if(MultiMatchOptionMap[i].number == -1) {
+    char optnum[25];
+    sprintf(optnum, "%u", in->multiMatchOption);
+    ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
+		"perl_ARAssignFieldStruct: unknown multiMatchOption value");
+    ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, optnum);
+  }
+
+  hv_store(hash, VNAME("multiMatchOption"), newSVpv(MultiMatchOptionMap[i].name, 0)
+	   , 0);
+
+  return newRV((SV *)hash);
+}
+#endif /* ARS3.x */
 
 SV *
 perl_ARFunctionAssignStruct(ARFunctionAssignStruct *in) {

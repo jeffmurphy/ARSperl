@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.34 1997/10/06 13:39:02 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.35 1997/10/07 14:29:09 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.34 1997/10/06 13:39:02 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.35  1997/10/07 14:29:09  jcmurphy
+1.51
+
 Revision 1.34  1997/10/06 13:39:02  jcmurphy
 fix up some compilation warnings
 
@@ -2753,9 +2756,9 @@ ars_CreateActiveLink(ctrl, alDefRef)
 		rv += rev_ARActiveLinkActionList(alDef, "elseList", &elseList);
 		if((executeMask & AR_EXECUTE_ON_RETURN) || 
 		   (executeMask & AR_EXECUTE_ON_MENU_CHOICE))
-			rv += longcpyHVal(alDef, "focusField", &focusField);
+			rv += ulongcpyHVal(alDef, "focusField", &focusField);
 		if(executeMask & AR_EXECUTE_ON_BUTTON) 
-			rv += longcpyHVal(alDef, "controlField", &controlField);
+			rv += ulongcpyHVal(alDef, "controlField", &controlField);
 #else /* 2.x */
 		if((executeMask & AR_EXECUTE_ON_RETURN) || 
 		   (executeMask & AR_EXECUTE_ON_MENU_CHOICE))

@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.3 1997/10/02 15:39:53 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.4 1997/10/07 14:29:38 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.3 1997/10/02 15:39:53 jcmu
     LOG:
 
 $Log: support.h,v $
+Revision 1.4  1997/10/07 14:29:38  jcmurphy
+1.51
+
 Revision 1.3  1997/10/02 15:39:53  jcmurphy
 1.50beta
 
@@ -364,6 +367,7 @@ EXTERN SV *perl_ARSortList(ARSortList *);
 EXTERN SV *perl_ARByteList(ARByteList *);
 EXTERN SV *perl_ARCoordStruct(ARCoordStruct *);
 EXTERN int perl_BuildEntryList(AREntryIdList *entryList, char *entry_id);
+EXTERN SV *perl_ARAssignSQLStruct(ARAssignSQLStruct *in);
 #endif
 
 #ifndef BSD
