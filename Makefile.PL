@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.59 2004/09/29 00:51:20 jmccarrell Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.60 2004/09/29 18:20:35 jmccarrell Exp $
 #
 # ARSperl Makefile
 #
@@ -222,6 +222,9 @@ WriteMakefile(
 	      'OBJECT'  => q[ARS$(OBJ_EXT) support$(OBJ_EXT) supportrev$(OBJ_EXT)],
 	      'INC'	=> "${INCLUDES}",
 	      # 'PM' =>{ '_h2ph_pre.ph' => '$(INST_LIBDIR)/_h2ph_pre.ph' },
+	      ($] >= 5.005 ?    ## Add these new keywords supported since 5.005
+               (ABSTRACT      => 'ARSperl is an integration kit for Perl5 and the Remedy Action Request System.',
+                AUTHOR        => 'ARSPerl Dev Group <arsperl-devel@arsperl.org>') : ()),
 	      @extras,
 
 # DEFINE OPTIONS:
