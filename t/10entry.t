@@ -123,7 +123,6 @@ if(ars_APIVersion() >= 4) {
 				      'Short Description' => 'attach-create'
 				    }
 		      );
-
   # retrieve it "in core" 
 
   my $ic = $s->getAttachment(-entry => $nid,

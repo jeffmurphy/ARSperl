@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.22 2003/04/02 05:56:17 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.23 2003/07/03 19:01:14 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -421,15 +421,20 @@ int  copymem(MEMCAST *m1, MEMCAST *m2, int size);
 
 
 #ifndef ARSPERL_MALLOCDEBUG
+# define AMALLOCNN(DST,SIZE,TYPE) { DST = (TYPE *)mallocnn(SIZE * sizeof(TYPE)); }
 # define MALLOCNN(X) mallocnn(X) 
 #else /* we want to debug memory allocations */
 # define MALLOCNN(X) debug_mallocnn(X, __FILE__, __FUNCTION__, __LINE__) 
 #endif /* malloc debugging */
 
 #ifndef ARSPERL_FREEDEBUG
-# define FREE(X) free(X)
+# ifdef _WIN32
+#  define AP_FREE(X) win32_free(X)
+# else
+#  define AP_FREE(X) free(X)
+# endif
 #else
-# define FREE(X) debug_free(X, __FILE__, __FUNCTION__, __LINE__)
+# define AP_FREE(X) debug_free(X, __FILE__, __FUNCTION__, __LINE__)
 #endif /* free debugging */
 
 #define CPNULL (char *)NULL

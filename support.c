@@ -121,13 +121,12 @@ debug_free(void *p, char *file, char *func, int line)
  *   negative int on failure
  */
 
-static HV      *err_hash = (HV *) NULL;
-
 int
 ARError_reset()
 {
 	SV             *ni, *t2, **t1;
 	AV             *t3;
+	HV             *err_hash = (HV *) NULL;
 
 	/* lookup hash, create if necessary */
 
@@ -195,6 +194,7 @@ ARError_add(unsigned int type, long num, char *text)
 	SV            **numItems, **messageType, **messageNum, **messageText;
 	AV             *a;
 	SV             *t2;
+	HV             *err_hash = (HV *) NULL;
 	unsigned int    ni, ret = 0;
 
 #ifdef ARSPERL_DEBUG
@@ -306,7 +306,7 @@ ARError(int returncode, ARStatusList status)
 
 	for (item = 0; item < status.numItems; item++) {
 #if AR_EXPORT_VERSION >= 4
-	        char *messageText = (char *)safemalloc(strlen(status.statusList[item].messageText) + 
+	        char *messageText = (char *)MALLOCNN(strlen(status.statusList[item].messageText) + 
 					     strlen(status.statusList[item].appendedText) + 4);
 		sprintf(messageText, "%s (%s)", 
 			status.statusList[item].messageText,
@@ -322,7 +322,7 @@ ARError(int returncode, ARStatusList status)
 				) != 0)
 			ret = 1;
 #if AR_EXPORT_VERSION >= 4
-		safefree(messageText);
+		AP_FREE(messageText);
 #endif
 	}
 
@@ -345,7 +345,7 @@ NTError(int returncode, NTStatusList status)
 
 	for (item = 0; item < status.numItems; item++) {
 #if AR_EXPORT_VERSION >= 4
-	        char *messageText = (char *)safemalloc(strlen(status.statusList[item].messageText) + 
+	        char *messageText = (char *)MALLOCNN(strlen(status.statusList[item].messageText) + 
 					     strlen(status.statusList[item].appendedText) + 4);
 		sprintf(messageText, "%s (%s)", 
 			status.statusList[item].messageText,
@@ -361,7 +361,7 @@ NTError(int returncode, NTStatusList status)
 				) != 0)
 			ret = 1;
 #if AR_EXPORT_VERSION >= 4
-		safefree(messageText);
+		AP_FREE(messageText);
 #endif
 	}
 
@@ -437,7 +437,7 @@ strappend(char *b, char *a)
 			t = (char *) MALLOCNN(strlen(b) + strlen(a) + 1);
 			if (t) {
 				strcpy(t, b);
-				FREE(b);
+				AP_FREE(b);
 				strcat(t, a);
 				b = t;
 			} else
@@ -764,9 +764,7 @@ perl_ARValueStruct(ARControlStruct * ctrl, ARValueStruct * in)
 					    (ARList *) & diaryList,
 					    (ARS_fn) perl_diary,
 					    sizeof(ARDiaryStruct));
-#ifndef WASTE_MEM
 			FreeARDiaryList(&diaryList, FALSE);
-#endif
 			return array;
 		}
 	case AR_DATA_TYPE_ENUM:
@@ -1864,8 +1862,8 @@ perl_BuildEntryList(ARControlStruct * ctrl, AREntryIdList * entryList, char *ent
 			(void) strncpy(entryList->entryIdList[tn], tok, sizeof(AREntryIdType));
 			*(entryList->entryIdList[tn++] + AR_MAX_ENTRYID_SIZE + 1) = 0;
 
-			FREE(eid_orig);
-			FREE(tok);
+			AP_FREE(eid_orig);
+			AP_FREE(tok);
 			return 0;
 		} else {	/* "normal" entry-id */
 			entryList->numItems = 1;
@@ -2879,13 +2877,13 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 
 					fetch = hv_fetch(hash,  "size", strlen("size") , FALSE);
 					if (!fetch) {
-						safefree(attachp);
+						AP_FREE(attachp);
 						ARError_add(AR_RETURN_ERROR, AP_ERR_ATTACH,
 						"Must specify 'size' key.");
 						return -1;
 					}
 					if (!(SvOK(*fetch) && SvTYPE(*fetch) != SVt_RV)) {
-						safefree(attachp);
+						AP_FREE(attachp);
 						ARError_add(AR_RETURN_ERROR, AP_ERR_ATTACH,
 							    "'size' key does not map to scalar value.");
 						return -1;
@@ -2917,7 +2915,7 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 					 */
 
 					if ((!fetch && !fetch2) || (fetch && fetch2)) {
-						safefree(attachp);
+						AP_FREE(attachp);
 						ARError_add(AR_RETURN_ERROR, AP_ERR_ATTACH,
 							    "Must specify one either 'file' or 'buffer' key.");
 						return -1;
@@ -2929,7 +2927,7 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 						STRLEN          filenamelen;
 
 						if (!(SvOK(*fetch) && SvTYPE(*fetch) != SVt_RV)) {
-							safefree(attachp);
+							AP_FREE(attachp);
 							ARError_add(AR_RETURN_ERROR, AP_ERR_ATTACH,
 								    "'file' key does not map to scalar value.");
 							return -1;
@@ -2958,7 +2956,7 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 					else {
 					        STRLEN __len; /* dummy variable */
 						if (!(SvOK(*fetch2) && SvTYPE(*fetch2) != SVt_RV)) {
-							safefree(attachp);
+							AP_FREE(attachp);
 							ARError_add(AR_RETURN_ERROR, AP_ERR_ATTACH,
 								    "'buffer' key does not map to scalar value.");
 							return -1;
@@ -3004,10 +3002,8 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 						out->u.coordListVal->coords[i].y = SvIV(*fetch);
 					} else {
 				fetch_puke:	;
-#ifndef WASTE_MEM
-						FREE(out->u.coordListVal->coords);
-						FREE(out->u.coordListVal);
-#endif
+						AP_FREE(out->u.coordListVal->coords);
+						AP_FREE(out->u.coordListVal);
 						ARError_add(AR_RETURN_ERROR, AP_ERR_COORD_STRUCT);
 						return -1;
 					}
