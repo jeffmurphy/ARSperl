@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.85 2003/03/30 16:36:29 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.86 2003/03/31 16:09:45 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -675,9 +675,7 @@ ars_DeleteEntry(ctrl,schema,entry_id)
 	  if(perl_BuildEntryList(ctrl, &entryList, entry_id) != 0)
 		goto delete_fail;
 	  ret = ARDeleteEntry(ctrl, schema, &entryList, 0, &status);
-#ifndef WASTE_MEM
 	  FreeAREntryIdList(&entryList, FALSE);
-#endif
 #else /* ARS 2 */
 	  RETVAL = 0; /* assume error */
 	  if(!entry_id || !*entry_id) {
@@ -732,7 +730,11 @@ ars_GetEntryBLOB(ctrl,schema,entry_id,field_id,locType,locFile=NULL)
 				goto get_entryblob_end;
 			}
 			loc.locType    = AR_LOC_FILENAME;
-			loc.u.filename = locFile;
+			loc.u.filename = locFile; /* strdup(locFile) ? i'm not completely sure
+							which to use. will FreeARLocStruct call
+							free(loc.locType)? i'm assuming it will.
+							Purify doesnt complain, so i'm going 
+							to leave this alone. */
 			break;
 		case AR_LOC_BUFFER:
 			loc.locType       = AR_LOC_BUFFER;
@@ -766,7 +768,7 @@ ars_GetEntryBLOB(ctrl,schema,entry_id,field_id,locType,locFile=NULL)
 		FreeARLocStruct(&loc, FALSE);
 #else /* pre ARS-4.0 */
 		(void) ARError_add(AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
-			"NTTerminationClient() is only available > ARS4.x");
+			"ars_GetEntryBLOB() is only available > ARS4.x");
 		XPUSHs(&PL_sv_undef);
 #endif
 	get_entryblob_end:;
@@ -1266,7 +1268,6 @@ ars_GetActiveLink(ctrl,name)
 				FreeARDiaryList(&diaryList, FALSE);
 			}
 	    }
-#ifndef WASTE_MEM
 	    FreeARInternalIdList(&groupList,FALSE);
 #if  AR_EXPORT_VERSION < 3
 	    FreeARDisplayList(&displayList,FALSE);
@@ -1275,13 +1276,12 @@ ars_GetActiveLink(ctrl,name)
 #if  AR_EXPORT_VERSION >= 3
 	    FreeARActiveLinkActionList(&elseList,FALSE);
 #endif
-	    if(!CVLD(helpText)){
-	      FREE(helpText);
-	    }
-	    if(!CVLD(changeDiary)){
-	      FREE(changeDiary);
-	    }
+#if  AR_EXPORT_VERSION >= 5
+	    FreeARWorkflowConnectStruct(&schemaList, FALSE);
+	    FreeARPropList(&objPropList, FALSE);
 #endif
+	    if(helpText) safefree(helpText);
+	    if(changeDiary) safefree(changeDiary);
 	  }
 	}
 	OUTPUT:
@@ -2087,7 +2087,7 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	OUTPUT:
 	RETVAL
 
-char *
+SV *
 ars_Export(ctrl,displayTag,vuiType,...)
 	ARControlStruct *	ctrl
 	char *			displayTag
@@ -2101,15 +2101,16 @@ ars_Export(ctrl,displayTag,vuiType,...)
 	  
 		(void) ARError_reset();
 		Zero(&status, 1, ARStatusList);
-		RETVAL = NULL;
-		if (items % 2 || c < 1) {
+		Zero(&structItems, 1, ARStructItemList);
+		RETVAL = &PL_sv_undef;
+		if ( (items % 2 == 0) || (c < 1) ) {
 			(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
 		} else {
 			structItems.numItems = c;
 			Newz(777, structItems.structItemList, c, ARStructItemStruct);
 			for (i = 0 ; i < c ; i++) {
 				unsigned int et = 0;
-				a  = i * 2 + 2;
+				a  = i * 2 + 3;
 				et = caseLookUpTypeNumber((TypeMapStruct *) 
 							     StructItemTypeMap,
 							   SvPV(ST(a), PL_na) 
@@ -2138,15 +2139,12 @@ ars_Export(ctrl,displayTag,vuiType,...)
 #ifdef PROFILE
 			((ars_ctrl *)ctrl)->queries++;
 #endif
-			if (ARError(ret, status)) {
-				safefree(structItems.structItemList);
-				if(buf) safefree(buf);
-			} else {
-				RETVAL = buf;
+			if (! ARError(ret, status) ) {
+				RETVAL = newSVpv(buf, 0);
 			}
-		} else {
-			safefree(structItems.structItemList);
-		}
+		} 
+		if(buf) safefree(buf);
+		FreeARStructItemList(&structItems, FALSE);
 	}
 	OUTPUT:
 	RETVAL

@@ -2,6 +2,7 @@ released=xx/xx/2003 version=1.8000
 JCM memory leak fixed in ars_CreateEntry
 JCM memory leak fixed in ars_SetEntry
 JCM memory leak fixed in ars_MergeEntry
+JCM memory leak fixed in ars_Export
 JCM memory leak fixed in ars_GetListEntry wrt to join forms
 JCM memory leak fixed in QualifierStructPtr destructor
 JCM memory leak fixed in ControlStruct destructor
@@ -16,6 +17,10 @@ JCM added new rv's to ars_GetControlStructFields: lang, authString
 	functions whose parameters have changed
 	<blockquote>
 		ars_GetListEntry()
+	</blockquote>
+	functions whose return values have changed
+	<blockquote>
+		none that would cause incompatibilities
 	</blockquote>
 
 released=11/13/2002 version=1.74

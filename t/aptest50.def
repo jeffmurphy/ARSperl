@@ -1,27 +1,29 @@
 #
-#  File exported Thu Mar 27 22:39:05 2003
+#  File exported Mon Mar 31 09:37:03 2003
 #
 begin schema
    name           : ARSperl Test
    core-version   : 2
    upgrade-version: 0
-   num-fields     : 111
-   timestamp      : 1048792038
+   num-fields     : 112
+   timestamp      : 1048826018
    owner          : jcmurphy
    last-changed   : jcmurphy
    default-vui    : Default Administrator View
    num-vuis       : 1
-   export-version : 4
+   export-version : 6
    schema-type    : 1
-   schema-type    : 1
+   next-field-id  : 536870915
 vui  {
    id             : 536870912
    name           : Default Administrator View
    label          : Default Administrator View
-   timestamp      : 1048603147
+   timestamp      : 1048826011
+   vui-locale     : 
+   vui-type       : 1
    owner          : jcmurphy
    last-changed   : jcmurphy
-   display-prop   : 2\20\4\26\Default Administrator View\161\6\1\
+   display-prop   : 1\20\4\26\Default Administrator View\
 }
 field {
    id             : 1
@@ -30,7 +32,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 3
-   timestamp      : 1048788987
+   timestamp      : 1048826012
    owner          : jcmurphy
    last-changed   : jcmurphy
    maxlength      : 15
@@ -50,7 +52,7 @@ field {
    fieldtype      : 1
    create-mode    : 1
    option         : 1
-   timestamp      : 1048788988
+   timestamp      : 1048826012
    owner          : jcmurphy
    last-changed   : jcmurphy
    maxlength      : 30
@@ -69,7 +71,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 3
-   timestamp      : 1048788985
+   timestamp      : 1048826012
    owner          : jcmurphy
    last-changed   : jcmurphy
    permission     : 3\1
@@ -84,7 +86,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048788982
+   timestamp      : 1048826012
    owner          : jcmurphy
    last-changed   : jcmurphy
    maxlength      : 30
@@ -102,7 +104,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 3
-   timestamp      : 1048788985
+   timestamp      : 1048826012
    owner          : jcmurphy
    last-changed   : jcmurphy
    maxlength      : 30
@@ -120,7 +122,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 3
-   timestamp      : 1048788986
+   timestamp      : 1048826012
    owner          : jcmurphy
    last-changed   : jcmurphy
    permission     : 4\1
@@ -134,7 +136,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 1
-   timestamp      : 1048788987
+   timestamp      : 1048826012
    owner          : jcmurphy
    last-changed   : jcmurphy
    enum-value     : New
@@ -155,7 +157,7 @@ field {
    fieldtype      : 1
    create-mode    : 1
    option         : 1
-   timestamp      : 1048788987
+   timestamp      : 1048826012
    owner          : jcmurphy
    last-changed   : jcmurphy
    maxlength      : 128
@@ -174,7 +176,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 3
-   timestamp      : 1048603151
+   timestamp      : 1048826012
    owner          : jcmurphy
    last-changed   : jcmurphy
    permission     : 3\1
@@ -187,13 +189,12 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048603151
+   timestamp      : 1048826012
    owner          : jcmurphy
    last-changed   : jcmurphy
    maxsize        : 0
    attachtype     : 1
- display-instance : 536870912\20\3\41\2\7380\26243\27360\36236\4\6\1\5\6\2\9\6\4\41\40\2\1\6\2\21\41\2\0\0\0\0\7\40\2147483648\143\40\4294967295\170\40\0\151\41\2\0\0\0\0\65\41\&
- display-instance : 2\0\0\0\0\66\41\2\0\0\0\0\232\4\3\Add\233\4\6\Delete\234\4\7\Display\235\4\12\Save to Disk\236\4\12\Attach Label\237\4\9\File Name\238\4\8\Max Size\
+ display-instance : 536870912\1\170\40\536870914\
 }
 field {
    id             : 536870916
@@ -202,8 +203,8 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048789143
-   owner          : 
+   timestamp      : 1048826012
+   owner          : jcmurphy
    last-changed   : jcmurphy
    permission     : 3\1
    permission     : 4\1
@@ -217,7 +218,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791945
+   timestamp      : 1048826012
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -234,7 +235,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791946
+   timestamp      : 1048826012
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -99999999999999999999999999.99
@@ -252,7 +253,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791946
+   timestamp      : 1048826012
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -269,7 +270,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791947
+   timestamp      : 1048826012
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -286,7 +287,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791947
+   timestamp      : 1048826012
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -303,7 +304,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791947
+   timestamp      : 1048826012
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -320,7 +321,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791948
+   timestamp      : 1048826012
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -337,7 +338,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791948
+   timestamp      : 1048826012
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -354,7 +355,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791949
+   timestamp      : 1048826013
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -371,7 +372,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791950
+   timestamp      : 1048826013
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -388,7 +389,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791950
+   timestamp      : 1048826013
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -405,7 +406,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791951
+   timestamp      : 1048826013
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -422,7 +423,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791951
+   timestamp      : 1048826013
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -439,7 +440,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791952
+   timestamp      : 1048826013
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -456,7 +457,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791952
+   timestamp      : 1048826013
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -473,7 +474,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791953
+   timestamp      : 1048826013
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -490,7 +491,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791954
+   timestamp      : 1048826013
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -507,7 +508,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791954
+   timestamp      : 1048826013
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -524,7 +525,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791955
+   timestamp      : 1048826013
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -541,7 +542,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791955
+   timestamp      : 1048826013
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -558,7 +559,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791956
+   timestamp      : 1048826013
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -575,7 +576,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791957
+   timestamp      : 1048826013
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -592,7 +593,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791957
+   timestamp      : 1048826013
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -609,7 +610,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791958
+   timestamp      : 1048826013
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -626,7 +627,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791959
+   timestamp      : 1048826013
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -643,7 +644,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791960
+   timestamp      : 1048826013
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -660,7 +661,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791960
+   timestamp      : 1048826013
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -677,7 +678,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791961
+   timestamp      : 1048826013
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -694,7 +695,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791962
+   timestamp      : 1048826013
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -711,7 +712,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791963
+   timestamp      : 1048826013
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -728,7 +729,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791963
+   timestamp      : 1048826013
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -745,7 +746,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791964
+   timestamp      : 1048826014
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -762,7 +763,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791965
+   timestamp      : 1048826014
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -779,7 +780,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791966
+   timestamp      : 1048826014
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -796,7 +797,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791967
+   timestamp      : 1048826014
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -813,7 +814,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791967
+   timestamp      : 1048826014
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -830,7 +831,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791968
+   timestamp      : 1048826014
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -847,7 +848,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791969
+   timestamp      : 1048826014
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -864,7 +865,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791970
+   timestamp      : 1048826014
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -881,7 +882,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791971
+   timestamp      : 1048826014
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -898,7 +899,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791972
+   timestamp      : 1048826014
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -915,7 +916,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791973
+   timestamp      : 1048826014
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -932,7 +933,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791974
+   timestamp      : 1048826014
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -949,7 +950,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791974
+   timestamp      : 1048826014
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -966,7 +967,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791975
+   timestamp      : 1048826014
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -983,7 +984,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791976
+   timestamp      : 1048826014
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1000,7 +1001,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791977
+   timestamp      : 1048826014
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1017,7 +1018,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791978
+   timestamp      : 1048826014
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1034,7 +1035,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791979
+   timestamp      : 1048826015
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1051,7 +1052,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791980
+   timestamp      : 1048826015
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1068,7 +1069,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791980
+   timestamp      : 1048826015
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1085,7 +1086,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791981
+   timestamp      : 1048826015
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1102,7 +1103,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791982
+   timestamp      : 1048826015
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1119,7 +1120,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791983
+   timestamp      : 1048826015
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1136,7 +1137,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791984
+   timestamp      : 1048826015
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1153,7 +1154,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791985
+   timestamp      : 1048826015
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1170,7 +1171,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791986
+   timestamp      : 1048826015
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1187,7 +1188,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791987
+   timestamp      : 1048826015
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1204,7 +1205,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791988
+   timestamp      : 1048826015
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1221,7 +1222,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791989
+   timestamp      : 1048826015
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1238,7 +1239,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791990
+   timestamp      : 1048826015
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1255,7 +1256,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791991
+   timestamp      : 1048826015
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1272,7 +1273,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791993
+   timestamp      : 1048826015
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1289,7 +1290,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791994
+   timestamp      : 1048826015
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1306,7 +1307,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791995
+   timestamp      : 1048826015
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1323,7 +1324,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791996
+   timestamp      : 1048826015
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1340,7 +1341,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791997
+   timestamp      : 1048826015
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1357,7 +1358,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791999
+   timestamp      : 1048826015
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1374,7 +1375,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048791999
+   timestamp      : 1048826015
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1391,7 +1392,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792001
+   timestamp      : 1048826015
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1408,7 +1409,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792002
+   timestamp      : 1048826015
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1425,7 +1426,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792003
+   timestamp      : 1048826015
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1442,7 +1443,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792004
+   timestamp      : 1048826016
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1459,7 +1460,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792005
+   timestamp      : 1048826016
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1476,7 +1477,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792006
+   timestamp      : 1048826016
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1493,7 +1494,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792007
+   timestamp      : 1048826016
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1510,7 +1511,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792009
+   timestamp      : 1048826016
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1527,7 +1528,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792010
+   timestamp      : 1048826016
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1544,7 +1545,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792011
+   timestamp      : 1048826016
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1561,7 +1562,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792012
+   timestamp      : 1048826016
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1578,7 +1579,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792014
+   timestamp      : 1048826016
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1595,7 +1596,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792015
+   timestamp      : 1048826016
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1612,7 +1613,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792016
+   timestamp      : 1048826016
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1629,7 +1630,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792017
+   timestamp      : 1048826016
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1646,7 +1647,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792019
+   timestamp      : 1048826016
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1663,7 +1664,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792020
+   timestamp      : 1048826016
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1680,7 +1681,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792021
+   timestamp      : 1048826016
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1697,7 +1698,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792022
+   timestamp      : 1048826017
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1714,7 +1715,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792024
+   timestamp      : 1048826017
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1731,7 +1732,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792025
+   timestamp      : 1048826017
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1748,7 +1749,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792026
+   timestamp      : 1048826017
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1765,7 +1766,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792027
+   timestamp      : 1048826017
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1782,7 +1783,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792029
+   timestamp      : 1048826017
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1799,7 +1800,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792030
+   timestamp      : 1048826017
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1816,7 +1817,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792031
+   timestamp      : 1048826017
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1833,7 +1834,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792033
+   timestamp      : 1048826017
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1850,7 +1851,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792034
+   timestamp      : 1048826017
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1867,7 +1868,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792035
+   timestamp      : 1048826017
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1884,7 +1885,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792037
+   timestamp      : 1048826017
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1901,7 +1902,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048792038
+   timestamp      : 1048826017
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -1911,31 +1912,43 @@ field {
  display-instance : 536870912\19\14\40\1\170\40\0\20\4\13\Integer Field\3\41\2\183862\128600\210412\130700\4\6\1\5\6\2\62\6\1\60\40\1\61\40\28\27\8\16\28\6\4\29\6\1\7\40\2147483&
  display-instance : 749\231\6\0\143\40\4294967295\21\41\2\0\400\6525\2100\151\41\2\7087\0\26549\2100\65\41\2\0\0\0\0\66\41\2\0\0\0\0\
 }
+field {
+   id             : 536870914
+   name           : Attachment Pool
+   datatype       : 37
+   fieldtype      : 1
+   create-mode    : 2
+   option         : 4
+   timestamp      : 1048826017
+   owner          : jcmurphy
+   last-changed   : jcmurphy
+ display-instance : 536870912\20\3\41\2\7380\26243\27360\36236\4\6\1\5\6\2\9\6\4\41\40\2\1\6\2\21\41\2\0\0\0\0\7\40\2147483648\143\40\4294967295\170\40\0\151\41\2\0\0\0\0\65\41\&
+ display-instance : 2\0\0\0\0\66\41\2\0\0\0\0\232\4\3\Add\233\4\6\Delete\234\4\7\Display\235\4\12\Save to Disk\236\4\12\Attach Label\237\4\9\File Name\238\4\8\Max Size\
+}
 end
-#
-#  File exported Thu Mar 27 22:38:39 2003
-#
 begin schema
    name           : ARSperl Test2
    core-version   : 2
    upgrade-version: 0
    num-fields     : 9
-   timestamp      : 1048798009
+   timestamp      : 1048826020
    owner          : jcmurphy
    last-changed   : jcmurphy
    default-vui    : Default Admin View
    num-vuis       : 1
-   export-version : 4
+   export-version : 6
    schema-type    : 1
-   schema-type    : 1
+   next-field-id  : 536870912
 vui  {
    id             : 536870912
    name           : Default Admin View
    label          : Default Admin View
-   timestamp      : 1048797944
+   timestamp      : 1048826019
+   vui-locale     : 
+   vui-type       : 1
    owner          : jcmurphy
    last-changed   : jcmurphy
-   display-prop   : 2\20\4\18\Default Admin View\161\6\1\
+   display-prop   : 1\20\4\18\Default Admin View\
 }
 field {
    id             : 1
@@ -1944,7 +1957,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 3
-   timestamp      : 1048798008
+   timestamp      : 1048826020
    owner          : jcmurphy
    last-changed   : jcmurphy
    maxlength      : 15
@@ -1964,7 +1977,7 @@ field {
    fieldtype      : 1
    create-mode    : 1
    option         : 1
-   timestamp      : 1048798009
+   timestamp      : 1048826020
    owner          : jcmurphy
    last-changed   : jcmurphy
    maxlength      : 30
@@ -1983,7 +1996,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 3
-   timestamp      : 1048797947
+   timestamp      : 1048826020
    owner          : jcmurphy
    last-changed   : jcmurphy
    permission     : 3\1
@@ -1998,7 +2011,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 2
-   timestamp      : 1048797947
+   timestamp      : 1048826020
    owner          : jcmurphy
    last-changed   : jcmurphy
    maxlength      : 30
@@ -2016,7 +2029,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 3
-   timestamp      : 1048797948
+   timestamp      : 1048826020
    owner          : jcmurphy
    last-changed   : jcmurphy
    maxlength      : 30
@@ -2034,7 +2047,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 3
-   timestamp      : 1048797948
+   timestamp      : 1048826020
    owner          : jcmurphy
    last-changed   : jcmurphy
    permission     : 4\1
@@ -2048,7 +2061,7 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 1
-   timestamp      : 1048798008
+   timestamp      : 1048826020
    owner          : jcmurphy
    last-changed   : jcmurphy
    enum-value     : New
@@ -2069,7 +2082,7 @@ field {
    fieldtype      : 1
    create-mode    : 1
    option         : 1
-   timestamp      : 1048798008
+   timestamp      : 1048826020
    owner          : jcmurphy
    last-changed   : jcmurphy
    maxlength      : 254
@@ -2088,44 +2101,40 @@ field {
    fieldtype      : 1
    create-mode    : 2
    option         : 3
-   timestamp      : 1048797945
+   timestamp      : 1048826020
    owner          : jcmurphy
    last-changed   : jcmurphy
    permission     : 3\1
    permission     : 4\1
 }
 end
-#
-#  File exported Thu Mar 27 22:38:32 2003
-#
 begin schema
    name           : ARSperl Test-join
    core-version   : 2
    upgrade-version: 0
-   num-fields     : 115
-   timestamp      : 1048798492
+   num-fields     : 116
+   timestamp      : 1048826028
    owner          : jcmurphy
    last-changed   : jcmurphy
    default-vui    : Default Admin View
    num-vuis       : 1
-   export-version : 4
+   export-version : 6
    schema-type    : 2
       primary     : ARSperl Test
       secondary   : ARSperl Test2
       join-option : 1
       join-query  : 4\1\99\1\1\1\
-   schema-type    : 2
-      primary     : ARSperl Test
-      secondary   : ARSperl Test2
-      join-option : 1
+   next-field-id  : 536871018
 vui  {
    id             : 536870912
    name           : Default Admin View
    label          : Default Admin View
-   timestamp      : 1048798256
+   timestamp      : 1048826020
+   vui-locale     : 
+   vui-type       : 1
    owner          : jcmurphy
    last-changed   : jcmurphy
-   display-prop   : 2\20\4\18\Default Admin View\161\6\1\
+   display-prop   : 1\20\4\18\Default Admin View\
 }
 field {
    id             : 1
@@ -2136,7 +2145,7 @@ field {
       mapfield    : 1
    create-mode    : 2
    option         : 3
-   timestamp      : 1048798257
+   timestamp      : 1048826021
    owner          : jcmurphy
    last-changed   : jcmurphy
    maxlength      : 255
@@ -2158,14 +2167,12 @@ field {
       mapfield    : 536870913
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798258
+   timestamp      : 1048826021
    owner          : jcmurphy
    last-changed   : jcmurphy
    maxsize        : 0
    attachtype     : 1
- display-instance : 536870912\25\14\40\1\232\4\3\Add\233\4\6\Delete\234\4\7\Display\235\4\12\Save to Disk\236\4\12\Attach Label\237\4\9\File Name\238\4\8\Max Size\170\40\0\3\41\&
- display-instance : 2\22500\37500\61425\47500\4\6\1\5\6\2\9\6\4\41\40\2\1\6\2\21\41\2\0\0\0\0\7\40\2147483762\143\40\4294967295\27\8\16\91\6\2\90\6\1\60\40\1\151\41\2\0\0\0&
- display-instance : \0\65\41\2\0\0\0\0\66\41\2\0\0\0\0\
+ display-instance : 536870912\1\170\40\536871017\
 }
 field {
    id             : 3
@@ -2176,7 +2183,7 @@ field {
       mapfield    : 3
    create-mode    : 2
    option         : 3
-   timestamp      : 1048798258
+   timestamp      : 1048826021
    owner          : jcmurphy
    last-changed   : jcmurphy
    permission     : 3\1
@@ -2193,7 +2200,7 @@ field {
       mapfield    : 536870918
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798259
+   timestamp      : 1048826021
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -99999999999999999999999999.99
@@ -2213,7 +2220,7 @@ field {
       mapfield    : 536870916
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798259
+   timestamp      : 1048826021
    owner          : jcmurphy
    last-changed   : jcmurphy
    permission     : 3\1
@@ -2230,7 +2237,7 @@ field {
       mapfield    : 536870917
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798260
+   timestamp      : 1048826021
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2249,7 +2256,7 @@ field {
       mapfield    : 536870927
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798260
+   timestamp      : 1048826021
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2268,7 +2275,7 @@ field {
       mapfield    : 536870928
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798261
+   timestamp      : 1048826021
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2287,7 +2294,7 @@ field {
       mapfield    : 536870929
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798262
+   timestamp      : 1048826021
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2306,7 +2313,7 @@ field {
       mapfield    : 536870930
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798263
+   timestamp      : 1048826021
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2325,7 +2332,7 @@ field {
       mapfield    : 536870931
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798263
+   timestamp      : 1048826021
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2344,7 +2351,7 @@ field {
       mapfield    : 536870932
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798264
+   timestamp      : 1048826021
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2363,7 +2370,7 @@ field {
       mapfield    : 536870933
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798265
+   timestamp      : 1048826021
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2382,7 +2389,7 @@ field {
       mapfield    : 536870934
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798265
+   timestamp      : 1048826021
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2401,7 +2408,7 @@ field {
       mapfield    : 536870935
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798266
+   timestamp      : 1048826021
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2420,7 +2427,7 @@ field {
       mapfield    : 536870936
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798267
+   timestamp      : 1048826021
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2439,7 +2446,7 @@ field {
       mapfield    : 536870919
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798268
+   timestamp      : 1048826021
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2458,7 +2465,7 @@ field {
       mapfield    : 536870937
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798269
+   timestamp      : 1048826022
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2477,7 +2484,7 @@ field {
       mapfield    : 536870938
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798269
+   timestamp      : 1048826022
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2496,7 +2503,7 @@ field {
       mapfield    : 536870939
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798270
+   timestamp      : 1048826022
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2515,7 +2522,7 @@ field {
       mapfield    : 536870940
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798271
+   timestamp      : 1048826022
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2534,7 +2541,7 @@ field {
       mapfield    : 536870941
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798272
+   timestamp      : 1048826022
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2553,7 +2560,7 @@ field {
       mapfield    : 536870942
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798273
+   timestamp      : 1048826022
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2572,7 +2579,7 @@ field {
       mapfield    : 536870943
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798273
+   timestamp      : 1048826022
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2591,7 +2598,7 @@ field {
       mapfield    : 536870944
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798274
+   timestamp      : 1048826022
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2610,7 +2617,7 @@ field {
       mapfield    : 536870945
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798275
+   timestamp      : 1048826022
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2629,7 +2636,7 @@ field {
       mapfield    : 536870946
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798276
+   timestamp      : 1048826022
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2648,7 +2655,7 @@ field {
       mapfield    : 536870920
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798276
+   timestamp      : 1048826022
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2667,7 +2674,7 @@ field {
       mapfield    : 536870947
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798277
+   timestamp      : 1048826022
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2686,7 +2693,7 @@ field {
       mapfield    : 536870948
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798278
+   timestamp      : 1048826022
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2705,7 +2712,7 @@ field {
       mapfield    : 536870949
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798279
+   timestamp      : 1048826022
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2724,7 +2731,7 @@ field {
       mapfield    : 536870950
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798280
+   timestamp      : 1048826022
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2743,7 +2750,7 @@ field {
       mapfield    : 536870951
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798281
+   timestamp      : 1048826022
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2762,7 +2769,7 @@ field {
       mapfield    : 536870952
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798282
+   timestamp      : 1048826022
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2781,7 +2788,7 @@ field {
       mapfield    : 536870953
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798283
+   timestamp      : 1048826022
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2800,7 +2807,7 @@ field {
       mapfield    : 536870954
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798284
+   timestamp      : 1048826022
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2819,7 +2826,7 @@ field {
       mapfield    : 536870955
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798285
+   timestamp      : 1048826023
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2838,7 +2845,7 @@ field {
       mapfield    : 536870956
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798286
+   timestamp      : 1048826023
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2857,7 +2864,7 @@ field {
       mapfield    : 536870921
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798287
+   timestamp      : 1048826023
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2876,7 +2883,7 @@ field {
       mapfield    : 536870957
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798288
+   timestamp      : 1048826023
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2895,7 +2902,7 @@ field {
       mapfield    : 536870958
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798289
+   timestamp      : 1048826023
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2914,7 +2921,7 @@ field {
       mapfield    : 536870959
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798289
+   timestamp      : 1048826023
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2933,7 +2940,7 @@ field {
       mapfield    : 536870960
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798291
+   timestamp      : 1048826023
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2952,7 +2959,7 @@ field {
       mapfield    : 536870961
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798292
+   timestamp      : 1048826023
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2971,7 +2978,7 @@ field {
       mapfield    : 536870962
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798293
+   timestamp      : 1048826023
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -2990,7 +2997,7 @@ field {
       mapfield    : 536870963
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798294
+   timestamp      : 1048826023
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3009,7 +3016,7 @@ field {
       mapfield    : 536870964
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798295
+   timestamp      : 1048826023
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3028,7 +3035,7 @@ field {
       mapfield    : 536870965
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798296
+   timestamp      : 1048826023
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3047,7 +3054,7 @@ field {
       mapfield    : 536870966
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798298
+   timestamp      : 1048826023
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3066,7 +3073,7 @@ field {
       mapfield    : 536870922
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798299
+   timestamp      : 1048826023
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3085,7 +3092,7 @@ field {
       mapfield    : 536870967
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798300
+   timestamp      : 1048826023
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3104,7 +3111,7 @@ field {
       mapfield    : 536870968
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798302
+   timestamp      : 1048826023
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3123,7 +3130,7 @@ field {
       mapfield    : 536870969
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798303
+   timestamp      : 1048826023
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3142,7 +3149,7 @@ field {
       mapfield    : 536870970
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798304
+   timestamp      : 1048826023
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3161,7 +3168,7 @@ field {
       mapfield    : 536870971
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798305
+   timestamp      : 1048826023
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3180,7 +3187,7 @@ field {
       mapfield    : 536870972
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798307
+   timestamp      : 1048826023
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3199,7 +3206,7 @@ field {
       mapfield    : 536870973
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798308
+   timestamp      : 1048826023
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3218,7 +3225,7 @@ field {
       mapfield    : 536870974
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798309
+   timestamp      : 1048826023
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3237,7 +3244,7 @@ field {
       mapfield    : 536870975
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798311
+   timestamp      : 1048826024
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3256,7 +3263,7 @@ field {
       mapfield    : 536870976
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798313
+   timestamp      : 1048826024
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3275,7 +3282,7 @@ field {
       mapfield    : 536870923
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798314
+   timestamp      : 1048826024
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3294,7 +3301,7 @@ field {
       mapfield    : 536870977
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798316
+   timestamp      : 1048826024
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3313,7 +3320,7 @@ field {
       mapfield    : 536870978
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798317
+   timestamp      : 1048826024
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3332,7 +3339,7 @@ field {
       mapfield    : 536870979
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798319
+   timestamp      : 1048826024
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3351,7 +3358,7 @@ field {
       mapfield    : 536870980
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798321
+   timestamp      : 1048826024
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3370,7 +3377,7 @@ field {
       mapfield    : 536870981
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798322
+   timestamp      : 1048826024
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3389,7 +3396,7 @@ field {
       mapfield    : 536870982
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798324
+   timestamp      : 1048826024
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3408,7 +3415,7 @@ field {
       mapfield    : 536870983
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798325
+   timestamp      : 1048826024
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3427,7 +3434,7 @@ field {
       mapfield    : 536870984
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798327
+   timestamp      : 1048826024
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3446,7 +3453,7 @@ field {
       mapfield    : 536870985
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798329
+   timestamp      : 1048826024
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3465,7 +3472,7 @@ field {
       mapfield    : 536870986
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798331
+   timestamp      : 1048826024
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3484,7 +3491,7 @@ field {
       mapfield    : 536870924
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798332
+   timestamp      : 1048826024
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3503,7 +3510,7 @@ field {
       mapfield    : 536870987
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798334
+   timestamp      : 1048826024
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3522,7 +3529,7 @@ field {
       mapfield    : 536870988
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798336
+   timestamp      : 1048826024
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3541,7 +3548,7 @@ field {
       mapfield    : 536870989
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798339
+   timestamp      : 1048826024
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3560,7 +3567,7 @@ field {
       mapfield    : 536870990
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798341
+   timestamp      : 1048826024
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3579,7 +3586,7 @@ field {
       mapfield    : 536870991
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798344
+   timestamp      : 1048826024
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3598,7 +3605,7 @@ field {
       mapfield    : 536870992
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798345
+   timestamp      : 1048826025
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3617,7 +3624,7 @@ field {
       mapfield    : 536870993
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798347
+   timestamp      : 1048826025
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3636,7 +3643,7 @@ field {
       mapfield    : 536870994
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798349
+   timestamp      : 1048826025
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3655,7 +3662,7 @@ field {
       mapfield    : 536870995
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798351
+   timestamp      : 1048826025
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3674,7 +3681,7 @@ field {
       mapfield    : 536870996
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798353
+   timestamp      : 1048826025
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3693,7 +3700,7 @@ field {
       mapfield    : 536870925
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798355
+   timestamp      : 1048826025
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3712,7 +3719,7 @@ field {
       mapfield    : 536870997
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798357
+   timestamp      : 1048826025
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3731,7 +3738,7 @@ field {
       mapfield    : 536870998
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798359
+   timestamp      : 1048826025
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3750,7 +3757,7 @@ field {
       mapfield    : 536870999
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798361
+   timestamp      : 1048826025
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3769,7 +3776,7 @@ field {
       mapfield    : 536871000
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798363
+   timestamp      : 1048826025
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3788,7 +3795,7 @@ field {
       mapfield    : 536871001
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798364
+   timestamp      : 1048826025
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3807,7 +3814,7 @@ field {
       mapfield    : 536871002
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798366
+   timestamp      : 1048826025
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3826,7 +3833,7 @@ field {
       mapfield    : 536871003
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798368
+   timestamp      : 1048826025
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3845,7 +3852,7 @@ field {
       mapfield    : 536871004
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798370
+   timestamp      : 1048826025
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3864,7 +3871,7 @@ field {
       mapfield    : 536871005
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798372
+   timestamp      : 1048826025
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3883,7 +3890,7 @@ field {
       mapfield    : 536871006
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798374
+   timestamp      : 1048826025
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3902,7 +3909,7 @@ field {
       mapfield    : 536870926
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798376
+   timestamp      : 1048826025
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3921,7 +3928,7 @@ field {
       mapfield    : 536871007
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798378
+   timestamp      : 1048826026
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3940,7 +3947,7 @@ field {
       mapfield    : 536871008
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798380
+   timestamp      : 1048826026
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3959,7 +3966,7 @@ field {
       mapfield    : 536871009
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798382
+   timestamp      : 1048826026
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3978,7 +3985,7 @@ field {
       mapfield    : 536871010
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798384
+   timestamp      : 1048826026
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -3997,7 +4004,7 @@ field {
       mapfield    : 536871011
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798387
+   timestamp      : 1048826026
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -4016,7 +4023,7 @@ field {
       mapfield    : 536871012
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798389
+   timestamp      : 1048826026
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -4035,7 +4042,7 @@ field {
       mapfield    : 536871013
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798391
+   timestamp      : 1048826026
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -4054,7 +4061,7 @@ field {
       mapfield    : 536871014
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798393
+   timestamp      : 1048826026
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -4073,7 +4080,7 @@ field {
       mapfield    : 536871015
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798395
+   timestamp      : 1048826026
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -4092,7 +4099,7 @@ field {
       mapfield    : 536871016
    create-mode    : 2
    option         : 2
-   timestamp      : 1048798398
+   timestamp      : 1048826026
    owner          : jcmurphy
    last-changed   : jcmurphy
    range-low      : -2147483647
@@ -4111,7 +4118,7 @@ field {
       mapfield    : 5
    create-mode    : 2
    option         : 3
-   timestamp      : 1048798400
+   timestamp      : 1048826026
    owner          : jcmurphy
    last-changed   : jcmurphy
    maxlength      : 30
@@ -4131,7 +4138,7 @@ field {
       mapfield    : 6
    create-mode    : 2
    option         : 3
-   timestamp      : 1048798402
+   timestamp      : 1048826026
    owner          : jcmurphy
    last-changed   : jcmurphy
    permission     : 4\1
@@ -4147,7 +4154,7 @@ field {
       mapfield    : 8
    create-mode    : 1
    option         : 1
-   timestamp      : 1048798405
+   timestamp      : 1048826026
    owner          : jcmurphy
    last-changed   : jcmurphy
    maxlength      : 128
@@ -4168,7 +4175,7 @@ field {
       mapfield    : 7
    create-mode    : 2
    option         : 1
-   timestamp      : 1048798407
+   timestamp      : 1048826026
    owner          : jcmurphy
    last-changed   : jcmurphy
    enum-value     : New
@@ -4192,7 +4199,7 @@ field {
       mapfield    : 15
    create-mode    : 2
    option         : 3
-   timestamp      : 1048798409
+   timestamp      : 1048826026
    owner          : jcmurphy
    last-changed   : jcmurphy
    permission     : 3\1
@@ -4207,7 +4214,7 @@ field {
       mapfield    : 2
    create-mode    : 1
    option         : 1
-   timestamp      : 1048798412
+   timestamp      : 1048826026
    owner          : jcmurphy
    last-changed   : jcmurphy
    maxlength      : 30
@@ -4228,7 +4235,7 @@ field {
       mapfield    : 1
    create-mode    : 2
    option         : 3
-   timestamp      : 1048798414
+   timestamp      : 1048826026
    owner          : jcmurphy
    last-changed   : jcmurphy
    maxlength      : 15
@@ -4250,7 +4257,7 @@ field {
       mapfield    : 1
    create-mode    : 2
    option         : 3
-   timestamp      : 1048798417
+   timestamp      : 1048826026
    owner          : jcmurphy
    last-changed   : jcmurphy
    maxlength      : 15
@@ -4272,7 +4279,7 @@ field {
       mapfield    : 8
    create-mode    : 1
    option         : 1
-   timestamp      : 1048798419
+   timestamp      : 1048826026
    owner          : jcmurphy
    last-changed   : jcmurphy
    maxlength      : 254
@@ -4293,7 +4300,7 @@ field {
       mapfield    : 7
    create-mode    : 2
    option         : 1
-   timestamp      : 1048798422
+   timestamp      : 1048826026
    owner          : jcmurphy
    last-changed   : jcmurphy
    enum-value     : New
@@ -4317,7 +4324,7 @@ field {
       mapfield    : 2
    create-mode    : 1
    option         : 1
-   timestamp      : 1048798425
+   timestamp      : 1048826027
    owner          : jcmurphy
    last-changed   : jcmurphy
    maxlength      : 30
@@ -4329,24 +4336,71 @@ field {
  display-instance : 536870912\18\20\4\13\Submitter-AT2\61\40\30\60\40\1\3\41\2\4500\60000\32175\62100\4\6\1\28\6\4\29\6\1\27\8\16\7\40\2147483761\231\6\0\143\40\4294967295\21\41&
  display-instance : \2\0\400\9000\2100\151\41\2\9562\0\27674\2100\65\41\2\0\0\0\0\66\41\2\0\0\0\0\91\6\2\90\6\1\170\40\0\
 }
+field {
+   id             : 536871017
+   name           : Attachment Pool
+   datatype       : 37
+   fieldtype      : 0
+   create-mode    : 2
+   option         : 4
+   timestamp      : 1048826027
+   owner          : jcmurphy
+   last-changed   : jcmurphy
+ display-instance : 536870912\25\14\40\1\232\4\3\Add\233\4\6\Delete\234\4\7\Display\235\4\12\Save to Disk\236\4\12\Attach Label\237\4\9\File Name\238\4\8\Max Size\170\40\0\3\41\&
+ display-instance : 2\22500\37500\61425\47500\4\6\1\5\6\2\9\6\4\41\40\2\1\6\2\21\41\2\0\0\0\0\7\40\2147483762\143\40\4294967295\27\8\16\91\6\2\90\6\1\60\40\1\151\41\2\0\0\0&
+ display-instance : \0\65\41\2\0\0\0\0\66\41\2\0\0\0\0\
+}
 end
-#
-#  File exported Thu Mar 27 22:41:56 2003
-#
+begin active link
+   name           : ARSperl Test-alink1
+   timestamp      : 1049121045
+   export-version : 6
+   owner          : jcmurphy
+   last-changed   : jcmurphy
+   actlink-order  : 2
+   wk-conn-type   : 1
+   schema-name    : ARSperl Test
+   schema-name    : ARSperl Test2
+   actlink-mask   : 20
+   enable         : 1
+   permission     : 0
+   actlink-query  : 4\1\1\4\2\4\8\jcmurphy\
+   action {
+      message-type: 0
+      message-num : 12345
+      message-pane: 1
+      message-text: A Test ActiveLink #1
+   }
+   else {
+      set-field   : 0\536870918\101\10\4\1.23\
+   }
+   help-text      : some help text
+   change-diary   : 1049121045jcmurphychange history note
+   object-prop    : 2\60016\4\1\0\60017\4\1\0\
+end
 begin filter
    name           : ARSperl Test-Filter1
-   timestamp      : 1048603152
+   timestamp      : 1048826031
    owner          : jcmurphy
    last-changed   : jcmurphy
    filter-op      : 6
    enable         : 1
    filter-order   : 500
+   wk-conn-type   : 1
    schema-name    : ARSperl Test
-   export-version : 4
+   export-version : 6
    filter-query   : 4\1\99\7\2\6\1\
    action {
       message-type: 0
       message-num : 10000
       message-text: status is assigned
    }
+end
+begin char menu
+   name           : ARSperl Test-menu-search1
+   timestamp      : 1048801700
+   owner          : jcmurphy
+   last-changed   : jcmurphy
+   refresh-code   : 2
+   char-menu      : 0\2\12\ARSperl Test\1\@\3\536870917\1\4\1\1\4\99\123\
 end

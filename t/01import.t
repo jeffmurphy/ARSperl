@@ -21,9 +21,6 @@ my $d = "aptest.def";
 # with an attachment field so we can test that out.
 
 if(ars_APIVersion() >= 4) {
-  $d = "aptest45.def";
-}
-if(ars_APIVersion() >= 7) {
   $d = "aptest50.def";
 }
 
@@ -32,6 +29,10 @@ if(ars_APIVersion() >= 7) {
 #  we ignore the error.
 
 ars_DeleteSchema($ctrl, "ARSperl Test", ARS::AR_SCHEMA_FORCE_DELETE); 
+ars_DeleteSchema($ctrl, "ARSperl Test2", ARS::AR_SCHEMA_FORCE_DELETE); 
+ars_DeleteSchema($ctrl, "ARSperl Test-join", ARS::AR_SCHEMA_FORCE_DELETE); 
+ars_DeleteFilter($ctrl, "ARSperl Test-Filter1"); 
+ars_DeleteActiveLink($ctrl, "ARSperl Test-alink1");
 
 # read in the schema definition
 
@@ -45,9 +46,13 @@ close(FD);
 # import it
 
 my $rv = ars_Import($ctrl,
-	   &ARS::AR_IMPORT_OPT_CREATE,
-	   $buf, "Schema", "ARSperl Test",
-	   "Filter", "ARSperl Test-Filter1"
+		    &ARS::AR_IMPORT_OPT_CREATE,
+		    $buf, 
+		    "Schema", "ARSperl Test",
+		    "Schema", "ARSperl Test2",
+		    "Schema", "ARSperl Test-join",
+		    "Filter", "ARSperl Test-Filter1",
+		    "Active_Link", "ARSperl Test-alink1"
 	);
 
 

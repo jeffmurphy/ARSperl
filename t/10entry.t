@@ -15,7 +15,7 @@ sub mycatch {
 }
 
 if(ars_APIVersion() >= 4) {
-  print "1..9\n";
+  print "1..10\n";
 } else {
   print "1..7\n";
 }
@@ -129,7 +129,8 @@ if(ars_APIVersion() >= 4) {
   my $ic = $s->getAttachment(-entry => $nid,
 			     -field => 'Attachment Field');
 
-  open(FD, $filename) || die "not ok [open $!]\n";
+
+  open(FD, $filename) || die "not ok [open $!]";
   my $fc;
   while(<FD>) {
     $fc .= $_;
@@ -143,6 +144,28 @@ if(ars_APIVersion() >= 4) {
 		" iclen=", length($ic), "]\n";
   }
 
+
+  # retrieve it as a file
+
+  my $ga_rv = $s->getAttachment(-entry => $nid,
+				-field => 'Attachment Field',
+				-file  => 'attach.txt');
+
+  open(FD, 'attach.txt') || die "not ok [open $!]";
+  my $fc2;
+  while(<FD>) {
+    $fc2 .= $_;
+  }
+  close(FD);
+
+  if ($fc2 ne $ic) {
+    print "not ok [get attach to file]\n";
+  } else {
+    print "ok [get attach to file]\n";
+  }
+
+  # cleanup
+  unlink ('attach.txt');
   $s->delete(-entry => $nid);
 }
 
@@ -151,7 +174,7 @@ if(ars_APIVersion() >= 4) {
 
 $s->delete(-entry => $id);
 	   
-print "ok [8 delete]\n";
+print "ok [delete]\n";
 
 exit 0;
 
