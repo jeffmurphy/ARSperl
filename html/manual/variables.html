@@ -7,11 +7,24 @@
 <H2>Special Variables</H2>
 
 <DL>
+
 <DT><A NAME="ars_errstr">
    <FONT SIZE=+2><CODE>$ars_errstr</CODE></FONT></A>
 <DD>
-   Error and warning messages from the C or Perl API are placed in 
-   this variable.
+   Error, warning and informational messages from the C or Perl API are placed in 
+   this variable. This variable is not a ``real'' variable. Instead,
+   it is built on the fly whenever you reference it. It is built from 
+   <CODE>ars_errhash</CODE>
+<P>
+<DT><A NAME="ars_errhash">
+   <FONT SIZE=+2><CODE>%ars_errhash</CODE></FONT></A>
+<DD>
+   Error, warning and informational messages from the C or Perl API are placed in
+   this hash. The hash contains several array references, allowing multiple messages
+   to be handled. The easiest way to access this variable is to just reference
+   (print, etc) the <CODE>$ars_errstr</CODE> variable which is contructed on the
+   fly from the contents of this hash's components. See Also: 
+   <A HREF="ds_ars_err_hash.html">Error Hash Values</A>.
 </DL>
 <P>
 <HR WIDTH="30%">
