@@ -21,6 +21,9 @@
 #    Comments to: arsperl@smurfland.cit.buffalo.edu
 #
 # $Log: ARS.pm,v $
+# Revision 1.27  1998/02/09 17:58:08  jcmurphy
+# updated version to 1.54
+#
 # Revision 1.26  1998/02/09 17:57:22  jcmurphy
 # fixed bug in ars_EncodeDiary()
 #
@@ -164,7 +167,7 @@ ars_GetControlStructFields ars_GetVUI
 $ars_errstr %ARServerStats %ars_errhash
 );
 
-$VERSION   = '1.53';
+$VERSION   = '1.54';
 $DEBUGGING = 0;
 
 bootstrap ARS $VERSION;
