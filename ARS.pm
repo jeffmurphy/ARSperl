@@ -79,7 +79,7 @@ sub ars_simpleMenu {
     @ret;
 }
 
-sub pad_entryid {
+sub ars_padEntryid {
     my($c) = shift;
     my($schema) = shift;
     my($entry_id) = shift;
