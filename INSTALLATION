@@ -1,8 +1,9 @@
-$Header: /cvsroot/arsperl/ARSperl/INSTALLATION,v 1.1 1996/11/21 20:09:57 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/INSTALLATION,v 1.2 1997/02/13 21:08:28 jcmurphy Exp $
 
-ARS perl - Perl5 / ARS2.0 integration kit
+ARS perl - Perl5 / ARS2.x-3.0 integration kit
 
-    Copyright (C) 1995 Joel Murphy, jmurphy@acsu.buffalo.edu
+    Copyright (C) 1995,1996,1997
+                       Joel Murphy, jmurphy@acsu.buffalo.edu
                        Jeff Murphy, jcmurphy@acsu.buffalo.edu
 
     This program is free software; you can redistribute it and/or modify
@@ -34,7 +35,7 @@ PREPARATION
 
 You will need to have these already installed: 
 
-   o  ARS 2.x with API libraries.
+   o  ARS 2.x or 3.x API libraries and includes (header files).
    o  Perl 5.x with the dynamic loading option compiled in.
 
 TESTED OS'S
@@ -42,14 +43,18 @@ TESTED OS'S
 This extension has been successfully built and used under the following 
 OS versions:
 
-   o  Solaris 2.4, 2.5
+   o  Solaris 2.4, 2.5, 2.5.1
    o  SunOS 4.1.3
    o  Irix 6.2
-   o  HPUX
+   o  HPUX*
 
 Users of other OS's might encounted problems with compiling. We'd be 
 interested in hearing about your experiences and if you got it working
 under a new OS. 
+
+* Must be built statically under HP-UX. See the FAQ pages at
+  http://smurfland.cit.buffalo.edu/ARSperl/FAQs/index.html
+  for details.
 
 BUILDING
 
@@ -61,7 +66,9 @@ $ARS_LDPATH = "-L/usr/ars/api/lib";
 $INCLUDES = "-I/usr/ars/api/include";
 
 Under Sunos 4.1.x, you will also need to add -lntc to $ARS_LIBS.
-Under Irix 6.2, you will need to remove the -lnsl option from $ARS_LIBS
+Under Irix 6.2, you will need to remove the -lnsl option from $ARS_LIBS.
+Under HP-UX, you will need to build it statically into Perl.
+For ARS2.0, you will need to add -DARS20 to the DEFINEs line.
 
 then execute the following comands:
 
