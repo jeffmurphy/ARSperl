@@ -1,9 +1,9 @@
-$Header: /cvsroot/arsperl/ARSperl/RELNOTES,v 1.4 1997/09/04 00:20:03 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/RELNOTES,v 1.5 1998/03/31 23:44:16 jcmurphy Exp $
 
 Release Notes for ARSperl
 
 ---------------------------------------------------------------------------
-    ARSperl -- A Perl5 / ARS2.x-3.0 integration kit.
+    ARSperl -- A Perl5 / ARS2.x-3.x integration kit.
     Copyright (C) 1996,1997
                        Joel Murphy, jmurphy@acsu.buffalo.edu
                        Jeff Murphy, jcmurphy@acsu.buffalo.edu
@@ -22,6 +22,14 @@ Release Notes for ARSperl
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ---------------------------------------------------------------------------
+
+1.6 Notes
+---------
+
+The 1.6 release marks the first real NT port. v1.5x attempted a port
+to Active State's Perl for Windows, but wasn't successful. Bill Middleton
+re-worked the source code and merged it into Gurusamy Sarathy's 
+version of perl for windows. 
 
 1.5 Notes
 ---------
