@@ -19,13 +19,13 @@
       <P>Example:
 
       <PRE>
-	$a->{timestamp} = time();
-	$a->{user} = "foobar";
-	$a->{value} = "diary entry 1";
+	$a-&gt;{timestamp} = time();
+	$a-&gt;{user} = "foobar";
+	$a-&gt;{value} = "diary entry 1";
 
-	$b->{timestamp} = time();
-	$b->{user} = "raboof";
-	$b->{value} = "diary entry 2";
+	$b-&gt;{timestamp} = time();
+	$b-&gt;{user} = "raboof";
+	$b-&gt;{value} = "diary entry 2";
 
 	($encodedDiary = ars_EncodeDiary($a, $b)) ||
 		die "ars_EncodeDiary failed";
