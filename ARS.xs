@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.82 2003/03/28 05:51:56 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.83 2003/03/30 02:36:42 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -184,10 +184,12 @@ ars_SetServerPort(ctrl, name, port, progNum)
 	RETVAL
 
 ARControlStruct *
-ars_Login(server,username,password)
+ars_Login(server,username,password, tcpport=0, rpcnumber=0)
 	char *		server
 	char *		username
 	char *		password
+	unsigned int  	tcpport
+	unsigned int  	rpcnumber
 	CODE:
 	{
 		int              ret, s_ok = 1;
@@ -198,10 +200,13 @@ ars_Login(server,username,password)
 		struct timeval   tv;
 #endif
 
-		DBG( ("ars_Login(%s, %s, %s)\n", 
+		DBG( ("ars_Login(%s, %s, %s, %d, %d)\n", 
 			SAFEPRT(server),
 			SAFEPRT(username),
-			SAFEPRT(password)) );
+			SAFEPRT(password),
+			tcpport,
+			rpcnumber) 
+		    );
 
 		RETVAL = NULL;
 		Zero(&status, 1, ARStatusList);
@@ -281,6 +286,18 @@ ars_Login(server,username,password)
 	  	}
 	  	strncpy(ctrl->server, server, sizeof(ctrl->server));
 	 	ctrl->server[sizeof(ctrl->server)-1] = 0;
+
+		/* set the tcp/rpc port if given */
+
+		ret = ARSetServerPort(ctrl, ctrl->server, tcpport, rpcnumber,
+					&status);
+		if (ARError(ret, status)) {
+			DBG( ("ARSetServerPort failed %d\n", ret) );
+			ARTermination(ctrl, &status);
+			ARError(ret, status);
+			safefree(ctrl);
+			RETVAL = NULL;
+		}
 
 	  	/* finally, check to see if the user id is valid */
 
