@@ -6,7 +6,7 @@
 
 <PRE>
 <H2><CODE>ars_GetListEntryWithFields(
-         ctrl,schema,qualifier,maxRetrieve,      # standard
+         ctrl, schema, qualifier, maxRetrieve=0, firstRetrieve=0,      # standard
          [ fieldID_list ],                       # OPTIONAL
          sortID1,sortdir1,sortID2,sortdir2,...)  # OPTIONAL</CODE></H2>
 </PRE>
@@ -21,7 +21,7 @@ this is a list of scalar values, not a list of hash references a la
 <CODE>ars_GetListEntry</CODE>.  If not specified, the default result list
 fields for the schema are returned.<p>
 
-The other arguments are identical in function to <CODE>ars_GetListEntry</CODE>.
+The other arguments are identical in function to <CODE><a href="ars_GetListEntry.html">ars_GetListEntry</a></CODE>.
 <p>
 
 The format of the returned list/hash is <I>(entry_id, {field_value_hash})</I>

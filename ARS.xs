@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.90 2003/04/16 01:40:02 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.91 2003/04/16 19:07:39 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -3730,7 +3730,7 @@ ars_GetMultipleEntries(ctrl,schema,...)
 
 
 void
-ars_GetListEntryWithFields(ctrl,schema,qualifier,firstRetrieve=0,maxRetrieve,...)
+ars_GetListEntryWithFields(ctrl,schema,qualifier,maxRetrieve=0,firstRetrieve=0,...)
 	ARControlStruct *       ctrl
 	char *                  schema
 	ARQualifierStruct *     qualifier
