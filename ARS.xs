@@ -1650,19 +1650,12 @@ ars_DeleteEntry(ctrl,schema,entry_id)
 	{
 	  int ret;
 	  ARStatusList status;
-	  int id_len;
-	  AREntryIdType pad_entry;
-	  
-	  /* pad left of entry_id with zeros */
-	  memset(pad_entry, '0', AR_MAX_ENTRYID_SIZE);
-	  id_len = strlen(entry_id);
-	  if (id_len > AR_MAX_ENTRYID_SIZE) {
+	
+	  if (strlen(entry_id) > AR_MAX_ENTRYID_SIZE) {
 	    ars_errstr = "entry id is too long";
 	    RETVAL=-1;
 	  } else {
-	    sprintf(pad_entry+(AR_MAX_ENTRYID_SIZE-id_len), "%s", entry_id);
-	    
-	    ret = ARDeleteEntry(ctrl, schema, pad_entry, &status);
+	    ret = ARDeleteEntry(ctrl, schema, entry_id, &status);
 #ifdef PROFILE
 	    ((ars_ctrl *)ctrl)->queries++;
 #endif
@@ -2244,7 +2237,7 @@ ars_GetField(ctrl,schema,id)
 	  ARStatusList Status;
 	  unsigned int dataType, option, createMode;
 	  ARValueStruct defaultVal;
-	/*  ARPermissionList permissions; */
+	  ARPermissionList permissions;
 	  ARFieldLimitStruct limit;
 	  ARDisplayList displayList;
 	  char *helpText;
@@ -2271,7 +2264,7 @@ ars_GetField(ctrl,schema,id)
 		     perl_dataType_names(&dataType), 0);
 	    hv_store(RETVAL, "defaultVal", strlen("defaultVal"),
 		     perl_ARValueStruct(&defaultVal), 0);
-	    /* FIX - permissions */
+	    /* permissions below */
 	    hv_store(RETVAL, "limit", strlen("limit"),
 		     perl_ARFieldLimitStruct(&limit), 0);
 	    hv_store(RETVAL, "displayList", strlen("displayList"),
@@ -2291,7 +2284,7 @@ ars_GetField(ctrl,schema,id)
 	      hv_store(RETVAL, "changeDiary", strlen("changeDiary"),
 		       newSVpv(changeDiary, 0), 0);
 #ifndef WASTE_MEM
-	/*    FreeARPermissionList(&permissions,FALSE); */
+	    FreeARPermissionList(&permissions,FALSE);
 	    FreeARFieldLimitStruct(&limit,FALSE);
 	    FreeARDisplayList(&displayList,FALSE);
 	    if(helpText)
@@ -2299,6 +2292,42 @@ ars_GetField(ctrl,schema,id)
 	    if(changeDiary)
 	      free(changeDiary);
 #endif
+	    ret = ARGetField(ctrl, schema, id, NULL, NULL, NULL, NULL, &permissions, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &Status);
+            if (ret == 0) {
+	      int i;
+	      HV *permhv = newHV();
+	      char groupid[20];
+	      
+	      for (i=0; i<permissions.numItems; i++) {
+		sprintf(groupid, "%i", permissions.permissionList[i].groupId);
+		switch (permissions.permissionList[i].permissions) {
+		case AR_PERMISSIONS_NONE:
+		  hv_store(permhv, groupid, strlen(groupid),
+			   newSVpv("none",0), 0);
+		  break;
+		case AR_PERMISSIONS_VIEW:
+		  hv_store(permhv, groupid, strlen(groupid),
+			   newSVpv("view",0), 0);
+		  break;
+		case AR_PERMISSIONS_CHANGE:
+		  hv_store(permhv, groupid, strlen(groupid),
+			   newSVpv("change",0), 0);
+		  break;
+		default:
+		  hv_store(permhv, groupid, strlen(groupid),
+			   newSVpv("unknown",0), 0);
+		  break;
+		}
+	      }
+	      hv_store(RETVAL, "permissions", strlen("permissions"), permhv,0);
+#ifndef WASTE_MEM
+	      FreeARPermissionList(&permissions,FALSE);
+#endif
+            } else {
+#ifndef WASTE_MEM
+              FreeARStatusList(&status, FALSE);
+#endif
+            } 
 	  }
 	}
 	OUTPUT:
