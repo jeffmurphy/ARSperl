@@ -11,6 +11,21 @@ previous versions of arsperl and may require altering of some arsperl
 scripts.
 
 
+Released: 10/24/2001 Version: 1.72
+
+
+(JCM)   modified Makefile.PL to handle changes to _SERVER_INFO definitions
+        in 4.5.x
+
+(JCM)   memory leak fixes
+
+(JCM)   duplicate free badness in ars_Login() fixed
+
+(JCM)   updated doc for ars_MergeEntry
+
+(JCM)   added form->merge() call to OO layer
+
+
 Released: 10/30/2000 Version: 1.71
 
 
@@ -538,5 +553,5 @@ Released: 01/12/96 Version: 1.0beta
 
 arsperl@arsperl.org
 
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.42 2000/10/30 19:49:16 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.43 2001/10/24 16:01:24 jcmurphy Exp $
 

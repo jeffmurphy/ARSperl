@@ -1,4 +1,4 @@
-released=xx/yy/2001 version=1.72
+released=10/24/2001 version=1.72
 JCM modified Makefile.PL to handle changes to _SERVER_INFO definitions
     in 4.5.x
 JCM memory leak fixes
