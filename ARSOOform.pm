@@ -1,0 +1,448 @@
+#
+#    ARSperl - An ARS v2-v4 / Perl5 Integration Kit
+#
+#    Copyright (C) 1995-1999 Joel Murphy, jmurphy@acsu.buffalo.edu
+#                            Jeff Murphy, jcmurphy@acsu.buffalo.edu
+# 
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms as Perl itself. 
+#    
+#    Refer to the file called "Artistic" that accompanies the source distribution 
+#    of ARSperl (or the one that accompanies the source distribution of Perl
+#    itself) for a full description.
+#
+#    Official Home Page: 
+#    http://arsinfo.cit.buffalo.edu/perl
+#
+#    Mailing List (must be subscribed to post):
+#    arsperl@arsinfo.cit.buffalo.edu
+#
+
+package ARS::form;
+require Carp;
+
+# new ARS::form(-form => name, -vui => view, -connection => connection)
+
+sub new {
+  my ($class, $self) = (shift, {});
+  my ($b) = bless($self, $class);
+
+  my ($form, $vui, $connection) =  
+    ARS::rearrange([FORM,VUI,CONNECTION],@_);
+
+  Carp::confess("usage: new ARS::form(-form => name, -vui => vui, -connection => connection)\nform and connection parameters are required.\n") 
+    if(!defined($form) || !defined($connection));
+
+  $vui = "Default Admin View" unless defined $vui;
+
+  $self->{'form'}       = $form;
+  $self->{'connection'} = $connection;
+  $self->{'vui'}        = $vui;
+  my %f = ARS::ars_GetFieldTable($connection->{'ctrl'}, 
+				 $form);
+
+  $connection->tryCatch();
+  $self->{'fields'}     = \%f;
+
+  my %rev = reverse %f; # convenient
+  $self->{'fields_rev'} = \%rev;
+
+  my(%t, %enums);
+
+  foreach (keys %f) {
+    print "caching field: $_\n" if $self->{'connection'}->{'.debug'};
+    my $fv = ARS::ars_GetField($self->{'connection'}->{'ctrl'},
+			       $self->{'form'},
+			       $f{$_});
+    $connection->tryCatch();
+    $t{$_} = $fv->{'dataType'};
+    print "\tdatatype: $t{$_}\n" if $self->{'connection'}->{'.debug'};
+    $enums{$_} = [@{$fv->{'limit'}}] if $fv->{'dataType'} eq "enum";
+  }
+
+  $self->{'fieldtypes'} = \%t;
+  $self->{'fieldEnumValues'} = \%enums;
+  return $b;
+}
+
+sub DESTROY {
+  
+}
+
+# query(-query => "qualifier", -maxhits => 100)
+
+sub query {
+  my ($this) = shift;
+  my ($query, $maxhits) = ARS::rearrange([QUERY,MAXHITS], @_);
+  $query = "(1 = 1)" unless defined($query);
+  $maxhits = 0 unless defined($maxhits);
+
+  if($this->{'connection'}->{'.debug'}) {
+    print "form->query(".$this->{'form'}.", $query, ".$this->{'vui'}.")\n";
+  }
+
+  $this->{'qualifier'} = 
+    ARS::ars_LoadQualifier($this->{'connection'}->{'ctrl'},
+			   $this->{'form'},
+			   $query,
+			   $this->{'vui'});
+  $this->{'connection'}->tryCatch();
+
+  my @matches = ARS::ars_GetListEntry($this->{'connection'}->{'ctrl'},
+					     $this->{'form'},
+					     $this->{'qualifier'},
+					     $maxhits);
+  my(@mids, @mdescs);
+  for(my $i = 0; $i <= $#matches ; $i += 2) {
+    push @mids, $matches[$i];
+    push @mdescs, $matches[$i+1];
+  }
+
+  $this->{'matches'} = \@mids;
+  $this->{'querylist'} = \@mdescs;
+
+  return @mids;
+}
+
+# getFieldID(-field => name)
+
+sub getFieldID {
+  my $this = shift;
+  my ($name) = ARS::rearrange([FIELD], @_);
+
+  Carp::confess("usage: form->getFieldID(-field => name)\nname parameter is required.\n") unless defined($name);
+
+  if(!defined($this->{'fields'}->{$name})) {
+    Carp::confess("field '$name' not in view: ".$this->{'vui'}."\n");
+  }
+
+  return $this->{'fields'}->{$name} if(defined($name));
+}
+
+# getFieldName(-id => id)
+
+sub getFieldName {
+  my $this = shift;
+  my ($id) = ARS::rearrange([ID], @_);
+
+  Carp::confess("usage: form->getFieldName(-id => id)\nid parameter required.\n") unless defined($id);
+
+  return $this->{'fields_rev'}->{$id} if defined($this->{'fields_rev'}->{$id});
+
+  Carp::confess("field id '$id' not available on form: ".$this->{'form'}."\n");
+}
+
+# getFieldType(-field => name, -id => id)
+
+sub getFieldType {
+  my $this = shift;
+  my ($name, $id) = ARS::rearrange([FIELD,ID], @_);
+
+  if(!defined($name) && !defined($id)) {
+    Carp::confess("usage: form->getFieldType(-field => name, -id => id)\none of the parameters must be specified.\n");
+  }
+
+  if(defined($name) && !defined($this->{'fieldtypes'}->{$name})) {
+    Carp::confess("field '$name' not in view: ".$this->{'vui'}."\n");
+  }
+
+  #print "getFieldType($name, $id)\n" if $this->{'connection'}->{'.debug'};
+
+  return $this->{'fieldtypes'}->{$name} if defined($name);
+
+  # they didnt give us a name, but instead gave us an id. look up the
+  # name and return the type.
+
+  if(defined($id)) {
+    my $n = $this->getFieldName(-id => $id);
+    return $this->{'fieldtypes'}->{$n};
+  }
+
+  Carp::confess("couldn't determine dataType for field\n");
+}
+
+# delete(-entry => id)
+
+sub delete {
+  my $this = shift;
+  my ($id) = ARS::rearrange([ENTRY],@_);
+
+  Carp::confess("usage: form->delete(-entry => id)\nentry parameter is required.\n") unless defined($id);
+
+  my (@d);
+
+  # allow the user to delete multiple entries in one shot
+
+  if(ref($id) eq "ARRAY") {
+    @d = @{$id};
+  } else {
+    push @d, $id;
+  }
+
+  foreach (@d) {
+    ARS::ars_DeleteEntry($this->{'connection'}->{'ctrl'},
+			 $this->{'form'},
+			 $_);
+    $this->{'connection'}->tryCatch();
+  }
+}
+
+# set(-entry => id, -gettime => tstamp, -values => { field1 => value1, ... })
+
+sub set {
+  my ($this) = shift;
+  my ($entry,$gettime,$vals) = 
+    ARS::rearrange([ENTRY,GETTIME,[VALUE,VALUES]],@_);
+
+  $gettime = 0 unless defined($gettime);
+
+  Carp::confess("usage: form->set(-entry => id, -gettime => tstamp, -values => { field1 => value1, ... })\entry and values parameters are required.\n") unless (defined($vals) && defined($entry));
+
+  Carp::confess("usage: form->set(-entry => id, -values => { field1 => value1, ... })\nvalues parameter must be HASH ref.\n") unless ref($vals) eq "HASH";
+
+  my (%realmap);
+
+  # as we work thru each value, we need to perform translations for
+  # enum fields.
+
+  foreach (keys %{$vals}) {
+    my ($rv) = $this->value2internal(-field => $_,
+				     -value => $vals->{$_});
+    #print "realval for $_ = $rv\n";
+    $realmap{$this->getFieldID($_)} = $rv;
+  }
+
+  my ($rv) = ARS::ars_SetEntry($this->{'connection'}->{'ctrl'},
+			     $this->{'form'},
+			     $entry,
+			     $gettime,
+			     %realmap);
+
+  $this->{'connection'}->tryCatch();
+
+  return $rv;
+}
+
+# value2internal(-field => name, -value => value)
+
+sub value2internal {
+  my ($this) = shift;
+  my ($f, $v) = ARS::rearrange([FIELD,VALUE], @_);
+
+  Carp::confess("usage: form->value2internal(-field => name, -value => value)\nboth parameters are required.\n") unless (defined($f) && defined($v));
+
+  my ($t) = $this->getFieldType($f);
+
+  print "value2internal($f, $v) type=$t\n" 
+    if $this->{'connection'}->{'.debug'};
+
+  # translate an text value into an enumeration number 
+
+  if($t eq "enum") {
+    if(!defined($this->{'fieldEnumValues'}->{$f})) {
+      Carp::confess("[1] unable to translate enumeration value for field '$f'\n");
+    }
+    for($i = 0 ; $i <= $#{$this->{'fieldEnumValues'}->{$f}} ; $i++) {
+      return $i if $this->{'fieldEnumValues'}->{$f}->[$i] eq $v;
+    }
+    Carp::confess("[2] unable to translate enumeration value for field '$f'\n");
+  }
+
+  # we don't need translation..
+
+  return $v;
+}
+
+# internal2value(-field => name, -id => id, -value => value)
+
+sub internal2value {
+  my ($this) = shift;
+  my ($f, $id, $v) = ARS::rearrange([FIELD,ID,VALUE], @_);
+
+  Carp::confess("usage: form->internal2value(-field => name, -id => id, -value => value)\nid or field and value parameters are required.\n")
+    unless ((defined($f) || defined($id)) && defined($v));
+
+  $f = $this->getFieldName(-id => $id) unless defined($f);
+
+  my ($t) = $this->getFieldType($f);
+
+  print "internal2value($f, $v) type=$t\n" 
+    if $this->{'connection'}->{'.debug'};
+
+  # translate an enumeration value into a text value
+
+  if($t eq "enum") {
+    # if the field doesnt exist in our cache, or if the
+    # enumeration value exceeds the known list of enumerations,
+    # barf.
+
+    if(!defined($this->{'fieldEnumValues'}->{$f}) || 
+       ($#{$this->{'fieldEnumValues'}->{$f}} < $v) ) {
+      Carp::confess("[1] unable to translate enumeration value for field '$f'\n");
+    }
+
+    return $this->{'fieldEnumValues'}->{$f}->[$v]
+  }
+
+  # we don't need translation..
+
+  return $v;
+}
+
+# create(-values => { field1 => value1, ... })
+
+sub create {
+  my ($this) = shift;
+  my ($vals) = ARS::rearrange([[VALUE,VALUES]],@_);
+
+  Carp::confess("usage: form->create(-values => { field1 => value1, ... })\nvalues parameter is required.\n") unless defined($vals);
+
+  Carp::confess("usage: form->create(-values => { field1 => value1, ... })\nvalues parameter must be HASH ref.\n") unless ref($vals) eq "HASH";
+
+  my (%realmap);
+
+  foreach (keys %{$vals}) {
+    my ($rv) = $this->value2internal(-field => $_,
+				     -value => $vals->{$_});
+    #print "realval for $_ = $rv\n";
+    $realmap{$this->getFieldID($_)} = $rv;
+  }
+
+  my ($id) = ARS::ars_CreateEntry($this->{'connection'}->{'ctrl'},
+				  $this->{'form'},
+				  %realmap);
+
+  $this->{'connection'}->tryCatch();
+
+  return $id;
+}
+
+# get(-entry => entryid, -fields => [ field1, field2 ])
+
+sub get {
+  my $this = shift;
+  my ($eid, $fields) = ARS::rearrange([ENTRY,[FIELD,FIELDS]],@_);
+
+  Carp::confess("usage: form->get(-entry => entryid, -fields => [ field1, field2, ... ])\nentry parameter is required.\n") unless defined($eid);
+
+  my (@fieldlist) = ();
+  my ($allfields) = 1;
+
+  if(defined($fields)) {
+    $allfields = 0;
+    foreach (@{$fields}) {
+      push @fieldlist, $this->getFieldID($_);
+    }
+  }
+
+  # what we want to do is: retrieve all of the values, but for
+  # certain datatypes (attachments) we want to insert
+  # an object instead of the field value. for enum types, 
+  # we want to decode the value.
+  
+  #print "(";  print $this->{'form'}; print ", $eid, @fieldlist)\n";
+
+  my @v;
+  if($allfields == 0) {
+    @v = ARS::ars_GetEntry($this->{'connection'}->{'ctrl'},
+			   $this->{'form'},
+			   $eid, @fieldlist);
+  } else {
+    @v = ARS::ars_GetEntry($this->{'connection'}->{'ctrl'},
+			   $this->{'form'},
+			   $eid);
+  }
+
+  my @rv;
+
+  for(my $i = 0 ; $i <= $#v ; $i += 2) {
+    if($this->getFieldType(-id => $v[$i]) eq "attach") {
+      push @rv, $v[$i+1]; # "attach";
+    } 
+    elsif($this->getFieldType(-id => $v[$i]) eq "enum") {
+      push @rv, $this->internal2value(-id => $v[$i],
+				      -value => $v[$i+1]);
+    } 
+    else {
+      push @rv, $v[$i+1];
+    }
+  }
+
+  return @rv unless ($#rv == 0);
+  return $rv[0];
+}
+
+
+# getAsHash(-entry => entryid, -fields => [field1, field2, ...])
+
+sub getAsHash {
+  my $this = shift;
+  my ($eid, $fields) = ARS::rearrange([ENTRY,[FIELD,FIELDS]],@_);
+
+  Carp::confess("usage: form->getAsHash(-entry => entryid, -fields => [ field1, field2, ... ])\nentry parameter is required.\n") unless defined($eid);
+
+  my (@fieldlist) = ();
+  my ($allfields) = 1;
+
+  if(defined($fields)) {
+    $allfields = 0;
+    foreach (@{$fields}) {
+      push @fieldlist, $this->getFieldID($_);
+    }
+  }
+
+  my @v;
+  if($allfields == 0) {
+    @v = ARS::ars_GetEntry($this->{'connection'}->{'ctrl'},
+			   $this->{'form'},
+			   $eid, @fieldlist);
+  } else {
+    @v = ARS::ars_GetEntry($this->{'connection'}->{'ctrl'},
+			   $this->{'form'},
+			   $eid);
+  }
+
+  for(my $i = 0 ; $i <= $#v ; $i += 2) {
+    if($this->getFieldType(-id => $v[$i]) eq "attach") {
+      #$v[$i+1] = "attach";
+    } 
+    elsif($this->getFieldType(-id => $v[$i]) eq "enum") {
+      $v[$i+1] = $this->internal2value(-id => $v[$i], 
+				       -value => $v[$i+1]);
+    }
+    $v[$i] = $this->getFieldName(-id => $v[$i]);
+  }
+
+  return @v;
+}
+
+# getAttachment(-entry => eid, -field => fieldname, -file => filename)
+# if file isnt specified, the attachment is returned "in core"
+
+sub getAttachment {
+  my $this = shift;
+  my ($eid, $field, $file) = ARS::rearrange([ENTRY,FIELD,FILE],@_);
+
+  if(!defined($eid) && !defined($field)) {
+    Carp::confess("usage: getAttachment(-entry => eid, -field => fieldname, -file => filename)\nentry and field parameters are required.\n");
+  }
+
+  if(defined($file)) {
+    my $rv = ARS::ars_GetEntryBLOB($this->{'connection'}->{'ctrl'},
+				   $this->{'form'},
+				   $eid,
+				   $this->getFieldID($field),
+				   ARS::AR_LOC_FILENAME,
+				   $file);
+    $this->{'connection'}->tryCatch();
+    return $rv;
+  } 
+
+  return  ARS::ars_GetEntryBLOB($this->{'connection'}->{'ctrl'},
+				$this->{'form'},
+				$eid,
+				$this->getFieldID($field),
+				ARS::AR_LOC_BUFFER);
+}
+
+1;
