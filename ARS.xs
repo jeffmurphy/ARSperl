@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.44 1998/03/31 23:30:50 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.45 1998/04/03 16:41:25 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,10 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.44 1998/03/31 23:30:50 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.45  1998/04/03 16:41:25  jcmurphy
+added ARS32 conditional compilation for AdminExtension routines
+(AdminEx stuff was removed in 3.2)
+
 Revision 1.44  1998/03/31 23:30:50  jcmurphy
 NT patch from  Bill Middleton <wjm@metronet.com>
 
@@ -1859,6 +1863,7 @@ ars_GetListAdminExtension(control,changedsince=0)
 	unsigned long		changedsince
 	PPCODE:
 	{
+#ifndef ARS32
 	  ARNameList   nameList;
 	  ARStatusList status;
 	  int          ret, i;
@@ -1876,6 +1881,9 @@ ars_GetListAdminExtension(control,changedsince=0)
 	    FreeARNameList(&nameList,FALSE);
 #endif
 	  }
+#else /* ARS32 */
+	(void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, "ars_GetListAdminExtension() is not available in ARS3.2 or later.");
+#endif /* ARS32 */
 	}
 
 int
@@ -1943,6 +1951,7 @@ ars_DeleteAdminExtension(ctrl, name)
 	char *			name
 	CODE:
 	{
+#ifndef ARS32
 	  ARStatusList status;
 	  int          ret;
 
@@ -1960,6 +1969,9 @@ ars_DeleteAdminExtension(ctrl, name)
 	  } else {
 		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
 	  }
+#else /* ARS32 */
+	(void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, "ars_DeleteAdminExtension() is not available in ARS3.2 or later.");
+#endif /* ARS32 */
 	}
 	OUTPUT:
 	RETVAL
@@ -2147,6 +2159,7 @@ ars_ExecuteAdminExtension(ctrl, name)
 	char *			name
 	CODE:
 	{
+#ifndef ARS32
 	 ARStatusList status;
 	 int          ret;
 
@@ -2160,6 +2173,9 @@ ars_ExecuteAdminExtension(ctrl, name)
 #endif
 	 if(!ARError( ret, status))
 		RETVAL = 1;
+#else /* ARS32 */
+	(void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, "ars_ExecuteAdminExtension() is not available in ARS3.2 or later.");
+#endif /* ARS32 */
 	}
 	OUTPUT:
 	RETVAL
@@ -2216,6 +2232,7 @@ ars_GetAdminExtension(ctrl, name)
 	char *			name
 	CODE:
 	{
+#ifndef ARS32
 	 ARStatusList  status;
 	 ARInternalIdList groupList;
 	 char          command[AR_MAX_COMMAND_SIZE];
@@ -2258,6 +2275,9 @@ ars_GetAdminExtension(ctrl, name)
 		}
 #endif
 	 }
+#else /* ARS32 */
+	 (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, "ars_GetAdminExtension() is not available in ARS3.2 or later.");
+#endif /* ARS32 */
 	}
 	OUTPUT:
 	RETVAL
@@ -2749,6 +2769,7 @@ ars_CreateAdminExtension(ctrl, aeDefRef)
 	SV *			aeDefRef
 	CODE:
 	{
+#ifndef ARS32
 	  int               rv = 0, ret = 0;
 	  ARNameType        name, owner;
 	  ARInternalIdList  groupList;
@@ -2799,6 +2820,10 @@ ars_CreateAdminExtension(ctrl, aeDefRef)
 			"name, groupList, command");
 		}
 	  }
+#else /* ARS32 */
+	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, "ars_CreateAdminExtension() is not available in ARS3.2 or later.");
+#endif /* ARS32 */
+
 	}
 	OUTPUT:
 	RETVAL
