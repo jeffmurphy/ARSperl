@@ -1,12 +1,12 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/GetFilter.pl,v 1.2 1997/02/20 19:33:15 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/GetFilter.pl,v 1.3 1998/03/12 20:44:57 jcmurphy Exp $
 #
 # NAME
 #   GetFilter.pl
 #
 # USAGE
-#   GetFilter.pl [username] [password] [filtername]
+#   GetFilter.pl [server] [username] [password] [filtername]
 #
 # DESCRIPTION
 #   Retrieve and print information about the named filter.
@@ -16,6 +16,9 @@
 #   jcmurphy@acsu.buffalo.edu
 #
 # $Log: GetFilter.pl,v $
+# Revision 1.3  1998/03/12 20:44:57  jcmurphy
+# minor changes to allow specification of a server
+#
 # Revision 1.2  1997/02/20 19:33:15  jcmurphy
 # *** empty log message ***
 #
@@ -48,7 +51,7 @@ sub printl {
     }
 }
 
-($username, $password, $filtername) = @ARGV;
+($server, $username, $password, $filtername) = @ARGV;
 if(!defined($filtername)) {
     print "Usage: $0 [username] [password] [filtername]\n";
     exit 0;
@@ -68,9 +71,11 @@ $AR_OPERATION_MERGE = 16;
 	      $AR_OPERATION_MERGE, "Merge"
 	      );
 
-$ctrl = ars_Login("", $username, $password);
+$ctrl = ars_Login($server, $username, $password);
 ($finfo = ars_GetFilter($ctrl, $filtername)) ||
     die "error in GetFilter: $ars_errstr";
+
+print "\n\nerrstr contains \"$ars_errstr\"\n\n" if ($ars_errstr ne "");
 
 print "** Filter Info:\n";
 print "Name        : \"".$finfo->{"name"}."\"\n";
@@ -93,7 +98,7 @@ print "owner       : ".$finfo->{"owner"}."\n";
 print "lastChanged : ".$finfo->{"lastChanged"}."\n";
 print "changeDiary : ".$finfo->{"changeDiary"}."\n";
 
-ars_Logoff($ctrl) || die "error while logging out: $ars_errstr";
+ars_Logoff($ctrl);
 
 exit 0;
 
@@ -251,6 +256,9 @@ sub ProcessFunctionList {
 sub ProcessSetFields {
     my $field = shift;
  
+    if(defined($field->{valueType})) {
+	printl 3, "valueType: $field->{valueType}\n";
+    }
     if(defined($field->{none})) {
         printl 3, "No set fields instructions found.\n";
     }
