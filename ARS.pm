@@ -21,6 +21,9 @@
 #    Comments to: arsperl@smurfland.cit.buffalo.edu
 #
 # $Log: ARS.pm,v $
+# Revision 1.23  1997/11/04 18:19:09  jcmurphy
+# version # update
+#
 # Revision 1.22  1997/10/29 21:57:34  jcmurphy
 # version number change
 #
@@ -152,7 +155,7 @@ ars_GetControlStructFields
 $ars_errstr %ARServerStats %ars_errhash
 );
 
-$VERSION   = '1.5204';
+$VERSION   = '1.5205';
 $DEBUGGING = 0;
 
 bootstrap ARS $VERSION;
