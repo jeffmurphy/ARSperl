@@ -1,6 +1,6 @@
 #!/oratest/perl/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/del_all.pl,v 1.2 1997/11/11 19:14:24 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/del_all.pl,v 1.3 1997/11/12 18:38:49 jcmurphy Exp $
 #
 # NAME
 #   del_all.pl [server] [user] [password] [pattern]
@@ -32,27 +32,27 @@ $pat = shift;
 print "Fetching..\n";
 print "\tActiveLinks .. "; 
 @al = ars_GetListActiveLink($c);
-print $#al." matches.\n";
+print $#al." found.\n";
 
 print "\tAdminExtensions .. "; 
 @ae = ars_GetListAdminExtension($c);
-print $#ae." matches.\n";
+print $#ae." found.\n";
 
 print "\tCharMenus .. "; 
 @cm = ars_GetListCharMenu($c);
-print $#cm." matches.\n";
+print $#cm." found.\n";
 
 print "\tEscalations .. "; 
 @es = ars_GetListEscalation($c);
-print $#es." matches.\n";
+print $#es." found.\n";
 
 print "\tFilters .. "; 
 @fi = ars_GetListFilter($c);
-print $#fi." matches.\n";
+print $#fi." found.\n";
 
 print "\tSchemas .. "; 
-@sc = ars_GetListSchema($c);
-print $#sc." matches.\n";
+@sc = ars_GetListSchema($c, 0, 1024);
+print $#sc." found.\n";
 
 print "Sleeping for 5 seconds. control-c to abort!\n";
 sleep(5);
@@ -108,6 +108,8 @@ foreach (@sc) {
     if($_ =~ /$pat/) {
 	print "\t$_\n";
 	ars_DeleteSchema($c, $_, 2) || die "$ars_errstr";
+    } else {
+	print "$_ !~ $pat\n";
     }
 }
 
