@@ -7,7 +7,7 @@
 
 <H2>ARSperl Programmer's Manual</H2>
 
-$Id: toc.html,v 1.3 1997/02/17 16:17:58 jcmurphy Exp $
+$Id: toc.html,v 1.4 1997/02/20 16:08:04 jcmurphy Exp $
 
 <HR>
 
@@ -20,11 +20,10 @@ $Id: toc.html,v 1.3 1997/02/17 16:17:58 jcmurphy Exp $
     <UL>
         <LI><A HREF="variables.html#ars_errstr">ars_errstr</A>
     </UL>
-    <LI>Available Functions</A>
+    <LI>Perl Functions</A>
     <UL>
         <LI><A HREF="ars_Login.html">ars_Login</A>
         <LI><A HREF="ars_Logoff.html">ars_Logoff</A>
-        <LI><A HREF="ars_GetCurrentServer.html">ars_GetCurrentServer</A>
         <LI><A HREF="ars_LoadQualifier.html">ars_LoadQualifier</A>
         <LI><A HREF="ars_GetListField.html">ars_GetListField</A>
         <LI><A HREF="ars_GetListEntry.html">ars_GetListEntry</A>
@@ -49,27 +48,27 @@ $Id: toc.html,v 1.3 1997/02/17 16:17:58 jcmurphy Exp $
         <LI><A HREF="ars_GetFilter.html">ars_GetFilter</A>
         <LI><A HREF="ars_GetCharMenu.html">ars_GetCharMenu</A>
         <LI><A HREF="ars_GetServerStatistics.html">ars_GetServerStatistics</A>
-
-        <LI><A HREF="ars_GetProfileInfo.html">ars_GetProfileInfo</A>
-
-	<LI><A HREF="ars_NTGetListServer.html">ars_NTGetListServer</A> (2.x / 3.x)
-	<LI><A HREF="ars_NTInitializationServer.html">ars_NTInitializationServer</A> (3.x)
-	<LI><A HREF="ars_NTRegisterServer.html">ars_NTRegisterServer</A> (3.x)
-	<LI><A HREF="ars_NTNotificationServer.html">ars_NTNotificationServer</A> (3.x)
-	<LI><A HREF="ars_NTDeregisterServer.html">ars_NTDeregisterServer</A> (3.x)
-	<LI><A HREF="ars_NTTerminationServer.html">ars_NTTerminationServer</A> (3.x)
-
-	<LI><A HREF="ars_NTInitializationClient.html">ars_NTInitializationClient</A> (2.x)
-	<LI><A HREF="ars_NTRegisterClient.html">ars_NTRegisterClient</A> (2.x)
-	<LI><A HREF="ars_NTNotificationClient.html">ars_NTNotificationClient</A> (2.x)
-	<LI><A HREF="ars_NTDeregisterClient.html">ars_NTDeregisterClient</A> (2.x)
-	<LI><A HREF="ars_NTTerminationClient.html">ars_NTTerminationClient</A> (2.x)
-
-	<LI><A HREF="ars_NTCheckRegisteredClient.html">ars_NTCheckRegisteredClient</A> (2.x)
+	<P>
+	<LI><A HREF="ars_NTGetListServer.html">ars_NTGetListServer</A>               <B>(2.x / 3.x)</B>
+	<LI><A HREF="ars_NTInitializationServer.html">ars_NTInitializationServer</A> <B>(3.x)</B>
+	<LI><A HREF="ars_NTRegisterServer.html">ars_NTRegisterServer</A>             <B>(3.x)</B>
+	<LI><A HREF="ars_NTNotificationServer.html">ars_NTNotificationServer</A>     <B>(3.x)</B>
+	<LI><A HREF="ars_NTDeregisterServer.html">ars_NTDeregisterServer</A>         <B>(3.x)</B>
+	<LI><A HREF="ars_NTTerminationServer.html">ars_NTTerminationServer</A>       <B>(3.x)</B>
+        <P>
+	<LI><A HREF="ars_NTInitializationClient.html">ars_NTInitializationClient</A> <B>(2.x)</B>
+	<LI><A HREF="ars_NTRegisterClient.html">ars_NTRegisterClient</A>             <B>(2.x)</B>
+	<LI><A HREF="ars_NTNotificationClient.html">ars_NTNotificationClient</A>     <B>(2.x)</B>
+	<LI><A HREF="ars_NTDeregisterClient.html">ars_NTDeregisterClient</A>         <B>(2.x)</B>
+	<LI><A HREF="ars_NTTerminationClient.html">ars_NTTerminationClient</A>       <B>(2.x)</B>
+	<LI><A HREF="ars_NTCheckRegisteredClient.html">ars_NTCheckRegisteredClient</A> <B>(2.x)</B>
 
     </UL>
     <LI><A HREF="#helper">Perl helper functions</A>
     <UL>
+        <LI><A HREF="ars_GetProfileInfo.html">ars_GetProfileInfo</A>
+        <LI><A HREF="ars_GetCurrentServer.html">ars_GetCurrentServer</A>
+        <LI><A HREF="ars_perl_Qualifier.html">ars_perl_Qualifier</A>
         <LI><A HREF="ars_simpleMenu.html">ars_simpleMenu</A>
 	<LI><A HREF="ars_padEntryid.html">ars_padEntryid</A>
     </UL>
@@ -98,8 +97,10 @@ $Id: toc.html,v 1.3 1997/02/17 16:17:58 jcmurphy Exp $
 <H3> Helper Functions </H3>
 
 Theses are functions that are not part of the C extension 
-code. These are simple functions that are part of the ARS Perl Module.
-They are intended to make life a little easier in some (specific) cases.
+code. These are functions that are part of the ARS Perl Extension that
+were written as an extension of the API. <P>
+
+They are intended to make life a little easier in some cases.
 <P>
 <A HREF="#toc"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Back to Table of Contents </A>
 
