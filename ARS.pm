@@ -21,6 +21,9 @@
 #    Comments to: arsperl@smurfland.cit.buffalo.edu
 #
 # $Log: ARS.pm,v $
+# Revision 1.24  1997/11/10 23:50:36  jcmurphy
+# 1.5206
+#
 # Revision 1.23  1997/11/04 18:19:09  jcmurphy
 # version # update
 #
@@ -151,11 +154,11 @@ ars_GetAdminExtension ars_GetEscalation ars_GetFullTextInfo
 ars_GetListGroup ars_GetListSQL ars_GetListUser
 ars_GetListVUI ars_GetServerInfo
 ars_CreateActiveLink ars_CreateAdminExtension
-ars_GetControlStructFields
+ars_GetControlStructFields ars_GetVUI
 $ars_errstr %ARServerStats %ars_errhash
 );
 
-$VERSION   = '1.5205';
+$VERSION   = '1.5206';
 $DEBUGGING = 0;
 
 bootstrap ARS $VERSION;
