@@ -21,7 +21,10 @@
 #    Comments to: arsperl@smurfland.cit.buffalo.edu
 #
 # $Log: ARS.pm,v $
-# Revision 1.5  1996/03/29 20:15:08  jcmurphy
+# Revision 1.6  1996/10/31 16:42:53  jmurphy
+# *** empty log message ***
+#
+# Revision 1.5  1996/03/29  20:15:08  jcmurphy
 # added ars_padEntryid to export list
 #
 # Revision 1.4  1996/03/28 02:14:37  jcmurphy
@@ -45,7 +48,7 @@ require AutoLoader;
 require Config;
 
 @ISA = qw(Exporter DynaLoader);
-@EXPORT = qw(isa_int isa_float isa_string ars_LoadQualifier ars_Login ars_Logoff ars_GetListField ars_GetFieldByName ars_GetFieldTable ars_CreateEntry ars_DeleteEntry ars_GetEntry ars_GetListEntry ars_GetListSchema ars_GetListServer ars_GetActiveLink ars_GetCharMenuItems ars_GetSchema ars_GetField ars_simpleMenu ars_GetListActiveLink ars_SetEntry ars_perl_qualifier ars_Export ars_GetListFilter ars_GetListEscalation ars_GetListCharMenu ars_GetListAdminExtension ars_padEntryid);
+@EXPORT = qw(isa_int isa_float isa_string ars_LoadQualifier ars_Login ars_Logoff ars_GetListField ars_GetFieldByName ars_GetFieldTable ars_CreateEntry ars_DeleteEntry ars_GetEntry ars_GetListEntry ars_GetListSchema ars_GetListServer ars_GetActiveLink ars_GetCharMenuItems ars_GetSchema ars_GetField ars_simpleMenu ars_GetListActiveLink ars_SetEntry ars_perl_qualifier ars_Export ars_GetListFilter ars_GetListEscalation ars_GetListCharMenu ars_GetListAdminExtension ars_padEntryid ars_GetFilter ars_GetProfileInfo);
 
 bootstrap ARS;
 tie $main::ars_errstr, ARS::ERRORSTR;
