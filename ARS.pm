@@ -21,6 +21,10 @@
 #    Comments to: arsperl@smurfland.cit.buffalo.edu
 #
 # $Log: ARS.pm,v $
+# Revision 1.12  1997/07/02 15:51:45  jcmurphy
+# changed ars_errstr, added arserr_hash to exports, remove tie to main
+# on ars_errstr
+#
 # Revision 1.11  1997/02/18 16:38:20  jmurphy
 # added a END block to call ARTermination
 #
@@ -49,12 +53,28 @@
 #
 #
 
+# Routines for grabbing the current error message "stack" 
+# by simply referring to the $ars_errstr scalar.
+
 package ARS::ERRORSTR;
 sub TIESCALAR {
     bless {};
 }
 sub FETCH {
-    ARS::_ars_errstr();
+    my($s, $i) = (undef, undef);
+    my(%mTypes) = ( 0 => "OK", 1 => "WARNING", 2 => "ERROR", 3 => "FATAL",
+		    4 => "INTERNAL ERROR",
+		   -1 => "TRACEBACK");
+    for($i = 0; $i < $ARS::arserr_hash{numItems}; $i++) {
+	$s .= sprintf("[%s] %s (ARERR \#%d)",
+		      $mTypes{@{$ARS::arserr_hash{messageType}}[$i]},
+		      @{$ARS::arserr_hash{messageText}}[$i],
+		      @{$ARS::arserr_hash{messageNum}}[$i]);
+	if($i < $ARS::arserr_hash{numItems}-1) {
+	    $s .= "\n";
+	}
+    }
+    return $s;
 }
 
 package ARS;
@@ -65,10 +85,25 @@ require AutoLoader;
 require Config;
 
 @ISA = qw(Exporter DynaLoader);
-@EXPORT = qw(isa_int isa_float isa_string ars_LoadQualifier ars_Login ars_Logoff ars_GetListField ars_GetFieldByName ars_GetFieldTable ars_CreateEntry ars_DeleteEntry ars_GetEntry ars_GetListEntry ars_GetListSchema ars_GetListServer ars_GetActiveLink ars_GetCharMenuItems ars_GetSchema ars_GetField ars_simpleMenu ars_GetListActiveLink ars_SetEntry ars_perl_qualifier ars_Export ars_GetListFilter ars_GetListEscalation ars_GetListCharMenu ars_GetListAdminExtension ars_padEntryid ars_GetFilter ars_GetProfileInfo ars_Import ars_GetCharMenu ars_GetServerStatistics ars_NTDeregisterServer ars_NTGetListServer ars_NTInitializationServer ars_NTNotificationServer ars_NTTerminationServer ars_NTDeregisterClient ars_NTInitializationClient ars_NTRegisterClient ars_NTTerminationClient ars_NTRegisterServer ars_GetCurrentServer %ARServerStats);
+@EXPORT = qw(isa_int isa_float isa_string ars_LoadQualifier ars_Login 
+ars_Logoff ars_GetListField ars_GetFieldByName ars_GetFieldTable 
+ars_DeleteEntry ars_GetEntry ars_GetListEntry ars_GetListSchema 
+ars_GetListServer ars_GetActiveLink ars_GetCharMenuItems ars_GetSchema 
+ars_GetField ars_simpleMenu ars_GetListActiveLink ars_SetEntry 
+ars_perl_qualifier ars_Export ars_GetListFilter ars_GetListEscalation 
+ars_GetListCharMenu ars_GetListAdminExtension ars_padEntryid ars_GetFilter 
+ars_GetProfileInfo ars_Import ars_GetCharMenu ars_GetServerStatistics 
+ars_NTDeregisterServer ars_NTGetListServer ars_NTInitializationServer 
+ars_NTNotificationServer ars_NTTerminationServer ars_NTDeregisterClient 
+ars_NTInitializationClient ars_NTRegisterClient ars_NTTerminationClient 
+ars_NTRegisterServer ars_GetCurrentServer %ARServerStats ars_EncodeDiary 
+ars_CreateEntry ars_MergeEntry $ars_errstr
+ars_Testing);
 
-bootstrap ARS;
-tie $main::ars_errstr, ARS::ERRORSTR;
+$VERSION = '1.50';
+
+bootstrap ARS $VERSION;
+tie $ars_errstr, ARS::ERRORSTR;
 
 $AR_EXECUTE_ON_NONE =          0;
 $AR_EXECUTE_ON_BUTTON =        1;
@@ -188,6 +223,54 @@ sub ars_padEntryid {
 	return undef;
     return ("0"x($field->{limit}{maxLength}-length($entry_id))).$entry_id;
 }
+
+# ROUTINE
+#   ars_decodeStatusHistory(field-value)
+#
+# DESCRIPTION
+#   this routine, when given an encoded status history field
+#   (returned by GetEntry) will decode it into a hash like:
+#
+#   $retval[ENUM]->{USER}
+#   $retval[ENUM]->{TIME}
+#
+#   so if you have a status field that has two states: Open and Closed,
+#   where Open is enum 0 and Closed is enum 1, this routine will return:
+#
+#   $retval[0]->{USER} = the user to last selected this enum
+#   $retval[1]->{TIME} = the time that this enum was last selected
+#
+#   You can map from enum values to selection words by using 
+#   arsGetField().
+
+sub ars_decodeStatusHistory {
+    my ($sval) = shift;
+    my ($enum) = 0;
+    my ($pair, $ts, $un);
+
+    foreach $pair (split(/\003/, $sval)) {
+	print $enum++.": ";
+	if($pair ne "") {
+	    ($ts, $un) = split(/\004/, $pair);
+	    print localtime($ts)." - $un\n";
+	} else {
+	    print "no value for this enumeration\n";
+	}
+    }
+}
+
+#define AR_DEFN_DIARY_SEP        '\03'     /* diary items separator */
+#define AR_DEFN_DIARY_COMMA      '\04'     /* char between date/user/text */
+
+sub ars_EncodeDiary {
+    my ($diary_string);
+    foreach $entry (@_) {
+	$diary_string .= pack("c",4) if ($diary_string);
+	$diary_string .= $entry->{timestamp}.pack("c",3).$entry->{user}.pack("c",3).$entry->{value}
+    }
+    return $diary_string;
+}
+
 
 # call ARInitialization
 ARS::__ars_init();
