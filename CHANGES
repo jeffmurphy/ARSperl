@@ -1,4 +1,4 @@
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.24 1998/09/16 14:29:14 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.25 1998/09/18 14:42:50 jcmurphy Exp $
 
 CHANGES for ARSperl
 
@@ -23,6 +23,7 @@ MM/DD/YY
   o (JCM)  new utility: example/DelUsersFromGroup.pl - bulk delete a bunch
 		of users from a specified group 
   o (JCM)  fixed uninitialized variable warnings
+  o (JCM)  fixed various problems with join schema entry-id handling
   o (JCM)  fixed bug in indexList returned by ars_GetSchema()
   + (JCM)  updated all Get<object> functions so that changeDiary
            is fully decoded.
