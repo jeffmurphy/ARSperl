@@ -1,4 +1,4 @@
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.27 1998/12/28 15:45:49 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.28 1999/01/04 21:08:20 jcmurphy Exp $
 
 CHANGES for ARSperl
 
@@ -16,7 +16,17 @@ MM/DD/YY
 =======================================================================
 #######################################################################
 =======================================================================
-0//        (1.62)
+01/04/99        (1.63)
+
+  o (JCM)  fixed some missing conditional compilation #if's in code
+  o (JCM)  changes "require Config" to "use Config" in Makefile.PL
+           at the request of activestate
+  o (JCM)  added MANIFEST file to distribution
+
+=======================================================================
+#######################################################################
+=======================================================================
+12/28/98        (1.62)
 
   o (JCM)  added extra decoding code to GetFilter.pl example script
   o (JCM)  syntax errors fixed in some example scripts

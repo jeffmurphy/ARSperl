@@ -18,6 +18,9 @@
 #    arsperl@arsinfo.cit.buffalo.edu
 #
 # $Log: ARS.pm,v $
+# Revision 1.36  1999/01/04 21:05:50  jcmurphy
+# v1.63
+#
 # Revision 1.35  1998/12/28 15:45:09  jcmurphy
 # v1.62
 #
@@ -161,7 +164,7 @@ require Exporter;
 require DynaLoader;
 #require AutoLoader;
 use AutoLoader 'AUTOLOAD';
-require Config;
+use Config;
 
 @ISA = qw(Exporter DynaLoader);
 @EXPORT = qw(isa_int isa_float isa_string ars_LoadQualifier ars_Login 
@@ -190,7 +193,7 @@ $ars_errstr %ARServerStats %ars_errhash
 ars_decodeStatusHistory ars_APIVersion
 );
 
-$VERSION   = '1.62';
+$VERSION   = '1.63';
 $DEBUGGING = 0;
 
 bootstrap ARS $VERSION;
