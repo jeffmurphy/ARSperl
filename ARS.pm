@@ -21,6 +21,9 @@
 #    Comments to: arsperl@smurfland.cit.buffalo.edu
 #
 # $Log: ARS.pm,v $
+# Revision 1.19  1997/10/13 12:26:29  jcmurphy
+# 1.5202
+#
 # Revision 1.18  1997/10/09 15:21:33  jcmurphy
 # 1.5201 version
 #
@@ -138,7 +141,7 @@ ars_CreateActiveLink ars_CreateAdminExtension
 $ars_errstr %ARServerStats %ars_errhash
 );
 
-$VERSION   = '1.5201';
+$VERSION   = '1.5202';
 $DEBUGGING = 0;
 
 bootstrap ARS $VERSION;
