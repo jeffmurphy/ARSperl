@@ -21,6 +21,9 @@
 #    Comments to: arsperl@smurfland.cit.buffalo.edu
 #
 # $Log: ARS.pm,v $
+# Revision 1.17  1997/10/09 00:57:56  jcmurphy
+# version update. added ARS::DEBUGGING
+#
 # Revision 1.16  1997/10/09 00:49:46  jcmurphy
 # 1.52: uninit'd var bug fix
 #
@@ -132,7 +135,7 @@ ars_CreateActiveLink ars_CreateAdminExtension
 $ars_errstr %ARServerStats %ars_errhash
 );
 
-$VERSION   = '1.51';
+$VERSION   = '1.52';
 $DEBUGGING = 0;
 
 bootstrap ARS $VERSION;
