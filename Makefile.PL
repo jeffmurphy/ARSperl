@@ -8,9 +8,10 @@ $ARS_LIBS = "-lar -lnsl";
 
 WriteMakefile(
 	      'NAME'	=> 'ARS',
-	      'VERSION'	=> '1.2',
+	      'VERSION'	=> '1.2.1',
 	      'LIBS'	=> ["${ARS_LDPATH} ${ARS_LIBS}"],
 	      'DEFINE'	=> '-g',
+#	      'DEFINE'	=> '-g -DWASTE_MEM',
 	      'OBJECT'  => "ARS.o",
 	      'INC'	=> "${INCLUDES}",
 );
