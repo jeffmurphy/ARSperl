@@ -1,5 +1,5 @@
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/ars_QualDecode.pl,v 1.5 1998/02/25 19:21:14 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/ars_QualDecode.pl,v 1.6 1998/04/20 17:13:25 jcmurphy Exp $
 #
 # MODULE
 #   ars_QualDecode.pl
@@ -14,6 +14,11 @@
 #   jeff murphy
 #
 # $Log: ars_QualDecode.pl,v $
+# Revision 1.6  1998/04/20 17:13:25  jcmurphy
+# patch by jkeener@utsi.com for
+# "case where value = undef (NULL)."
+# /
+#
 # Revision 1.5  1998/02/25 19:21:14  jcmurphy
 # minor corrections
 #
@@ -152,28 +157,32 @@ sub Decode_FVoAS {
 
     # a value
 
-    elsif(defined($h->{value})) {
-	if($h->{value} =~ /^\000/) {
-
+    elsif(exists($h->{value})) {
+	if(! defined($h->{value})) {
+	    # this is a NULL
+	    $e = NULL;
+	}
+	elsif($h->{value} =~ /^\000/) {
+	    
 	    # this is a keyword
-
+	    
 	    $h->{value} =~ s/\000/\$/g;
 	    $h->{value} =~ tr [a-z] [A-Z];
 	    $e = $h->{value};
-
+	    
 	}
 	elsif($h->{value} =~ /\D/) {
-
+	    
 	    # this is an alphanum string
 	    $e = '"'.$h->{value}.'"';
-
+	    
 	} 
 	else {
-
+	    
 	    # this is a number
-
+	    
 	    $e = "$h->{value}";
-
+	    
 	}
     }
 
