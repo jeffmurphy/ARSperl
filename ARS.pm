@@ -19,6 +19,12 @@
 #    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
 #    Comments to: arsperl@smurfland.cit.buffalo.edu
+#
+# $Log: ARS.pm,v $
+# Revision 1.4  1996/03/28 02:14:37  jcmurphy
+# renamed pad_entryid to ars_padEntryid and added rcs log field.
+#
+#
 
 package ARS::ERRORSTR;
 sub TIESCALAR {
