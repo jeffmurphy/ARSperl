@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.66 2005/03/11 20:48:03 jeffmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.67 2005/03/15 02:23:49 jeffmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -25,11 +25,12 @@ $debug = 0;
 
 # STEP 1 -> Set the path to your ARS API directory
 
-#$ARSAPI     = "/usr/ar/api";
+$ARSAPI     = "/usr/ar/api";
 #$ARSAPI     = "/u1/project/ARSperl/api/sol2/api6.0.1";
 #$ARSAPI     = "/u1/project/ARSperl/api/linux/4.5";
 #$ARSAPI     = "/u1/project/ARSperl/api/linux/4.0";
-$ARSAPI     = "/u1/project/ARSperl/api/linux/6.3";
+#$ARSAPI     = "/u1/project/ARSperl/api/sol2/api6.3";
+#$ARSAPI     = "/u1/project/ARSperl/api/linux/6.3";
 # $ARSAPI     = "/home/jcmurphy/arsperl/api/5.1";
 # $ARSAPI     = q{\\\\ess7\devkits\ars\4.5\drops\drop4.5FCS\winnt};
 # $ARSAPI     = q{\\\\ess7\devkits\ars\4.5\drops\drop4.5.1FCS\winnt};
@@ -111,7 +112,7 @@ if ($ARSVERSION >= 6.3) {
 }
 
 elsif ($ARSVERSION >= 6.0) {
-  $ARS_LIBS = "-lar";
+  $ARS_LIBS = "-lar -lnsl";
   if ($WINDOWS) {
     $ARS_LIBS = join(' ', map { '-l' . $_ } @{$ra_arlibs});
   } else {
