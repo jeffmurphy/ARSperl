@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.1 1997/08/05 21:21:11 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.2 1997/09/04 00:20:47 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.1 1997/08/05 21:21:11 jcmu
     LOG:
 
 $Log: support.h,v $
+Revision 1.2  1997/09/04 00:20:47  jcmurphy
+*** empty log message ***
+
 Revision 1.1  1997/08/05 21:21:11  jcmurphy
 Initial revision
 
@@ -383,6 +386,8 @@ EXTERN int perl_BuildEntryList(AREntryIdList *entryList, SV *entry_id);
 
 #endif /* memory debugging */
 
+#define CPNULL (char *)NULL
+
 /* some useful macros: CharVaLiD and IntVaLiD .. 
  * for checking validity of paramters
  * VNAME() for all of those perl functions that want a string and
@@ -425,5 +430,8 @@ EXTERN int perl_BuildEntryList(AREntryIdList *entryList, SV *entry_id);
 #define AP_ERR_EXPECT_PVHV  80019, "Expected argument to contain a HASH reference"
 #define AP_ERR_GENERAL      80020 /* roll your own text */
 #define AP_ERR_CONTINUE     80021 /* roll your own continuation text */
+#define AP_ERR_NEEDKEYS     80022, "Required hash keys do not exists"
+#define AP_ERR_NEEDKEYSKEYS 80023 /* specify what keys */
+#define AP_ERR_PREREVFAIL   80024, "Failed to convert some perl structures to ars structures. Create/Set operation aborted."
 
 #endif /* __support_h_ */

@@ -1,4 +1,4 @@
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.8 1997/08/05 21:20:37 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.9 1997/09/04 00:21:18 jcmurphy Exp $
 
 CHANGES for ARSperl
 
@@ -49,6 +49,16 @@ MM/DD/YY
   o  (JCM) added valueType to the assign structure to assist in 
            reversing the operation (converting perl to C API assign 
            structure).
+
+  o  (JCM) added displayTag as an optional parameter to ars_LoadQualifier()
+           so that you can build queries against customized views (that
+           are stored on the server).
+
+  o  (JCM) altered ARError() so that return codes of OK or WARNING don't
+           signal an error. For example, GetListEntries would return
+           nothing if you matched more than the max allowed, now it returns
+           the max allowable number of records and places a warning message
+           into the error hash. 
 
 =======================================================================
 #######################################################################

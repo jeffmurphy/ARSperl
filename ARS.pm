@@ -21,6 +21,9 @@
 #    Comments to: arsperl@smurfland.cit.buffalo.edu
 #
 # $Log: ARS.pm,v $
+# Revision 1.14  1997/09/04 00:21:10  jcmurphy
+# *** empty log message ***
+#
 # Revision 1.13  1997/08/05 21:20:04  jcmurphy
 # 1.50 dev1
 #
@@ -108,7 +111,7 @@ ars_DeleteVUI ars_ExecuteAdminExtension ars_ExecuteProcess
 ars_GetAdminExtension ars_GetEscalation ars_GetFullTextInfo
 ars_GetListGroup ars_GetListSQL ars_GetListUser
 ars_GetListVUI ars_GetServerInfo
-ars_CreateActiveLink
+ars_CreateActiveLink ars_CreateAdminExtension
 $ars_errstr %ARServerStats %ars_errhash
 );
 

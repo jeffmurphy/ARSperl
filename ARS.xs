@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.31 1997/08/05 21:20:24 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.32 1997/09/04 00:21:03 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.31 1997/08/05 21:20:24 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.32  1997/09/04 00:21:03  jcmurphy
+*** empty log message ***
+
 Revision 1.31  1997/08/05 21:20:24  jcmurphy
 1.50 dev1
 
@@ -92,6 +95,7 @@ modified comments
 */
 
 #include "support.h"
+#include "supportrev.h"
 
 MODULE = ARS		PACKAGE = ARS		PREFIX = ARS
 
@@ -141,10 +145,11 @@ ars_perl_qualifier(in)
 	RETVAL
 
 ARQualifierStruct *
-ars_LoadQualifier(ctrl,schema,qualstring)
+ars_LoadQualifier(ctrl,schema,qualstring,displayTag=NULL)
 	ARControlStruct *	ctrl
 	char *			schema
 	char *			qualstring
+	char *			displayTag
 	CODE:
 	{
 	  int ret;
@@ -153,7 +158,7 @@ ars_LoadQualifier(ctrl,schema,qualstring)
 	  
 	  (void) ARError_reset();
 	  /* this gets freed below in the ARQualifierStructPTR package */
-	  ret = ARLoadARQualifierStruct(ctrl, schema, NULL, qualstring, qual, &status);
+	  ret = ARLoadARQualifierStruct(ctrl, schema, displayTag, qualstring, qual, &status);
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
 #endif
@@ -766,31 +771,24 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,...)
 	}
 
 void
-ars_GetListSchema(ctrl,changedsince=0,...)
+ars_GetListSchema(ctrl,changedsince=0,schemaType=AR_LIST_SCHEMA_ALL,name=NULL)
 	ARControlStruct *	ctrl
 	unsigned int		changedsince
+	unsigned int		schemaType
+	char *			name
 	PPCODE:
 	{
 	  ARNameList nameList;
 	  ARStatusList status;
 	  int i, ret;
-#if AR_EXPORT_VERSION >= 3
-	  unsigned int schemaType=AR_LIST_SCHEMA_ALL;
-	  char *name=NULL;
 
 	  (void) ARError_reset();	  
-	  /* fetch optional arguments schemaType and name */
-	  if (items == 3 || items == 4)
-	    schemaType = SvIV(ST(2));
-	  if (items == 4)
-	    name = SvPV(ST(3), na);
-	  ret = ARGetListSchema(ctrl, changedsince, schemaType, name, &nameList, &status);
+#if AR_EXPORT_VERSION >= 3
+	  ret = ARGetListSchema(ctrl, changedsince, schemaType, name, 
+				&nameList, &status);
 #else
-	  if (items != 2 && items != 1) {
-	    (void) ARError_add(AR_RETURN_ERROR, AP_ERR_USAGE, "Usage: ars_GetListSchema(ctrl, changedSince=0)");
-	    goto getListSchema_end;
-	  }
-	  ret = ARGetListSchema(ctrl, changedsince, &nameList, &status);
+	  ret = ARGetListSchema(ctrl, changedsince, 
+				&nameList, &status);
 #endif
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
@@ -803,7 +801,6 @@ ars_GetListSchema(ctrl,changedsince=0,...)
 	    FreeARNameList(&nameList,FALSE);
 #endif
 	  }
-	getListSchema_end:;
 	}
 
 void
@@ -2563,6 +2560,96 @@ ars_GetVUI(ctrl, schema, vuiId)
 	RETVAL
 
 int
+ars_CreateCharMenu(ctrl, cmDefRef)
+	ARControlStruct *	ctrl
+	SV *			cmDefRef
+	CODE:
+	{
+	  int               rv, ret;
+	  ARNameType        name;
+	  unsigned int      refreshCode;
+	  ARCharMenuStruct  menuDefn;
+	  char             *helptext;
+	  ARNameType        owner;
+	  char             *changeDiary;
+	  ARStatusList      status;
+
+	  (void) ARError_reset();
+	  RETVAL = 0;
+	  zeromem(&menuDefn, sizeof(ARCharMenuStruct));
+	  zeromem(&owner, sizeof(ARNameType));
+	  zeromem(&name, sizeof(ARNameType));
+
+	  if(SvTYPE((SV *)SvRV(cmDefRef)) != SVt_PVHV) {
+		(void) ARError_add(AR_RETURN_ERROR, AP_ERR_EXPECT_PVHV);
+	  } else {
+		HV *cmDef = (HV *)SvRV(cmDefRef);
+		printf("ars_CreateCharMenu: not implemented");
+	  }
+	}
+	OUTPUT:
+	RETVAL
+
+int 
+ars_CreateAdminExtension(ctrl, aeDefRef)
+	ARControlStruct *	ctrl
+	SV *			aeDefRef
+	CODE:
+	{
+	  int               rv, ret;
+	  ARNameType        name, owner;
+	  ARInternalIdList  groupList;
+	  char             *command     = CPNULL, 
+			   *helpText    = CPNULL, 
+			   *changeDiary = CPNULL;
+	  ARStatusList      status;
+
+	  (void) ARError_reset();
+	  RETVAL = 0;
+	  zeromem(&groupList, sizeof(ARInternalIdList));
+	  zeromem(&name, sizeof(ARNameType));
+	  zeromem(&owner, sizeof(ARNameType));
+
+	  if(SvTYPE((SV *)SvRV(aeDefRef)) != SVt_PVHV) {
+		(void) ARError_add(AR_RETURN_ERROR, AP_ERR_EXPECT_PVHV);
+	  } else {
+		HV *aeDef = (HV *)SvRV(aeDefRef);
+		if(hv_exists(aeDef, VNAME("name")) &&
+		   hv_exists(aeDef, VNAME("groupList")) &&
+		   hv_exists(aeDef, VNAME("command"))) {
+
+		   rv += strcpyHVal(aeDef, "name", name, sizeof(ARNameType));
+		   rv += strmakHVal(aeDef, "command", &command);
+		   if(hv_exists(aeDef, VNAME("helpText"))) 
+			rv += strmakHVal(aeDef, "helpText", &helpText);
+		   if(hv_exists(aeDef, VNAME("changeDiary"))) 
+			rv += strmakHVal(aeDef, "changeDiary", &changeDiary);
+		   if(hv_exists(aeDef, VNAME("owner"))) 
+			rv += strcpyHVal(aeDef, "owner", owner, sizeof(ARNameType));
+		   else
+			strncpy(owner, ctrl->user, sizeof(ARNameType));
+
+		   rv += rev_ARInternalIdList(aeDef, "groupList", &groupList);
+
+		   if(rv == 0) {
+			ret = ARCreateAdminExtension(ctrl, name, &groupList,
+					command, helpText, owner, changeDiary,
+					&status);
+			if(!ARError(ret, status)) RETVAL = 1;
+		   } else
+			ARError_add(AR_RETURN_ERROR, AP_ERR_PREREVFAIL);
+
+		} else {
+		   ARError_add(AR_RETURN_ERROR, AP_ERR_NEEDKEYS);
+		   ARError_add(AR_RETURN_ERROR, AP_ERR_NEEDKEYSKEYS,
+			"name, groupList, command");
+		}
+	  }
+	}
+	OUTPUT:
+	RETVAL
+
+int
 ars_CreateActiveLink(ctrl, alDefRef)
 	ARControlStruct *	ctrl
 	SV *			alDefRef
@@ -2624,17 +2711,21 @@ ars_CreateActiveLink(ctrl, alDefRef)
 		rv += rev_ARInternalIdList(alDef, "groupList", &groupList);
 		rv += uintcpyHVal(alDef, "executeMask", &executeMask);
 		rv += uintcpyHVal(alDef, "enable", &enable);
-		rv += strcpyHVal(alDef, "owner", owner, sizeof(ARNameType));
+
+		if(hv_exists(alDef, VNAME("owner")))
+			rv += strcpyHVal(alDef, "owner", owner, sizeof(ARNameType));
+		else
+			strncpy(owner, ctrl->user, sizeof(ARNameType));
 
 		/* these two are optional, so if the calls return warnings
 		 * it probably indicates that the hash keys don't exist and
 		 * we'll ignore it unless an actual failure code is returned.
 		 */
 
-		if(strmakHVal(alDef, "changeDiary", &changeDiary) == -1)
-			rv += -1;
-		if(strmakHVal(alDef, "helpText", &helpText) == -1)
-			rv += -1;
+		if(hv_exists(alDef, VNAME("changeDiary")))
+			rv += strmakHVal(alDef, "changeDiary", &changeDiary);
+		if(hv_exists(alDef, VNAME("helpText")))
+			rv += strmakHVal(alDef, "helpText", &helpText);
 
 		/* now handle the action & else (3.x) lists */
 
@@ -2670,7 +2761,8 @@ ars_CreateActiveLink(ctrl, alDefRef)
 #endif
 		   if(!ARError(ret, status))
 			   RETVAL = 1;
-		} else printf("not ready to create active link..\n");
+		} else 
+		   ARError_add(AR_RETURN_ERROR, AP_ERR_PREREVFAIL);
 	  }
 #ifndef WASTE_MEM
 	  if(helpText) free(helpText);

@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.1 1997/08/05 21:21:05 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.2 1997/09/04 00:20:38 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/support.c,v 1.1 1997/08/05 21:21:05 jcmurphy E
     LOG:
 
 $Log: support.c,v $
+Revision 1.2  1997/09/04 00:20:38  jcmurphy
+*** empty log message ***
+
 Revision 1.1  1997/08/05 21:21:05  jcmurphy
 Initial revision
 
@@ -194,7 +197,7 @@ ARError_add(unsigned int type, long num, char *text)
   SV          **numItems, **messageType, **messageNum, **messageText, **tmp;
   AV           *a;
   SV           *t2;
-  unsigned int  ni, ret;
+  unsigned int  ni, ret = 0;
 
 #ifdef ARSPERL_DEBUG
   printf("ARError_add(%d, %d, %s)\n", type, num, text?text:"NULL");
@@ -209,11 +212,14 @@ ARError_add(unsigned int type, long num, char *text)
   case ARSPERL_TRACEBACK:
   case AR_RETURN_OK:
   case AR_RETURN_WARNING:
+    ret = 0;
+    break;
   case AR_RETURN_ERROR:
   case AR_RETURN_FATAL:
-     break;
+    ret = -1;
+    break;
   default:
-     return -1;
+    return -1;
   }
 
   if(!text || !*text) return -2;
@@ -268,7 +274,7 @@ ARError_add(unsigned int type, long num, char *text)
   t2 = newSVpv(text, strlen(text));
   (void) av_push(a, t2);
 
-  return 0;  
+  return ret;
 }
 
 /* ROUTINE
@@ -286,42 +292,44 @@ ARError_add(unsigned int type, long num, char *text)
 int 
 ARError(int returncode, ARStatusList status) {
   int item;
+  int ret = 0;
 
   for ( item=0; item < status.numItems; item++ ) {
-    ARError_add(status.statusList[item].messageType,
-	status.statusList[item].messageNum,
-	status.statusList[item].messageText);
+    if(ARError_add(status.statusList[item].messageType,
+		   status.statusList[item].messageNum,
+		   status.statusList[item].messageText) != 0)
+      ret = 1;
   }
 
   if (returncode == 0)
-    return 0;
+    return ret;
 
 #ifndef WASTE_MEM
   FreeARStatusList(&status, FALSE);
 #endif
-  return 1;
+  return ret;
 }
 
 /* same as ARError, just uses the NT structures instead */
  
 int 
 NTError(int returncode, NTStatusList status) {
-  int item;
-
+  int item, ret = 0;
 
   for ( item=0; item < status.numItems; item++ ) {
-    ARError_add(status.statusList[item].messageType,
-	status.statusList[item].messageNum,
-	status.statusList[item].messageText);
+    if(ARError_add(status.statusList[item].messageType,
+		   status.statusList[item].messageNum,
+		   status.statusList[item].messageText) != 0)
+      ret = 1;
   }
 
   if (returncode==0)
-    return 0;
+    return ret;
 
 #ifndef WASTE_MEM
   FreeNTStatusList(&status, FALSE);
 #endif
-  return 1;
+  return ret;
 }
 
 unsigned int 

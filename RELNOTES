@@ -1,4 +1,4 @@
-$Header: /cvsroot/arsperl/ARSperl/RELNOTES,v 1.3 1997/02/13 21:05:00 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/RELNOTES,v 1.4 1997/09/04 00:20:03 jcmurphy Exp $
 
 Release Notes for ARSperl
 
@@ -22,6 +22,16 @@ Release Notes for ARSperl
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ---------------------------------------------------------------------------
+
+1.5 Notes
+---------
+
+This release contains serveral bug fixes and minor feature additions.
+An effort was made to implement the remaining ARS functions, however,
+it proved to be very time consuming to implement and test them. Therefore,
+in this release most of the remaining functions have been implemented. 
+The rest will likely be implemented in a future release. See TODO for
+a list of remaining functions.
 
 1.4 Notes 
 ---------

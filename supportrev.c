@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.1 1997/08/05 21:21:17 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.2 1997/09/04 00:20:51 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.1 1997/08/05 21:21:17 jcmurph
     LOG:
 
 $Log: supportrev.c,v $
+Revision 1.2  1997/09/04 00:20:51  jcmurphy
+*** empty log message ***
+
 Revision 1.1  1997/08/05 21:21:17  jcmurphy
 Initial revision
 
@@ -66,7 +69,6 @@ static int rev_ARArithOpAssignStructStr2OP(char *c, unsigned int *o);
 static int rev_ARFunctionAssignStructStr2FCODE(char *c, unsigned int *o);
 static int rev_ARAssignStruct_helper(HV *h, ARAssignStruct *m);
 static int rev_ARActiveLinkMacroStruct_helper(HV *h, ARActiveLinkMacroStruct *m);
-static int rev_ARMacroParmList(HV *h, char *k, ARMacroParmList *m);
 
 #if AR_EXPORT_VERSION >= 3
 static int rev_ARByteListStr2Type(char *ts, unsigned long *tv);
@@ -754,7 +756,7 @@ rev_ARAssignList_helper(HV *h, ARFieldAssignList *m, int i)
   int rv = 0;
 
   rv += longcpyHVal(h, "fieldId", &(m->fieldAssignList[i].fieldId));
-  rv += rev_ARAssignStruct(h, "assignment", m->fieldAssignList[i].assignment);
+  rv += rev_ARAssignStruct(h, "assignment", &(m->fieldAssignList[i].assignment));
 
   return rv;
 }
@@ -1944,7 +1946,7 @@ rev_ARActiveLinkMacroStruct_helper(HV *h, ARActiveLinkMacroStruct *m)
   return -1;
 }
 
-static int
+int
 rev_ARMacroParmList(HV *h, char *k, ARMacroParmList *m)
 {
   if(!h || !k || !*k || !m) {

@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.1 1997/08/05 21:21:24 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.2 1997/09/04 00:20:56 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.1 1997/08/05 21:21:24 jcmurph
     LOG:
 
 $Log: supportrev.h,v $
+Revision 1.2  1997/09/04 00:20:56  jcmurphy
+*** empty log message ***
+
 Revision 1.1  1997/08/05 21:21:24  jcmurphy
 Initial revision
 
@@ -52,5 +55,20 @@ EXTERN int uintcpyHVal(HV *h, char *k, unsigned int *b);
 EXTERN int longcpyHVal(HV *h, char *k, long *b);
 EXTERN int rev_ARDisplayStruct(HV *h, char *k, ARDisplayList *d);
 EXTERN int rev_ARInternalIdList(HV *h, char *k, ARInternalIdList *il);
+EXTERN int rev_ARActiveLinkActionList(HV *h, char *k, ARActiveLinkActionList *al);
+EXTERN int rev_ARFieldAssignList(HV *h, char *k, ARFieldAssignList *m);
+EXTERN int rev_ARAssignStruct(HV *h, char *k, ARAssignStruct *m);
+EXTERN int rev_ARValueStruct(HV *h, char *k, char *t, ARValueStruct *m);
+EXTERN int rev_ARByteList(HV *h, char *k, ARByteList *b);
+EXTERN int rev_ARCoordList(HV *h, char *k, ARCoordList *m);
+EXTERN int rev_ARAssignFieldStruct(HV *h, char *k, ARAssignFieldStruct *m);
+EXTERN int rev_ARStatHistoryValue(HV *h, char *k, ARStatHistoryValue *s);
+EXTERN int rev_ARArithOpAssignStruct(HV *h, char *k, ARArithOpAssignStruct *s);
+EXTERN int rev_ARFunctionAssignStruct(HV *h, char *k, ARFunctionAssignStruct *s);
+EXTERN int rev_ARStatusStruct(HV *h, char *k, ARStatusStruct *m);
+EXTERN int rev_ARFieldCharacteristics(HV *h, char *k, ARFieldCharacteristics *m);
+EXTERN int rev_ARPropList(HV *h, char *k, ARPropList *m);
+EXTERN int rev_ARActiveLinkMacroStruct(HV *h, char *k, ARActiveLinkMacroStruct *m);
+EXTERN int rev_ARMacroParmList(HV *h, char *k, ARMacroParmList *m);
 
 #endif /* __supportrev_h_ */
