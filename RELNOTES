@@ -1,4 +1,4 @@
-$Header: /cvsroot/arsperl/ARSperl/RELNOTES,v 1.1 1996/11/21 20:10:29 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/RELNOTES,v 1.2 1996/11/21 22:15:58 jcmurphy Exp $
 
 Release Notes for ARSperl
 
@@ -39,7 +39,7 @@ can then concentrate out optimization efforts on those particular
 API scripts.
 
 In addition, a few new functions were added (GetFilter, GetCharMenu and
-GetServerStatistics). The first two are used by the WhoUsesIt.pl 
+GetServerStatistics, ars_Export). The first two are used by the WhoUsesIt.pl 
 utility. This utility (found in the "examples" directory) is handy for
 locating which filter or menu is referencing a particular file, or 
 seeing exactly what filters a particular schema uses.. etc. This 
@@ -53,6 +53,9 @@ built around this function in a future release.
 Joel added a cache to the internal GetField routine. This should cut
 down on the number of queries made by some of the functions like
 GetFieldTable and such.
+
+In addition, doing ars_SetEntry($ctrl, ..., $fieldId, undef) will now
+correctly set a field to $NULL$
 
 jeff
 
