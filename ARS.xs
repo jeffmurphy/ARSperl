@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.27 1997/03/25 19:20:06 jmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.28 1997/05/22 14:40:05 jmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.27 1997/03/25 19:20:06 jmurphy Exp 
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.28  1997/05/22 14:40:05  jmurphy
+changed logic for checking for scalar values
+
 Revision 1.27  1997/03/25 19:20:06  jmurphy
 fixed ars_GetListSchema
 
@@ -191,7 +194,7 @@ SV *perl_ARCoordStruct(ARCoordStruct *);
 
 /* malloc that will never return null */
 static void *mallocnn(int s) {
-  void *m = malloc(s);
+  void *m = malloc(s?s:1);
   if (! m)
     croak("can't malloc");
   else 
@@ -1632,6 +1635,123 @@ ARGetFieldCached(ARControlStruct *ctrl, ARNameType schema, ARInternalId id,
   return ret;
 }
 
+int
+sv_to_ARValue(SV *in, unsigned int dataType, ARValueStruct *out) {
+  AV *array, *array2;
+  HV *hash;
+  SV **fetch, *type, *val, **fetch2;
+  char *bytelist;
+  unsigned int len, i, len2;
+  
+  out->dataType = dataType;
+  if (! SvOK(in)) {
+    /* pass a NULL */
+    out->dataType = AR_DATA_TYPE_NULL;
+  } else {
+    switch (dataType) {
+    case AR_DATA_TYPE_NULL:
+      break;
+    case AR_DATA_TYPE_KEYWORD:
+      out->u.keyNum = SvIV(in);
+      break;
+    case AR_DATA_TYPE_INTEGER:
+      out->u.intVal = SvIV(in);
+      break;
+    case AR_DATA_TYPE_REAL:
+      out->u.realVal = SvNV(in);
+      break;
+    case AR_DATA_TYPE_CHAR:
+      out->u.charVal = strdup(SvPV(in,na));
+      break;
+    case AR_DATA_TYPE_DIARY:
+      out->u.diaryVal = strdup(SvPV(in,na));
+      break;
+    case AR_DATA_TYPE_ENUM:
+      out->u.enumVal = SvIV(in);
+      break;
+    case AR_DATA_TYPE_TIME:
+      out->u.timeVal = SvIV(in);
+      break;
+    case AR_DATA_TYPE_BITMASK:
+      out->u.maskVal = SvIV(in);
+      break;
+#if AR_EXPORT_VERSION >= 3
+    case AR_DATA_TYPE_BYTES:
+      if (SvROK(in)) {
+	if (SvTYPE(hash = (HV *)SvRV(in)) == SVt_PVHV) {
+	  fetch = hv_fetch(hash, "type", 4, FALSE);
+	  if (!fetch) {
+	    ars_errstr = "bad byte list";
+	    return -1;
+	  }
+	  type = *fetch;
+	  if (! (SvOK(type) && SvTYPE(type) != SVt_RV)) {
+	    ars_errstr = "bad byte list";
+	    return -1;
+	  }
+	  fetch = hv_fetch(hash, "value", 5, FALSE);
+	  if (!fetch) {
+	    ars_errstr = "bad byte list";
+	    return -1;
+	  }
+	  val = *fetch;
+	  if (! (SvOK(val) && SvTYPE(val) != SVt_RV)) {
+	    ars_errstr = "bad byte list";
+	    return -1;
+	  }
+	  out->u.byteListVal = mallocnn(sizeof(ARByteList));
+	  out->u.byteListVal->type = SvIV(type);
+	  bytelist = SvPV(val, len);
+	  out->u.byteListVal->numItems = len;
+	  out->u.byteListVal->bytes = mallocnn(len);
+	  memcpy(out->u.byteListVal->bytes, bytelist, len);
+	  break;
+	}
+      }
+      ars_errstr = "bad byte list";
+      return -1;
+    case AR_DATA_TYPE_ULONG:
+      out->u.ulongVal = SvIV(in); /* FIX -- does perl have ulong ? */
+      break;
+    case AR_DATA_TYPE_COORDS:
+      if (SvTYPE(array = (AV *)SvRV(in)) == SVt_PVAV) {
+	len = av_len(array) + 1;
+	out->u.coordListVal = mallocnn(sizeof(ARCoordList));
+	out->u.coordListVal->numItems = len;
+	out->u.coordListVal->coords = mallocnn(sizeof(ARCoordStruct)*len);
+	for (i=0; i<len; i++) {
+	  fetch = av_fetch(array, i, 0);
+	  if (fetch && SvTYPE(array2 = (AV *)SvRV(*fetch)) == SVt_PVAV &&
+	      av_len(array2) == 1) {
+	    fetch2 = av_fetch(array2, 0, 0);
+	    if (! *fetch2) goto fetch_puke;
+	    out->u.coordListVal->coords[i].x = SvIV(*fetch);
+	    fetch2 = av_fetch(array2, 1, 0);
+	    if (! *fetch2) goto fetch_puke;
+	    out->u.coordListVal->coords[i].y = SvIV(*fetch);
+	  } else {
+	  fetch_puke:;
+#ifndef WASTE_MEM
+	    free(out->u.coordListVal->coords);
+	    free(out->u.coordListVal);
+#endif
+	    ars_errstr = "bad coord struct";
+	    return -1;
+	  }
+	}
+	return 0;
+      }
+      ars_errstr = "bad coord list";
+      return -1;
+#endif
+    default:
+      ars_errstr = "unknown field type!";
+      return -1;
+    }
+  }
+  return 0;
+}
+
 MODULE = ARS		PACKAGE = ARS		PREFIX = ARS
 
 PROTOTYPES: ENABLE
@@ -2005,7 +2125,7 @@ ars_CreateEntry(ctrl,schema...)
 	char *			schema
 	CODE:
 	{
-	  int a, i, c = (items - 2) / 2;
+	  int a, i, c = (items - 2) / 2, j;
 	  AREntryIdType entryId;
 	  ARFieldValueList fieldList;
 	  ARStatusList      status;
@@ -2029,36 +2149,12 @@ ars_CreateEntry(ctrl,schema...)
 	      if (ARError(ret, status)) {	
 		goto create_entry_end;
 	      }
-	      fieldList.fieldValueList[i].value.dataType = dataType;
-	      switch (dataType) {
-	      case AR_DATA_TYPE_NULL:
-		break;
-	      case AR_DATA_TYPE_KEYWORD:
-		fieldList.fieldValueList[i].value.u.keyNum = SvIV(ST(a+1));
-		break;
-	      case AR_DATA_TYPE_INTEGER:
-		fieldList.fieldValueList[i].value.u.intVal = SvIV(ST(a+1));
-		break;
-	      case AR_DATA_TYPE_REAL:
-		fieldList.fieldValueList[i].value.u.realVal = SvNV(ST(a+1));
-		break;
-	      case AR_DATA_TYPE_CHAR:
-		fieldList.fieldValueList[i].value.u.charVal = SvPV(ST(a+1),na);
-		break;
-	      case AR_DATA_TYPE_DIARY:
-		fieldList.fieldValueList[i].value.u.diaryVal = SvPV(ST(a+1),na);
-		break;
-	      case AR_DATA_TYPE_ENUM:
-		fieldList.fieldValueList[i].value.u.enumVal = SvIV(ST(a+1));
-		break;
-	      case AR_DATA_TYPE_TIME:
-		fieldList.fieldValueList[i].value.u.timeVal = SvIV(ST(a+1));
-		break;
-	      case AR_DATA_TYPE_BITMASK:
-		fieldList.fieldValueList[i].value.u.maskVal = SvIV(ST(a+1));
-		break;
-	      default:
-		ars_errstr = "unknown field type!";
+	      if (sv_to_ARValue(ST(a+1), dataType, &fieldList.fieldValueList[i].value) < 0) {
+#ifndef WASTE_MEM
+		for (j=0; j<i; j++) {
+		  FreeARValueStruct(&fieldList.fieldValueList[j].value, FALSE);
+		}
+#endif
 		goto create_entry_end;
 	      }
 	    }
@@ -2069,6 +2165,11 @@ ars_CreateEntry(ctrl,schema...)
 	    if (! ARError(ret, status)) {
 	      RETVAL = entryId;
 	    }
+#ifndef WASTE_MEM
+	    for (j=0; j<c; j++) {
+	      FreeARValueStruct(&fieldList.fieldValueList[j].value, FALSE);
+	    }
+#endif
 	  create_entry_end:;
 #ifndef WASTE_MEM
 	    free(fieldList.fieldValueList);
@@ -2120,9 +2221,7 @@ ars_DeleteEntry(ctrl,schema,entry_id)
 	      RETVAL=-1;
 	      goto delete_fail;
 	    }
-	  } else if (SvTYPE(entry_id) == SVt_IV ||
-		     SvTYPE(entry_id) == SVt_NV ||
-		     SvTYPE(entry_id) == SVt_PV) {
+	  } else if (SvOK(entry_id)) {
 	    /* single scalar entry_id */
 	    entryList.numItems = 1;
 	    entryList.entryIdList = mallocnn(sizeof(AREntryIdType));
@@ -2204,9 +2303,7 @@ ars_GetEntry(ctrl,schema,entry_id,...)
 	      ars_errstr = "entry_id should be an array of entry ids or a single entry";
 	      goto get_entry_end;
 	    }
-	  } else if (SvTYPE(entry_id) == SVt_IV ||
-		     SvTYPE(entry_id) == SVt_NV ||
-		     SvTYPE(entry_id) == SVt_PV) {
+	  } else if (SvOK(entry_id)) {
 	    /* single scalar entry_id */
 	    entryList.numItems = 1;
 	    entryList.entryIdList = mallocnn(sizeof(AREntryIdType));
@@ -3052,7 +3149,7 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	unsigned long		getTime
 	CODE:
 	{
-	  int a, i, c = (items - 4) / 2;
+	  int a, i, c = (items - 4) / 2, j;
 	  int offset = 4;
 	  ARFieldValueList fieldList;
 	  ARStatusList status;
@@ -3099,36 +3196,12 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	      if (ARError(ret, status)) {
 		goto set_entry_end;
 	      }
-	      fieldList.fieldValueList[i].value.dataType = dataType;
-	      switch (dataType) {
-	      case AR_DATA_TYPE_NULL:
-		break;
-	      case AR_DATA_TYPE_KEYWORD:
-		fieldList.fieldValueList[i].value.u.keyNum = SvIV(ST(a+1));
-		break;
-	      case AR_DATA_TYPE_INTEGER:
-		fieldList.fieldValueList[i].value.u.intVal = SvIV(ST(a+1));
-		break;
-	      case AR_DATA_TYPE_REAL:
-		fieldList.fieldValueList[i].value.u.realVal = SvNV(ST(a+1));
-		break;
-	      case AR_DATA_TYPE_CHAR:
-		fieldList.fieldValueList[i].value.u.charVal = SvPV(ST(a+1),na);
-		break;
-	      case AR_DATA_TYPE_DIARY:
-		fieldList.fieldValueList[i].value.u.diaryVal = SvPV(ST(a+1),na);
-		break;
-	      case AR_DATA_TYPE_ENUM:
-		fieldList.fieldValueList[i].value.u.enumVal = SvIV(ST(a+1));
-		break;
-	      case AR_DATA_TYPE_TIME:
-		fieldList.fieldValueList[i].value.u.timeVal = SvIV(ST(a+1));
-		break;
-	      case AR_DATA_TYPE_BITMASK:
-		fieldList.fieldValueList[i].value.u.maskVal = SvIV(ST(a+1));
-		break;
-	      default:
-		ars_errstr = "unknown field type!";
+	      if (sv_to_ARValue(ST(a+1), dataType, &fieldList.fieldValueList[i].value) < 0) {
+#ifndef WASTE_MEM
+		for (j=0; j<i; j++) {
+		  FreeARValueStruct(&fieldList.fieldValueList[j].value, FALSE);
+		}
+#endif
 		goto set_entry_end;
 	      }
 	    }
@@ -3158,9 +3231,7 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	      ars_errstr = "entry_id should be an array of entry ids or a single entry";
 	      goto set_entry_exit;
 	    }
-	  } else if (SvTYPE(entry_id) == SVt_IV ||
-		     SvTYPE(entry_id) == SVt_NV ||
-		     SvTYPE(entry_id) == SVt_PV) {
+	  } else if (SvOK(entry_id)) {
 	    /* single scalar entry_id */
 	    entryList.numItems = 1;
 	    entryList.entryIdList = mallocnn(sizeof(AREntryIdType));
@@ -3182,6 +3253,11 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	  if (! ARError(ret, status)) {
 	    RETVAL = 1;
 	  }
+#ifndef WASTE_MEM
+	  for (j=0; j<c; j++) {
+	    FreeARValueStruct(&fieldList.fieldValueList[j].value, FALSE);
+	  }
+#endif
 	set_entry_end:;
 #ifndef WASTE_MEM
 	  free(fieldList.fieldValueList);
@@ -3416,7 +3492,25 @@ ars_GetListAdminExtension(control,changedsince=0)
 	  }
 	}
 
+int
+ars_NTInitializationClient()
+        CODE:
+        {
 #if AR_EXPORT_VERSION < 3
+          NTStatusList status;
+          int ret;
+          RETVAL = 0;
+          ret = NTInitializationClient(&status);
+          if(!NTError(ret, status)) {
+            RETVAL = 1;
+          }
+#else
+          croak("NTInitializationClient() is only available in ARS2.x");
+#endif
+        }
+        OUTPUT:
+        RETVAL
+
 
 int 
 ars_NTDeregisterClient(user, password, filename)
@@ -3428,27 +3522,16 @@ ars_NTDeregisterClient(user, password, filename)
 	  NTStatusList status;
 	  int ret;
 	  RETVAL = 0;
+#if AR_EXPORT_VERSION < 3
 	  if(user && password && filename) {
 	    ret = NTDeregisterClient(user, password, filename, &status);
 	    if(!NTError(ret, status)) {
 	      RETVAL = 1;
 	    }
 	  }
-	}
-	OUTPUT:
-	RETVAL
-
-int
-ars_NTInitializationClient()
-	CODE:
-	{
-	  NTStatusList status;
-	  int ret;
-	  RETVAL = 0;
-	  ret = NTInitializationClient(&status);
-	  if(!NTError(ret, status)) {
-	    RETVAL = 1;
-	  }
+#else
+	  croak("NTDeregisterClient() is only available in ARS2.x");
+#endif
 	}
 	OUTPUT:
 	RETVAL
@@ -3460,6 +3543,7 @@ ars_NTRegisterClient(user, password, filename)
 	char *		filename
 	CODE:
 	{
+#if AR_EXPORT_VERSION < 3
 	  NTStatusList status;
 	  int ret;
 	  RETVAL = 0;
@@ -3469,6 +3553,9 @@ ars_NTRegisterClient(user, password, filename)
 		RETVAL = 1;
 	    }
 	  }
+#else
+	  croak("NTRegisterClient() is only available in ARS2.x");
+#endif
 	}
 	OUTPUT:
 	RETVAL
@@ -3477,6 +3564,7 @@ int
 ars_NTTerminationClient()
 	CODE:
 	{
+#if AR_EXPORT_VERSION < 3
 	  NTStatusList status;
 	  int ret;
 	  RETVAL = 0;
@@ -3484,12 +3572,16 @@ ars_NTTerminationClient()
 	  if(!NTError(ret, status)) {
 	    RETVAL = 1;
 	  }
+#else
+	  croak("NTTerminationClient() is only available in ARS2.x");
+	  RETVAL = 0;
+#endif
 	}
 	OUTPUT:
 	RETVAL
 
 int
-ars_NTRegisterServer(serverHost, user, password)
+ars_NTRegisterServer(serverHost, user, password, ...)
 	char *		serverHost
 	char *		user
 	char *		password
@@ -3497,97 +3589,55 @@ ars_NTRegisterServer(serverHost, user, password)
 	{
 	  NTStatusList status;
 	  int ret;
+#if AR_EXPORT_VERSION < 3
 	  RETVAL = 0;
-	  if(serverHost && user && password) {
+	  if(serverHost && user && password && items == 3) {
 	    ret = NTRegisterServer(serverHost, user, password, &status);
 	    if(!NTError(ret, status)) {
 		RETVAL = 1;
 	    }
+	  } else {
+	    croak("usage: ars_NTRegisterServer(serverHost, user, password)");
 	  }
-	}
-	OUTPUT:
-	RETVAL
-
-#else /* ARS3.x */
-
-int 
-ars_NTDeregisterClient(user, password, filename)
-	char *		user
-	char *		password
-	char *		filename
-	CODE:
-	{
+#else
+	  unsigned long clientPort;
+	  unsigned int clientCommunication;
+	  unsigned int protocol;
+	  int multipleClients;
+	  
 	  RETVAL = 0;
-	  if(user && password && filename)
-		croak("NTDeregisterClient() is only available in ARS2.x");
-	}
-	OUTPUT:
-	RETVAL
-
-int
-ars_NTInitializationClient()
-	CODE:
-	{
-		RETVAL = 0;
-		croak("NTInitializationClient() is only available in ARS2.x");
-
-	}
-	OUTPUT:
-	RETVAL
-
-int
-ars_NTRegisterClient(user, password, filename)
-	char *		user
-	char *		password
-	char *		filename
-	CODE:
-	{
-	 RETVAL = 0;
-	 if(user && password && filename)
-		croak("NTRegisterClient() is only available in ARS2.x");
-	}
-	OUTPUT:
-	RETVAL
-
-int
-ars_NTTerminationClient()
-	CODE:
-	{
-		croak("NTTerminationClient() is only available in ARS2.x");
-		RETVAL = 0;
-	}
-	OUTPUT:
-	RETVAL
-
-int
-ars_NTRegisterServer(serverHost, user, password, clientCommunication=2, clientPort, protocol=1, multipleClients=1)
-	char *		serverHost
-	char *		user
-	char *		password
-	unsigned int	clientCommunication
-	unsigned long	clientPort
-	unsigned int	protocol
-	int		multipleClients
-	CODE:
-	{
-	  NTStatusList status;
-	  int ret;
-	  RETVAL = 0;
-	  if(serverHost && user && password) {
-	    if(clientCommunication == NT_CLIENT_COMMUNICATION_SOCKET) {
-	      if(protocol == NT_PROTOCOL_TCP) {
-		ret = NTRegisterServer(serverHost, user, password, clientCommunication, clientPort, protocol, multipleClients, &status);
-		if(!NTError(ret, status)) {
-		   RETVAL = 1;
-		}
+          if (items < 4 || items > 7) {
+	    ars_errstr = "usage: ars_NTRegisterServer(serverHost, user, password, clientPort, clientCommunication=2, protocol=1, multipleClients=1)";
+	  }
+	  clientPort = (unsigned int)SvIV(ST(4));
+	  if (items < 5) {
+	    clientCommunication = 2;
+	  } else {
+	    clientCommunication = (unsigned int)SvIV(ST(5));
+	  }
+	  if (items < 6) {
+	    protocol = 1;
+	  } else {
+	    protocol = (unsigned int)SvIV(ST(6));
+	  }
+	  if (items < 7) {
+	    multipleClients = 1;
+	  } else {
+	    multipleClients = (unsigned int)SvIV(ST(1));
+	  }
+	  
+	  if(clientCommunication == NT_CLIENT_COMMUNICATION_SOCKET) {
+	    if(protocol == NT_PROTOCOL_TCP) {
+	      ret = NTRegisterServer(serverHost, user, password, clientCommunication, clientPort, protocol, multipleClients, &status);
+	      if(!NTError(ret, status)) {
+		RETVAL = 1;
 	      }
 	    }
 	  }
+#endif
 	}
 	OUTPUT:
 	RETVAL
-
-#endif /* if 2.x or 3.x */
 
 int 
 ars_NTTerminationServer()
@@ -3603,7 +3653,6 @@ ars_NTTerminationServer()
 	}
 	OUTPUT:
 	RETVAL
-
 
 int
 ars_NTDeregisterServer(serverHost, user, password)
@@ -3676,6 +3725,73 @@ ars_NTNotificationServer(serverHost, user, notifyText, notifyCode, notifyCodeTex
 		RETVAL = 1;
 	     }
 	  }
+	}
+	OUTPUT:
+	RETVAL
+
+char *
+ars_MergeEntry(ctrl, schema, mergeType, ...)
+	ARControlStruct *	ctrl
+	char *			schema
+	unsigned int		mergeType
+	CODE:
+	{
+	  int a, i, c = (items - 3) / 2, j;
+	  ARFieldValueList fieldList;
+	  ARStatusList status;
+	  int ret;
+	  unsigned int dataType;
+	  AREntryIdType entryId;
+	  
+	  RETVAL = "";
+	  if ((items - 3) % 2 || c < 1) {
+	    ars_errstr = "Invalid number of arguments";
+	    goto merge_entry_exit;
+	  }
+	  fieldList.numItems = c;
+	  fieldList.fieldValueList = mallocnn(sizeof(ARFieldValueStruct)*c);
+	  for (i=0; i<c; i++) {
+	    a = i*2 + 3;
+	    fieldList.fieldValueList[i].fieldId = SvIV(ST(a));
+	    if (! SvOK(ST(a+1))) {
+	      /* pass a NULL */
+	      fieldList.fieldValueList[i].value.dataType = AR_DATA_TYPE_NULL;
+	    } else {
+#if AR_EXPORT_VERSION >= 3
+	      ret = ARGetFieldCached(ctrl, schema, fieldList.fieldValueList[i].fieldId, NULL, NULL, &dataType, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &status);
+#else
+	      ret = ARGetFieldCached(ctrl, schema, fieldList.fieldValueList[i].fieldId, &dataType, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &status);
+#endif
+	      if (ARError(ret, status)) {
+		goto merge_entry_end;
+	      }
+	      if (sv_to_ARValue(ST(a+1), dataType, &fieldList.fieldValueList[i].value) < 0) {
+#ifndef WASTE_MEM
+		for (j=0; j<i; j++) {
+		  FreeARValueStruct(&fieldList.fieldValueList[j].value, FALSE);
+		}
+#endif
+		goto merge_entry_end;
+	      }
+	    }
+	  }
+	  ret = ARMergeEntry(ctrl, schema, &fieldList, mergeType, entryId, &status);
+#ifdef PROFILE
+	  ((ars_ctrl *)ctrl)->queries++;
+#endif	  
+	  if (! ARError(ret, status)) {
+	    RETVAL = entryId;
+	  }
+#ifndef WASTE_MEM
+	  for (j=0; j<c; j++) {
+	    FreeARValueStruct(&fieldList.fieldValueList[j].value, FALSE);
+	  }
+#endif
+	merge_entry_end:;
+#ifndef WASTE_MEM
+	  free(fieldList.fieldValueList);
+#endif
+	merge_entry_exit:;
 	}
 	OUTPUT:
 	RETVAL
