@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/GetCharMenu.pl,v 1.1 1996/11/21 20:13:51 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/GetCharMenu.pl,v 1.2 1997/11/10 23:36:52 jcmurphy Exp $
 #
 # NAME
 #   GetCharMenu.pl
@@ -16,6 +16,9 @@
 #   jcmurphy@acsu.buffalo.edu
 #
 # $Log: GetCharMenu.pl,v $
+# Revision 1.2  1997/11/10 23:36:52  jcmurphy
+# added refreshCode to the output
+#
 # Revision 1.1  1996/11/21 20:13:51  jcmurphy
 # Initial revision
 #
@@ -41,13 +44,13 @@ sub printl {
     }
 }
 
-($username, $password, $name) = @ARGV;
+($server, $username, $password, $name) = @ARGV;
 if(!defined($name)) {
-    print "Usage: $0 [username] [password] [menuname]\n";
+    print "Usage: $0 [server] [username] [password] [menuname]\n";
     exit 0;
 }
 
-$ctrl = ars_Login("", $username, $password);
+$ctrl = ars_Login($server, $username, $password);
 ($finfo = ars_GetCharMenu($ctrl, $name)) ||
     die "error in GetCharMenu: $ars_errstr";
 
@@ -58,6 +61,7 @@ print "timestamp   : ".localtime($finfo->{"timestamp"})."\n";
 print "owner       : ".$finfo->{"owner"}."\n";
 print "lastChanged : ".$finfo->{"lastChanged"}."\n";
 print "changeDiary : ".$finfo->{"changeDiary"}."\n";
+print "refreshCode : ".$finfo->{"refreshCode"}."\n";
 print "menuType    : ".
     ("None", "List", "Query", "File", "SQL")[$finfo->{"menuType"}]." ($finfo->{menuType})\n";
 
@@ -84,7 +88,7 @@ elsif($finfo->{menuType} == 4) {
     print "\tvalueIndex  : ".$finfo->{menuSQL}{valueIndex}."\n";
 }
 
-ars_Logoff($ctrl) || die "error while logging out: $ars_errstr";
+ars_Logoff($ctrl);
 
 exit 0;
 
