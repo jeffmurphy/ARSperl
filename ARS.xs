@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.21 1997/02/19 14:21:48 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.22 1997/02/19 15:30:25 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -27,6 +27,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.21 1997/02/19 14:21:48 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.22  1997/02/19 15:30:25  jcmurphy
+fixed bad goto
+
 Revision 1.21  1997/02/19 14:21:48  jcmurphy
 oops. fixed double call to getlistserver in ars_Login
 
@@ -2389,6 +2392,7 @@ ars_GetListSchema(ctrl,changedsince=0,...)
 	    FreeARNameList(&nameList,FALSE);
 #endif
 	  }
+	getListSchema_end:;
 	}
 
 void
