@@ -108,7 +108,7 @@ sub query {
     
     my @sortOrder = ();
     if(defined($this->{'sortOrder'}) && 
-       ref($this->{'sortOrder'} eq "ARRAY")) {
+       ref($this->{'sortOrder'}) eq "ARRAY") {
     		@sortOrder = @{$this->{'sortOrder'}};
     }
     
