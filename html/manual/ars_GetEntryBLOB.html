@@ -9,8 +9,8 @@
        This function retrieves an attachment from the specified schema
     entry. The field ID specified should be an attachment field type. The
     <code>locType</code> parameter can be used to specify whether you want
-    the attachment returned incore (AR_LOC_BUFFER) or written to a file
-    (AR_LOC_FILENAME). If you choose to write it to a file, you must
+    the attachment returned incore (ARS::AR_LOC_BUFFER) or written to a file
+    (ARS::AR_LOC_FILENAME). If you choose to write it to a file, you must
     specify the <CODE>locFile</CODE> parameter. <P>
 
       <DL>
@@ -26,13 +26,13 @@
       <PRE>
   ars_GetEntryBLOB($c, "00-Test", "000000000000001",
 		   $fid, 
-		   AR_LOC_FILENAME,
+		   ARS::AR_LOC_FILENAME,
 		   "/tmp/attachtest") || 
 		     die ("GetEntryBLOB: $ars_errstr");
 
   my $a = ars_GetEntryBLOB($c, "00-Test", "000000000000001",
 			   $fid, 
-			   AR_LOC_BUFFER);
+			   ARS::AR_LOC_BUFFER);
 
   die "GetEntryBLOB: $ars_errstr" if(!defined($a));
   print "blob size = ".length($a)."\n";
