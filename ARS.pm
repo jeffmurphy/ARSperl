@@ -21,6 +21,9 @@
 #    Comments to: arsperl@smurfland.cit.buffalo.edu
 #
 # $Log: ARS.pm,v $
+# Revision 1.13  1997/08/05 21:20:04  jcmurphy
+# 1.50 dev1
+#
 # Revision 1.12  1997/07/02 15:51:45  jcmurphy
 # changed ars_errstr, added arserr_hash to exports, remove tie to main
 # on ars_errstr
@@ -65,12 +68,12 @@ sub FETCH {
     my(%mTypes) = ( 0 => "OK", 1 => "WARNING", 2 => "ERROR", 3 => "FATAL",
 		    4 => "INTERNAL ERROR",
 		   -1 => "TRACEBACK");
-    for($i = 0; $i < $ARS::arserr_hash{numItems}; $i++) {
+    for($i = 0; $i < $ARS::ars_errhash{numItems}; $i++) {
 	$s .= sprintf("[%s] %s (ARERR \#%d)",
-		      $mTypes{@{$ARS::arserr_hash{messageType}}[$i]},
-		      @{$ARS::arserr_hash{messageText}}[$i],
-		      @{$ARS::arserr_hash{messageNum}}[$i]);
-	if($i < $ARS::arserr_hash{numItems}-1) {
+		      $mTypes{@{$ARS::ars_errhash{messageType}}[$i]},
+		      @{$ARS::ars_errhash{messageText}}[$i],
+		      @{$ARS::ars_errhash{messageNum}}[$i]);
+	if($i < $ARS::ars_errhash{numItems}-1) {
 	    $s .= "\n";
 	}
     }
@@ -96,9 +99,18 @@ ars_GetProfileInfo ars_Import ars_GetCharMenu ars_GetServerStatistics
 ars_NTDeregisterServer ars_NTGetListServer ars_NTInitializationServer 
 ars_NTNotificationServer ars_NTTerminationServer ars_NTDeregisterClient 
 ars_NTInitializationClient ars_NTRegisterClient ars_NTTerminationClient 
-ars_NTRegisterServer ars_GetCurrentServer %ARServerStats ars_EncodeDiary 
-ars_CreateEntry ars_MergeEntry $ars_errstr
-ars_Testing);
+ars_NTRegisterServer ars_GetCurrentServer ars_EncodeDiary 
+ars_CreateEntry ars_MergeEntry ars_DeleteFilter
+ars_DeleteMultipleFields ars_DeleteActiveLink
+ars_DeleteAdminExtension ars_DeleteCharMenu
+ars_DeleteEscalation ars_DeleteField ars_DeleteSchema
+ars_DeleteVUI ars_ExecuteAdminExtension ars_ExecuteProcess
+ars_GetAdminExtension ars_GetEscalation ars_GetFullTextInfo
+ars_GetListGroup ars_GetListSQL ars_GetListUser
+ars_GetListVUI ars_GetServerInfo
+ars_CreateActiveLink
+$ars_errstr %ARServerStats %ars_errhash
+);
 
 $VERSION = '1.50';
 
@@ -188,10 +200,40 @@ $AR_EXECUTE_ON_QUERY =      1024;
  'SINCE_START'    ,56
 );
 
+# ROUTINE
+#   AR_DAY(mask, dayNumber)
+#   AR_HOUR(mask, hourNumber)
+#
+# DESCRIPTION
+#   Used to analyze bitmask returned by ars_GetEscalation()
+#
+# RETURNS
+#   1 if that day or hour is set in the mask
+#   0 if that day or hour is not set in the mask
+
+sub AR_DAY {
+    my($x, $y) = (shift, shift);
+    return (($x >> $y) & 0x1);
+}
+
+sub AR_HOUR {
+    my($x, $y) = (shift, shift);
+    return (($x >> $y) & 0x1);
+}
+
 $field_entryId = 1;
 
+# ROUTINE
+#   ars_simpleMenu(menuItems, prepend)
+#
+# DESCRIPTION
+#   merges all sub-menus into a single level menu. good for web 
+#   interfaces.
+#
+# RETURNS
+#   array of menu items.
+
 sub ars_simpleMenu {
-    # merges all sub-menus into a single level menu
     my($m) = shift;
     my($prepend) = shift;
     my(@m) = @$m;
@@ -212,6 +254,19 @@ sub ars_simpleMenu {
     }
     @ret;
 }
+
+# ROUTINE
+#   ars_padEntryid(control, schema, entry-id)
+#
+# DESCRIPTION
+#   this routine will left-pad the entry-id with
+#   zeros out to the appropriate number of place (15 max)
+#   depending upon if your prefix your entry-id's with
+#   anything
+#
+# RETURNS
+#   a new scalar on success
+#   undef on error
 
 sub ars_padEntryid {
     my($c) = shift;
@@ -262,8 +317,21 @@ sub ars_decodeStatusHistory {
 #define AR_DEFN_DIARY_SEP        '\03'     /* diary items separator */
 #define AR_DEFN_DIARY_COMMA      '\04'     /* char between date/user/text */
 
+# ROUTINE
+#   ars_EncodeDiary(timestamp, username, value, timestamp, username, value, ...)
+#
+# DESCRIPTION
+#   given a list of timestamp, username and value triplets, 
+#   encode them into an ars-internal diary string. this can 
+#   then be fed into ars_MergeEntry() in order to alter the contents
+#   of an existing diary entry.
+#
+# RETURNS
+#   an encoded diary string (scalar) on success
+#   undef on failure
+
 sub ars_EncodeDiary {
-    my ($diary_string);
+    my ($diary_string) = undef;
     foreach $entry (@_) {
 	$diary_string .= pack("c",4) if ($diary_string);
 	$diary_string .= $entry->{timestamp}.pack("c",3).$entry->{user}.pack("c",3).$entry->{value}
@@ -275,7 +343,7 @@ sub ars_EncodeDiary {
 # call ARInitialization
 ARS::__ars_init();
 
-# call ARTermination
+# call ARTermination when the package is terminated
 END {
   ARS::__ars_Termination();
 }

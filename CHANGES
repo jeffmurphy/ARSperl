@@ -1,10 +1,70 @@
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.7 1997/02/20 20:27:40 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.8 1997/08/05 21:20:37 jcmurphy Exp $
 
 CHANGES for ARSperl
 
 Revision history for ARSperl.
 
 MM/DD/YY
+=======================================================================
+#######################################################################
+=======================================================================
+07/02/97        (1.50)
+
+  o  (JCM) removed ars_errstr from C code. replaced with ars_errhash.
+           modified ARS.pm to refer to hash when $ars_errstr is 
+           accessed. $ars_errstr no longer tie'd to main:: package.
+
+  o  (JCM) bug fix (Sid Van den Heede) "affecting getting of
+           displayInstanceList"
+
+  o  (JCM) bug fix (James LewisMoss) for ars_GetCharMenu()
+
+  o  (JCM) bug fix (Ian Flanigan) for perl_ARIndexStruct()
+
+  o  (JCM) modified GetListEntry(), GetEntry(), SetEntry() and 
+           DeleteEntry() to make operations on join schemas 
+           transparent.
+
+  o  (JCM) added a ARVerifyUser call to ars_Login so that
+           ars_Login() || die() will work as one would expect it to.
+
+  o  (JCM) added $VERSION to the perl module file.
+
+  o  (JCM) added "log to file" action to GetFilter action hash 
+           (requested by D.J.Adams@soton.ac.uk)
+
+  o  (JCM) added updated doc tree to main distribution (contributed by
+	   D.J.Adams@soton.ac.uk)
+
+  o  (JCM) new functions and doc on new functions and new examples for some
+	   of these new functions.
+
+  o  (JCM) altered return value of perl_ARStatusStruct so that it 
+           returns a hash of the various StatusStruct members so that
+           reversing the operation is simpler. scripts that, for example,
+           retrieve active link definitions and print them out that previous
+           expected the {message} key to point to a string will need to
+           be updated.
+
+  o  (JCM) added valueType to the assign structure to assist in 
+           reversing the operation (converting perl to C API assign 
+           structure).
+
+=======================================================================
+#######################################################################
+=======================================================================
+05/22/97        (1.46)
+
+  o  (JWM) bug fixes
+  o  (JWM) new function: ars_MergeEntry(), ars_EncodeDiary()
+
+=======================================================================
+#######################################################################
+=======================================================================
+04/25/97        (1.45)
+
+  o  (JCM) bug fix to GetListSchema routine
+
 =======================================================================
 #######################################################################
 =======================================================================
