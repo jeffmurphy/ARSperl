@@ -6,20 +6,24 @@ JCM memory leak fixed in ars_Export
 JCM memory leak fixed in ars_GetListEntry wrt to join forms
 JCM memory leak fixed in QualifierStructPtr destructor
 JCM memory leak fixed in ControlStruct destructor
+JCM various other memory related cleanups
 JCM bad/NULL ref fixed in ExpandCharMenu
 JCM added new params to ars_Login: lang, authString, tcpport, rpcnumber
 JCM added new rv's to ars_GetControlStructFields: lang, authString
 JCM updated example and test scripts 
+JCM added Alert functions (replaces NT/Notifier functions)
+JCM added Alert example (example/5.x/...)
 !JCM 5.x (5.0.1, 5.1, 5.1.1) integration<BR>
-	functions that no longer are available
+	functions that no longer are available or always
+	return errors indicating they are no longer implemented:
 	<blockquote>
 		ars_NT*()   [notifier functions]
 	</blockquote>
-	functions whose parameters have changed
+	functions whose parameters have changed:
 	<blockquote>
 		ars_GetListEntry()
 	</blockquote>
-	functions whose return values have changed
+	functions whose return values have changed:
 	<blockquote>
 		none that would cause incompatibilities
 	</blockquote>

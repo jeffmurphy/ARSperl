@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/WhoUsesIt.pl,v 1.1 1996/11/21 21:55:43 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/WhoUsesIt.pl,v 1.2 2003/04/02 05:12:22 jcmurphy Exp $
 #
 # NAME 
 #   WhoUsesIt.pl
@@ -27,6 +27,9 @@
 #   jcmurphy@acsu.buffalo.edu
 #
 # $Log: WhoUsesIt.pl,v $
+# Revision 1.2  2003/04/02 05:12:22  jcmurphy
+# added Alert functions
+#
 # Revision 1.1  1996/11/21 21:55:43  jcmurphy
 # Initial revision
 #
@@ -43,7 +46,7 @@ $pname =~ s/.*\///g;
 Getopts('s:a:f:m:e:p:M:Dhv');
 
 $debug = $opt_D;
-($username, $password) = @ARGV;
+($server, $username, $password) = @ARGV;
 
 $SCHEMA = defined($opt_s)?$opt_s:".*";
 
@@ -88,7 +91,7 @@ if($password eq "") {
     print "\n";
 }
 
-($ctrl = ars_Login("", $username, $password)) || 
+($ctrl = ars_Login($server, $username, $password)) || 
     die "couldn't allocate control structure";
 
 (@schemas = ars_GetListSchema($ctrl)) ||
@@ -247,7 +250,7 @@ if($opt_M) {
     print "nothing to do!\n";
 }
 
-ars_Logoff($ctrl) || die "can't logoff: $ars_errstr";
+ars_Logoff($ctrl);
 
 exit 0;
 

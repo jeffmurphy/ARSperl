@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.87 2003/04/02 01:43:34 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.88 2003/04/02 05:12:22 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -421,13 +421,12 @@ ars_Logoff(ctrl)
 		(void) ARError_reset();
 		if (!ctrl) return;
 #if AR_EXPORT_VERSION >= 4
-		/*printf("ctrl=0x%x\n", &ctrl);*/
 		ret = ARTermination(ctrl, &status);
 #else
 		ret = ARTermination(&status);
 #endif
 		(void) ARError( ret, status);
-	/*		if(ctrl) safefree(ctrl); /**/
+		/*safefree(ctrl); let DESTROY free it*/
 	}
 
 void
@@ -614,12 +613,12 @@ ars_CreateEntry(ctrl,schema,...)
 	    if (! ARError( ret, status)) rv = 1;
 
 	  create_entry_end:;
-	    if(rv == 0)
+	    if(rv == 0) {
 		RETVAL = newSVsv(&PL_sv_undef);
-	    else
+	    } else {
 		RETVAL = newSVpv( entryId, strlen(entryId) );
+	    }
 	  FreeARFieldValueList(&fieldList, FALSE);
-	  safefree(fieldList.fieldValueList); /* FIX*/
 	  }
 	}
 	OUTPUT:
@@ -858,7 +857,7 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,firstRetrieve,...)
 					/* get fieldId, columnWidth and separator from hash */
 					if (! (hash_entry = hv_fetch(field_hash, VNAME("fieldId"), 0))) {
 						(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_LFLDS);
-						safefree(getListFields.fieldsList);
+						FreeAREntryListFieldList(&getListFields, FALSE);
 						goto getlistentry_end;
 					}
 	
@@ -866,7 +865,7 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,firstRetrieve,...)
 					if (! (hash_entry = hv_fetch(field_hash, 
 							VNAME("columnWidth"), 0))) {
 						(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_LFLDS);
-						safefree(getListFields.fieldsList);
+						FreeAREntryListFieldList(&getListFields, FALSE);
 						goto getlistentry_end;
 					}
 	
@@ -874,7 +873,7 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,firstRetrieve,...)
 					if (! (hash_entry = hv_fetch(field_hash, 
 							VNAME("separator"), 0))) {
 						(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_LFLDS);
-						safefree(getListFields.fieldsList);
+						FreeAREntryListFieldList(&getListFields, FALSE);
 						goto getlistentry_end;
 					}
 	
@@ -983,7 +982,7 @@ ars_GetListSchema(ctrl,changedsince=0,schemaType=AR_LIST_SCHEMA_ALL,name=NULL,fi
 	  (void) ARError_reset();
 	  Zero(&status, 1, ARStatusList);
 #if AR_EXPORT_VERSION >= 6
-	  if (SvTYPE(fieldIdList) == SVt_PVAV) {
+	  if (fieldIdList && (SvTYPE(fieldIdList) == SVt_PVAV)) {
 		int i;
 		idList.numItems = av_len(fieldIdList) + 1;
 		Newz(777, idList.internalIdList, idList.numItems, ARInternalId);
@@ -1061,7 +1060,7 @@ ars_GetListContainer(ctrl,changedSince=0,attributes=0,...)
 		if(!ARError(i, status)) {
 			HV *r = newHV();				
 		}
-		Safefree(containerTypes.type);
+		FreeARContainerTypeList(&containerTypes, FALSE);
 	  } else {
 		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
 	  }
@@ -1394,10 +1393,10 @@ ars_GetFilter(ctrl,name)
 	    FreeARWorkflowConnectStruct(&schemaList, FALSE);
 	    FreeARPropList(&objPropList, FALSE);
 #endif
-	    if(CVLD(helpText)){
+	    if(helpText) {
 	      	safefree(helpText);
 	    }
-	    if(CVLD(changeDiary)){
+	    if(changeDiary) {
 	      	safefree(changeDiary);
 	    }
 	  }
@@ -1604,10 +1603,10 @@ ars_GetCharMenu(ctrl,name)
 		FreeARPropList(&objPropList, FALSE);
 #endif
 		FreeARCharMenuStruct(&menuDefn, FALSE);
-		if (CVLD(helpText)){
+		if (helpText) {
 		  	safefree(helpText);
 		}
-		if (CVLD(changeDiary)){
+		if (changeDiary) {
 		  	safefree(changeDiary);
 		}
 	  }
@@ -1773,10 +1772,10 @@ ars_GetSchema(ctrl,name)
 	    FreeARInternalIdList(&adminGroupList,FALSE);
 	    FreeAREntryListFieldList(&getListFields,FALSE);
 	    FreeARIndexList(&indexList,FALSE);
-	    if(CVLD(helpText)){
+	    if(helpText) {
 	      	safefree(helpText);
 	    }
-	    if(CVLD(changeDiary)){
+	    if(changeDiary) {
 	      	safefree(changeDiary);
 	    }
 #if AR_EXPORT_VERSION >= 3
@@ -1909,10 +1908,10 @@ ars_GetField(ctrl,schema,id)
 #else
 	    FreeARDisplayList(&displayList,FALSE);
 #endif
-	    if(CVLD(helpText)){
+	    if(helpText) {
 	      	safefree(helpText);
 	    }
-	    if(CVLD(changeDiary)){
+	    if(changeDiary) {
 	      	safefree(changeDiary);
 	    }
 #if AR_EXPORT_VERSION >= 3
@@ -2274,12 +2273,12 @@ ars_DeleteActiveLink(ctrl, name)
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
 	  RETVAL = 0;
-	  if(ctrl && name && *name) {
+	  if(ctrl && CVLD(name)) {
 		ret = ARDeleteActiveLink(ctrl, name, &status);
 #ifdef PROFILE
 	        ((ars_ctrl *)ctrl)->queries++;
 #endif		
-	        if(!ARError( ret, status)) {
+	        if(!ARError(ret, status)) {
 			RETVAL = 1;
 		}
 	  } else {
@@ -2590,7 +2589,7 @@ ars_ExecuteProcess(ctrl, command, runOption=0)
 		if(runOption == 0) {
 			XPUSHs(sv_2mortal(newSViv(returnStatus)));
 			XPUSHs(sv_2mortal(newSVpv(returnString, 0)));
-			if(CVLD(returnString)) safefree(returnString);
+			if(returnString) safefree(returnString);
 		} else {
 			XPUSHs(sv_2mortal(newSViv(1)));
 		}
@@ -2653,10 +2652,10 @@ ars_GetAdminExtension(ctrl, name)
 			}
 	        }
 		FreeARInternalIdList(&groupList, FALSE);
-		if(CVLD(helpText)){
+		if(helpText) {
 		  	safefree(helpText);
 		}
-		if(CVLD(changeDiary)){
+		if(changeDiary) {
 		  	safefree(changeDiary);
 		}
 	 }
@@ -2791,10 +2790,10 @@ ars_GetEscalation(ctrl, name)
 	     FreeARWorkflowConnectStruct(&schemaList, FALSE);
 	     FreeARPropList(&objPropList, FALSE);
 #endif
-	     if(CVLD(helpText)){
+	     if(helpText) {
 	       	safefree(helpText);
 	     }
-	     if(CVLD(changeDiary)){
+	     if(changeDiary) {
 	       	safefree(changeDiary);
 	     }
 	  }
@@ -3235,10 +3234,10 @@ ars_GetVUI(ctrl, schema, vuiId)
 			    sizeof(ARPropStruct)), 0);
 	  }
 	  FreeARPropList(&dPropList, FALSE);
-	  if(CVLD(helpText)){
+	  if(helpText) {
 	    	safefree(helpText);
 	  }
-	  if(CVLD(changeDiary)){
+	  if(changeDiary) {
 	    	safefree(changeDiary);
 	  }
 #else /* ars 2.x */
@@ -3492,18 +3491,18 @@ ars_CreateActiveLink(ctrl, alDefRef)
 		} else 
 		   ARError_add( AR_RETURN_ERROR, AP_ERR_PREREVFAIL);
 	  }
-	  if(CVLD(helpText)){
+	  if (helpText) {
 	    	safefree(helpText);
 	  }
-	  if(CVLD(changeDiary)){
+	  if (changeDiary) {
 	    	safefree(changeDiary);
 	  }
-	  safefree(groupList.internalIdList);
-	  safefree(actionList.actionList);
+	  FreeARInternalIdList(&groupList, FALSE);
+	  FreeARActiveLinkActionList(&actionList, FALSE);
 #if AR_EXPORT_VERSION >= 3
-	  safefree(elseList.actionList);
+	  FreeARActiveLinkActionList(&elseList, FALSE);
 #else /* 2.x */
-	  safefree(displayList.displayList);
+	  FreeARDisplayList(&displayList, FALSE);
 #endif
 	}
 	OUTPUT:
@@ -3846,8 +3845,238 @@ ars_GetListEntryWithFields(ctrl,schema,qualifier,firstRetrieve=0,maxRetrieve,...
 	}
 
 
+
 ###################################################
-# NT (Notifier) ROUTINES
+# ALERT ROUTINES. as of 5.x, these replace the 
+# Notifier routines found below.
+#
+
+int
+ars_RegisterForAlerts(ctrl, clientPort, registrationFlags=0)
+	ARControlStruct *	ctrl
+	int			clientPort
+	unsigned int		registrationFlags
+	CODE:
+	{
+		ARStatusList status;
+		int          ret;
+
+		(void) ARError_reset();
+		Zero(&status, 1, ARStatusList);
+		RETVAL = 0;
+#if AR_EXPORT_VERSION >= 6
+		ret = ARRegisterForAlerts(ctrl, clientPort, 
+				registrationFlags, &status);
+		if( !ARError(ret, status) ) {
+			RETVAL = 1;
+		}
+#else
+	  (void) ARError_add(AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"RegisterForAlerts() is only available in ARSystem >= 5.0");
+#endif
+	}
+	OUTPUT:
+	RETVAL
+
+int
+ars_DeregisterForAlerts(ctrl,clientPort)
+	ARControlStruct *	ctrl
+	int			clientPort
+	CODE:
+	{
+		ARStatusList status;
+		int          ret;
+
+		(void) ARError_reset();
+		Zero(&status, 1, ARStatusList);
+		RETVAL = 0;
+#if AR_EXPORT_VERSION >= 6
+		ret = ARDeregisterForAlerts(ctrl, clientPort, 
+					    &status);
+		if( !ARError(ret, status) ) {
+			RETVAL = 1;
+		}
+#else
+	  (void) ARError_add(AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"DeregisterForAlerts() is only available in ARSystem >= 5.0");
+#endif
+	}
+	OUTPUT:
+	RETVAL
+
+void
+ars_GetListAlertUser(ctrl)
+	ARControlStruct *	ctrl
+	PPCODE:
+	{
+#if AR_EXPORT_VERSION >= 6
+		ARStatusList     status;
+		ARAccessNameList userList;
+		int              ret;
+
+		(void) ARError_reset();
+		Zero(&status, 1, ARStatusList);
+		ret = ARGetListAlertUser(ctrl, &userList,
+					 &status);
+		if( !ARError(ret, status) ) {
+			if (userList.numItems > 0) {
+				int i = 0;
+				while(i < userList.numItems) {
+					XPUSHs(sv_2mortal(newSVpvn(userList.nameList[i++], 
+							AR_MAX_NAME_SIZE)));
+				}
+			}
+		}
+#else
+	  (void) ARError_add(AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"GetListAlertUser() is only available in ARSystem >= 5.0");
+	  XPUSHs(sv_2mortal(&PL_sv_undef));
+#endif
+	}
+
+SV *
+ars_GetAlertCount(ctrl,qualifier)
+	ARControlStruct *	ctrl
+	ARQualifierStruct *	qualifier
+	CODE:
+	{
+		ARStatusList     status;
+		int              ret;
+		unsigned int	 count = 0;
+
+		RETVAL=newSVsv(&PL_sv_undef);
+#if AR_EXPORT_VERSION >= 6
+		(void) ARError_reset();
+		Zero(&status, 1, ARStatusList);
+		ret = ARGetAlertCount(ctrl, qualifier, &count,
+				      &status);
+		if( !ARError(ret, status) ) {
+			RETVAL=sv_2mortal(newSViv(count));
+		}
+#else
+	  (void) ARError_add(AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"GetAlertCount() is only available in ARSystem >= 5.0");
+#endif
+	}
+	OUTPUT:
+	RETVAL
+
+HV *
+ars_DecodeAlertMessage(ctrl,message,messageLen)
+	ARControlStruct *	ctrl
+	unsigned char *		message
+	unsigned int		messageLen
+	CODE:
+	{
+		ARStatusList     status;
+		int              ret;
+		ARTimestamp      timestamp;
+		unsigned int	 sourceType;
+		unsigned int	 priority;
+		char 		*alertText  = CPNULL;
+		char		*sourceTag  = CPNULL;
+		char		*serverName = CPNULL;
+		char		*serverAddr = CPNULL;
+		char		*formName   = CPNULL;
+		char 		*objId      = CPNULL;
+
+		RETVAL=newHV();
+		(void) ARError_reset();
+		Zero(&status, 1, ARStatusList);
+#if AR_EXPORT_VERSION >= 6
+		ret = ARDecodeAlertMessage(ctrl, message, messageLen,
+					&timestamp,
+					&sourceType,
+					&priority,
+					&alertText,
+					&sourceTag,
+					&serverName,
+					&serverAddr,
+					&formName,
+					&objId,
+					&status);
+
+		if( !ARError(ret, status) ) {
+			hv_store(RETVAL, "timestamp", strlen("timestamp"),
+				newSViv(timestamp), 0);
+			hv_store(RETVAL, "sourceType", strlen("sourceType"),
+				newSViv(sourceType), 0);
+			hv_store(RETVAL, "priority", strlen("priority"),
+				newSViv(priority), 0);
+
+			hv_store(RETVAL, "alertText", strlen("alertText"),
+				newSVpv(alertText, 0), 0);
+			hv_store(RETVAL, "sourceTag", strlen("sourceTag"),
+				newSVpv(sourceTag, 0), 0);
+			hv_store(RETVAL, "serverName", strlen("serverName"),
+				newSVpv(serverName, 0), 0);
+			hv_store(RETVAL, "serverAddr", strlen("serverAddr"),
+				newSVpv(serverAddr, 0), 0);
+			hv_store(RETVAL, "formName", strlen("formName"),
+				newSVpv(formName, 0), 0);
+		}
+
+		if (alertText)  safefree(alertText);
+		if (sourceTag)  safefree(sourceTag);
+		if (serverName) safefree(serverName);
+		if (serverAddr) safefree(serverAddr);
+		if (formName)   safefree(formName);
+		if (objId)	safefree(objId);
+#else
+	  (void) ARError_add(AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"GetAlertCount() is only available in ARSystem >= 5.0");
+#endif
+	}
+	OUTPUT:
+	RETVAL
+
+SV *
+ars_CreateAlertEvent(ctrl,user,alertText,priority,sourceTag,serverName,formName,objectId)
+	ARControlStruct *	ctrl
+	ARAccessNameType	user
+	char *			alertText
+	int			priority
+	ARNameType		sourceTag
+	ARServerNameType	serverName
+	ARNameType		formName
+	char *			objectId
+	CODE:
+	{
+		ARStatusList     status;
+		int              ret;
+		AREntryIdType	 entryId;
+
+		RETVAL=newSVsv(&PL_sv_undef);
+		(void) ARError_reset();
+		Zero(&status, 1, ARStatusList);
+#if AR_EXPORT_VERSION >= 6
+		ret = ARCreateAlertEvent(ctrl, 
+					user,
+					alertText,
+					priority,
+					sourceTag,
+					serverName,
+					formName,
+					objectId,
+					entryId,
+					&status);
+
+		if( !ARError(ret, status) ) {
+			RETVAL=newSVpvn(entryId, AR_MAX_ENTRYID_SIZE);
+		}
+#else
+	  (void) ARError_add(AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"CreateAlertEvent() is only available in ARSystem >= 5.0");
+#endif
+	}
+	OUTPUT:
+	RETVAL
+
+###################################################
+# NT (Notifier) ROUTINES. 
+# when compiled against a 5.x API or greater,
+# these routines are stubbed to return
+# errors.
 #
 
 int
@@ -4200,17 +4429,19 @@ DESTROY(ctrl)
 	ARControlStruct *	ctrl
 	CODE:
 	{
-# if AR_EXPORT_VERSION > 4
 		ARStatusList status;
 		int rv = 0;
 
 		(void) ARError_reset();
 		Zero(&status, 1, ARStatusList);
 		DBG( ("control struct destructor\n") );
+# if AR_EXPORT_VERSION > 4
 		rv = ARTermination(ctrl, &status);
+# else
+		rv = ARTermination(&status);
+# endif /* AR_EXPORT_VERSION */
 		(void) ARError(rv, status);
 		safefree(ctrl);
-# endif /* AR_EXPORT_VERSION */
 	}
 
 MODULE = ARS		PACKAGE = ARQualifierStructPtr
