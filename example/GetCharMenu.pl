@@ -1,12 +1,12 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/GetCharMenu.pl,v 1.2 1997/11/10 23:36:52 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/GetCharMenu.pl,v 1.3 1998/02/25 19:21:32 jcmurphy Exp $
 #
 # NAME
 #   GetCharMenu.pl
 #
 # USAGE
-#   GetCharMenu.pl [username] [password] [menuname]
+#   GetCharMenu.pl [server] [username] [password] [menuname]
 #
 # DESCRIPTION
 #   Retrieve and print information about the named menu.
@@ -16,6 +16,9 @@
 #   jcmurphy@acsu.buffalo.edu
 #
 # $Log: GetCharMenu.pl,v $
+# Revision 1.3  1998/02/25 19:21:32  jcmurphy
+# updated to printout query if query style menu
+#
 # Revision 1.2  1997/11/10 23:36:52  jcmurphy
 # added refreshCode to the output
 #
@@ -25,6 +28,7 @@
 #
 
 use ARS;
+require 'ars_QualDecode.pl';
 
 # SUBROUTINE
 #   printl
@@ -72,6 +76,13 @@ if($finfo->{menuType} == 2) {
     print "\tlabelField  : ".$finfo->{menuQuery}{labelField}."\n";
     print "\tvalueField  : ".$finfo->{menuQuery}{valueField}."\n";
     print "\tsortOnLabel : ".$finfo->{menuQuery}{sortOnLabel}."\n";
+    print "\tquery       : ".$finfo->{menuQuery}{qualifier}."\n";
+    $dq = ars_perl_qualifier($finfo->{menuQuery}{qualifier});
+    $qualtext = ars_Decode_QualHash($ctrl, 
+				    $finfo->{menuQuery}{schema}, 
+				    $dq);
+    print "\t$qualtext\n";
+
 }
 
 elsif($finfo->{menuType} == 3) {
