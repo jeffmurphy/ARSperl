@@ -9,7 +9,7 @@ ARCreateField
 ARCreateFilter
 ARCreateSchema
 ARCreateVUI
-? ARGetEntryStatistics
+ARGetEntryStatistics
 ARSetActiveLink
 ARSetAdminExtension
 ARSetCharMenu
@@ -23,4 +23,6 @@ ARSetVUI
 
    o finish cleaning code (use VNAME all over and compile
      with strict compiler settings).
+
+   o update doc for GetField
 
