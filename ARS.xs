@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.42 1998/02/23 15:29:20 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.43 1998/03/25 22:52:34 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.42 1998/02/23 15:29:20 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.43  1998/03/25 22:52:34  jcmurphy
+nothing.
+
 Revision 1.42  1998/02/23 15:29:20  jcmurphy
 fixed bug in ars_GetCharMenu
 
@@ -744,7 +747,7 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,...)
 		    SvROK(*array_entry) &&
 		    SvTYPE(field_hash = (HV*)SvRV(*array_entry)) == SVt_PVHV) {
 		  /* get fieldId, columnWidth and separator from hash */
-		  if (! (hash_entry = hv_fetch(field_hash, "fieldId", 7, 0))) {
+		  if (! (hash_entry = hv_fetch(field_hash, VNAME("fieldId"), 0))) {
 		    (void) ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_BAD_LFLDS);
 #ifndef WASTE_MEM
 		    FREE(getListFields.fieldsList);
@@ -752,8 +755,7 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,...)
 		    goto getlistentry_end;
 		  }
 		  getListFields.fieldsList[i].fieldId = SvIV(*hash_entry);
-		  /* printf("field_id: %i\n", getListFields.fieldsList[i].fieldId); */ /* DEBUG */
-		  if (! (hash_entry = hv_fetch(field_hash, "columnWidth", 11, 0))) {
+		  if (! (hash_entry = hv_fetch(field_hash, VNAME("columnWidth"), 0))) {
 		    (void) ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_BAD_LFLDS);
 #ifndef WASTE_MEM
 		    FREE(getListFields.fieldsList);
@@ -761,7 +763,7 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,...)
 		    goto getlistentry_end;
 		  }
 		  getListFields.fieldsList[i].columnWidth = SvIV(*hash_entry);
-		  if (! (hash_entry = hv_fetch(field_hash, "separator", 9, 0))) {
+		  if (! (hash_entry = hv_fetch(field_hash, VNAME("separator"), 0))) {
 		    (void) ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_BAD_LFLDS);
 #ifndef WASTE_MEM
 		    FREE(getListFields.fieldsList);
