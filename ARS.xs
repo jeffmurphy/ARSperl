@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.50 1998/09/11 18:00:51 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.51 1998/09/11 19:36:13 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,10 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.50 1998/09/11 18:00:51 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.51  1998/09/11 19:36:13  jcmurphy
+updated all Get<object> functiosn so that the changeDiary
+hash key is fully decoded.
+
 Revision 1.50  1998/09/11 18:00:51  jcmurphy
 updated ars_DeleteEntry to return 1 on success, 0 on error
 updated GetSchema which had a typo resulting in wrong results.
@@ -948,6 +952,8 @@ ars_GetActiveLink(ctrl,name)
 	  ARStatusList     status;
 	  SV              *ref;
 	  ARQualifierStruct *query;
+	  ARDiaryList      diaryList;
+
 	  Newz(777,query,1,ARQualifierStruct);
 
 	  (void) ARError_reset();
@@ -1006,9 +1012,16 @@ ars_GetActiveLink(ctrl,name)
 	    hv_store(RETVAL, VNAME("timestamp"),  newSViv(timestamp), 0);
 	    hv_store(RETVAL, VNAME("owner"), newSVpv(owner,0), 0);
 	    hv_store(RETVAL, VNAME("lastChanged"), newSVpv(lastChanged,0), 0);
-	    if (changeDiary)
-	      hv_store(RETVAL, VNAME("changeDiary"),
-		       newSVpv(changeDiary,0), 0);
+	    if (changeDiary) {
+		ret = ARDecodeDiary(changeDiary, &diaryList, &status);
+		if (!ARError(ret, status)) {
+			hv_store(RETVAL, VNAME("changeDiary"),
+				perl_ARList((ARList *)&diaryList,
+				(ARS_fn)perl_diary,
+				sizeof(ARDiaryStruct)), 0);
+			FreeARDiaryList(&diaryList, FALSE);
+		}
+	    }
 #ifndef WASTE_MEM
 	    FreeARInternalIdList(&groupList,FALSE);
 #if  AR_EXPORT_VERSION < 3
@@ -1053,6 +1066,8 @@ ars_GetFilter(ctrl,name)
 	  ARStatusList status;
 	  SV         *ref;
 	  ARQualifierStruct *query;
+	  ARDiaryList      diaryList;
+
 	  Newz(777,query,1,ARQualifierStruct);
 
 	  (void) ARError_reset();
@@ -1098,9 +1113,16 @@ ars_GetFilter(ctrl,name)
 	    hv_store(RETVAL, VNAME("timestamp"), newSViv(timestamp), 0);
 	    hv_store(RETVAL, VNAME("owner"), newSVpv(owner, 0), 0);
 	    hv_store(RETVAL, VNAME("lastChanged"), newSVpv(lastChanged, 0), 0);
-	    if(changeDiary) 
-		hv_store(RETVAL, VNAME("changeDiary"), 
-			 newSVpv(changeDiary, 0), 0);
+	    if (changeDiary) {
+		ret = ARDecodeDiary(changeDiary, &diaryList, &status);
+		if (!ARError(ret, status)) {
+			hv_store(RETVAL, VNAME("changeDiary"),
+				perl_ARList((ARList *)&diaryList,
+				(ARS_fn)perl_diary,
+				sizeof(ARDiaryStruct)), 0);
+			FreeARDiaryList(&diaryList, FALSE);
+		}
+	    }
 #ifndef WASTE_MEM
 	    FreeARFilterActionList(&actionList,FALSE);
 #if AR_EXPORT_VERSION >= 3
@@ -1194,6 +1216,7 @@ ars_GetCharMenu(ctrl,name)
 	  int                ret;
 	  HV		    *menuDef = newHV();
 	  SV		    *ref;
+	  ARDiaryList        diaryList;
 
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
@@ -1211,9 +1234,16 @@ ars_GetCharMenu(ctrl,name)
 		hv_store(RETVAL, VNAME("timestamp"), newSViv(timestamp), 0);
 		hv_store(RETVAL, VNAME("owner"), newSVpv(owner, 0), 0);
 		hv_store(RETVAL, VNAME("lastChanged"), newSVpv(lastChanged, 0), 0);
-		if(changeDiary)
-			hv_store(RETVAL, VNAME("changeDiary"),
-				newSVpv(changeDiary, 0), 0);
+	        if (changeDiary) {
+			ret = ARDecodeDiary(changeDiary, &diaryList, &status);
+			if (!ARError(ret, status)) {
+				hv_store(RETVAL, VNAME("changeDiary"),
+					perl_ARList((ARList *)&diaryList,
+					(ARS_fn)perl_diary,
+					sizeof(ARDiaryStruct)), 0);
+				FreeARDiaryList(&diaryList, FALSE);
+			}
+	        }
 		hv_store(RETVAL, VNAME("menuType"), newSViv(menuDefn.menuType), 0);
 		hv_store(RETVAL, VNAME("refreshCode"), 
 			perl_MenuRefreshCode2Str( refreshCode), 0);
@@ -1319,6 +1349,7 @@ ars_GetSchema(ctrl,name)
 	  ARNameType           owner;
 	  ARNameType           lastChanged;
 	  char                *changeDiary = CPNULL;
+	  ARDiaryList          diaryList;
 #if AR_EXPORT_VERSION >= 3
 	  ARCompoundSchema     schema;
 	  ARSortList           sortList;
@@ -1367,9 +1398,16 @@ ars_GetSchema(ctrl,name)
 	    hv_store(RETVAL, VNAME("owner"), newSVpv(owner, 0), 0);
 	    hv_store(RETVAL, VNAME("lastChanged"),
 		     newSVpv(lastChanged, 0), 0);
-	    if (changeDiary)
-	      hv_store(RETVAL, VNAME("changeDiary"), 
-		       newSVpv(changeDiary, 0), 0);
+	    if (changeDiary) {
+		ret = ARDecodeDiary(changeDiary, &diaryList, &status);
+		if (!ARError(ret, status)) {
+			hv_store(RETVAL, VNAME("changeDiary"),
+				perl_ARList((ARList *)&diaryList,
+				(ARS_fn)perl_diary,
+				sizeof(ARDiaryStruct)), 0);
+			FreeARDiaryList(&diaryList, FALSE);
+		}
+	    }
 #if AR_EXPORT_VERSION >= 3
 	    hv_store(RETVAL, VNAME("schema"), 
 			perl_ARCompoundSchema( &schema), 0);
@@ -1452,7 +1490,8 @@ ars_GetField(ctrl,schema,id)
 	  ARNameType            owner;
 	  ARNameType            lastChanged;
 	  char                 *changeDiary = CPNULL;
-	  
+	  ARDiaryList           diaryList;
+
 	  (void) ARError_reset();
 	  Zero(&Status, 1,ARStatusList);
 	  RETVAL = newHV();
@@ -1503,9 +1542,16 @@ ars_GetField(ctrl,schema,id)
 		     newSVpv(owner, 0), 0);
 	    hv_store(RETVAL, VNAME("lastChanged"),
 		     newSVpv(lastChanged, 0), 0);
-	    if (changeDiary)
-	      hv_store(RETVAL, VNAME("changeDiary"), 
-		       newSVpv(changeDiary, 0), 0);
+	    if (changeDiary) {
+		ret = ARDecodeDiary(changeDiary, &diaryList, &Status);
+		if (!ARError(ret, Status)) {
+			hv_store(RETVAL, VNAME("changeDiary"),
+				perl_ARList((ARList *)&diaryList,
+				(ARS_fn)perl_diary,
+				sizeof(ARDiaryStruct)), 0);
+			FreeARDiaryList(&diaryList, FALSE);
+		}
+	    }
 #ifndef WASTE_MEM
 	    FreeARFieldLimitStruct(&limit,FALSE);
 #if AR_EXPORT_VERSION >= 3
@@ -2261,6 +2307,7 @@ ars_GetAdminExtension(ctrl, name)
 	 ARNameType    lastChanged;
 	 char         *changeDiary = CPNULL;
 	 int           ret;
+	 ARDiaryList      diaryList;
 
 	 (void) ARError_reset();
 	 Zero(&status, 1,ARStatusList);
@@ -2282,8 +2329,16 @@ ars_GetAdminExtension(ctrl, name)
 		hv_store(RETVAL, VNAME("lastChanged"), newSVpv(lastChanged, 0), 0);
 	        if(helpText)
 		   hv_store(RETVAL, VNAME("helpText") , newSVpv(helpText, 0), 0);
-	        if(changeDiary)
-		   hv_store(RETVAL, VNAME("changeDiary"), newSVpv(changeDiary, 0), 0);
+	        if (changeDiary) {
+			ret = ARDecodeDiary(changeDiary, &diaryList, &status);
+			if (!ARError(ret, status)) {
+				hv_store(RETVAL, VNAME("changeDiary"),
+					perl_ARList((ARList *)&diaryList,
+					(ARS_fn)perl_diary,
+					sizeof(ARDiaryStruct)), 0);
+				FreeARDiaryList(&diaryList, FALSE);
+			}
+	        }
 #ifndef WASTE_MEM
 		FreeARInternalIdList(&groupList, FALSE);
 		if(!CVLD(helpText)){
@@ -2324,6 +2379,7 @@ ars_GetEscalation(ctrl, name)
 	  SV                  *ref;
 	  int                  ret;
 	  ARQualifierStruct   *query = MALLOCNN(sizeof(ARQualifierStruct));
+	  ARDiaryList          diaryList;
 
 	  RETVAL = newHV();
 	  (void) ARError_reset();
@@ -2351,8 +2407,16 @@ ars_GetEscalation(ctrl, name)
 	        hv_store(RETVAL, VNAME("helpText"), newSVpv(helpText, 0), 0);
 	     hv_store(RETVAL, VNAME("owner"), newSVpv(owner, 0), 0);
 	     hv_store(RETVAL, VNAME("lastChanged"), newSVpv(lastChanged, 0), 0);
-	     if(changeDiary)
-	        hv_store(RETVAL, VNAME("changeDiary"), newSVpv(changeDiary, 0), 0);
+	     if (changeDiary) {
+		ret = ARDecodeDiary(changeDiary, &diaryList, &status);
+		if (!ARError(ret, status)) {
+			hv_store(RETVAL, VNAME("changeDiary"),
+				perl_ARList((ARList *)&diaryList,
+				(ARS_fn)perl_diary,
+				sizeof(ARDiaryStruct)), 0);
+			FreeARDiaryList(&diaryList, FALSE);
+		}
+	     }
 	     ref = newSViv(0);
 	     sv_setref_pv(ref, "ARQualifierStructPtr", (void *)query);
 	     hv_store(RETVAL, VNAME("query"), ref, 0);
@@ -2710,6 +2774,7 @@ ars_GetVUI(ctrl, schema, vuiId)
 	  ARNameType   lastChanged;
 	  char        *changeDiary = CPNULL;
 	  int          i, ret;
+	  ARDiaryList      diaryList;
 
 	  RETVAL = newHV();
 	  (void) ARError_reset();
@@ -2727,8 +2792,16 @@ ars_GetVUI(ctrl, schema, vuiId)
 	     if(helpText)
 	        hv_store(RETVAL, VNAME("helpText"), newSVpv(helpText, 0), 0);
 	     hv_store(RETVAL, VNAME("lastChanged"), newSVpv(lastChanged, 0), 0);
-	     if(changeDiary)
-	        hv_store(RETVAL, VNAME("changeDiary"), newSVpv(changeDiary, 0), 0);
+	     if (changeDiary) {
+		ret = ARDecodeDiary(changeDiary, &diaryList, &status);
+		if (!ARError(ret, status)) {
+			hv_store(RETVAL, VNAME("changeDiary"),
+				perl_ARList((ARList *)&diaryList,
+				(ARS_fn)perl_diary,
+				sizeof(ARDiaryStruct)), 0);
+			FreeARDiaryList(&diaryList, FALSE);
+		}
+	     }
 	     hv_store(RETVAL, VNAME("timestamp"), newSViv(timestamp), 0);
 	     hv_store(RETVAL, VNAME("props"),
 		perl_ARList( 
