@@ -27,6 +27,21 @@ Example:
          ($field = ars_GetField($c, "User", 8)) || die $arr_errstr;
          print $field-&gt;{"helpText"};
 </pre>
+Example of how to retrieve enumerated field labels (e.g. the Status field
+labels):
+<pre>
+	($fh = ars_GetField($c, $S, $f{'Status'})) ||
+	    die "GetField: $ars_errstr (no Status field in this schema?)";
+
+	if($fh->{dataType} ne "enum") {
+	    die "'Status' field is not an enum.\n";
+	}
+
+	@enumvals = @{$fh->{limit}};
+
+	print "Status values: ".join(',', @enumvals)."\n";
+</pre>
+
 <hr width="30%">
 <p>
 <A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Table of Contents </A>
@@ -34,7 +49,7 @@ Example:
 <p>
 
 <address>
-Last changes to this page 10 March 1998 by David Adams<P>
+Last changes to this page 11 September 1998 by Jeff Murphy<P>
 &#169; J.C.Murphy, J.W.Murphy 1997 arsperl@smurfland.cit.buffalo.edu 
 </address>
 
