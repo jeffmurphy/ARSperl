@@ -1,3 +1,5 @@
+<BASE HREF="/u/mark/ars_MergeEntry.html">
+
 <HTML>
 <HEAD>
 <TITLE>ARSperl Manual - ars_MergeEntry</TITLE>
@@ -32,8 +34,35 @@
 	diary entries) you need to pass the <I>encoded</I> diary to this
 	routine. See <A HREF="ars_EncodeDiary.html">ars_EncodeDiary</A>.
 	<P>
-	<CODE>mergeType</CODE>s: see ARS Programmer's Guide for explanation
-	and listing of <CODE>mergeType</CODE>s.
+	<code>mergeType</code> defines how the merge will happen if special
+	field (ie. Entry-Id) already exists:
+	<P>
+	<TABLE BORDER=1>
+	<TR>
+		<TH>Code</TH><TH>Meaning</TH>
+	</TR>
+	<TR>
+		<TD>1</TD><TD>Generate an error</TD>
+	</TR>
+	<TR>
+		<TD>2</TD><TD>Create a new entry with the new entry id</TD>
+	</TR>
+	<TR>
+		<TD>3</TD><TD>Delete the existing entry and create a new on in its place</TD>
+	</TR>
+	<TR>
+		<TD>4</TD><TD>Update fields specified in the fieldlist in existing entry</TD>
+	</TR>
+	<TR>
+		<TD>1024+num above</TD><TD>Allow NULL in required fields (not applicable for Submitter,
+		Status or Short-Description)</TD>
+	</TR>
+	<TR>
+		<TD>2048+num above</TD><TD>Skip field pattern checking</TD>
+	</TR>	
+	</TABLE>
+	<P>
+	Refer to the Remedy Programmers Manual for further details (page 6-122 in the Remedy 3 manual)
 
 <P>
 <I>ars_MergeEntry was introduced in version 1.46 of ARSperl</I>
