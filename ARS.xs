@@ -42,6 +42,7 @@ typedef struct {
 } ARList;
 
 typedef SV* (*ARS_fn)(void *);
+/* typedef void *ARS_fn; */
 
 SV *perl_ARStatusStruct(ARStatusStruct *);
 SV *perl_ARInternalId(ARInternalId *);
@@ -78,17 +79,27 @@ SV *perl_ARFieldValueOrArithStruct(ARFieldValueOrArithStruct *);
 SV *perl_relOp(ARRelOpStruct *);
 HV *perl_qualifier(ARQualifierStruct *);
 
+/* malloc that will never return null */
+static void *mallocnn(int s) {
+  void *m = malloc(s);
+  if (! m)
+    croak("can't malloc");
+  else 
+    return m;
+}
 
 /* new ARError which fixes sprintf incompatability under SUNOS
    from Mark Feit <mfeit@uunet.uu.net> */
 int ARError(int returncode, ARStatusList status) {
   char *index;         /* Index into error buffer */
   int item;            /* Error item counter */
-
+  
   ars_errstr = errbuf;
   errbuf[0] = '\0';
   if (returncode==0) {
+#ifndef WASTE_MEM
     FreeARStatusList(&status, FALSE);
+#endif
     return 0;
   }
   index = errbuf;
@@ -100,20 +111,24 @@ int ARError(int returncode, ARStatusList status) {
     strcpy( index, status.statusList[item].messageText );		 
     index += strlen(index);
   }
+#ifndef WASTE_MEM
   FreeARStatusList(&status, FALSE);
+#endif
   return 1;
 }
 
 SV *perl_ARStatusStruct(ARStatusStruct *in) {
   char *msg;
   SV *ret;
-  msg = malloc(strlen(in->messageText) + 100);
+  msg = mallocnn(strlen(in->messageText) + 100);
   sprintf(msg, "Type %d Num %d Text [%s]\n",
 	  in->messageType,
 	  in->messageNum,
 	  in->messageText);
   ret = newSVpv(msg, 0);
+#ifndef WASTE_MEM
   free(msg);
+#endif
   return ret;
 }
 
@@ -207,7 +222,9 @@ SV *perl_ARValueStruct(ARValueStruct *in) {
       array = perl_ARList((ARList *)&diaryList,
 			  (ARS_fn)perl_diary,
 			  sizeof(ARDiaryStruct));
+#ifndef WASTE_MEM
       FreeARDiaryList(&diaryList,FALSE);
+#endif
       return array;
     }
   case AR_DATA_TYPE_ENUM:
@@ -776,7 +793,7 @@ ARArithOpStruct *dup_ArithOp(ARArithOpStruct *in) {
   ARArithOpStruct *n;
   if (!in)
     return NULL;
-  n = malloc(sizeof(ARArithOpStruct));
+  n = mallocnn(sizeof(ARArithOpStruct));
   n->operation = in->operation;
   dup_FieldValueOrArith(&n->operandLeft, &in->operandLeft);
   dup_FieldValueOrArith(&n->operandRight, &in->operandRight);
@@ -785,7 +802,7 @@ ARArithOpStruct *dup_ArithOp(ARArithOpStruct *in) {
 void dup_ValueList(ARValueList *n, ARValueList *in) {
   int i;
   n->numItems = in->numItems;
-  n->valueList = malloc(sizeof(ARValueStruct) * in->numItems);
+  n->valueList = mallocnn(sizeof(ARValueStruct) * in->numItems);
   for (i=0; i<in->numItems; i++)
     dup_Value(&n->valueList[0], &in->valueList[0]);
 }
@@ -794,7 +811,7 @@ ARQueryValueStruct *dup_QueryValue(ARQueryValueStruct *in) {
   ARQueryValueStruct *n;
   if (!in)
     return NULL;
-  n = malloc(sizeof(ARQueryValueStruct));
+  n = mallocnn(sizeof(ARQueryValueStruct));
   strcpy(n->schema, in->schema);
   strcpy(n->server, in->server);
   n->qualifier = dup_qualifier(in->qualifier);
@@ -835,7 +852,7 @@ ARRelOpStruct *dup_RelOp(ARRelOpStruct *in) {
   ARRelOpStruct *n;
   if (! in)
     return NULL;
-  n = malloc(sizeof(ARRelOpStruct));
+  n = mallocnn(sizeof(ARRelOpStruct));
   n->operation = in->operation;
   dup_FieldValueOrArith(&n->operandLeft, &in->operandLeft);
   dup_FieldValueOrArith(&n->operandRight, &in->operandRight);
@@ -846,7 +863,7 @@ ARQualifierStruct *dup_qualifier(ARQualifierStruct *in) {
   ARQualifierStruct *n;
   if (!in)
     return NULL;
-  n = malloc(sizeof(ARQualifierStruct));
+  n = mallocnn(sizeof(ARQualifierStruct));
   n->operation = in->operation;
   switch (in->operation) {
   case AR_COND_OP_AND:
@@ -1119,7 +1136,7 @@ ars_LoadQualifier(ctrl,schema,qualstring)
 	CODE:
 	{
 	  int ret;
-	  ARQualifierStruct *qual = malloc(sizeof(ARQualifierStruct));
+	  ARQualifierStruct *qual = mallocnn(sizeof(ARQualifierStruct));
 	  ARStatusList status;
 	
 	  ret = ARLoadARQualifierStruct(ctrl, schema, NULL, qualstring, qual, &status);
@@ -1127,7 +1144,9 @@ ars_LoadQualifier(ctrl,schema,qualstring)
 	    RETVAL = qual;
 	  } else {
 	    RETVAL = NULL;
+#ifndef WASTE_MEM
 	    free(qual);
+#endif
 	  }
 	}
 	OUTPUT:
@@ -1168,12 +1187,7 @@ ars_Login(server,username,password)
 	    RETVAL = NULL;
 	    goto ar_login_end;
 	  }
-	  if (!(ctrl = (ARControlStruct *)malloc(sizeof(ARControlStruct)))) {
-	    ars_errstr = "could not malloc space for control struct";
-	    FreeARServerNameList(&serverList,FALSE);
-	    RETVAL = NULL;
-	    goto ar_login_end;
-	  }
+	  ctrl = (ARControlStruct *)mallocnn(sizeof(ARControlStruct));
 	  ctrl->cacheId = 0;
 	  ctrl->operationTime = 0;
 	  strncpy(ctrl->user, username, sizeof(ctrl->user));
@@ -1181,11 +1195,14 @@ ars_Login(server,username,password)
 	  strncpy(ctrl->password, password, sizeof(ctrl->password));
 	  ctrl->password[sizeof(ctrl->password)-1] = 0;
 	  ctrl->language[0] = 0;
-	  if (!server || !*server) server = serverList.nameList[0];
+	  if (!server || !*server)
+	    server = serverList.nameList[0];
 	  strncpy(ctrl->server, server, sizeof(ctrl->server));
 	  ctrl->server[sizeof(ctrl->server)-1] = 0;
 	  RETVAL = ctrl;
+#ifndef WASTE_MEM
 	  FreeARServerNameList(&serverList,FALSE);
+#endif
 	  goto ar_login_end;
 	ar_login_end:;
 	}
@@ -1225,7 +1242,9 @@ ars_GetListField(control,schema,changedsince=0)
 	  if (!ARError(ret,status)) {
 	    for (i=0; i<idlist.numItems; i++)
 	      XPUSHs(sv_2mortal(newSViv(idlist.internalIdList[i])));
+#ifndef WASTE_MEM
 	    FreeARInternalIdList(&idlist,FALSE);
+#endif
 	  }
 	}
 
@@ -1253,12 +1272,18 @@ ars_GetFieldByName(control,schema,field_name)
 	      }
 	      if (strcasecmp(field_name,displayList.displayList[0].label)==0){
 		XPUSHs(sv_2mortal(newSViv(idList.internalIdList[loop])));
+#ifndef WASTE_MEM
 		FreeARDisplayList(&displayList, FALSE);
+#endif
 		break;
 	      }
+#ifndef WASTE_MEM
 	      FreeARDisplayList(&displayList, FALSE);
+#endif
 	    }
+#ifndef WASTE_MEM
 	    FreeARInternalIdList(&idList, FALSE);
+#endif
 	  }
 	}
 
@@ -1285,9 +1310,13 @@ ars_GetFieldTable(control,schema)
 	      }
 	      XPUSHs(sv_2mortal(newSVpv(displayList.displayList[0].label, strlen(displayList.displayList[0].label))));
 	      XPUSHs(sv_2mortal(newSViv(idList.internalIdList[loop])));
+#ifndef WASTE_MEM
 	      FreeARDisplayList(&displayList, FALSE);
+#endif
 	    }
+#ifndef WASTE_MEM
 	    FreeARInternalIdList(&idList, FALSE);
+#endif
 	  }
 	}
 
@@ -1309,7 +1338,7 @@ ars_CreateEntry(ctrl,schema...)
 	    ars_errstr = "Invalid number of arguments";
 	  } else {
 	    fieldList.numItems = c;
-	    fieldList.fieldValueList = malloc(sizeof(ARFieldValueStruct)*c);
+	    fieldList.fieldValueList = mallocnn(sizeof(ARFieldValueStruct)*c);
 	    for (i=0; i<c; i++) {
 	      a = i*2+2;
 	      fieldList.fieldValueList[i].fieldId = SvIV(ST(a));
@@ -1355,7 +1384,9 @@ ars_CreateEntry(ctrl,schema...)
 	      RETVAL = entryId;
 	    }
 	  create_entry_end:;
-	    FreeARFieldValueList(&fieldList,FALSE);
+#ifndef WASTE_MEM
+	    free(fieldList.fieldValueList);
+#endif
 	  }
 	}
 	OUTPUT:
@@ -1410,27 +1441,33 @@ ars_GetEntry(ctrl,schema,entry_id,...)
 	    idList.numItems = 0; /* get all fields */
 	  } else {
 	    idList.numItems = c;
-	    if (!(idList.internalIdList = malloc(sizeof(ARInternalId) * c)))
+	    if (!(idList.internalIdList = mallocnn(sizeof(ARInternalId) * c)))
 	      goto get_entry_end;
 	    for (i=0; i<c; i++)
 	      idList.internalIdList[i] = SvIV(ST(i+3));
 	  }
 	  ret = ARGetEntry(ctrl, schema, entry_id, &idList, &fieldList, &status); 
 	  if (ARError(ret, status)) {
+#ifndef WASTE_MEM
 	    FreeARInternalIdList(&idList, FALSE);
+#endif
 	    goto get_entry_end;
 	  }
 	  
 	  if(fieldList.numItems < 1) {
+#ifndef WASTE_MEM
 	    FreeARInternalIdList(&idList, FALSE);
+#endif
 	    goto get_entry_end;
  	  }
 	  for (i=0; i<fieldList.numItems; i++) {
 	    XPUSHs(sv_2mortal(newSViv(fieldList.fieldValueList[i].fieldId)));
 	    XPUSHs(sv_2mortal(perl_ARValueStruct(&fieldList.fieldValueList[i].value)));
 	  }
+#ifndef WASTE_MEM
 	  FreeARInternalIdList(&idList, FALSE);
-	  FreeARFieldValueList(&fieldList,FALSE); 
+	  FreeARFieldValueList(&fieldList,FALSE);
+#endif
 	get_entry_end:;
 	}
 
@@ -1455,21 +1492,25 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,...)
 	    goto getlistentry_end;
 	  }
 	  sortList.numItems = c;
-	  sortList.sortList = malloc(sizeof(ARSortStruct)*c);
+	  sortList.sortList = mallocnn(sizeof(ARSortStruct)*c);
 	  for (i=0; i<c; i++) {
 	    sortList.sortList[i].fieldId = SvIV(ST(i*2+4));
 	    sortList.sortList[i].sortOrder = SvIV(ST(i*2+5));
 	  }
 	  ret = ARGetListEntry(ctrl, schema, qualifier, &sortList, maxRetrieve, &entryList, &num_matches, &status);
 	  if (ARError(ret, status)) {
+#ifndef WASTE_MEM
 	    FreeARSortList(&sortList,FALSE);
+#endif
 	    goto getlistentry_end;
 	  }
 	  for (i=0; i<entryList.numItems; i++) {
 	    XPUSHs(sv_2mortal(newSVpv(entryList.entryList[i].entryId, 0)));
 	    XPUSHs(sv_2mortal(newSVpv(entryList.entryList[i].shortDesc, 0)));
 	  }
+#ifndef WASTE_MEM
 	  FreeAREntryListList(&entryList,FALSE);
+#endif
 	  getlistentry_end:;
 	}
 
@@ -1488,7 +1529,9 @@ ars_GetListSchema(ctrl,changedsince=0)
 	    for (i=0; i<nameList.numItems; i++) {
 	      XPUSHs(sv_2mortal(newSVpv(nameList.nameList[i], 0)));
 	    }
+#ifndef WASTE_MEM
 	    FreeARNameList(&nameList,FALSE);
+#endif
 	  }
 	}
 
@@ -1505,7 +1548,9 @@ ars_GetListServer()
 	    for (i=0; i<serverList.numItems; i++) {
 	      XPUSHs(sv_2mortal(newSVpv(serverList.nameList[i], 0)));
 	    }
+#ifndef WASTE_MEM
 	    FreeARServerNameList(&serverList,FALSE);
+#endif
 	  }
 	}
 
@@ -1523,7 +1568,7 @@ ars_GetActiveLink(ctrl,name)
 	  ARInternalId field;
 	  ARDisplayList displayList;
 	  unsigned int enable;
-	  ARQualifierStruct *query=malloc(sizeof(ARQualifierStruct));
+	  ARQualifierStruct *query=mallocnn(sizeof(ARQualifierStruct));
 	  ARActiveLinkActionList actionList;
 	  char *helpText;
 	  ARTimestamp timestamp;
@@ -1578,6 +1623,7 @@ ars_GetActiveLink(ctrl,name)
 	    if (changeDiary)
 	      hv_store(RETVAL, "changeDiary", strlen("changeDiary"),
 		       newSVpv(changeDiary,0), 0);
+#ifndef WASTE_MEM
 	    FreeARInternalIdList(&groupList,FALSE);
 	    FreeARDisplayList(&displayList,FALSE);
 	    FreeARActiveLinkActionList(&actionList,FALSE);
@@ -1585,6 +1631,7 @@ ars_GetActiveLink(ctrl,name)
 	      free(helpText);
 	    if(changeDiary)
 	      free(changeDiary);
+#endif
 	  }
 	}
 	OUTPUT:
@@ -1604,7 +1651,9 @@ ars_GetCharMenuItems(ctrl,name)
 	  ret = ARGetCharMenu(ctrl, name, NULL, &menuDefn, NULL, NULL, NULL, NULL, NULL, &status);
 	  if (! ARError(ret,status)) {
 	    ST(0) = sv_2mortal(perl_expandARCharMenuStruct(ctrl, &menuDefn));
+#ifndef WASTE_MEM
 	    FreeARCharMenuStruct(&menuDefn,FALSE);
+#endif
 	  } else {
 	    ST(0) = &sv_undef;
 	  }
@@ -1659,6 +1708,7 @@ ars_GetSchema(ctrl,name)
 	    if (changeDiary)
 	      hv_store(RETVAL, "changeDiary", strlen("changeDiary"),
 		       newSVpv(changeDiary, 0), 0);
+#ifndef WASTE_MEM
 	    FreeARInternalIdList(&groupList,FALSE);
 	    FreeARInternalIdList(&adminGroupList,FALSE);
 	    FreeAREntryListFieldList(&getListFields,FALSE);
@@ -1667,6 +1717,7 @@ ars_GetSchema(ctrl,name)
 	      free(helpText);
 	    if(changeDiary)
 	      free(changeDiary);
+#endif
 	  }
 	}
 	OUTPUT:
@@ -1687,7 +1738,9 @@ ars_GetListActiveLink(ctrl,schema=NULL,changedSince=0)
 	  if (! ARError(ret,status)) {
 	    for (i=0; i<nameList.numItems; i++)
 	      XPUSHs(sv_2mortal(newSVpv(nameList.nameList[i],0)));
+#ifndef WASTE_MEM
 	    FreeARNameList(&nameList,FALSE);
+#endif
 	  }
 	}
 
@@ -1702,7 +1755,7 @@ ars_GetField(ctrl,schema,id)
 	  ARStatusList Status;
 	  unsigned int dataType, option, createMode;
 	  ARValueStruct defaultVal;
-	  ARPermissionList permissions;
+	/*  ARPermissionList permissions; */
 	  ARFieldLimitStruct limit;
 	  ARDisplayList displayList;
 	  char *helpText;
@@ -1712,7 +1765,7 @@ ars_GetField(ctrl,schema,id)
 	  char *changeDiary;
 	  
 	  RETVAL = newHV();
-	  ret = ARGetField(ctrl, schema, id, &dataType, &option, &createMode, &defaultVal, &permissions, &limit, &displayList, &helpText, &timestamp, owner, lastChanged, &changeDiary, &Status);
+	  ret = ARGetField(ctrl, schema, id, &dataType, &option, &createMode, &defaultVal, NULL /* &permissions */, &limit, &displayList, &helpText, &timestamp, owner, lastChanged, &changeDiary, &Status);
 	  if (! ARError(ret, Status)) {
 	    /* store field id for convenience */
 	    hv_store(RETVAL, "fieldId", strlen("fieldId"),
@@ -1748,13 +1801,15 @@ ars_GetField(ctrl,schema,id)
 	    if (changeDiary)
 	      hv_store(RETVAL, "changeDiary", strlen("changeDiary"),
 		       newSVpv(changeDiary, 0), 0);
-	    FreeARPermissionList(&permissions,FALSE);
+#ifndef WASTE_MEM
+	/*    FreeARPermissionList(&permissions,FALSE); */
 	    FreeARFieldLimitStruct(&limit,FALSE);
 	    FreeARDisplayList(&displayList,FALSE);
 	    if(helpText)
 	      free(helpText);
 	    if(changeDiary)
 	      free(changeDiary);
+#endif
 	  }
 	}
 	OUTPUT:
@@ -1780,7 +1835,7 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	    ars_errstr = "Invalid number of arguments";
 	  } else {
 	    fieldList.numItems = c;
-	    fieldList.fieldValueList = malloc(sizeof(ARFieldValueStruct)*c);
+	    fieldList.fieldValueList = mallocnn(sizeof(ARFieldValueStruct)*c);
 	    for (i=0; i<c; i++) {
 	      a = i*2+4;
 	      fieldList.fieldValueList[i].fieldId = SvIV(ST(a));
@@ -1826,7 +1881,9 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	      RETVAL = 1;
 	    }
 	  set_entry_end:;
+#ifndef WASTE_MEM
 	    free(fieldList.fieldValueList);
+#endif
 	  }
 	}
 	OUTPUT:
@@ -1848,7 +1905,7 @@ ars_Export(ctrl,displayTag,...)
 	    ars_errstr = "Invalid number of arguments";
 	  } else {
 	    structItems.numItems = c;
-	    structItems.structItemList = malloc(sizeof(ARStructItemStruct)*c);
+	    structItems.structItemList = mallocnn(sizeof(ARStructItemStruct)*c);
 	    for (i=0; i<c; i++) {
 	      a = i*2+2;
 	      if (strcmp(SvPV(ST(a),na),"Schema")==0)
@@ -1871,7 +1928,9 @@ ars_Export(ctrl,displayTag,...)
 		structItems.structItemList[i].type=AR_STRUCT_ITEM_ESCALATION;
 	      else {
 		ars_errstr = "Unknown export type";
+#ifndef WASTE_MEM
 		free(structItems.structItemList);
+#endif
 		goto export_end;
 	      }
 	      strncpy(structItems.structItemList[i].name,SvPV(ST(a+1),na), sizeof(ARNameType));
@@ -1879,13 +1938,17 @@ ars_Export(ctrl,displayTag,...)
 	    }
 	    ret = ARExport(ctrl, &structItems, displayTag, &buf, &status);
 	    if (ARError(ret, status)) {
+#ifndef WASTE_MEM
 	      free(structItems.structItemList);
+#endif
 	      goto export_end;
 	    }
 	    /* copy buffer from heap to stack frame and free buffer */
 	    buf_copy = alloca(strlen(buf) + 1);
 	    strcpy(buf_copy, buf);
+#ifndef WASTE_MEM
 	    free(buf);
+#endif
 	    RETVAL = buf_copy;
 	  }
 	export_end:;
@@ -1907,7 +1970,9 @@ ars_GetListFilter(control,schema=NULL,changedsince=0)
 	  if (!ARError(ret,status)) {
 	    for (i=0; i<nameList.numItems; i++)
 	      XPUSHs(sv_2mortal(newSVpv(nameList.nameList[i], 0)));
+#ifndef WASTE_MEM
 	    FreeARNameList(&nameList,FALSE);
+#endif
 	  }
 	}
 
@@ -1925,7 +1990,9 @@ ars_GetListEscalation(control,schema=NULL,changedsince=0)
 	  if (!ARError(ret,status)) {
 	    for (i=0; i<nameList.numItems; i++)
 	      XPUSHs(sv_2mortal(newSVpv(nameList.nameList[i], 0)));
+#ifndef WASTE_MEM
 	    FreeARNameList(&nameList,FALSE);
+#endif
 	  }
 	}
 
@@ -1942,7 +2009,9 @@ ars_GetListCharMenu(control,changedsince=0)
 	  if (!ARError(ret,status)) {
 	    for (i=0; i<nameList.numItems; i++)
 	      XPUSHs(sv_2mortal(newSVpv(nameList.nameList[i], 0)));
+#ifndef WASTE_MEM
 	    FreeARNameList(&nameList,FALSE);
+#endif
 	  }
 	}
 
@@ -1960,7 +2029,9 @@ ars_GetListAdminExtension(control,changedsince=0)
 	  if (!ARError(ret,status)) {
 	    for (i=0; i<nameList.numItems; i++)
 	      XPUSHs(sv_2mortal(newSVpv(nameList.nameList[i], 0)));
+#ifndef WASTE_MEM
 	    FreeARNameList(&nameList,FALSE);
+#endif
 	  }
 	}
 
