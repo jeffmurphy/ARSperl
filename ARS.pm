@@ -21,6 +21,9 @@
 #    Comments to: arsperl@smurfland.cit.buffalo.edu
 #
 # $Log: ARS.pm,v $
+# Revision 1.11  1997/02/18 16:38:20  jmurphy
+# added a END block to call ARTermination
+#
 # Revision 1.10  1997/02/17 16:21:57  jcmurphy
 # added ars_GetCurrentServer so you can determine what server you connected to (if you didnt specify one)
 #
@@ -186,7 +189,13 @@ sub ars_padEntryid {
     return ("0"x($field->{limit}{maxLength}-length($entry_id))).$entry_id;
 }
 
+# call ARInitialization
 ARS::__ars_init();
+
+# call ARTermination
+END {
+  ARS::__ars_Termination();
+}
 
 1;
 __END__
