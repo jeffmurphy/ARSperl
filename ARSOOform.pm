@@ -402,6 +402,7 @@ sub internal2value {
 	# enumeration value exceeds the known list of enumerations,
 	# barf.
 	
+	return undef unless defined $v;
 	if(!defined($this->{'fieldEnumValues'}->{$f}) || 
 	   ($#{$this->{'fieldEnumValues'}->{$f}} < $v) ) {
 	    $this->{'connection'}->pushMessage(&ARS::AR_RETURN_ERROR,
