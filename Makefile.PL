@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.49 2003/04/16 19:10:45 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.50 2003/04/24 18:39:18 jcmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -53,7 +53,7 @@ $WINDOWS = ($^O eq 'MSWin32');
 #        Windows NT: no "-lpthread"
 #        NCR UNIX: add "-lc -lnet"
 #                -DARSPDEBUG
-$AUTODEFINES = " -DARSPDEBUG -DPROFILE -g ";
+$AUTODEFINES = " -g ";
 $AUTODEFINES = "-D_WIN32" if($WINDOWS);
 
 if($ARSVERSION >= 4.0) {
@@ -140,6 +140,11 @@ foreach ("ar", "arerrno", "nt", "nterrno") {
 
 	$rv = system("$Config{'perlpath'} infra/h2ph -d . < $headerFile > ARS${_}-h.pm");
 
+	unlink ('_h2ph_pre.ph');
+	open (FD, "> _h2ph_pre.ph") || die "open: $!";
+	print FD "1;\n";
+	close(FD);
+
 	if((! -e "ARS${_}-h.pm") || (-z "ARS${_}-h.pm")) {
 		open (FD, "> ARS${_}-h.pm") || die "open: $!";
 		print FD "\# your perl installation was either missing the 'h2ph'
@@ -161,6 +166,7 @@ WriteMakefile(
 	      'LIBS'	=> ["${ARS_LDPATH} ${ARS_LIBS}"],
 	      'OBJECT'  => q[ARS$(OBJ_EXT) support$(OBJ_EXT) supportrev$(OBJ_EXT)],
 	      'INC'	=> "${INCLUDES}",
+	      #'PM' =>{ '_h2ph_pre.ph' => '$(INST_LIBDIR)/_h2ph_pre.ph' },
 	      @extras,
 
 # DEFINE OPTIONS:

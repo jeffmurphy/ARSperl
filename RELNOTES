@@ -1,4 +1,4 @@
-$Header: /cvsroot/arsperl/ARSperl/RELNOTES,v 1.12 2003/04/16 01:40:02 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/RELNOTES,v 1.13 2003/04/24 18:39:18 jcmurphy Exp $
 
 Release Notes for ARSperl
 
@@ -38,7 +38,8 @@ will need to be editted (unless you are using the OO layer).
 
 	Function			What's Changed
 	--------------------------------------------------------------
-	ars_GetListEntry		additional required 
+	ars_GetListEntry		additional required  parameter
+	ars_GetListEntryWithFields	additional required  parameter
 
 The following functions have altered return values.
 
