@@ -1,6 +1,6 @@
 <HTML>
 <HEAD>
-<TITLE>ARSperl Programmer's Manual</TITLE>
+<TITLE>ARSperl Manual - ars_GetEntry</TITLE>
 </HEAD>
 <BODY BGCOLOR="#FFFFFF">
 
@@ -38,13 +38,20 @@
       %vals = ars_GetEntry($ctrl, $schema, $entry_id, $diaryfield_fid);
 
       foreach $diary_entry (@{$vals{$diaryfield_fid}}) {
-        print "$diary_entry->{timestamp}\n";
-	print "$diary_entry->{user}\n";
-        print "$diary_entry->{value}\n";
+        print "$diary_entry-&gt;{timestamp}\n";
+	print "$diary_entry-&gt;{user}\n";
+        print "$diary_entry-&gt;{value}\n";
       }
       </PRE>
-<P>
 
-<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Back to Table of Contents </A>
+<P>
+<HR WIDTH="30%">
+<P>
+<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Table of Contents </A>
+<p>
+<address>
+Last changes to this page 26th June 1997 by d.j.adams@soton.ac.uk<br>
+&#169; J.C.Murphy, J.W.Murphy 1997 arsperl@smurfland.cit.buffalo.edu
+</address>
 </BODY>
 </HTML>

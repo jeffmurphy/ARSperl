@@ -1,30 +1,62 @@
 <HTML>
 <HEAD>
-<TITLE>ARSperl Programmer's Manual</TITLE>
+<TITLE>ARSperl Manual - GetFilter Hash Values</TITLE>
 </HEAD>
 <BODY BGCOLOR="#FFFFFF">
 
-<H4>GetFilter Hash Values</H4>
+<H2>GetFilter Hash Values</H2>
+
+This structure is returned by 
+<A href="ars_GetFilter.html">ars_GetFilter</a>.
+<p>
+
+For ARS version 3.0:
 
 <PRE>
 {
-"name"		=> string,
-"order"		=> integer,
-"schema"	=> string,
-"opSet"		=> integer bitmask,
-"enable"	=> integer boolean,
-"query"		=> reference to internal struct,
-"actionList"    => <I>list</I> of references to <A HREF="ds_getfilter_acthash.html">Action Hash</A>
-"helpText"	=> string,
-"timestamp"	=> integer,
-"owner"		=> string,
-"lastChanged"	=> integer,
-"changeDiary"	=> encoded string
+ "actionList"   =&gt; <I>list</I> of references to <A HREF="ds_getfilter_acthash.html">Action Hash</A>
+["changeDiary"  =&gt; encoded string,]
+ "elseList"     =&gt; <I>list</I> of references to <A HREF="ds_getfilter_acthash.html">Action Hash</A>
+ "enable"       =&gt; integer boolean,
+ "helpText"     =&gt; string,
+["lastChanged"  =&gt; integer,]
+ "name"         =&gt; string,
+ "opSet"        =&gt; integer bitmask,
+ "order"        =&gt; integer,
+ "owner"        =&gt; string,
+ "query"        =&gt; reference to internal struct,
+ "schema"       =&gt; string,
+ "timestamp"    =&gt; integer
+}
+</PRE>
+
+For ARS 2.1 and earlier:
+
+<PRE>
+{
+ "actionList"   =&gt; <I>list</I> of references to <A HREF="ds_getfilter_acthash.html">Action Hash</A>
+["changeDiary"  =&gt; encoded string,]
+ "enable"       =&gt; integer boolean,
+ "helpText"     =&gt; string,
+["lastChanged"  =&gt; integer,]
+ "name"         =&gt; string,
+ "opSet"        =&gt; integer bitmask,
+ "order"        =&gt; integer,
+ "owner"        =&gt; string,
+ "query"        =&gt; reference to internal struct,
+ "schema"       =&gt; string,
+ "timestamp"    =&gt; integer
 }
 </PRE>
 
 <P>
-
-<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Back to Table of Contents </A>
+<HR WIDTH="30%">
+<P>
+<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Table of Contents </A>
+<p>
+<address>
+Last changes to this page 21st July 1997 by d.j.adams@soton.ac.uk<br>
+&#169; J.C.Murphy, J.W.Murphy 1997 arsperl@smurfland.cit.buffalo.edu
+</address>
 </BODY>
 </HTML>

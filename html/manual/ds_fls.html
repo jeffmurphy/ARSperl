@@ -1,40 +1,52 @@
 <HTML>
 <HEAD>
-<TITLE>ARSperl Programmer's Manual</TITLE>
+<TITLE>ARSperl Manual - Field Limit Structure</TITLE>
 </HEAD>
 <BODY BGCOLOR="#FFFFFF">
 
-<H4>Field Limit Structure</H4>
+<H2>Field Limit Structure</H2>
 
 <PRE>
-; integer
-{"min"			=> integer,
- "max"			=> integer}
-	or
-; real
-{"min"			=> float,
- "max"			=> float,
- "precision"		=> integer}
-	or
-; char
-{"maxLength"		=> integer,
- "menuStyle"		=> "append" or "overwrite",
- "match"		=> "anywhere" or "leading" or "equal",
- "charMenu"		=> string,
- "pattern"		=> string,
- "fullTextOptions"	=> "none" or "indexed"}
-	or
-; diary
-{"fullTextOptions"	=> "none" or "indexed"}
-	or
-; enum and bitmask
+<B>; integer</B>
+{
+ "min"             =&gt; integer,
+ "max"             =&gt; integer
+}
+      <I>or</I>
+<B>; real</B>
+{
+ "min"             =&gt; float,
+ "max"             =&gt; float,
+ "precision"       =&gt; integer
+}
+       <I>or</I>
+<B>; char</B>
+{
+ "maxLength"       =&gt; integer,
+ "menuStyle"       =&gt; "append" <I>or</I> "overwrite",
+ "match"           =&gt; "anywhere" <I>or</I> "leading" <I>or</I> "equal",
+ "charMenu"        =&gt; string,
+ "pattern"         =&gt; string,
+ "fullTextOptions" =&gt; "none" <I>or</I> "indexed"}
+        <I>or</I>
+<B>; diary</B>
+{
+ "fullTextOptions" =&gt; "none" <I>or</I> "indexed"}
+        <I>or</I>
+<B>; enum and bitmask</B>
 array of strings
-	or
+        <I>or</I>
 undef
 </PRE>
 
 <P>
-
-<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Back to Table of Contents </A>
+<HR WIDTH="30%">
+<P>
+<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Table of Contents </A>
+<p>
+<address>
+Last changes to this page 27th June 1997 by d.j.adams@soton.ac.uk<br>
+&#169; J.C.Murphy, J.W.Murphy 1997 arsperl@smurfland.cit.buffalo.edu
+</address>
 </BODY>
 </HTML>
