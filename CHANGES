@@ -1,4 +1,4 @@
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.17 1998/02/13 18:46:07 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.18 1998/02/23 15:29:12 jcmurphy Exp $
 
 CHANGES for ARSperl
 
@@ -12,6 +12,9 @@ MM/DD/YY
 
   o (JCM)  patched perl_BuildEntryIdList to make it more robust
            (Ulrich Pfeifer <pfeifer@wait.de>)
+
+  o (JCM)  patches ars_GetCharMenu for bug "GetCharMenu doesn't
+           return a qualifier for query menus" (D.J.Adams@soton.ac.uk)
 
 =======================================================================
 #######################################################################
