@@ -1,4 +1,4 @@
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.19 1998/03/30 18:55:05 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.20 1998/03/30 19:00:19 jcmurphy Exp $
 
 CHANGES for ARSperl
 
@@ -11,7 +11,7 @@ MM/DD/YY
 03/30/98        (1.55)
 
   o (JCM)  added ars_GetListEntry.pl example to show how to use
-           customer query-list fields.
+           custom query-list fields.
 
   o (JCM)  numerous documentation updates by D.J.Adams@soton.ac.uk
 
