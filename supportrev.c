@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.13 2000/05/24 18:05:25 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.14 2000/06/01 16:54:03 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -24,6 +24,9 @@ $Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.13 2000/05/24 18:05:25 jcmurp
     LOG:
 
 $Log: supportrev.c,v $
+Revision 1.14  2000/06/01 16:54:03  jcmurphy
+*** empty log message ***
+
 Revision 1.13  2000/05/24 18:05:25  jcmurphy
 primary ars4.5 integration in this checkpoint.
 
@@ -144,6 +147,30 @@ static int
 rev_ARPropList_helper(ARControlStruct * ctrl,
 		      HV * h, ARPropList * m, int idx);
 #endif
+
+/* ROUTINE
+ *   revTypeName(TypeMapStruct *tms, char *type)
+ *
+ * DESCRIPTION
+ *   given a typemapstruct and a string, return the 
+ *   enumeration value if string exists in struct.
+ *
+ * RETURNS
+ *   >=0 on success
+ *   TYPEMAP_LAST on failure
+ */
+
+unsigned int
+revTypeName(TypeMapStruct *t, char *type) 
+{
+	if(type && *type && t) {
+		int i = 0;
+		while((t[i].number != TYPEMAP_LAST) && strcmp(t[i].name, type))
+			i++;
+		return t[i].number;
+	}
+	return TYPEMAP_LAST;
+}
 
 /* ROUTINE
  *   strcpyHVal(hash, key, buffer, bufferLen)
@@ -2017,9 +2044,37 @@ rev_ARMessageStruct(ARControlStruct * ctrl, HV * h, char *k, ARMessageStruct * m
 				if (SvTYPE(SvRV(*val)) == SVt_PVHV) {
 					HV             *a = (HV *) SvRV((SV *) * val);
 					int             rv = 0;
+					char           *str = NULL;
+
+					if(hv_exists(h, VNAME("messageType"))) {
+						SV **sval = hv_fetch(h, VNAME("messageType"), 0);
+						if(sval && *sval) {
+							if (SvPOK(*sval)) 
+								str = SvPV(*sval, PL_na);
+						}
+					}
+
+
+					/* pre1-1.68 messageType was an int, from 1.68 on, it 
+					 * is a decoded string, so we need to re-encode from the string
+					 * value. previous code was:
+					 *
+					 * rv += uintcpyHVal(a, "messageType", &(m->messageType));
+					 *
+					 * new code follows (next 10 lines or so)
+					 */
+
+					m->messageType = 
+						revTypeMap((TypeMapStruct *)StatusReturnTypeMap,
+							   str);
+
+					if(m->messageType = TYPEMAP_LAST) {
+						ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
+							    "rev_ARMessageStruct: messageType key invalid");
+						return -1;
+					}
 
 					rv += strmakHVal(a, "messageText", &(m->messageText));
-					rv += uintcpyHVal(a, "messageType", &(m->messageType));
 					rv += longcpyHVal(a, "messageNum", &(m->messageNum));
 					rv += boolcpyHVal(a, "usePromptingPane", &(m->usePromptingPane));
 

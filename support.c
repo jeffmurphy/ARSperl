@@ -24,6 +24,9 @@ $header: /u1/project/ARSperl/ARSperl/RCS/support.c,v 1.25 1999/01/04 21:04:27 jc
     LOG:
 
 $Log: support.c,v $
+Revision 1.32  2000/06/01 16:54:03  jcmurphy
+*** empty log message ***
+
 Revision 1.31  2000/05/24 18:05:25  jcmurphy
 primary ars4.5 integration in this checkpoint.
 
@@ -530,7 +533,10 @@ perl_ARMessageStruct(ARControlStruct * ctrl, ARMessageStruct * in)
 {
 	HV             *hash = newHV();
 
-	hv_store(hash, VNAME("messageType"), newSViv(in->messageType), 0);
+	/*hv_store(hash, VNAME("messageType"), newSViv(in->messageType), 0); */
+	hv_store(hash, VNAME("messageType"), 
+		 newSVpv(lookUpTypeName((TypeMapStruct *)StatusReturnTypeMap, 
+					in->messageType), 0), 0); 
 	hv_store(hash, VNAME("messageNum"), newSViv(in->messageNum), 0);
 	hv_store(hash, VNAME("messageText"), newSVpv(in->messageText, 0), 0);
 	if (in->usePromptingPane)
@@ -547,6 +553,7 @@ perl_ARStatusStruct(ARControlStruct * ctrl, ARStatusStruct * in)
 {
 	HV             *hash = newHV();
 
+	hv_store(hash, VNAME("messageType"), newSViv(in->messageType), 0); 
 	hv_store(hash, VNAME("messageType"), newSViv(in->messageType), 0);
 	hv_store(hash, VNAME("messageNum"), newSViv(in->messageNum), 0);
 	hv_store(hash, VNAME("messageText"), newSVpv(in->messageText, 0), 0);

@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/Show_ALink.pl,v 1.5 1998/09/14 17:41:05 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/Show_ALink.pl,v 1.6 2000/06/01 16:54:03 jcmurphy Exp $
 #
 # EXAMPLE
 #    Show_ALink.pl
@@ -25,6 +25,9 @@
 # 01/12/96
 # 
 # $Log: Show_ALink.pl,v $
+# Revision 1.6  2000/06/01 16:54:03  jcmurphy
+# *** empty log message ***
+#
 # Revision 1.5  1998/09/14 17:41:05  jcmurphy
 # added ChangeDiary decoding lines
 #
@@ -364,17 +367,10 @@ sub ProcessActions {
 		}
 	    }
 	    if(defined($action->{message})) {
-		
-		# message text is formatted as:
-		#
-		# Type X Num XXXXX Text [XXXXXX...]
-
-		$action->{message} =~ 
-		    /Type\ ([0-9]+)\ Num\ ([0-9]+)\ Text \[(.*)\]/;
-		printl 2, "Message:\n";
-		printl 3, "Type: $MessageTypes[$1] ($1)\n";
-		printl 3, "Num: $2\n";
-		printl 3, "Text: $3\n";
+		printl 2, "Message: \n";
+		foreach my $k (keys %{$action->{message}}) {
+			printl 3, "$k: $action->{'message'}->{$k}\n";
+		}
 	    }
 	    if(defined($action->{process})) {
 		printl 2, "Process: ".$action->{process}."\n";
@@ -395,7 +391,6 @@ sub ProcessActions {
 	print "No actions to process!\n";
     }
 }
-
 # Log onto the ars server specified
 
 ($ctrl = ars_Login($server, $username, $password)) || 
@@ -411,7 +406,15 @@ print "Active Link Attributes:\n\n";
 
 print  "Name: ".$a->{name}."\n";
 print  "Execution Order: ".$a->{order}."\n";
-print  "Schema Name: ".$a->{schema}."\n";
+if(defined($a->{'schema'})) {
+	print  "Schema Name: ".$a->{schema}."\n";
+} elsif(defined($a->{'schemaList'})) {
+	print  "schemaList : ";
+	foreach my $s (@{$a->{'schemaList'}}) {
+		print "\"$s\" ";
+	}
+	print "\n";
+}
 print  "Group Perms: ";
 
 foreach $group (@{$a->{groupList}}) {
@@ -434,12 +437,26 @@ foreach $display (@{$a->{displayList}}) {
 }
 print "\n";
 
-print  "Qualification: ".$a->{query}."\n";
+#print  "Qualification: ".$a->{query}."\n";
 
-$dq = ars_perl_qualifier($a->{query});
-$dq_text = ars_Decode_QualHash($ctrl, $a->{schema}, $dq);
+$dq = ars_perl_qualifier($ctrl, $a->{query});
+$dq = undef if(isempty($dq));
 
-print  "    Qual Text: $dq_text\n";
+if(defined($dq)) {
+	if(defined($a->{'schema'})) {
+		$dq_text = ars_Decode_QualHash($ctrl, $a->{schema}, $dq);
+		print  "    Qual Text: $dq_text\n";
+	}
+	elsif(defined($a->{'schemaList'})) {
+		foreach my $s (@{$a->{'schemaList'}}) {
+			$dq_text = ars_Decode_QualHash($ctrl, $s, $dq);
+			print "     Qual Text (decoded against \"$s\": $dq_text\n";
+		}
+	}
+} else {
+	print "    Qual Text: [none defined]\n";
+}
+
 print  "Actions:\n";
 
 ProcessActions(@{$a->{actionList}});
@@ -459,3 +476,19 @@ foreach (@{$a->{changeDiary}}) {
 # Log out of the server.
 
 ars_Logoff($ctrl);
+
+exit 0;
+
+sub isempty {
+	my $r = shift;
+	return 1 if !defined($r);
+	if(ref($r) eq "ARRAY") {
+		return ($#{$r} == -1) ? 1 : 0;
+	}
+	if(ref($r) eq "HASH") {
+		my @k = keys %{$r};
+		return ($#k == -1) ? 1 : 0;
+	}
+	return 1 if($r eq "");
+	return 0;
+}

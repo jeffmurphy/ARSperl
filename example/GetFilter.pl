@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/GetFilter.pl,v 1.7 1998/10/14 15:06:10 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/GetFilter.pl,v 1.8 2000/06/01 16:54:03 jcmurphy Exp $
 #
 # NAME
 #   GetFilter.pl
@@ -16,6 +16,9 @@
 #   jcmurphy@acsu.buffalo.edu
 #
 # $Log: GetFilter.pl,v $
+# Revision 1.8  2000/06/01 16:54:03  jcmurphy
+# *** empty log message ***
+#
 # Revision 1.7  1998/10/14 15:06:10  jcmurphy
 # added some extra decoding for set fields actions.
 #
@@ -92,14 +95,45 @@ print "\n\nerrstr contains \"$ars_errstr\"\n\n" if ($ars_errstr ne "");
 print "** Filter Info:\n";
 print "Name        : \"".$finfo->{"name"}."\"\n";
 print "Order       : ".$finfo->{"order"}."\n";
-print "Schema      : \"".$finfo->{"schema"}."\"\n";
+if(defined($finfo->{'schema'})) {
+	print "Schema      : \"".$finfo->{"schema"}."\"\n";
+}
+elsif(defined($finfo->{'schemaList'})) {
+	print "schemaList  : ";
+	foreach my $s (@{$finfo->{'schemaList'}}) {
+		print "\"$s\" ";
+	}
+	print "\n";
+}
 print "opSet       : ".Decode_opSetMask($finfo->{"opSet"})."\n";
 print "Enable      : ".$finfo->{"enable"}."\n";
 
-$dq = ars_perl_qualifier($finfo->{"query"});
-$qualtext = ars_Decode_QualHash($ctrl, $finfo->{"schema"}, $dq);
+if(defined($finfo->{'query'})) {
+	$dq = ars_perl_qualifier($ctrl, $finfo->{"query"});
+	$dq = undef if(isempty($dq));
+} else {
+	$dq = undef;
+}
 
-print "Query       : ".$qualtext."\n";
+if(defined($finfo->{'schema'})) {
+	if(defined($dq)) {
+		$qualtext = ars_Decode_QualHash($ctrl, $finfo->{"schema"}, $dq);
+		print "Query       : ".$qualtext."\n";
+	} else {
+		print "Query       : [none defined]\n";
+	}
+} 
+elsif(defined($finfo->{'schemaList'})) {
+	if(defined($dq)) {
+		foreach my $s (@{$finfo->{'schemaList'}}) {
+			$qualtext = ars_Decode_QualHash($ctrl, $s, $dq);
+			print "Query decoded against form \"$s\" : ".$qualtext."\n";
+		}
+	} else {
+		print "Query       : [none defined]\n";
+	}
+}
+
 print "actionList  : \n";
 
 ProcessActions(@{$finfo->{actionList}});
@@ -298,7 +332,7 @@ sub ProcessSetFields {
 	    }
 	}
 
-	my($dq) = ars_perl_qualifier($field->{field}->{qualifier});
+	my($dq) = ars_perl_qualifier($ctrl, $field->{field}->{qualifier});
 	my($qt) = ars_Decode_QualHash($ctrl, $field->{field}->{schema}, $dq);
 	
 	printl 4, "Qualification:\n";
@@ -417,3 +451,17 @@ sub Decode_opSetMask {
     return($s);
 }
 
+
+sub isempty {
+	my $r = shift;
+	return 1 if !defined($r);
+	if(ref($r) eq "ARRAY") {
+		return ($#{$r} == -1) ? 1 : 0;
+	}
+	if(ref($r) eq "HASH") {
+		my @k = keys %{$r};
+		return ($#k == -1) ? 1 : 0;
+	}
+	return 1 if($r eq "");
+	return 0;
+}

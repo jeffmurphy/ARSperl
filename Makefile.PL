@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.13 2000/05/24 18:05:25 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.14 2000/06/01 16:54:03 jcmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -13,6 +13,9 @@
 #    run with "perl Makefile.PL" then type "make"
 #
 # $Log: Makefile.PL,v $
+# Revision 1.14  2000/06/01 16:54:03  jcmurphy
+# *** empty log message ***
+#
 # Revision 1.13  2000/05/24 18:05:25  jcmurphy
 # primary ars4.5 integration in this checkpoint.
 #
@@ -228,6 +231,16 @@ sub GenerateSupportDotH {
 		$code = (split(/\s/, $line))[1];
 		print "\t\t$code\n" if $debug;
 		$code =~ /^AR_CHAR_MENU_(\w+)/;
+		print FD "  { $code, \t\t\"\L$1\E\" },\n";
+	    }
+	}
+	elsif(/STATUSRETURNTYPEMAP/) {
+	    print "\tProcessing AR_RETURN codes..\n";
+	    my($code, $line);
+	    foreach $line (grep (/^\#define\s+AR_RETURN.*/, @arh)) {
+		$code = (split(/\s/, $line))[1];
+		print "\t\t$code\n" if $debug;
+		$code =~ /^AR_RETURN_(\w+)/;
 		print FD "  { $code, \t\t\"\L$1\E\" },\n";
 	    }
 	}

@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.7 2000/05/24 18:05:25 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.8 2000/06/01 16:54:03 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -24,6 +24,9 @@ $Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.7 2000/05/24 18:05:25 j
     LOG:
 
 $Log: support-h.template,v $
+Revision 1.8  2000/06/01 16:54:03  jcmurphy
+*** empty log message ***
+
 Revision 1.7  2000/05/24 18:05:25  jcmurphy
 primary ars4.5 integration in this checkpoint.
 
@@ -254,6 +257,14 @@ static struct {
   char         *name;
 } MultiMatchOptionMap[] = {
 /*MULTIMATCHOPTIONMAP*/
+  { TYPEMAP_LAST, "" }
+};
+
+static struct {
+  unsigned int  number;
+  char         *name;
+} StatusReturnTypeMap[] = {
+/*STATUSRETURNTYPEMAP*/
   { TYPEMAP_LAST, "" }
 };
 
