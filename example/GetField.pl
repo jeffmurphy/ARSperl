@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/GetField.pl,v 1.1 1997/02/19 22:41:16 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/GetField.pl,v 1.2 1997/05/07 15:38:19 jcmurphy Exp $
 #
 # EXAMPLE
 #    GetField.pl [server] [username] [password] [schema] [fieldname]
@@ -18,6 +18,9 @@
 # 02/19/97
 #
 # $Log: GetField.pl,v $
+# Revision 1.2  1997/05/07 15:38:19  jcmurphy
+# fixed incorrect hash usage
+#
 # Revision 1.1  1997/02/19 22:41:16  jcmurphy
 # Initial revision
 #
@@ -60,16 +63,16 @@ Default Admin View of schema \"$schema\"\n";
 
 print "Fetching field information ..\n";
 
-(%fieldInfo = ars_GetField($ctrl, $schema, $fids{$fieldname})) ||
+($fieldInfo = ars_GetField($ctrl, $schema, $fids{$fieldname})) ||
     die "GetField: $ars_errstr";
 
 print "Here are some of the field attributes. More are available.
 
-fieldId: $fieldInfo{fieldId}
-createMode: $fieldInfo{createMode}
-dataType: $fieldInfo{dataType}
-defaultVal: $fieldInfo{defaultVal}
-owner: $fieldInfo{owner}
+fieldId: $fieldInfo->{fieldId}
+createMode: $fieldInfo->{createMode}
+dataType: $fieldInfo->{dataType}
+defaultVal: $fieldInfo->{defaultVal}
+owner: $fieldInfo->{owner}
 ";
 
 ars_Logoff($ctrl);
