@@ -1,0 +1,30 @@
+<HTML>
+<HEAD>
+<TITLE>ARSperl Programmer's Manual</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+  <H2><CODE>ars_NTInitializationClient()</CODE></H2>
+	This function should be called before connecting to the
+	NT system (<CODE>ntclientd</CODE>) in ARS2.x. 
+        It will initialize the environment.
+
+      <DL>
+          <DT><B>On success</B><DD>
+		1 (True)
+          <DT><B>On failure</B><DD>
+		0 (False)
+      </DL>
+ 
+      <P>Example:
+ 
+      <PRE>
+	ars_NTInitializationClient() || 
+		die "couldn't initialize NT environment: $ars_errstr";
+      </PRE>
+
+<P>
+
+<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Back to Table of Contents </A>
+</BODY>
+</HTML>

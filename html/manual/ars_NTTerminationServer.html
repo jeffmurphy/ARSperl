@@ -1,0 +1,30 @@
+<HTML>
+<HEAD>
+<TITLE>ARSperl Programmer's Manual</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+
+  <H2><CODE>ars_NTTerminationServer()</CODE></H2>
+	Cleanup after you are done. Called after Deregistering from the server,
+	but before exiting.
+	<P>
+      <DL>
+          <DT><B>On success</B><DD>
+		1 (True)
+          <DT><B>On failure</B><DD>
+		0 (False)
+      </DL>
+ 
+      <P>Example:
+ 
+      <PRE>
+	ars_NTTerminationServer() ||
+		die "ars_NTTerminationServer: $ars_errstr";
+      </PRE>
+
+
+<P>
+<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Back to Table of Contents </A>
+</BODY>
+</HTML>

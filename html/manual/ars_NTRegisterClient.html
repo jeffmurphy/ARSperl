@@ -1,0 +1,38 @@
+<HTML>
+<HEAD>
+<TITLE>ARSperl Programmer's Manual</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+<H1> ARS2.x ONLY </H1>
+
+  <H2><CODE>ars_NTRegisterClient(username, password, filename)</CODE></H2>
+	Register with a notification client (<CODE>ntclientd</CODE>) to 
+        receive notifications.
+	<P>
+      <DL>
+          <DT><B>On success</B><DD>
+		1 (True)
+          <DT><B>On failure</B><DD>
+		0 (False)
+      </DL>
+ 
+      <P>Example:
+ 
+      <PRE>
+	ars_NTRegisterClient("joe", "yadda", "/tmp/mypipe1") ||
+		die "ars_NTRegisterClient: $ars_errstr";
+      </PRE>
+
+      <P>Notes:
+      <OL>
+       <LI> See the example in the <CODE>ARSperl/examples/2.x</CODE> directory
+            to learn how to setup the pipe and use this routine.
+       <LI> See the ARS 2.x Programmer's Guide for instructions on parsing
+            the encoded messages that are read from the pipe.
+      </OL>
+<P>
+
+<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Back to Table of Contents </A>
+</BODY>
+</HTML>

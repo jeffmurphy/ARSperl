@@ -1,0 +1,29 @@
+<HTML>
+<HEAD>
+<TITLE>ARSperl Programmer's Manual</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+  <H2><CODE>ars_NTDeregisterServer(serverHost, user, password)</CODE></H2>
+ 	This function will cancel the NT registration for the given user.
+	Use this when you are disconnecting from the NT sub-system.
+
+      <DL>
+          <DT><B>On success</B><DD>
+		1 (True)
+          <DT><B>On failure</B><DD>
+		0 (False)
+      </DL>
+ 
+      <P>Example:
+ 
+      <PRE>
+	ars_NTDeregisterServer("myhost.myco.com", "foo", "bar") || 
+		die "ars_NTDeregisterServer: $ars_errstr"
+      </PRE>
+
+<P>
+
+<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Back to Table of Contents </A>
+</BODY>
+</HTML>
