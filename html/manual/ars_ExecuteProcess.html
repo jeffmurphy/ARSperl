@@ -1,0 +1,52 @@
+<HTML>
+<HEAD>
+<TITLE>ARSperl Manual - ars_ExecuteProcess</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+   <H1> ARS 3.x and Higher </H1>
+
+   <H2><CODE>ars_ExecuteProcess(ctrl, command, runOption=0)</CODE></H2>
+
+	Execute the given command on the server host as the user-id that
+        the server process is running as. 
+        <FONT COLOR="#FF0000">Requires Administrator privs to use.</FONT> <P>
+
+	<CENTER><TABLE BORDER=1 WIDTH=50%>
+	   <TR><TD><CODE>runOption</CODE></TD><TD>Explanation</TD></TR>
+	   <TR><TD ALIGN=CENTER>0</TD><TD>Wait for process to complete and
+                                          then returned the process'
+                                          returnStatus and any output that
+                                          the process had. </TD></TR>
+	   <TR><TD ALIGN=CENTER>1</TD><TD>Don't wait for process to complete.</TD></TR>
+	</TABLE></CENTER>
+
+      <DL>
+         <DT><B>On success</B><DD>
+		Depending upon the runOption specified
+		returns a list of <CODE>returnStatus</CODE> and
+                <CODE>returnString</CODE> or <B>1</B>
+         <DT><B>On failure</B><DD>
+                Returns undef.
+      </DL>
+
+      <P>Example:
+
+      <PRE>
+	(($returnCode, $returnString) = ars_ExecuteProcess($ctrl, "/bin/ls -l /")) || 
+		die "$ars_errstr";
+      </PRE>
+
+<I>ars_ExecuteProcess was introduced in version 1.5 of ARSperl.</I>
+
+<P>
+<HR WIDTH="30%">
+<P>
+<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Table of Contents </A>
+<p>
+<address>
+Last changes to this page 21st July 1997 by jcmurphy@smurfland.cit.buffalo.edu<BR>
+&#169; J.C.Murphy, J.W.Murphy 1997 arsperl@smurfland.cit.buffalo.edu
+</address>
+</BODY>
+</HTML>

@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+<TITLE>ARSperl Manual - GetVUI Hash Values</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+<H2>GetVUI Hash Values</H2>
+
+An array of references to this structure is returned by 
+<A href="ars_GetVUI.html">ars_GetVUI</a>.
+<p>
+
+<PRE>
+{
+ "schema"             =&gt; string,
+ "vuiId"              =&gt; integer,
+ "vuiName"	      =&gt; string,
+ "owner"              =&gt; string,
+ "helpText"           =&gt; string,
+ "lastChanged"        =&gt; string,
+ "changeDiary"        =&gt; string,
+ "timestamp"          =&gt; integer,
+ "propList"           =&gt; <B>reference</B> to an array,
+ "propValList"        =&gt; <B>reference</B> to an array
+}
+</PRE>
+
+The <CODE>propList</CODE> and <CODE>propValList</CODE> arrays contain lists
+of property codes and values. See the <CODE>ar.h</CODE> file that accompanies the
+ARSystem API for a lengthy and well commented list of properties and property
+values.
+
+<P>
+<HR WIDTH="30%">
+<P>
+<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Table of Contents </A>
+<p>
+<address>
+Last changes to this page 21st July 1997 by jcmurphy@smurfland.cit.buffalo.edu<br>
+&#169; J.C.Murphy, J.W.Murphy 1997 arsperl@smurfland.cit.buffalo.edu
+</address>
+</BODY>
+</HTML>

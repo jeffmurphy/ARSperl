@@ -1,0 +1,59 @@
+<HTML>
+<HEAD>
+<TITLE>ARSperl Manual - GetEscalation Hash Values</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+<H2>GetEscalation Hash Values</H2>
+
+This structure is returned by 
+<A href="ars_GetEscalation.html">ars_GetEscalation</a>.
+<p>
+
+<PRE>
+{
+ "name"         =&gt; string,
+ "changeDiary"  =&gt; encoded string,
+ "helpText"     =&gt; string,
+ "lastChanged"  =&gt; string,
+ "timestamp"    =&gt; integer,
+ "owner"        =&gt; string,
+ "schema"       =&gt; string,
+ "enable"       =&gt; integer,
+ "query"        =&gt; ARQualifierStructPtr,
+ "actionList"   =&gt; <B>list</B> of references to <A HREF="ds_alas.html">Active Link Action Structure</A>,
+ "elseList"     =&gt; <B>list</B> of references to <A HREF="ds_alas.html">Active Link Action Structure</A>, <B>(3.x)</B>
+ "TmType"       =&gt; integer,
+ "TmInterval"     =&gt; integer, <B>*</B>
+ "TmMonthDayMask" =&gt; integer, <B>*</B>
+ "TmWeekDayMask"  =&gt; integer, <B>*</B>
+ "TmHourMask"     =&gt; integer, <B>*</B>
+ "TmMinute"       =&gt; integer, <B>*</B>
+}
+</PRE>
+
+<B>*</B> If <CODE>TmType == AR_ESCALATION_TYPE_INTERVAL</CODE> then
+<CODE>TmInterval</CODE> will be defined and the other <CODE>Tm*</CODE> keys
+will <B>not</B> be defined. <CODE>TmInterval</CODE> will specify how many
+seconds should elapse between firings of the Escalation. <P> 
+
+<B>*</B> If <CODE>TmType == AR_ESCALATION_TYPE_TIMEMARK</CODE> then
+<CODE>TmInterval</CODE> will <B>not</B> be defined and the other
+<CODE>Tm*</CODE> keys will be defined. In this case, use the 
+<CODE><A HREF="AR_DAY.html">ARS::AR_DAY()</A></CODE> and 
+<CODE><A HREF="AR_HOUR.html">ARS::AR_HOUR()</A></CODE>
+helper functions to analyze the
+information held in these hash values. These variables, in concert, specify
+when the Escalation should fire.
+
+<P>
+<HR WIDTH="30%">
+<P>
+<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Table of Contents </A>
+<p>
+<address>
+Last changes to this page 21st July 1997 by jcmurphy@smurfland.cit.buffalo.edu<br>
+&#169; J.C.Murphy, J.W.Murphy 1997 arsperl@smurfland.cit.buffalo.edu
+</address>
+</BODY>
+</HTML>

@@ -1,0 +1,55 @@
+<HTML>
+<HEAD>
+<TITLE>ARSperl Manual - ars_Import</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+   <H2><CODE>ars_Import(ctrl, importBuf, type, name, ...)</CODE></H2>
+
+	Import objects of type <CODE>type</CODE> and name <CODE>name</CODE>
+	from the importBuf.
+
+      <DL>
+         <DT><B>On success</B><DD>
+		Returns 1.
+         <DT><B>On failure</B><DD>
+                Returns 0.
+      </DL>
+
+      <P>Example:
+
+      <PRE>
+        $buf = `cat /tmp/importfile.arx`;
+	($a = ars_Import($ctrl, $buf, "Schema", "HD:HelpDesk", 
+			"Active_Link", "AL-FooBar")) || 
+		die "$ars_errstr";
+      </PRE>
+
+	The above example will read an AR Export file (text file) into 
+	a scalar and will import Schemas and Active Links from that file
+	into the ARSystem. Other object types are:
+	<UL>
+	<LI><CODE>Schema</CODE>
+	<LI><CODE>Schema_Defn</CODE>
+	<LI><CODE>Schema_View</CODE>
+	<LI><CODE>Schema_Mail</CODE>
+	<LI><CODE>Filter</CODE>
+	<LI><CODE>Active_Link</CODE>
+	<LI><CODE>Admin_Ext</CODE>
+	<LI><CODE>Char_Menu</CODE>
+	<LI><CODE>Escalation</CODE>
+	</UL>
+
+<I>ars_Import was introduced in version 1.3 of ARSperl</I>
+
+<P>
+<HR WIDTH="30%">
+<P>
+<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Table of Contents </A>
+<p>
+<address>
+Last changes to this page 21st July 1997 by jcmurphy@smurfland.cit.buffalo.edu<BR>
+&#169; J.C.Murphy, J.W.Murphy 1997 arsperl@smurfland.cit.buffalo.edu
+</address>
+</BODY>
+</HTML>

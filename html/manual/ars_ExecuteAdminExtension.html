@@ -1,0 +1,40 @@
+<HTML>
+<HEAD>
+<TITLE>ARSperl Manual - ars_ExecuteAdminExtension</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+   <H2><CODE>ars_ExecuteAdminExtension(ctrl, name)</CODE></H2>
+
+	Execute the named Admin Extension on the server. If you are running
+	ARS3.x or higher, it is probably better to use 
+	<A HREF="ars_ExecuteProcess.html">ars_ExecuteProcess</A>.
+        <FONT COLOR="#FF0000">Requires Administrator privs to use.</FONT> <P>
+
+      <DL>
+         <DT><B>On success</B><DD>
+		Returns 1. 
+         <DT><B>On failure</B><DD>
+                Returns 0.
+      </DL>
+
+      <P>Example:
+
+      <PRE>
+      ars_ExecuteAdminExtension($ctrl, "AE-TestCmd") || 
+		die "$ars_errstr";
+      </PRE>
+
+<I>ars_ExecuteAdminExtension was introduced in version 1.5 of ARSperl.</I>
+
+<P>
+<HR WIDTH="30%">
+<P>
+<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Table of Contents </A>
+<p>
+<address>
+Last changes to this page 21st July 1997 by jcmurphy@smurfland.cit.buffalo.edu<BR>
+&#169; J.C.Murphy, J.W.Murphy 1997 arsperl@smurfland.cit.buffalo.edu
+</address>
+</BODY>
+</HTML>
