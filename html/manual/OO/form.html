@@ -12,9 +12,9 @@
 <DL>
 <DT><A NAME="new"><B>constructor</B></A>
 <PRE>
-  $f = new ARS::form(-form => scalar string,
-                     -vui  => scalar string,
-                     -connection => ARS object);
+  $f = new ARS::form(-form =&gt; scalar string,
+                     -vui  =&gt; scalar string,
+                     -connection =&gt; ARS object);
 </PRE>
 
     This is the default constructor. To make life easier, you should use
@@ -27,8 +27,8 @@
 <P>
 <DT><A NAME="query"><B>query()</B></A>
 <PRE>
-  @matches =  $f->query(-qualifier => scalar string,
-                        -maxhits   => scalar string);
+  @matches =  $f->query(-qualifier =&gt; scalar string,
+                        -maxhits   =&gt; scalar string);
 </PRE>
 
     This function allows you to run a query against a Form. Both parameters 
@@ -42,7 +42,7 @@
 <P>
 <DT><A NAME="getFieldID"><B>getFieldID()</B></A>
 <PRE>
-  $id = $f->getFieldID(-field => scalar string);
+  $id = $f->getFieldID(-field =&gt; scalar string);
 </PRE>
 
     This an "internal" function that is used to translate a field name to a 
@@ -50,7 +50,7 @@
 <P>
 <DT><A NAME="getFieldName"><B>getFieldName()</B></A>
 <PRE>
-  $name = $f->getFieldName(-id => scalar string);
+  $name = $f->getFieldName(-id =&gt; scalar string);
 </PRE>
 
     This an "internal" function that is used to translate a field ID to a 
@@ -58,8 +58,8 @@
 <P>
 <DT><A NAME="getFieldType"><B>getFieldType()</B></A>
 <PRE>
-  $type = $f->getFieldType(-name => scalar string,
-                           -id => scalar string);
+  $type = $f->getFieldType(-name =&gt; scalar string,
+                           -id =&gt; scalar string);
 </PRE>
 
     This an "internal" function that is used to retrieve the datatype of a
@@ -69,7 +69,7 @@
 <P>
 <DT><A NAME="create"><B>create()</B></A>
 <PRE>
-  $id = $f->create(-values => { field1 => value1, ... });
+  $id = $f->create(-values =&gt; { field1 =&gt; value1, ... });
 </PRE>
     This function allows you to create a new entry in this form. You can
     specify field name to field value mappings with out regard for the
@@ -82,12 +82,12 @@
       following format:
 
 <PRE>
-  $id = $f->create(-values => { 
-               "Attachment Field Name" => { file => scalar filename, 
+  $id = $f->create(-values =&gt; { 
+               "Attachment Field Name" =&gt; { file =&gt; scalar filename, 
                                             OR
-                                            buffer => scalar,
+                                            buffer =&gt; scalar,
                                             AND
-                                            size => scalar
+                                            size =&gt; scalar
                                           }
                               });
 </PRE>
@@ -101,7 +101,7 @@
 <P>
 <DT><A NAME="delete"><B>delete()</B></A>
 <PRE>
-   $f->delete(-entry => scalar string);
+   $f->delete(-entry =&gt; scalar string);
 </PRE>
 
     This method will delete a given entry from the form. It does not "pad
@@ -111,9 +111,9 @@
 <P>
 <DT><A NAME="set"><B>set()</B></A>
 <PRE>
-   $f->set(-entry => scalar string,
-           -gettime => scalar timestamp,
-           -value => { field1 => value1, ...});
+   $f->set(-entry =&gt; scalar string,
+           -gettime =&gt; scalar timestamp,
+           -value =&gt; { field1 =&gt; value1, ...});
 </PRE>
 
     This method allows you to set the field values of an existing entry. It 
@@ -124,8 +124,8 @@
 <P>
 <DT><A NAME="get"><B>get()</B></A>
 <PRE>
-   ($value1, ...) = $f->get(-entry => scalar string,
-                            -fields => [ field1, ... ]);
+   ($value1, ...) = $f->get(-entry =&gt; scalar string,
+                            -fields =&gt; [ field1, ... ]);
 </PRE>
 
     This method allows you to retrieve some (or all, if you don't specify
@@ -137,8 +137,8 @@
 <P>
 <DT><A NAME="getAsHash"><B>getAsHash()</B></A>
 <PRE>
-   %h = $f->getAsHash(-entry => scalar string,
-                      -fields => [ field1, ... ]);
+   %h = $f->getAsHash(-entry =&gt; scalar string,
+                      -fields =&gt; [ field1, ... ]);
 </PRE>
 
     This method is identical to get() in every way except for the return
@@ -153,9 +153,9 @@
 <P>
 <DT><A NAME="getAttachment"><B>getAttachment()</B></A>
 <PRE>
-   $v = $f->getAttachment(-entry => scalar string,
-                          -field => [ field1 ],
-                          -file  => scalar string);
+   $v = $f->getAttachment(-entry =&gt; scalar string,
+                          -field =&gt; [ field1 ],
+                          -file  =&gt; scalar string);
 </PRE>
 
     This method allows you to retrieve an attachment from the given
@@ -166,7 +166,7 @@
 <P>
 <DT><A NAME="value2internal"><B>value2internal()</B></A>
 <PRE>
-  $v = value2internal(-field => scalar, -value => value);
+  $v = value2internal(-field =&gt; scalar, -value =&gt; value);
 </PRE>
 
     This is an internal routine used to translate enumeration values into
@@ -175,7 +175,7 @@
 <P>
 <DT><A NAME="internal2value"><B>internal2value()</B></A>
 <PRE>
-  $v = internal2value(-field => scalar, -id => scalar, -value => value);
+  $v = internal2value(-field =&gt; scalar, -id =&gt; scalar, -value =&gt; value);
 </PRE>
 
     This is an internal routine used to translate enumeration text into
