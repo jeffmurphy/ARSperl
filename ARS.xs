@@ -1,7 +1,9 @@
 /*
-    ARSperl - An ARS2.x / Perl5.x Integration Kit
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.14 1997/02/13 15:21:06 jcmurphy Exp $
 
-    Copyright (C) 1995,1996 
+    ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
+
+    Copyright (C) 1995,1996,1997 
 	Joel Murphy, jmurphy@acsu.buffalo.edu
         Jeff Murphy, jcmurphy@acsu.buffalo.edu
  
@@ -20,6 +22,15 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  
     Comments to: arsperl@smurfland.cit.buffalo.edu
+                 (this is a mailing list)
+ 
+    LOG:
+
+$Log: ARS.xs,v $
+Revision 1.14  1997/02/13 15:21:06  jcmurphy
+modified comments
+
+
 */
 
 #include "ar.h"
