@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/GetFilter.pl,v 1.6 1998/10/14 13:54:53 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/GetFilter.pl,v 1.7 1998/10/14 15:06:10 jcmurphy Exp $
 #
 # NAME
 #   GetFilter.pl
@@ -16,6 +16,9 @@
 #   jcmurphy@acsu.buffalo.edu
 #
 # $Log: GetFilter.pl,v $
+# Revision 1.7  1998/10/14 15:06:10  jcmurphy
+# added some extra decoding for set fields actions.
+#
 # Revision 1.6  1998/10/14 13:54:53  jcmurphy
 # fixed syntax error
 #
@@ -277,7 +280,6 @@ sub ProcessSetFields {
 	printl 4, "sqlCommand: $field->{sql}->{sqlCommand}\n";
 	printl 4, "valueIndex: $field->{sql}->{valueIndex}\n";
     }
-
     if(defined($field->{valueType})) {
 	printl 3, "valueType: $field->{valueType}\n";
     }
@@ -288,8 +290,23 @@ sub ProcessSetFields {
         printl 3, "Value: \$$field->{value}\$\n";
     }
     if(defined($field->{field})) {
-        printl 3, "Field: $field->{field}\n";
+        printl 3, "Field Assign: $field->{field}\n";
+
+	foreach (keys %{$field->{field}}) {
+	    if(($_ ne "qualifier") && ($_ ne "schema")) {
+		printl 4, "$_: $field->{field}->{$_}\n";
+	    }
+	}
+
+	my($dq) = ars_perl_qualifier($field->{field}->{qualifier});
+	my($qt) = ars_Decode_QualHash($ctrl, $field->{field}->{schema}, $dq);
+	
+	printl 4, "Qualification:\n";
+	printl 5, "schema= ".$field->{'field'}->{'schema'}."\n";
+	printl 5, "query = $qt\n";
     }
+
+
     if(defined($field->{process})) {
         printl 3, "Process: $field->{process}\n";
     }
