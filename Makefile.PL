@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.47 2003/04/02 05:56:17 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.48 2003/04/06 03:06:26 jcmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -122,10 +122,23 @@ foreach ("ar", "arerrno", "nt", "nterrno") {
 	my $headerFile = "${ARSAPI}/include/${_}.h";
 
 	# arsystem >= 5.0 doesnt have nt libs/hdrs anymore
-	next if (! -e $headeFile && /^nt/);
+	if( ($ARSVERSION >= 5.0) && /^nt/ ) {
+		open(FD, "> ARS${_}-h.pm") || die "open: $!";
+		print FD "\# as of ARSystem 5.0, the NT (notifier) routines
+# are retired. so this file is just stubbed.
+1;\n";
+		close(FD);
+		next;
+	}
+
 	die "couldn't find $headerFile" if (! -e $headerFile);
 
-	system("h2ph < $headerFile > ARS${_}-h.pm");
+	# due to the endless confusion over h2ph, i'm including
+	# a known-good copy in the arsperl distribution. the 
+	# -d should make it create _h2ph_pre in the current 
+	# directory incase you never ran h2ph before (as root)
+
+	$rv = system("$Config{'perlpath'} infra/h2ph -d . < $headerFile > ARS${_}-h.pm");
 
 	if((! -e "ARS${_}-h.pm") || (-z "ARS${_}-h.pm")) {
 		open (FD, "> ARS${_}-h.pm") || die "open: $!";
