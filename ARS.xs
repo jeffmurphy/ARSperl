@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.100 2005/03/31 16:22:17 jeffmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.101 2005/04/06 18:02:26 jeffmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -1006,7 +1006,9 @@ void ars_GetListSchema(ctrl,changedsince=0,schemaType=AR_LIST_SCHEMA_ALL,fieldPr
 
 	  Zero(&idList, 1, ARInternalIdList);	  
 #endif
-
+#if AR_EXPORT_VERSION >= 8L
+	  Zero(&propList, 1, ARPropList);
+#endif
 	  (void) ARError_reset();
 	  Zero(&status, 1, ARStatusList);
 #if AR_EXPORT_VERSION >= 6
@@ -1077,7 +1079,9 @@ ars_GetListContainer(ctrl,changedSince=0,attributes=0,...)
 		for(i = 3 ; i < items ; i++) {
 			containerTypes.type[i-3] = SvIV(ST(i));
 		}
-
+# if AR_EXPORT_VERSION >= 8L
+		Zero(&propList, 1, ARPropList);
+# endif
 		i = ARGetListContainer(ctrl, changedSince,
 					&containerTypes,
 					attributes,
@@ -1857,6 +1861,9 @@ ars_GetListActiveLink(ctrl,schema=NULL,changedSince=0)
 
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
+#if AR_EXPORT_VERSION >= 8L
+	  Zero(&propList, 1, ARPropList);
+#endif
 	  ret=ARGetListActiveLink(ctrl,schema,changedSince,
 #if AR_EXPORT_VERSION >= 8L
                      &propList,
@@ -2243,6 +2250,9 @@ ars_GetListFilter(control,schema=NULL,changedsince=0)
           unsigned int i;
 
 	  (void) ARError_reset();
+#if AR_EXPORT_VERSION >= 8L
+	  Zero(&propList, 1, ARPropList);
+#endif
 	  Zero(&status, 1,ARStatusList);
 	  ret = ARGetListFilter(control,schema,changedsince,
 #if AR_EXPORT_VERSION >= 8L
@@ -2273,6 +2283,9 @@ ars_GetListEscalation(control,schema=NULL,changedsince=0)
           unsigned int i;
 
 	  (void) ARError_reset();
+#if AR_EXPORT_VERSION >= 8L
+	  Zero(&propList, 1,ARPropList);
+#endif
 	  Zero(&status, 1,ARStatusList);
 	  ret = ARGetListEscalation(control,schema,changedsince,
 #if AR_EXPORT_VERSION >= 8L
@@ -2297,14 +2310,21 @@ ars_GetListCharMenu(control,changedsince=0)
 	{
 	  ARNameList   nameList;
 	  ARStatusList status;
+#if AR_EXPORT_VERSION >= 8L
           ARPropList   propList;
+#endif
           ARNameList   schemaNameList;
           ARNameList   actLinkNameList;
 	  int          ret;
           unsigned int i;
 
 	  (void) ARError_reset();
-	  Zero(&status, 1,ARStatusList);
+#if AR_EXPORT_VERSION >= 8L
+	  Zero(&propList, 1, ARPropList);
+#endif
+	  Zero(&schemaNameList, 1, ARNameList);
+	  Zero(&actLinkNameList, 1, ARNameList);
+	  Zero(&nameList, 1, ARNameList);
 	  ret = ARGetListCharMenu(control,changedsince,
 #if AR_EXPORT_VERSION >= 8L
                                   &schemaNameList, &actLinkNameList, &propList,

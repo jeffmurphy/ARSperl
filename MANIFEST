@@ -235,13 +235,13 @@ ARSOOsup.pm
 CHANGES
 changes.dat
 ARSnparm.pm
+supportrev.c
 Artistic
 INSTALLATION
 LICENSE
+support.c
 README
 RELNOTES
 support-h.template
 typemap
-support.c
-supportrev.c
 supportrev.h

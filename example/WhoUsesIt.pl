@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/WhoUsesIt.pl,v 1.2 2003/04/02 05:12:22 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/WhoUsesIt.pl,v 1.3 2005/04/06 18:02:28 jeffmurphy Exp $
 #
 # NAME 
 #   WhoUsesIt.pl
@@ -27,6 +27,9 @@
 #   jcmurphy@acsu.buffalo.edu
 #
 # $Log: WhoUsesIt.pl,v $
+# Revision 1.3  2005/04/06 18:02:28  jeffmurphy
+# added Zeros
+#
 # Revision 1.2  2003/04/02 05:12:22  jcmurphy
 # added Alert functions
 #
@@ -109,9 +112,12 @@ if($opt_M) {
 	    print "Searching: $menu\n" if $debug;
 	    ($menuDef = ars_GetCharMenu($ctrl, $menu)) ||
 		die "ars_GetCharMenu: $ars_errstr";
-	    if($menuDef->{menuType} == 3) {
-		print "\tIs type File..\n" if $debug;
-		if($menuDef->{menuFile}{filename} =~ /$opt_M/) {
+	    #next unless ($menu eq "PT-Assignees");
+	    #use Data::Dumper; print Dumper($menuDef); exit 0;
+	    # 3 is legacy. 
+	    if( ($menuDef->{menuType} == 3) || ($menuDef->{menuType} =~ /format_quotes/i) ) {
+		print "\tIs type File (points to ".qq{"$menuDef->{menuFile}{filename}"}.")\n" if $debug;
+		if ($menuDef->{menuFile}{filename} =~ /$opt_M/) {
 		    $users{$menu} = $1;
 		}
 	    }
