@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.17 1998/03/30 21:24:45 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.18 1998/03/31 15:51:25 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,8 +29,8 @@ $Header: /cvsroot/arsperl/ARSperl/support.c,v 1.17 1998/03/30 21:24:45 jcmurphy 
     LOG:
 
 $Log: support.c,v $
-Revision 1.17  1998/03/30 21:24:45  jcmurphy
-removed unused code
+Revision 1.18  1998/03/31 15:51:25  jcmurphy
+oops. that wasn't unused code.
 
 Revision 1.16  1998/03/12 20:46:17  jcmurphy
 fixes to decoding the values that are assigned to a field
@@ -578,9 +578,23 @@ perl_ARValueStruct(_AWPC_ ARValueStruct *in) {
     return newSViv(in->u.intVal);
   case AR_DATA_TYPE_REAL:
     return newSVnv(in->u.realVal);
-  case AR_DATA_TYPE_DIARY:
   case AR_DATA_TYPE_CHAR:
     return newSVpv(in->u.charVal, 0);
+  case AR_DATA_TYPE_DIARY:
+    ret = ARDecodeDiary(_PPERLC_ in->u.diaryVal, &diaryList, &status);
+    if (ARError(_PPERLC_ ret, status)) {
+      return newSVsv(&sv_undef);
+    } else {
+      SV *array;
+      array = perl_ARList(_PPERLC_
+			  (ARList *)&diaryList,
+			  (ARS_fn)perl_diary,
+			  sizeof(ARDiaryStruct));
+#ifndef WASTE_MEM
+      FreeARDiaryList(&diaryList,FALSE); 
+#endif
+      return array;
+    }
   case AR_DATA_TYPE_ENUM:
     return newSViv(in->u.enumVal);
   case AR_DATA_TYPE_TIME:
