@@ -56,7 +56,7 @@ sub FETCH {
 
 package ARS;
 
-require 5.004;
+require 5.005;
 use strict "vars";
 require Exporter;
 require DynaLoader;

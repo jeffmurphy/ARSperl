@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.65 2005/03/11 16:09:51 jeffmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.66 2005/03/11 20:48:03 jeffmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -13,7 +13,7 @@
 #    run with "perl Makefile.PL" then type "make"
 #
 
-require 5.004;
+require 5.005;
 use ExtUtils::MakeMaker;
 use Config;
 use Cwd;
