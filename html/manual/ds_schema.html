@@ -1,0 +1,45 @@
+<HTML>
+<HEAD>
+<TITLE>ARSperl Manual - Schema Attributes</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+<H2>Schema Attributes Structure</H2>
+
+This HASH structure is returned by function 
+<A href="ars_GetSchema.html">ars_GetSchema</a>.
+
+<PRE>
+{
+ "adminList"            =&gt; <i>list</i> of group ids,
+["changeDiary"          =&gt; encoded string,]
+ "getListFields"        =&gt; <i>list</i> of references to <A href="ds_elfs.html">Entry List Field Structure</a>,
+ "groupList"            =&gt; reference to hash of groups and their rights,
+ "helpText"             =&gt; string,
+ "indexList"            =&gt; <i>list</i> of references to <A href="ds_is.html">Index Structure</a>
+ "lastChanged"          =&gt; string,
+ "owner"                =&gt; string,
+ "schema"               =&gt; reference to hash,
+ "sortList"             =&gt; <i>list</i>,
+ "timestamp"            =&gt; integer
+}
+ </PRE>
+
+<P>
+
+Example:
+
+<PRE>
+$s = ars_GetSchema($c, "Group");
+print $s-&gt;{"helpText"};
+</PRE>
+<P>
+<HR WIDTH="30%">
+<P>
+<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Table of Contents </A>
+<p>
+<address>
+Last changes to this page 14th July 1997 by d.j.adams@soton.ac.uk
+</address>
+</BODY>
+</HTML>
