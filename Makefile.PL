@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.18 2000/07/06 02:15:21 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.19 2000/07/06 02:39:37 jcmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -11,55 +11,6 @@
 #       3) defines (see DEFINE OPTIONS)
 #
 #    run with "perl Makefile.PL" then type "make"
-#
-# $Log: Makefile.PL,v $
-# Revision 1.18  2000/07/06 02:15:21  jcmurphy
-# *** empty log message ***
-#
-# Revision 1.17  2000/07/06 01:55:08  jcmurphy
-# *** empty log message ***
-#
-# Revision 1.16  2000/07/05 18:59:47  jcmurphy
-# *** empty log message ***
-#
-# Revision 1.15  2000/07/04 14:44:22  jcmurphy
-# *** empty log message ***
-#
-# Revision 1.14  2000/06/01 16:54:03  jcmurphy
-# *** empty log message ***
-#
-# Revision 1.13  2000/05/24 18:05:25  jcmurphy
-# primary ars4.5 integration in this checkpoint.
-#
-# Revision 1.12  2000/04/05 14:09:46  jcmurphy
-# 1.67 - bug in getsql, addition of setserver port
-#
-# Revision 1.11  2000/02/17 04:49:42  jcmurphy
-# ars_SetServerPort
-#
-# Revision 1.10  2000/02/03 21:29:03  jcmurphy
-#
-#
-# fixed bug in GetListSQL
-#
-# Revision 1.9  1999/12/03 22:13:55  jcmurphy
-# *** empty log message ***
-#
-# Revision 1.8  1999/10/03 04:00:27  jcmurphy
-# various
-#
-# Revision 1.7  1999/03/12 07:28:19  jcmurphy
-# revised and simplified
-#
-# Revision 1.6  1998/09/11 17:59:43  jcmurphy
-# added autogeneration of support.h file
-# updated instructions
-#
-# Revision 1.5  1997/10/06 13:43:26  jcmurphy
-# *** empty log message ***
-#
-# Revision 1.4  1996/11/21 20:02:26  jcmurphy
-# *** empty log message ***
 #
 
 require 5.004;
@@ -75,7 +26,7 @@ $debug = 0;
 $ARSAPI     = "/usr/ars/api";
 $ARSAPI     = "/u1/project/ARSperl/api/sol2/api4.5";
 #$ARSAPI     = "/u1/project/ARSperl/api/linux/4.0";
-#$ARSAPI     = "/home/jcmurphy/arsperl/api";
+$ARSAPI     = "/home/jcmurphy/arsperl/api";
 
 # STEP 2 -> Choose your version of ARS
 #           example: 2.0 2.1 3.0 3.1 3.2 4.0

@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.10 2000/07/06 01:55:08 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.11 2000/07/06 02:39:38 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -21,81 +21,6 @@ $Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.10 2000/07/06 01:55:08 
     Comments to: arsperl@lurch.cit.buffalo.edu
     Home Page: http://arsinfo.cit.buffalo.edu
  
-    LOG:
-
-$Log: support-h.template,v $
-Revision 1.10  2000/07/06 01:55:08  jcmurphy
-*** empty log message ***
-
-Revision 1.9  2000/07/04 14:44:22  jcmurphy
-*** empty log message ***
-
-Revision 1.8  2000/06/01 16:54:03  jcmurphy
-*** empty log message ***
-
-Revision 1.7  2000/05/24 18:05:25  jcmurphy
-primary ars4.5 integration in this checkpoint.
-
-Revision 1.6  1999/10/03 04:00:27  jcmurphy
-various
-
-Revision 1.5  1999/03/12 07:27:16  jcmurphy
-1.6400 BETA - OO layer and attachments
-
-Revision 1.4  1999/01/04 21:05:14  jcmurphy
-fixed some conditional compilation typos/omissions
-
-Revision 1.3  1998/12/28 15:46:10  jcmurphy
-v1.62
-
-Revision 1.2  1998/09/11 19:36:44  jcmurphy
-added perl_diary prototype
-
-Revision 1.1  1998/08/07 18:38:23  jcmurphy
-Initial revision
-
-Revision 1.13  1998/08/07 16:21:27  jcmurphy
-added ars3.2 def's to ServerInfoMap list
-
-Revision 1.12  1998/05/19 13:10:26  jcmurphy
-fixed strstr/substr typo
-
-Revision 1.11  1998/03/31 23:32:06  jcmurphy
-NT patch by  Bill Middleton <wjm@metronet.com>
-
-Revision 1.1  1998/03/17 15:19:02  aawimi
-Initial revision
-
-Revision 1.9  1997/11/10 23:50:36  jcmurphy
-1.5206: added refreshCode to GetCharMenu().
-added ars_GetVUI to EXPORTS in .pm file
-fixed bug in 1.5205's groupList alteration
-
-Revision 1.8  1997/11/04 18:16:04  jcmurphy
-1.5205: permissions list map
-
-Revision 1.7  1997/10/20 21:00:41  jcmurphy
-5203 beta. code cleanup. winnt additions. malloc/free
-debugging code.
-
-Revision 1.6  1997/10/09 15:21:33  jcmurphy
-1.5201: code cleaning
-
-Revision 1.5  1997/10/09 00:49:28  jcmurphy
-1.52: uninit'd var bug fix
-
-Revision 1.4  1997/10/07 14:29:38  jcmurphy
-1.51
-
-Revision 1.3  1997/10/02 15:39:53  jcmurphy
-1.50beta
-
-Revision 1.2  1997/09/04 00:20:47  jcmurphy
-*** empty log message ***
-
-Revision 1.1  1997/08/05 21:21:11  jcmurphy
-Initial revision
-
 
 */
 

@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.16 2000/07/03 14:58:29 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.17 2000/07/06 02:39:38 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -20,61 +20,6 @@ $Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.16 2000/07/03 14:58:29 jcmurp
 
     Comments to: arsperl@lurch.cit.buffalo.edu
     Home Page: http://arsinfo.cit.buffalo.edu
-
-    LOG:
-
-$Log: supportrev.c,v $
-Revision 1.16  2000/07/03 14:58:29  jcmurphy
-*** empty log message ***
-
-Revision 1.15  2000/06/03 00:41:41  jcmurphy
-*** empty log message ***
-
-Revision 1.14  2000/06/01 16:54:03  jcmurphy
-*** empty log message ***
-
-Revision 1.13  2000/05/24 18:05:25  jcmurphy
-primary ars4.5 integration in this checkpoint.
-
-Revision 1.12  1999/10/03 04:00:27  jcmurphy
-various
-
-Revision 1.11  1999/01/04 21:04:53  jcmurphy
-fixed some typos for compiling against 2.x libs
-
-Revision 1.10  1998/12/28 15:46:10  jcmurphy
-v1.62
-
-Revision 1.9  1998/03/31 23:32:16  jcmurphy
-NT patch by  Bill Middleton <wjm@metronet.com>
-
-Revision 1.1  1998/03/16 09:29:45  aawimi
-Initial revision
-
-Revision 1.8  1997/10/20 21:00:41  jcmurphy
-5203 beta. code cleanup. winnt additions. malloc/free
-debugging code.
-
-Revision 1.7  1997/10/09 15:21:33  jcmurphy
-1.5201: code cleaning
-
-Revision 1.6  1997/10/07 14:32:51  jcmurphy
-fixed some logic errors
-
-Revision 1.5  1997/10/07 14:29:44  jcmurphy
-1.51
-
-Revision 1.4  1997/10/06 13:39:40  jcmurphy
-fix up some compilation warnings
-
-Revision 1.3  1997/10/02 15:40:00  jcmurphy
-1.50beta
-
-Revision 1.2  1997/09/04 00:20:51  jcmurphy
-*** empty log message ***
-
-Revision 1.1  1997/08/05 21:21:17  jcmurphy
-Initial revision
 
 
 */

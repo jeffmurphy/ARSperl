@@ -3,6 +3,8 @@ JCM modifications to Makefile.PL to ease win32 compilations
 JCM fixed bug in support.c:lookUpTypeName
 JCM enhanced ars_Export to handle all possible export types
     in whatever api we're compiled against
+JCM enhanced ars_Import to handle all possible import types
+    in whatever api we're compiled against
 
 released=7/4/2000 version=1.68
 JCM modifications to example/ars_GetListEntry.pl to make

@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.8 1998/12/28 15:46:10 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.9 2000/07/06 02:39:38 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -20,37 +20,6 @@ $Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.8 1998/12/28 15:46:10 jcmurph
 
     Comments to: arsperl@lurch.cit.buffalo.edu
     Home Page: http://arsinfo.cit.buffalo.edu
-
-    LOG:
-
-$Log: supportrev.h,v $
-Revision 1.8  1998/12/28 15:46:10  jcmurphy
-v1.62
-
-Revision 1.7  1998/03/31 23:32:26  jcmurphy
-NT patch by  Bill Middleton <wjm@metronet.com>
-
-Revision 1.1  1998/03/17 15:19:02  aawimi
-Initial revision
-
-Revision 1.6  1997/10/20 21:00:41  jcmurphy
-5203 beta. code cleanup. winnt additions. malloc/free
-debugging code.
-
-Revision 1.5  1997/10/07 14:29:49  jcmurphy
-1.51
-
-Revision 1.4  1997/10/06 13:39:48  jcmurphy
-fix up some compilation warnings
-
-Revision 1.3  1997/10/02 15:40:06  jcmurphy
-1.50beta
-
-Revision 1.2  1997/09/04 00:20:56  jcmurphy
-*** empty log message ***
-
-Revision 1.1  1997/08/05 21:21:24  jcmurphy
-Initial revision
 
 
 */

@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.66 2000/07/06 01:55:07 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.67 2000/07/06 02:39:37 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -17,181 +17,6 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.66 2000/07/06 01:55:07 jcmurphy Exp
     Comments to:  arsperl@smurfland.cit.buffalo.edu
                   (this is a *mailing list* and you must be
                    a subscriber before posting)
-
-    LOG:
-
-$Log: ARS.xs,v $
-Revision 1.66  2000/07/06 01:55:07  jcmurphy
-*** empty log message ***
-
-Revision 1.65  2000/07/03 14:58:29  jcmurphy
-*** empty log message ***
-
-Revision 1.64  2000/06/03 00:41:40  jcmurphy
-*** empty log message ***
-
-Revision 1.63  2000/05/24 18:05:25  jcmurphy
-primary ars4.5 integration in this checkpoint.
-
-Revision 1.62  2000/02/17 04:49:41  jcmurphy
-ars_SetServerPort
-
-Revision 1.61  2000/02/04 16:20:44  jcmurphy
-*** empty log message ***
-
-Revision 1.60  2000/02/03 21:29:02  jcmurphy
-
-
-fixed bug in GetListSQL
-
-Revision 1.59  1999/10/03 04:00:27  jcmurphy
-various
-
-Revision 1.58  1999/03/12 07:27:16  jcmurphy
-1.6400 BETA - OO layer and attachments
-
-Revision 1.57  1999/01/04 21:05:14  jcmurphy
-fixed some conditional compilation typos/omissions
-
-Revision 1.56  1999/01/04 20:48:56  jcmurphy
-another v4.0 ifdef missing
-
-Revision 1.55  1999/01/04 20:44:33  jcmurphy
-added v4.0 specific ifdef
-
-Revision 1.54  1998/12/28 15:45:25  jcmurphy
-v1.62
-
-Revision 1.53  1998/10/06 19:16:40  jcmurphy
-fixed bugs in RegisterServer (3.x version) submitted by
-G David Frye <gdf@uiuc.edu>
-
-Revision 1.52  1998/09/16 14:18:49  jcmurphy
-v1.61
-
-Revision 1.51  1998/09/11 19:36:13  jcmurphy
-updated all Get<object> functiosn so that the changeDiary
-hash key is fully decoded.
-
-Revision 1.50  1998/09/11 18:00:51  jcmurphy
-updated ars_DeleteEntry to return 1 on success, 0 on error
-updated GetSchema which had a typo resulting in wrong results.
-
-Revision 1.49  1998/08/07 18:39:14  jcmurphy
-modified ars_ServerInfo routine a little
-
-Revision 1.48  1998/08/07 16:21:48  jcmurphy
-added check to ensure that ServerInfoMap has what we want.
-otherwise we'll core.
-
-Revision 1.47  1998/05/04 17:38:37  jcmurphy
-patch for ars_CreateEntry() by Bill Middleton <wjm@metronet.com>
-
-Revision 1.46  1998/04/09 18:45:12  jcmurphy
-fixed typo in routine name.
-
-Revision 1.45  1998/04/03 16:41:25  jcmurphy
-added ARS32 conditional compilation for AdminExtension routines
-(AdminEx stuff was removed in 3.2)
-
-Revision 1.44  1998/03/31 23:30:50  jcmurphy
-NT patch from  Bill Middleton <wjm@metronet.com>
-
-Revision 1.1  1998/03/17 15:18:31  aawimi
-Initial revision
-
-Revision 1.41  1997/11/10 23:50:36  jcmurphy
-1.5206: added refreshCode to GetCharMenu().
-added ars_GetVUI to EXPORTS in .pm file
-fixed bug in 1.5205's groupList alteration
-
-Revision 1.40  1997/11/04 18:15:56  jcmurphy
-1.5205
-
-Revision 1.39  1997/10/29 21:54:19  jcmurphy
-1.5204: added ars_GetControlStructFields()
-
-Revision 1.38  1997/10/20 21:00:41  jcmurphy
-5203 beta. code cleanup. winnt additions. malloc/free
-debugging code.
-
-Revision 1.37  1997/10/09 15:21:33  jcmurphy
-fixed problems in GetEscalation.
-
-Revision 1.36  1997/10/09 00:49:40  jcmurphy
-1.52: uninit'd var bug fix
-
-Revision 1.35  1997/10/07 14:29:09  jcmurphy
-1.51
-
-Revision 1.34  1997/10/06 13:39:02  jcmurphy
-fix up some compilation warnings
-
-Revision 1.33  1997/10/02 15:39:31  jcmurphy
-1.50beta
-
-Revision 1.32  1997/09/04 00:21:03  jcmurphy
-*** empty log message ***
-
-Revision 1.31  1997/08/05 21:20:24  jcmurphy
-1.50 dev1
-
-Revision 1.30  1997/07/02 15:52:18  jcmurphy
-altered error handling routines. remove err buffer and ars_errstr
-pointer from code.
-
-Revision 1.29  1997/05/22 15:23:04  jmurphy
-duh
-
-Revision 1.28  1997/05/22 14:40:05  jmurphy
-changed logic for checking for scalar values
-
-Revision 1.27  1997/03/25 19:20:06  jmurphy
-fixed ars_GetListSchema
-
-Revision 1.26  1997/02/20 20:27:47  jcmurphy
-added some minor code to handle decoding TR. and DB. values in qualifications
-
-Revision 1.25  1997/02/19 22:39:28  jcmurphy
-fixed problem with bad free() in ars_Login
-
-Revision 1.24  1997/02/19 21:55:38  jmurphy
-fixed bug in perl_ARValueStruct
-
-Revision 1.23  1997/02/19 20:24:41  jcmurphy
-*** empty log message ***
-
-Revision 1.22  1997/02/19 15:30:25  jcmurphy
-fixed bad goto
-
-Revision 1.21  1997/02/19 14:21:48  jcmurphy
-oops. fixed double call to getlistserver in ars_Login
-
-Revision 1.20  1997/02/18 18:45:54  jcmurphy
-ran thru -Wall and cleaned up some blunders and stuff
-
-Revision 1.19  1997/02/18 16:37:32  jmurphy
-a couple fixes.  added destructors for control struct, qualifier struct
-
-Revision 1.18  1997/02/17 16:53:35  jcmurphy
-commented ARTermination back out for a little bit longer.
-
-Revision 1.17  1997/02/17 16:21:12  jcmurphy
-uncommented ARTermintation(), added GetListServer to ars_Login incase
-no server is specified. added ars_GetCurrentServer so you can determine
-what server you connected to (if you didnt specify one).
-
-Revision 1.16  1997/02/14 20:48:06  jcmurphy
-un-commented the ARInitialization() call. this allows
-you to write a perl script that connects to a private
-server.
-
-Revision 1.15  1997/02/14 20:38:49  jcmurphy
-fixed phantom function call. initialized some un-inited stuff
-
-Revision 1.14  1997/02/13 15:21:06  jcmurphy
-modified comments
-
 
 */
 
@@ -2056,7 +1881,8 @@ ars_Export(ctrl,displayTag,...)
 				a  = i * 2 + 2;
 				et = caseLookUpTypeNumber((TypeMapStruct *) 
 							     StructItemTypeMap,
-							   SvPV(ST(a), PL_na) );
+							   SvPV(ST(a), PL_na) 
+							 );
 				if(et == TYPEMAP_LAST) {
 					(void) ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_EXP);
 					(void) ARError_add(AR_RETURN_ERROR, AP_ERR_CONTINUE,
@@ -2097,71 +1923,60 @@ ars_Import(ctrl,importOption=AR_IMPORT_OPT_CREATE,importBuf,...)
 	unsigned int            importOption
 	CODE:
 	{
-	  int               ret = 1, i, a, c = (items - 2) / 2;
-	  ARStructItemList *structItems = NULL;
-	  ARStatusList      status;
+		int               ret = 1, i, a, c = (items - 2) / 2, ok =1;
+		ARStructItemList *structItems = NULL;
+		ARStatusList      status;
 
-	  (void) ARError_reset();	  
-	  Zero(&status, 1,ARStatusList);
-	  if (items % 2) {
-	    (void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
-	  } else {
-	    if (c > 0) {
-	      Newz(777,structItems,c,ARStructItemList);
-	      structItems->numItems = c;
-	      Newz(777,structItems->structItemList,c,ARStructItemStruct);
-	      for (i=0; i<c; i++) {
-		a = i*2+2;
-		if (strcmp(SvPV(ST(a), PL_na),"Schema") == 0)
-		  structItems->structItemList[i].type = AR_STRUCT_ITEM_SCHEMA;
-		else if (strcmp(SvPV(ST(a), PL_na),"Schema_Defn") == 0)
-		  structItems->structItemList[i].type = AR_STRUCT_ITEM_SCHEMA_DEFN;
-		else if (strcmp(SvPV(ST(a), PL_na),"Schema_View") == 0)
-		  structItems->structItemList[i].type = AR_STRUCT_ITEM_SCHEMA_VIEW;
-		else if (strcmp(SvPV(ST(a), PL_na),"Schema_Mail") == 0)
-		  structItems->structItemList[i].type = AR_STRUCT_ITEM_SCHEMA_MAIL;
-		else if (strcmp(SvPV(ST(a), PL_na),"Filter") == 0)
-		  structItems->structItemList[i].type = AR_STRUCT_ITEM_FILTER;
-		else if (strcmp(SvPV(ST(a), PL_na),"Active_Link") == 0)
-		  structItems->structItemList[i].type = AR_STRUCT_ITEM_ACTIVE_LINK;
-		else if (strcmp(SvPV(ST(a), PL_na),"Admin_Ext") == 0)
-		  structItems->structItemList[i].type = AR_STRUCT_ITEM_ADMIN_EXT;
-		else if (strcmp(SvPV(ST(a), PL_na),"Char_Menu") == 0)
-		  structItems->structItemList[i].type = AR_STRUCT_ITEM_CHAR_MENU;
-		else if (strcmp(SvPV(ST(a), PL_na),"Escalation") == 0)
-		  structItems->structItemList[i].type = AR_STRUCT_ITEM_ESCALATION;
-		else {
-	          (void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_IMP);
-#ifndef WASTE_MEM
-		  safefree(structItems->structItemList);
-		  safefree(structItems);
-#endif
-		  goto export_end;
+		(void) ARError_reset();	  
+		Zero(&status, 1,ARStatusList);
+		RETVAL = 0;
+		if (items % 2) {
+			(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
+		} else {
+			if (c > 0) {
+				Newz(777, structItems, c, ARStructItemList);
+				structItems->numItems = c;
+				Newz(777, structItems->structItemList, c,
+				     ARStructItemStruct);
+				for (i = 0; i < c; i++) {
+					unsigned int et = 0;
+					a  = i*2+2;
+					et = caseLookUpTypeNumber((TypeMapStruct *) 
+								     StructItemTypeMap,
+								   SvPV(ST(a), PL_na) 
+								 );
+					if(et == TYPEMAP_LAST) {
+						(void) ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_IMP);
+						(void) ARError_add(AR_RETURN_ERROR, AP_ERR_CONTINUE,
+								   SvPV(ST(a), PL_na) );
+						ok = 0;
+					} else {
+						structItems->structItemList[i].type = et;
+						strncpy(structItems->structItemList[i].name,
+							SvPV(ST(a+1), PL_na), 
+							sizeof(ARNameType) );
+						structItems->structItemList[i].name[sizeof(ARNameType)-1] = '\0';
+					}
+				}
+			}
 		}
-		strncpy(structItems->structItemList[i].name,SvPV(ST(a+1), PL_na), sizeof(ARNameType));
-		structItems->structItemList[i].name[sizeof(ARNameType)-1] = '\0';
-	      }
-	    }
-	    ret = ARImport(ctrl, structItems, importBuf, 
-#if AR_EXPORT_VERSION >= 5
-			   importOption,
+
+		if(ok) {
+			ret = ARImport(ctrl, structItems, importBuf, 
+#if AR_EXPORT_VERSION > 5
+				       importOption,
 #endif
-			   &status);
+				       &status);
 #ifdef PROFILE
-	    ((ars_ctrl *)ctrl)->queries++;
+			((ars_ctrl *)ctrl)->queries++;
 #endif
-	    if (ARError( ret, status)) {
-#ifndef WASTE_MEM
-	      if (structItems) {
-		safefree(structItems->structItemList);
-		safefree(structItems);
-	      }
-#endif
-	      goto export_end;
-	    }
-	  }
-	export_end:;
-	  RETVAL = ! ret;
+			if (ARError(ret, status)) {
+				RETVAL = 1;
+			}
+		} else {
+			RETVAL = 1;
+		}
+		FreeARStructItemList(structItems, TRUE);
 	}
 	OUTPUT:
 	RETVAL
