@@ -26,17 +26,27 @@
 	    BGCOLOR='lightblue'>
 	    <tr><td colspan='2'>
   <table width='100%' border='0'><tr>
-	      <td width='50%'>Released: <B>x/x/x</B></td>
+	      <td width='50%'>Released: <B>7/4/2000</B></td>
               <td width='50%'>Version: <B>1.68</B></td>
   </tr></table></td>
-            </tr><tr bgcolor='#eeeeee'><td width='10%'>(JCM)</td><td width='90%'><font color='black'>arsperl now requires at minimum perl 5.004.
+            </tr><tr bgcolor='#eeeeee'><td width='10%'>(JCM)</td><td width='90%'><font color='black'>modifications to example/ars_GetListEntry.pl to make
+it function with different revisions of the User form.</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(JCM)</td><td width='90%'><font color='black'>arsperl now requires at minimum perl 5.004.
 </font></td></tr>
-<tr bgcolor='#dddddd'><td width='10%'>(JCM)</td><td width='90%'><font color='black'>converted "na" "sv_unref" to PL_ namespace. 
+<tr bgcolor='#eeeeee'><td width='10%'>(JCM)</td><td width='90%'><font color='black'>converted "na" "sv_unref" to PL_ namespace. 
 added perl-version checking so it will still compileagainst 5.004.</font></td></tr>
-<tr bgcolor='#eeeeee'><td width='10%'>(JCM)</td><td width='90%'><font color='red'>ars4.5 compatibility changes. the following functions
+<tr bgcolor='#dddddd'><td width='10%'>(JCM)</td><td width='90%'><font color='red'>ars4.5 compatibility changes. the following functions
 have altered return values which will break scripts thatuse them <U>if you compile against 4.5 or later libraries</U><blockquote>ars_GetActiveLink<BR>ars_GetFilter<BR>ars_GetEscalation<BR>ars_CreateActiveLink<BR></blockquote>see the documentation on the return values of these functionsfor details on what has changed.</font></td></tr>
-<tr bgcolor='#dddddd'><td width='10%'>(JCM)</td><td width='90%'><font color='red'>changed ars_GetCharMenu so that {'menuType'} is returned
-as a string (decoded) instead of an integer.</table></td></tr></table>
+<tr bgcolor='#eeeeee'><td width='10%'>(JCM)</td><td width='90%'><font color='red'>changed ars_GetCharMenu so that {'menuType'} is returned
+as a string (decoded) instead of an integer.</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(JCM)</td><td width='90%'><font color='black'>added patch submitted by Geoff Endresen which enabled decoding
+of push fields actions in GetFilter()</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(JCM)</td><td width='90%'><font color='black'>enhanced Makefile.PL to be more intelligent when h2ph fails or
+doesnt exist</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(JCM)</td><td width='90%'><font color='black'>added/decoded schemaType (within GetSchema()/CompoundSchema structure)
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(JCM)</td><td width='90%'><font color='black'>documentation updates
+</table></td></tr></table>
 
 <P>
 
@@ -866,6 +876,10 @@ number of queries made.</font></td></tr>
 <tr bgcolor='#dddddd'><td width='10%'>(JCM)</td><td width='90%'><font color='black'>Installation, history, and Gnu documentation added.
 Removed -lars from makefile (internal C library that wasn'treleased), not needed for arsperl.</font></td></tr>
 <tr bgcolor='#eeeeee'><td width='10%'>(JCM)</td><td width='90%'><font color='black'>Added example scripts and html documentation.
+</table></td></tr></table>
 
 <P>
-<PRE>$Header: /cvsroot/arsperl/ARSperl/html/changes.html,v 1.5 2000/05/24 18:08:03 jcmurphy Exp $</PRE></body></html>
+
+
+<P>
+<PRE>$Header: /cvsroot/arsperl/ARSperl/html/changes.html,v 1.7 2000/07/04 14:46:55 jcmurphy Exp $</PRE></body></html>

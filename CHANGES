@@ -11,7 +11,7 @@ previous versions of arsperl and may require altering of some arsperl
 scripts.
 
 
-Released: x/x/x Version: 1.68
+Released: 7/4/2000 Version: 1.68
 
 
 (JCM)   modifications to example/ars_GetListEntry.pl to make
@@ -44,7 +44,9 @@ Released: x/x/x Version: 1.68
 (JCM)   enhanced Makefile.PL to be more intelligent when h2ph fails or
         doesnt exist
 
-(JCM)   decoded schemaType (within CompoundSchema structure)
+(JCM)   added/decoded schemaType (within GetSchema()/CompoundSchema structure)
+
+(JCM)   documentation updates
 
 
 Released: 2/17/00 Version: 1.67
@@ -495,5 +497,5 @@ Released: 01/12/96 Version: 1.0beta
 
 arsperl@arsperl.org
 
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.36 2000/07/04 14:44:22 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.37 2000/07/04 14:46:55 jcmurphy Exp $
 
