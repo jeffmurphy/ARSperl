@@ -1350,12 +1350,11 @@ ars_CreateEntry(ctrl,schema...)
 	      }
 	    }
 	    ret = ARCreateEntry(ctrl, schema, &fieldList, entryId, &status);
-	    FreeARFieldValueList(&fieldList,FALSE);
 	    if (! ARError(ret, status)) {
 	      RETVAL = entryId;
 	    }
 	  create_entry_end:;
-	    free(fieldList.fieldValueList);
+	    FreeARFieldValueList(&fieldList,FALSE);
 	  }
 	}
 	OUTPUT:
@@ -1402,21 +1401,10 @@ ars_GetEntry(ctrl,schema,entry_id,...)
 	  int c = items - 3, i, ret;
 	  ARInternalIdList  idList;
 	  int id_len;
-	  AREntryIdType pad_entry;
 	  ARFieldValueList  fieldList;
 	  ARStatusList      status;
 	  ARTimestamp       v;
 	  
-	  /* pad left of entry_id with zeros */
-	  memset(pad_entry, '0', AR_MAX_ENTRYID_SIZE);
-	  pad_entry[AR_MAX_ENTRYID_SIZE] = '\0';
-	  id_len = strlen(entry_id);
-	  if (id_len > AR_MAX_ENTRYID_SIZE) {
-	    ars_errstr = "entry id is too long";
-	    goto get_entry_end;
-	  }
-	  sprintf(pad_entry+(AR_MAX_ENTRYID_SIZE-id_len), "%s", entry_id);
-	
 	  if (c < 1) {
 	    idList.numItems = 0; /* get all fields */
 	  } else {
@@ -1426,7 +1414,7 @@ ars_GetEntry(ctrl,schema,entry_id,...)
 	    for (i=0; i<c; i++)
 	      idList.internalIdList[i] = SvIV(ST(i+3));
 	  }
-	  ret = ARGetEntry(ctrl, schema, pad_entry, &idList, &fieldList, &status); 
+	  ret = ARGetEntry(ctrl, schema, entry_id, &idList, &fieldList, &status); 
 	  if (ARError(ret, status)) {
 	    FreeARInternalIdList(&idList, FALSE);
 	    goto get_entry_end;
