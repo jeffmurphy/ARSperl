@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.99 2005/03/15 02:24:56 jeffmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.100 2005/03/31 16:22:17 jeffmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -1057,7 +1057,6 @@ ars_GetListContainer(ctrl,changedSince=0,attributes=0,...)
 
 	  (void) ARError_reset();	  
 	  Zero(&status, 1, ARStatusList);
-		printf("items %d\n", items);
 #if AR_EXPORT_VERSION >= 4
 	  if(items > 3) {
 		int 			i;
@@ -2670,7 +2669,7 @@ ars_ExecuteProcess(ctrl, command, runOption=0)
 	 ARStatusList status;
 	 int          returnStatus;
 	 char        *returnString;
-	 int          ret;
+	 int          ret = 0;
 
 	 (void) ARError_reset();
 	 Zero(&status, 1,ARStatusList);
@@ -3196,7 +3195,6 @@ ars_SetServerInfo(ctrl, ...)
 					serverInfo.serverInfoList[i-1].value.u.intVal = SvIV(ST(i+1));
 					break;
 				default:
-					sprintf(buf, "unknown serverInfo value: %u", SvIV(ST(i)));
 					(void) ARError_add(AR_RETURN_ERROR, AP_ERR_INV_ARGS, 
 						buf);
 					FreeARServerInfoList(&serverInfo, FALSE);
@@ -3741,19 +3739,19 @@ ars_GetMultipleEntries(ctrl,schema,...)
 			if (! (array_entry = av_fetch(entryList_array, i, 0))) {
 				(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_EID);
 				FreeAREntryIdListList(&entryList,FALSE);
-				goto get_entry_cleanup;
+				goto get_mentry_cleanup;
 			}
 			if( perl_BuildEntryList(ctrl, 
 				&entryList.entryIdList[i],
 				SvPV(*array_entry, PL_na)) != 0 ) {
 
 				FreeAREntryIdListList(&entryList,FALSE);
-				goto get_entry_cleanup;
+				goto get_mentry_cleanup;
 			}
 		}
 	} else {
 		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_EID );
-		goto get_entry_cleanup;
+		goto get_mentry_cleanup;
 	}
 	/*
 	 * do API call
@@ -3764,10 +3762,10 @@ ars_GetMultipleEntries(ctrl,schema,...)
 	((ars_ctrl *)ctrl)->queries++;
 #endif
 	if (ARError( ret, status)) {
-		goto get_entry_cleanup;
+		goto get_mentry_cleanup;
 	}
 	if(fieldList.numItems < 1) {
-		goto get_entry_cleanup;
+		goto get_mentry_cleanup;
 	}
 	/*
 	 * build PERL copy of returned entries
@@ -3814,12 +3812,11 @@ ars_GetMultipleEntries(ctrl,schema,...)
 			XPUSHs(&PL_sv_undef);
 		}
 	}
-	get_entry_cleanup:;
+	get_mentry_cleanup:;
 	FreeARInternalIdList(&idList, FALSE);
 	FreeAREntryIdListList(&entryList, FALSE);
 	FreeARFieldValueListList(&fieldList, FALSE);
 	FreeARBooleanList(&existList, FALSE);
-	get_entry_end:;
 #else /* prior to ARS 4.0 */
 	(void) ARError_reset();
 	Zero(&status, 1, ARStatusList);

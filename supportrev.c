@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.23 2004/09/23 17:34:24 jmccarrell Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.24 2005/03/31 16:22:18 jeffmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -1297,7 +1297,7 @@ rev_ARValueStructDiary(ARControlStruct * ctrl, HV * h, char *k, char **d)
 			if (rv == 0) {
 				int             blen = strlen(user) + strlen(value) + 2 + 12;
 				char           *buf = (char *) MALLOCNN(blen);
-				sprintf(buf, "%d\003%s\003%s", timestamp, user, value);
+				sprintf(buf, "%d\003%s\003%s", (int)timestamp, user, value);
 				*d = buf;
 				if (user)
 					AP_FREE(user);

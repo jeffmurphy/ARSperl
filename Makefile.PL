@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.67 2005/03/15 02:23:49 jeffmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.68 2005/03/31 16:22:18 jeffmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -30,7 +30,7 @@ $ARSAPI     = "/usr/ar/api";
 #$ARSAPI     = "/u1/project/ARSperl/api/linux/4.5";
 #$ARSAPI     = "/u1/project/ARSperl/api/linux/4.0";
 #$ARSAPI     = "/u1/project/ARSperl/api/sol2/api6.3";
-#$ARSAPI     = "/u1/project/ARSperl/api/linux/6.3";
+$ARSAPI     = "/u1/project/ARSperl/api/linux/6.3";
 # $ARSAPI     = "/home/jcmurphy/arsperl/api/5.1";
 # $ARSAPI     = q{\\\\ess7\devkits\ars\4.5\drops\drop4.5FCS\winnt};
 # $ARSAPI     = q{\\\\ess7\devkits\ars\4.5\drops\drop4.5.1FCS\winnt};
@@ -99,6 +99,7 @@ $ARS_STATIC_LIB = "";
 if ($ARSVERSION >= 6.3) {
         $ARS_STATIC_LIB = $ARSAPI."/lib/libar.a";
 	$ARS_LIBS = "";
+	push @extras, 'PM', { 'artypes.ph' => '$(INST_LIBDIR)/artypes.ph' };
 	if ($WINDOWS) {
 		    $ARS_LIBS = join(' ', map { '-l' . $_ } @{$ra_arlibs});
 	} else {
@@ -263,10 +264,13 @@ WriteMakefile(
 	      'LIBS'	=> ["${ARS_LDPATH} ${ARS_LIBS}"],
 	      'OBJECT'  => q[ARS$(OBJ_EXT) support$(OBJ_EXT) supportrev$(OBJ_EXT) ].$ARS_STATIC_LIB,
 	      'INC'	=> "${INCLUDES}",
+	
 	      # 'PM' =>{ '_h2ph_pre.ph' => '$(INST_LIBDIR)/_h2ph_pre.ph' },
+
 	      ($] >= 5.005 ?    ## Add these new keywords supported since 5.005
                (ABSTRACT      => 'ARSperl is an integration kit for Perl5 and the Remedy Action Request System.',
                 AUTHOR        => 'ARSPerl Dev Group <arsperl-devel@arsperl.org>') : ()),
+
 	      @extras,
 
 # DEFINE OPTIONS:

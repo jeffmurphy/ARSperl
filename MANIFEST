@@ -225,6 +225,7 @@ t/aptest50.def
 USAGE
 TODO
 .#Makefile.PL.1.58
+MANIFEST
 Makefile.PL
 ARS.pm
 ARS.xs
@@ -237,7 +238,6 @@ ARSnparm.pm
 Artistic
 INSTALLATION
 LICENSE
-MANIFEST
 README
 RELNOTES
 support-h.template

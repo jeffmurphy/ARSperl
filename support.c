@@ -91,7 +91,7 @@ debug_mallocnn(int s, char *file, char *func, int line)
 void
 debug_free(void *p, char *file, char *func, int line)
 {
-	printf("free(0x%X) called from %s::%s(), line %d\n", p,
+	printf("free(0x%X) called from %s::%s(), line %d\n", (unsigned int) p,
 	       file ? file : "UNKNOWN",
 	       func ? func : "UNKNOWN",
 	       line);
