@@ -27,7 +27,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <alloca.h>
 #include "ar.h"
 #include "arerrno.h"
 #include "arextern.h"
@@ -41,8 +40,8 @@ typedef struct {
   void *array;
 } ARList;
 
-typedef SV* (*ARS_fn)(void *);
-/* typedef void *ARS_fn; */
+/* typedef SV* (*ARS_fn)(void *); */
+typedef void *(*ARS_fn)();
 
 SV *perl_ARStatusStruct(ARStatusStruct *);
 SV *perl_ARInternalId(ARInternalId *);
@@ -98,7 +97,7 @@ int ARError(int returncode, ARStatusList status) {
   errbuf[0] = '\0';
   if (returncode==0) {
 #ifndef WASTE_MEM
-    FreeARStatusList(&status, FALSE);
+/*    FreeARStatusList(&status, FALSE); */
 #endif
     return 0;
   }
@@ -144,7 +143,7 @@ SV *perl_ARList(ARList *in, ARS_fn fn, int size) {
   int i;
   AV *array = newAV();
   for (i=0; i<in->numItems; i++)
-    av_push(array, fn((char *)in->array+(i*size)));
+    av_push(array, (*fn)((char *)in->array+(i*size)));
   return newRV((SV *)array);
 }
 
@@ -1248,6 +1247,7 @@ ars_GetListField(control,schema,changedsince=0)
 	  }
 	}
 
+
 void
 ars_GetFieldByName(control,schema,field_name)
 	ARControlStruct *	control
@@ -1839,41 +1839,50 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	    for (i=0; i<c; i++) {
 	      a = i*2+4;
 	      fieldList.fieldValueList[i].fieldId = SvIV(ST(a));
-	      ret = ARGetField(ctrl, schema, fieldList.fieldValueList[i].fieldId, &dataType, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &status);
-	      if (ARError(ret, status)) {	
-		goto set_entry_end;
-	      }
-	      fieldList.fieldValueList[i].value.dataType = dataType;
-	      switch (dataType) {
-	      case AR_DATA_TYPE_NULL:
-		break;
-	      case AR_DATA_TYPE_KEYWORD:
-		fieldList.fieldValueList[i].value.u.keyNum = SvIV(ST(a+1));
-		break;
-	      case AR_DATA_TYPE_INTEGER:
-		fieldList.fieldValueList[i].value.u.intVal = SvIV(ST(a+1));
-		break;
-	      case AR_DATA_TYPE_REAL:
-		fieldList.fieldValueList[i].value.u.realVal = SvNV(ST(a+1));
-		break;
-	      case AR_DATA_TYPE_CHAR:
-		fieldList.fieldValueList[i].value.u.charVal = SvPV(ST(a+1),na);
-		break;
-	      case AR_DATA_TYPE_DIARY:
-		fieldList.fieldValueList[i].value.u.diaryVal = SvPV(ST(a+1),na);
-		break;
-	      case AR_DATA_TYPE_ENUM:
-		fieldList.fieldValueList[i].value.u.enumVal = SvIV(ST(a+1));
-		break;
-	      case AR_DATA_TYPE_TIME:
-		fieldList.fieldValueList[i].value.u.timeVal = SvIV(ST(a+1));
-		break;
-	      case AR_DATA_TYPE_BITMASK:
-		fieldList.fieldValueList[i].value.u.maskVal = SvIV(ST(a+1));
-		break;
-	      default:
-		ars_errstr = "unknown field type!";
-		goto set_entry_end;
+	      
+	      if (! SvOK(ST(a+1))) {
+		/* pass a NULL */
+		fieldList.fieldValueList[i].value.dataType = AR_DATA_TYPE_NULL;
+	/*	printf("undef,"); */
+	      } else {
+	/*	printf("%s,",SvPV(ST(a+1),na)); */
+		/* determine data type and pass value */
+		ret = ARGetField(ctrl, schema, fieldList.fieldValueList[i].fieldId, &dataType, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &status);
+		if (ARError(ret, status)) {
+		  goto set_entry_end;
+		}
+		fieldList.fieldValueList[i].value.dataType = dataType;
+		switch (dataType) {
+		case AR_DATA_TYPE_NULL:
+		  break;
+		case AR_DATA_TYPE_KEYWORD:
+		  fieldList.fieldValueList[i].value.u.keyNum = SvIV(ST(a+1));
+		  break;
+		case AR_DATA_TYPE_INTEGER:
+		  fieldList.fieldValueList[i].value.u.intVal = SvIV(ST(a+1));
+		  break;
+		case AR_DATA_TYPE_REAL:
+		  fieldList.fieldValueList[i].value.u.realVal = SvNV(ST(a+1));
+		  break;
+		case AR_DATA_TYPE_CHAR:
+		  fieldList.fieldValueList[i].value.u.charVal = SvPV(ST(a+1),na);
+		  break;
+		case AR_DATA_TYPE_DIARY:
+		  fieldList.fieldValueList[i].value.u.diaryVal = SvPV(ST(a+1),na);
+		  break;
+		case AR_DATA_TYPE_ENUM:
+		  fieldList.fieldValueList[i].value.u.enumVal = SvIV(ST(a+1));
+		  break;
+		case AR_DATA_TYPE_TIME:
+		  fieldList.fieldValueList[i].value.u.timeVal = SvIV(ST(a+1));
+		  break;
+		case AR_DATA_TYPE_BITMASK:
+		  fieldList.fieldValueList[i].value.u.maskVal = SvIV(ST(a+1));
+		  break;
+		default:
+		  ars_errstr = "unknown field type!";
+		  goto set_entry_end;
+		}
 	      }
 	    }
 	    ret = ARSetEntry(ctrl, schema, entry_id, &fieldList, getTime, &status);
@@ -1889,18 +1898,17 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	OUTPUT:
 	RETVAL
 
-char *
+void
 ars_Export(ctrl,displayTag,...)
 	ARControlStruct *	ctrl
 	char *			displayTag
-	CODE:
+	PPCODE:
 	{
 	  int ret, i, a, c = (items - 2) / 2;
 	  ARStructItemList structItems;
 	  char *buf, *buf_copy;
 	  ARStatusList status;
 	  
-	  RETVAL = "";
 	  if (items % 2 || c < 1) {
 	    ars_errstr = "Invalid number of arguments";
 	  } else {
@@ -1943,18 +1951,13 @@ ars_Export(ctrl,displayTag,...)
 #endif
 	      goto export_end;
 	    }
-	    /* copy buffer from heap to stack frame and free buffer */
-	    buf_copy = alloca(strlen(buf) + 1);
-	    strcpy(buf_copy, buf);
+	    XPUSHs(newSVpv(buf,0));
 #ifndef WASTE_MEM
 	    free(buf);
 #endif
-	    RETVAL = buf_copy;
 	  }
 	export_end:;
 	}
-	OUTPUT:
-	RETVAL
 
 void
 ars_GetListFilter(control,schema=NULL,changedsince=0)
