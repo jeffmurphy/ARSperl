@@ -12,10 +12,16 @@ previous versions of arsperl and may require altering of some arsperl
 scripts.
 
 
-Released: 04/16/2003 Version: 1.8001
+Released: 08/09/2003 Version: 1.81
 
 
-(JCM)   added Alert example (example/5.x/...)
+(JCM)   memory/multithreaded issue with errhash fixed { steve.drew  at hp.com }
+
+(JCM)   uninitialized variable issue fixed { steve.drew  at  hp.com }
+
+(JCM)   memory free'ing on win32 issues fixed { steve.drew  at hp.com }
+
+(JCM)   minor fix to OO->query (forgot the new firstretrieve param)
 
 
 Released: 04/16/2003 Version: 1.8001
@@ -55,7 +61,8 @@ Released: 04/16/2003 Version: 1.8001
         
         functions whose parameters have changed:
    		
-   		ars_GetListEntry()
+   		ars_GetListEntry() 
+   		ars_GetListEntryWithFields()
         
         functions whose return values have changed:
    		
@@ -633,5 +640,5 @@ Released: 01/12/96 Version: 1.0beta
 
 arsperl@arsperl.org
 
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.49 2003/04/24 18:39:17 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.50 2003/09/08 20:39:09 jcmurphy Exp $
 

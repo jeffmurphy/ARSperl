@@ -1,7 +1,8 @@
-released=07/02/2003 version=1.81
+released=08/09/2003 version=1.81
 JCM memory/multithreaded issue with errhash fixed { steve.drew  at hp.com }
 JCM uninitialized variable issue fixed { steve.drew  at  hp.com }
 JCM memory free'ing on win32 issues fixed { steve.drew  at hp.com }
+JCM minor fix to OO->query (forgot the new firstretrieve param)
 
 released=04/16/2003 version=1.8001
 JCM memory leak fixed in ars_CreateEntry
