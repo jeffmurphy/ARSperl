@@ -23,6 +23,10 @@ my $d = "aptest.def";
 if(ars_APIVersion() >= 4) {
   $d = "aptest45.def";
 }
+if(ars_APIVersion() >= 7) {
+  $d = "aptest50.def";
+}
+
 
 #  delete the schema (assuming it already exists). if it doesnt,
 #  we ignore the error.
