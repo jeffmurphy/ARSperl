@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.22 2000/07/24 12:56:14 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.23 2000/08/15 14:55:07 jcmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -26,7 +26,7 @@ $debug = 0;
 $ARSAPI     = "/usr/ars/api";
 $ARSAPI     = "/u1/project/ARSperl/api/sol2/api4.5";
 #$ARSAPI     = "/u1/project/ARSperl/api/linux/4.0";
-$ARSAPI     = "/home/jcmurphy/arsperl/api";
+#$ARSAPI     = "/home/jcmurphy/arsperl/api";
 
 # STEP 2 -> Choose your version of ARS
 #           example: 2.0 2.1 3.0 3.1 3.2 4.0
@@ -94,6 +94,7 @@ $ARS_LDPATH = "-L$ARSAPI/lib";
 $INCLUDES   = "-I$ARSAPI/include";
 
 GenerateSupportDotH("support-h.template", $INCLUDES);
+
 
 print "Converting C header files to perl modules ..\n";
 
@@ -457,7 +458,8 @@ Please enter the following information. This information will be
 recorded in ./t/config.cache
 
 If you want to skip the 'make test' step, just hit ENTER
-three times.
+three times. You can configure it later by either re-running
+'perl Makefile.PL' or by editting ./t/config.cache
 
 Fair warning: you probably don't want to run 'make test' against a 
 production ARSystem server. 
@@ -485,6 +487,7 @@ production ARSystem server.
 	#print "Storing $SERVER / $USERNAME / $PASSWORD ..\n";
 	open (FD, "> ./t/config.cache") || die "open failed: $!";
 	print FD "package CCACHE;\n";
+	print FD "\# enter your server, admin username and password below.\n\n";
 	print FD "sub SERVER { \"$SERVER\" ; }\n";
 	print FD "sub USERNAME { \"$USERNAME\" ; }\n";
 	print FD "sub PASSWORD { \"$PASSWORD\" ; }\n";
