@@ -27,6 +27,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <alloca.h>
 #include "ar.h"
 #include "arerrno.h"
 #include "arextern.h"
@@ -1303,7 +1304,7 @@ ars_CreateEntry(ctrl,schema...)
 	  int               ret;
 	  unsigned int dataType;
 	  
-	  RETVAL = NULL;
+	  RETVAL = "";
 	  if (((items - 2) % 2) || c < 1) {
 	    ars_errstr = "Invalid number of arguments";
 	  } else {
@@ -1428,6 +1429,7 @@ ars_GetEntry(ctrl,schema,entry_id,...)
 	    XPUSHs(sv_2mortal(newSViv(fieldList.fieldValueList[i].fieldId)));
 	    XPUSHs(sv_2mortal(perl_ARValueStruct(&fieldList.fieldValueList[i].value)));
 	  }
+	  FreeARInternalIdList(&idList, FALSE);
 	  FreeARFieldValueList(&fieldList,FALSE); 
 	get_entry_end:;
 	}
@@ -1824,12 +1826,141 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	      RETVAL = 1;
 	    }
 	  set_entry_end:;
-	    FreeARFieldValueList(&fieldList,FALSE);
+	    free(fieldList.fieldValueList);
 	  }
 	}
 	OUTPUT:
 	RETVAL
 
+char *
+ars_Export(ctrl,displayTag,...)
+	ARControlStruct *	ctrl
+	char *			displayTag
+	CODE:
+	{
+	  int ret, i, a, c = (items - 2) / 2;
+	  ARStructItemList structItems;
+	  char *buf, *buf_copy;
+	  ARStatusList status;
+	  
+	  RETVAL = "";
+	  if (items % 2 || c < 1) {
+	    ars_errstr = "Invalid number of arguments";
+	  } else {
+	    structItems.numItems = c;
+	    structItems.structItemList = malloc(sizeof(ARStructItemStruct)*c);
+	    for (i=0; i<c; i++) {
+	      a = i*2+2;
+	      if (strcmp(SvPV(ST(a),na),"Schema")==0)
+		structItems.structItemList[i].type=AR_STRUCT_ITEM_SCHEMA;
+	      else if (strcmp(SvPV(ST(a),na),"Schema_Defn")==0)
+		structItems.structItemList[i].type=AR_STRUCT_ITEM_SCHEMA_DEFN;
+	      else if (strcmp(SvPV(ST(a),na),"Schema_View")==0)
+		structItems.structItemList[i].type=AR_STRUCT_ITEM_SCHEMA_VIEW;
+	      else if (strcmp(SvPV(ST(a),na),"Schema_Mail")==0)
+		structItems.structItemList[i].type=AR_STRUCT_ITEM_SCHEMA_MAIL;
+	      else if (strcmp(SvPV(ST(a),na),"Filter")==0)
+		structItems.structItemList[i].type=AR_STRUCT_ITEM_FILTER;
+	      else if (strcmp(SvPV(ST(a),na),"Active_Link")==0)
+		structItems.structItemList[i].type=AR_STRUCT_ITEM_ACTIVE_LINK;
+	      else if (strcmp(SvPV(ST(a),na),"Admin_Ext")==0)
+		structItems.structItemList[i].type=AR_STRUCT_ITEM_ADMIN_EXT;
+	      else if (strcmp(SvPV(ST(a),na),"Char_Menu")==0)
+		structItems.structItemList[i].type=AR_STRUCT_ITEM_CHAR_MENU;
+	      else if (strcmp(SvPV(ST(a),na),"Escalation")==0)
+		structItems.structItemList[i].type=AR_STRUCT_ITEM_ESCALATION;
+	      else {
+		ars_errstr = "Unknown export type";
+		free(structItems.structItemList);
+		goto export_end;
+	      }
+	      strncpy(structItems.structItemList[i].name,SvPV(ST(a+1),na), sizeof(ARNameType));
+	      structItems.structItemList[i].name[sizeof(ARNameType)-1] = '\0';
+	    }
+	    ret = ARExport(ctrl, &structItems, displayTag, &buf, &status);
+	    if (ARError(ret, status)) {
+	      free(structItems.structItemList);
+	      goto export_end;
+	    }
+	    /* copy buffer from heap to stack frame and free buffer */
+	    buf_copy = alloca(strlen(buf) + 1);
+	    strcpy(buf_copy, buf);
+	    free(buf);
+	    RETVAL = buf_copy;
+	  }
+	export_end:;
+	}
+	OUTPUT:
+	RETVAL
+
+void
+ars_GetListFilter(control,schema=NULL,changedsince=0)
+	ARControlStruct *	control
+	char *			schema
+	unsigned long		changedsince
+	PPCODE:
+	{
+	  ARNameList nameList;
+	  ARStatusList status;
+	  int ret, i;
+	  ret = ARGetListFilter(control,schema,changedsince,&nameList,&status);
+	  if (!ARError(ret,status)) {
+	    for (i=0; i<nameList.numItems; i++)
+	      XPUSHs(sv_2mortal(newSVpv(nameList.nameList[i], 0)));
+	    FreeARNameList(&nameList,FALSE);
+	  }
+	}
+
+void
+ars_GetListEscalation(control,schema=NULL,changedsince=0)
+	ARControlStruct *	control
+	char *			schema
+	unsigned long		changedsince
+	PPCODE:
+	{
+	  ARNameList nameList;
+	  ARStatusList status;
+	  int ret, i;
+	  ret = ARGetListEscalation(control,schema,changedsince,&nameList,&status);
+	  if (!ARError(ret,status)) {
+	    for (i=0; i<nameList.numItems; i++)
+	      XPUSHs(sv_2mortal(newSVpv(nameList.nameList[i], 0)));
+	    FreeARNameList(&nameList,FALSE);
+	  }
+	}
+
+void
+ars_GetListCharMenu(control,changedsince=0)
+	ARControlStruct *	control
+	unsigned long		changedsince
+	PPCODE:
+	{
+	  ARNameList nameList;
+	  ARStatusList status;
+	  int ret, i;
+	  ret = ARGetListCharMenu(control,changedsince,&nameList,&status);
+	  if (!ARError(ret,status)) {
+	    for (i=0; i<nameList.numItems; i++)
+	      XPUSHs(sv_2mortal(newSVpv(nameList.nameList[i], 0)));
+	    FreeARNameList(&nameList,FALSE);
+	  }
+	}
 
 
+void
+ars_GetListAdminExtension(control,changedsince=0)
+	ARControlStruct *	control
+	unsigned long		changedsince
+	PPCODE:
+	{
+	  ARNameList nameList;
+	  ARStatusList status;
+	  int ret, i;
+	  ret = ARGetListAdminExtension(control,changedsince,&nameList,&status);
+	  if (!ARError(ret,status)) {
+	    for (i=0; i<nameList.numItems; i++)
+	      XPUSHs(sv_2mortal(newSVpv(nameList.nameList[i], 0)));
+	    FreeARNameList(&nameList,FALSE);
+	  }
+	}
 
