@@ -1,76 +1,40 @@
 <HTML>
 <HEAD>
-<TITLE>ARSperl Programmer's Manual</TITLE>
+<TITLE>ARSperl Manual - ars_GetField</TITLE>
 </HEAD>
 <BODY BGCOLOR="#FFFFFF">
 
-   <H2><CODE>ars_GetField(ctrl, schema, id)</CODE></H2>
+<H2><CODE>ars_GetField(ctrl, schema, id)</CODE></H2>
 
-      Returns a hash reference to information about a field. The hash
-      will contain the following elements: <P>
+Returns the <A href="ds_fc.html">Field Characteristics Structure</a>.
+<p>
+<code>id</code> is the numerical Field Id.
+<p>
+See also <A href="ars_GetListField.html"><code>ars_GetListField</code></a>,
+<A href="ars_GetFieldByName.html"><code>ars_GetFieldByName</code></a>,
+and <A href="ars_GetFieldTable.html"><code>ars_GetFieldTable</code></a>
 
-      <DL>
-        <DT> fieldId <DD>
-             the field id of the field
-        <DT> createMode <DD>
-             will be one of: <I>open</I>, <I>protected</I>
-	<DT> permissions <DD>
-	     will be one of: <I>none</I>, <I>view</I>, <I>change</I>
-        <DT> option <DD>
-             
-        <DT> dataType <DD>
-             will be one of: <I>keyword, integer, real, char, diary, enum,
-             time,</I> or <I>bitmask</I>.
-        <DT> defaultVal <DD>
-        <DT> limit <DD>
-             this is a hash. it's keys are (depending upon the dataType):
-             <DL>
-                <DT> min, max, precision <DD>
-                     used the integer and real types (precision is only for
-                     reals).
-                <DT> maxLength <DD>
-                     used for char type.
-                <DT> menuStyle <DD>
-                     will be either <I>append</I> or  <I>overwrite</I>
-                <DT> match <DD>
-                     will be one of: <I>anywhere, leading</I> or <I>equal</I>
-                <DT> charMenu <DD> 
-                     contains the name of the menu attached to this field.
-                <DT> pattern <DD>
-                     contains the pattern to match the field against.
-                <DT> fullTextOptions <DD>
-                     will be one either <I>none</I> or <I>indexed</I>
-              </DL>
-        <DT> displayList <DD>
-        <DT> helpText <DD>
-        <DT> timestamp <DD>
-        <DT> owner <DD>
-        <DT> lastChanged <DD>
-        <DT> changeDiary <DD>
-      </DL>
-
-      <P>
-
-      <DL>
-          <DT><B>On success</B><DD>
-              a hash
-          <DT><B>On failure</B><DD>
-              undef
-      </DL>
-
-      <P>Example:
-
-      <PRE>
-      </PRE>
-
+<DL>                 
+<DT><B>On success</B><DD>
+ returns a reference to <A href="ds_fc.html">HASH</a>
+          
+<DT><B>On failure</B><DD>
+ returns undef
+</DL>
 <P>
-
-<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Back to Table of Contents </A>
+Example:
+<pre>
+         ($field = ars_GetField($c, "User", 8)) || die $arr_errstr;
+         print $field-&gt;{"helpText"};
+</pre>
+<hr width="30%">
+<p>
+<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Table of Contents </A>
 
 <p>
 
 <address>
-Last changes to this page 2 Nov 1997 by jeff murphy<P>
+Last changes to this page 6 March 1998 by David Adams<P>
 &#169; J.C.Murphy, J.W.Murphy 1997 arsperl@smurfland.cit.buffalo.edu 
 </address>
 
