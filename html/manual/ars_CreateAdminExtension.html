@@ -1,0 +1,45 @@
+<HTML>
+<HEAD>
+<TITLE>ARSperl Programmer's Manual - ars_CreateAdminExtension</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+   <H2><CODE>ars_CreateAdminExtension(ctrl, adminExtensionHash)</CODE></H2>
+
+      This function creates an new administrator extension. You must first
+      populate the <CODE>adminExtensioHash</CODE> before calling this routine.
+      <CODE>adminExtensionHash</CODE> is an 
+      <A HREF="ds_getadminext_hash.html">Admin Extension Attributes</a> hash. 
+
+      <P>
+
+      <DL>
+          <DT><B>On success</B><DD>
+              Returns 1
+          <DT><B>On failure</B><DD>
+              Returns 0
+      </DL>
+
+      <P>Example:
+
+      <P><BLOCKQUOTE>
+      <I> This example copies an existing admin extension to a new 
+          admin extension. I.e. it simply re-saves the admin extension
+	  under a new name. </I></BLOCKQUOTE>
+
+      <PRE>
+      ($a = ars_GetAdminExtension($c, "AE-foobar")) ||
+	    die $ars_errstr;
+      $a->{name} = "Copy of ".$a->{name};
+      ars_CreateAdminExtensio($c, $a) || die $ars_errstr;
+      </PRE>
+
+      <B>Notes:</B> hash keys <CODE>helpText, changeDiary</CODE> and
+      <CODE>owner</CODE> are optional when calling this routine.
+<P>
+<I>This function was introduced in version 1.50 of ARSperl</I>
+<P>
+
+<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Back to Table of Contents </A>
+</BODY>
+</HTML>

@@ -1,0 +1,26 @@
+
+ARSperl todo list:
+
+  o implement remaining functions:
+
+ARCreateCharMenu
+ARCreateEscalation
+ARCreateField
+ARCreateFilter
+ARCreateSchema
+ARCreateVUI
+? ARGetEntryStatistics
+ARSetActiveLink
+ARSetAdminExtension
+ARSetCharMenu
+ARSetEscalation
+ARSetField
+ARSetFilter
+ARSetFullTextInfo
+ARSetSchema
+ARSetServerInfo
+ARSetVUI
+
+   o finish cleaning code (use VNAME all over and compile
+     with strict compiler settings).
+
