@@ -21,6 +21,9 @@
 #    Comments to: arsperl@smurfland.cit.buffalo.edu
 #
 # $Log: ARS.pm,v $
+# Revision 1.33  1998/09/11 18:00:33  jcmurphy
+# updated decodeStatusHistory helper function
+#
 # Revision 1.32  1998/08/07 18:39:28  jcmurphy
 # 1.6002
 #
@@ -374,16 +377,22 @@ sub ars_decodeStatusHistory {
     my ($sval) = shift;
     my ($enum) = 0;
     my ($pair, $ts, $un);
+    my (@retval);
 
     foreach $pair (split(/\003/, $sval)) {
-	print $enum++.": ";
 	if($pair ne "") {
 	    ($ts, $un) = split(/\004/, $pair);
-	    print localtime($ts)." - $un\n";
+	    $retval[$enum]->{USER} = $un;
+	    $retval[$enum]->{TIME} = $ts;
 	} else {
-	    print "no value for this enumeration\n";
+	    # no value for this enumeration
+	    $retval[$enum]->{USER} = undef;
+	    $retval[$enum]->{TIME} = undef;
 	}
+	$enum++;
     }
+
+    return @retval;
 }
 
 #define AR_DEFN_DIARY_SEP        '\03'     /* diary items separator */
