@@ -1,4 +1,4 @@
-released=xx/xx/200x version=1.73
+released=11/13/2001 version=1.73
 JCM fixed windows cpp error in support.c
 JCM fixed a leftover fprintf warning in support.c that was causing
     compilation warnings on windows

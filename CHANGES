@@ -11,6 +11,21 @@ previous versions of arsperl and may require altering of some arsperl
 scripts.
 
 
+Released: 11/13/2001 Version: 1.73
+
+
+(JCM)   fixed windows cpp error in support.c
+
+(JCM)   fixed a leftover fprintf warning in support.c that was causing
+        compilation warnings on windows
+
+(JCM)   disabled t/11entry.t
+
+(JCM)   minor Makefile.PL tweak
+
+(JCM)   bug fix in perl_ARStatusStruct that caused segv with api >= 4.0
+
+
 Released: 10/24/2001 Version: 1.72
 
 
@@ -556,5 +571,5 @@ Released: 01/12/96 Version: 1.0beta
 
 arsperl@arsperl.org
 
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.44 2001/10/29 13:56:09 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.45 2001/11/13 14:25:22 jcmurphy Exp $
 
