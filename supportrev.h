@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.6 1997/10/20 21:00:41 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.7 1998/03/31 23:32:26 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,12 @@ $Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.6 1997/10/20 21:00:41 jcmurph
     LOG:
 
 $Log: supportrev.h,v $
+Revision 1.7  1998/03/31 23:32:26  jcmurphy
+NT patch by  Bill Middleton <wjm@metronet.com>
+
+Revision 1.1  1998/03/17 15:19:02  aawimi
+Initial revision
+
 Revision 1.6  1997/10/20 21:00:41  jcmurphy
 5203 beta. code cleanup. winnt additions. malloc/free
 debugging code.
@@ -63,37 +69,40 @@ Initial revision
 # define EXTERN 
 #endif
 
+EXTERN int  compmem(MEMCAST *m1, MEMCAST *m2, int size);
+EXTERN int  copymem(MEMCAST *m1, MEMCAST *m2, int size);
 
-EXTERN int strcpyHVal(_AWPC_ HV *h, char *k, char *b, int len);
-EXTERN int strmakHVal(_AWPC_ HV *h, char *k, char **b);
-EXTERN int intcpyHVal(_AWPC_ HV *h, char *k, int *b);
-EXTERN int uintcpyHVal(_AWPC_ HV *h, char *k, unsigned int *b);
-EXTERN int longcpyHVal(_AWPC_ HV *h, char *k, long *b);
-EXTERN int ulongcpyHVal(_AWPC_ HV *h, char *k, unsigned long *b);
-EXTERN int rev_ARDisplayList(_AWPC_ HV *h, char *k, ARDisplayList *d);
-EXTERN int rev_ARDisplayStruct(_AWPC_ HV *h, ARDisplayStruct *d);
-EXTERN int rev_ARInternalIdList(_AWPC_ HV *h, char *k, ARInternalIdList *il);
-EXTERN int rev_ARActiveLinkActionList(_AWPC_ HV *h, char *k, 
+
+EXTERN int strcpyHVal( HV *h, char *k, char *b, int len);
+EXTERN int strmakHVal( HV *h, char *k, char **b);
+EXTERN int intcpyHVal( HV *h, char *k, int *b);
+EXTERN int uintcpyHVal( HV *h, char *k, unsigned int *b);
+EXTERN int longcpyHVal( HV *h, char *k, long *b);
+EXTERN int ulongcpyHVal( HV *h, char *k, unsigned long *b);
+EXTERN int rev_ARDisplayList( HV *h, char *k, ARDisplayList *d);
+EXTERN int rev_ARDisplayStruct( HV *h, ARDisplayStruct *d);
+EXTERN int rev_ARInternalIdList( HV *h, char *k, ARInternalIdList *il);
+EXTERN int rev_ARActiveLinkActionList( HV *h, char *k, 
 				      ARActiveLinkActionList *al);
-EXTERN int rev_ARFieldAssignList(_AWPC_ HV *h, char *k, ARFieldAssignList *m);
-EXTERN int rev_ARAssignStruct(_AWPC_ HV *h, char *k, ARAssignStruct *m);
-EXTERN int rev_ARValueStruct(_AWPC_ HV *h, char *k, char *t, ARValueStruct *m);
-EXTERN int rev_ARAssignFieldStruct(_AWPC_ HV *h, char *k, ARAssignFieldStruct *m);
-EXTERN int rev_ARStatHistoryValue(_AWPC_ HV *h, char *k, ARStatHistoryValue *s);
-EXTERN int rev_ARArithOpAssignStruct(_AWPC_ HV *h, char *k, ARArithOpAssignStruct *s);
-EXTERN int rev_ARFunctionAssignStruct(_AWPC_ HV *h, char *k,
+EXTERN int rev_ARFieldAssignList( HV *h, char *k, ARFieldAssignList *m);
+EXTERN int rev_ARAssignStruct( HV *h, char *k, ARAssignStruct *m);
+EXTERN int rev_ARValueStruct( HV *h, char *k, char *t, ARValueStruct *m);
+EXTERN int rev_ARAssignFieldStruct( HV *h, char *k, ARAssignFieldStruct *m);
+EXTERN int rev_ARStatHistoryValue( HV *h, char *k, ARStatHistoryValue *s);
+EXTERN int rev_ARArithOpAssignStruct( HV *h, char *k, ARArithOpAssignStruct *s);
+EXTERN int rev_ARFunctionAssignStruct( HV *h, char *k,
 				      ARFunctionAssignStruct *s);
-EXTERN int rev_ARStatusStruct(_AWPC_ HV *h, char *k, ARStatusStruct *m);
-EXTERN int rev_ARFieldCharacteristics(_AWPC_ HV *h, char *k, ARFieldCharacteristics *m);
-EXTERN int rev_ARActiveLinkMacroStruct(_AWPC_ HV *h, char *k, 
+EXTERN int rev_ARStatusStruct( HV *h, char *k, ARStatusStruct *m);
+EXTERN int rev_ARFieldCharacteristics( HV *h, char *k, ARFieldCharacteristics *m);
+EXTERN int rev_ARActiveLinkMacroStruct( HV *h, char *k, 
 				       ARActiveLinkMacroStruct *m);
-EXTERN int rev_ARMacroParmList(_AWPC_ HV *h, char *k, ARMacroParmList *m);
+EXTERN int rev_ARMacroParmList( HV *h, char *k, ARMacroParmList *m);
 
 #if AR_EXPORT_VERSION >= 3
-EXTERN int rev_ARByteList(_AWPC_ HV *h, char *k, ARByteList *b);
-EXTERN int rev_ARCoordList(_AWPC_ HV *h, char *k, ARCoordList *m);
-EXTERN int rev_ARPropList(_AWPC_ HV *h, char *k, ARPropList *m);
-EXTERN int rev_ARAssignSQLStruct(_AWPC_ HV *h, char *k, ARAssignSQLStruct *s);
+EXTERN int rev_ARByteList( HV *h, char *k, ARByteList *b);
+EXTERN int rev_ARCoordList( HV *h, char *k, ARCoordList *m);
+EXTERN int rev_ARPropList( HV *h, char *k, ARPropList *m);
+EXTERN int rev_ARAssignSQLStruct( HV *h, char *k, ARAssignSQLStruct *s);
 #endif
 
 #endif /* __supportrev_h_ */

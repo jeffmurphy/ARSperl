@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.8 1997/10/20 21:00:41 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.9 1998/03/31 23:32:16 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,12 @@ $Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.8 1997/10/20 21:00:41 jcmurph
     LOG:
 
 $Log: supportrev.c,v $
+Revision 1.9  1998/03/31 23:32:16  jcmurphy
+NT patch by  Bill Middleton <wjm@metronet.com>
+
+Revision 1.1  1998/03/16 09:29:45  aawimi
+Initial revision
+
 Revision 1.8  1997/10/20 21:00:41  jcmurphy
 5203 beta. code cleanup. winnt additions. malloc/free
 debugging code.
@@ -73,29 +79,29 @@ Initial revision
 #include "support.h"
 #include "supportrev.h"
 
-static int rev_ARActiveLinkActionList_helper(_AWPC_ HV *h, 
+static int rev_ARActiveLinkActionList_helper( HV *h, 
 					     ARActiveLinkActionList *al, 
 					     int idx);
-static int rev_ARDisplayStruct_helper(_AWPC_ HV *h, char *k, ARDisplayStruct *d);
-static int rev_ARValueStructStr2Type(_AWPC_ char *type, unsigned int *n);
-static int rev_ARValueStructKW2KN(_AWPC_ char *keyword, unsigned int *n);
-static int rev_ARValueStructDiary(_AWPC_ HV *h, char *k, char **d);
-static int rev_ARAssignFieldStruct_helper(_AWPC_ HV *h, ARAssignFieldStruct *m);
+static int rev_ARDisplayStruct_helper( HV *h, char *k, ARDisplayStruct *d);
+static int rev_ARValueStructStr2Type( char *type, unsigned int *n);
+static int rev_ARValueStructKW2KN( char *keyword, unsigned int *n);
+static int rev_ARValueStructDiary( HV *h, char *k, char **d);
+static int rev_ARAssignFieldStruct_helper( HV *h, ARAssignFieldStruct *m);
 static int rev_ARAssignFieldStructStr2NMO(char *s, unsigned int *nmo);
 static int rev_ARAssignFieldStructStr2MMO(char *s, unsigned int *mmo);
-static int rev_ARStatHistoryValue_helper(_AWPC_ HV *h, ARStatHistoryValue *s);
-static int rev_ARArithOpAssignStruct_helper(_AWPC_ HV *h, ARArithOpAssignStruct *s);
+static int rev_ARStatHistoryValue_helper( HV *h, ARStatHistoryValue *s);
+static int rev_ARArithOpAssignStruct_helper( HV *h, ARArithOpAssignStruct *s);
 static int rev_ARArithOpAssignStructStr2OP(char *c, unsigned int *o);
 static int rev_ARFunctionAssignStructStr2FCODE(char *c, unsigned int *o);
-static int rev_ARAssignStruct_helper(_AWPC_ HV *h, ARAssignStruct *m);
-static int rev_ARActiveLinkMacroStruct_helper(_AWPC_ HV *h, 
+static int rev_ARAssignStruct_helper( HV *h, ARAssignStruct *m);
+static int rev_ARActiveLinkMacroStruct_helper( HV *h, 
 					      ARActiveLinkMacroStruct *m);
-static int rev_ARAssignList_helper(_AWPC_ HV *h, ARFieldAssignList *m, int i);
+static int rev_ARAssignList_helper( HV *h, ARFieldAssignList *m, int i);
 
 #if AR_EXPORT_VERSION >= 3
 static int rev_ARByteListStr2Type(char *ts, unsigned long *tv);
-static int rev_ARCoordList_helper(_AWPC_ HV *h, ARCoordList *m, int idx);
-static int rev_ARPropList_helper(_AWPC_ HV *h, ARPropList *m, int idx);
+static int rev_ARCoordList_helper( HV *h, ARCoordList *m, int idx);
+static int rev_ARPropList_helper( HV *h, ARPropList *m, int idx);
 #endif
 
 /* ROUTINE
@@ -118,12 +124,12 @@ static int rev_ARPropList_helper(_AWPC_ HV *h, ARPropList *m, int idx);
  */
 
 int
-strcpyHVal(_AWPC_ HV *h, char *k, char *b, int len)
+strcpyHVal( HV *h, char *k, char *b, int len)
 {
   SV **val;
 
   if(! b) {
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"strcpyHVal: char buffer parameter is NULL");
     return -1;
   }
@@ -137,22 +143,22 @@ strcpyHVal(_AWPC_ HV *h, char *k, char *b, int len)
 	  b[len] = 0;
 	  return 0;
 	} else 
-	  ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "strcpyHVal: hash value is not a string");
       } else {
-	ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+	ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		    "strcpyHVal: hv_fetch returned null. key:");
-	ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_CONTINUE, 
+	ARError_add( AR_RETURN_WARNING, AP_ERR_CONTINUE, 
 		    k ? k : "n/a");
 	return -2;
       }
     } else {
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+      ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		  "strcpyHVal: key doesn't exist");
       return -2;
     }
   } else 
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"strcpyHVal: first argument is not a hash");
   return -1;
 }
@@ -162,12 +168,12 @@ strcpyHVal(_AWPC_ HV *h, char *k, char *b, int len)
  */
 
 int
-strmakHVal(_AWPC_ HV *h, char *k, char **b)
+strmakHVal( HV *h, char *k, char **b)
 {
   /* b must be a pointer to a pointer */
 
   if(! b && ! *b) {
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"strmakHVal: char buffer parameter is invalid");
     return -1;
   }
@@ -180,27 +186,27 @@ strmakHVal(_AWPC_ HV *h, char *k, char **b)
       if(val && *val) {
 	if(SvPOK(*val)) {
 	  char *pvchar = SvPV(*val, len);
-	  *b = MALLOCNN(SvCUR(*val) + 1);
+	  *b = safemalloc(SvCUR(*val) + 1);
 	  strcpy(*b, pvchar);
 	  *(b+len) = 0;
 	  return 0;
 	} else 
-	  ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "strmakHVal: hash value is not a string");
       } else {
-	ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+	ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		    "strmakHVal: hv_fetch returned null");
 	return -2;
       }
     } else {
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+      ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		  "strmakHVal: key doesn't exist. key:");
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_CONTINUE, 
+      ARError_add( AR_RETURN_WARNING, AP_ERR_CONTINUE, 
 		  k ? k : "n/a");
       return -2;
     }
   } else 
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"strmakHVal: first argument is not a hash");
   return -1;
 }
@@ -220,7 +226,7 @@ strmakHVal(_AWPC_ HV *h, char *k, char **b)
  */
 
 int
-intcpyHVal(_AWPC_ HV *h, char *k, int *b)
+intcpyHVal( HV *h, char *k, int *b)
 {
   SV **val;
 
@@ -232,18 +238,18 @@ intcpyHVal(_AWPC_ HV *h, char *k, int *b)
 	  *b = (int)SvIV(*val);
 	  return 0;
 	} else 
-	  ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "intcpyHVal: hash value is not an integer");
       } else {
-	ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+	ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		    "intcpyHVal: hv_fetch returned null");
 	return -2;
       }
     } else 
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+      ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		  "intcpyHVal: key doesn't exist");
   } else 
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"intcpyHVal: first argument is not a hash");
   return -1;
 }
@@ -263,7 +269,7 @@ intcpyHVal(_AWPC_ HV *h, char *k, int *b)
  */
 
 int
-uintcpyHVal(_AWPC_ HV *h, char *k, unsigned int *b)
+uintcpyHVal( HV *h, char *k, unsigned int *b)
 {
   SV **val;
 
@@ -275,20 +281,20 @@ uintcpyHVal(_AWPC_ HV *h, char *k, unsigned int *b)
 	  *b = (unsigned int)SvIV(*val);
 	  return 0;
 	} else 
-	  ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "uintcpyHVal: hash value is not an integer");
       } else {
-	ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+	ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		    "uintcpyHVal: hv_fetch returned null");
 	return -2;
       }
     } else {
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+      ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		  "uintcpyHVal: key doesn't exist");
       return -2;
     }
   } else 
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"uintcpyHVal: first argument is not a hash");
   return -1;
 }
@@ -308,7 +314,7 @@ uintcpyHVal(_AWPC_ HV *h, char *k, unsigned int *b)
  */
 
 int
-longcpyHVal(_AWPC_ HV *h, char *k, long *b)
+longcpyHVal( HV *h, char *k, long *b)
 {
   SV **val;
 
@@ -320,26 +326,26 @@ longcpyHVal(_AWPC_ HV *h, char *k, long *b)
 	  *b = (long)SvIV(*val);
 	  return 0;
 	} else 
-	  ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "longcpyHVal: hash value is not an integer");
       } else {
-	ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+	ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		    "longcpyHVal: hv_fetch returned null");
 	return -2;
       }
     } else {
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+      ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		  "longcpyHVal: key doesn't exist");
       return -2;
     }
   } else 
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"longcpyHVal: first argument is not a hash");
   return -1;
 }
 
 int
-ulongcpyHVal(_AWPC_ HV *h, char *k, unsigned long *b)
+ulongcpyHVal( HV *h, char *k, unsigned long *b)
 {
   SV **val;
 
@@ -351,20 +357,20 @@ ulongcpyHVal(_AWPC_ HV *h, char *k, unsigned long *b)
 	  *b = (unsigned long)SvIV(*val);
 	  return 0;
 	} else 
-	  ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "ulongcpyHVal: hash value is not an integer");
       } else {
-	ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+	ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		    "ulongcpyHVal: hv_fetch returned null");
 	return -2;
       }
     } else {
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+      ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		  "ulongcpyHVal: key doesn't exist");
       return -2;
     }
   } else 
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"ulongcpyHVal: first argument is not a hash");
   return -1;
 }
@@ -387,13 +393,13 @@ ulongcpyHVal(_AWPC_ HV *h, char *k, unsigned long *b)
  */
 
 int
-rev_ARDisplayList(_AWPC_ HV *h, char *k, ARDisplayList *d)
+rev_ARDisplayList( HV *h, char *k, ARDisplayList *d)
 {
   SV **val;
   int  i;
 
   if(! d) {
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARDisplayList: DisplayList param is NULL");
     return -1;
   }
@@ -413,7 +419,7 @@ rev_ARDisplayList(_AWPC_ HV *h, char *k, ARDisplayList *d)
 	  d->numItems = av_len(ar)+1;
 	  if(d->numItems == 0)
 	    return 0; /* nothing to do */
-	  d->displayList = MALLOCNN(sizeof(ARDisplayStruct) * d->numItems);
+	  d->displayList = safemalloc(sizeof(ARDisplayStruct) * d->numItems);
 
 	  /* iterate over the array, grabbing each hash reference out of it
 	   * and passing that to a helper routine to fill in the DisplayList
@@ -424,29 +430,29 @@ rev_ARDisplayList(_AWPC_ HV *h, char *k, ARDisplayList *d)
 	    SV **av_hv = av_fetch(ar, i, 0);
 
 	    if(av_hv && *av_hv && (SvTYPE(SvRV(*av_hv)) == SVt_PVHV)) {
-	      if(rev_ARDisplayStruct(_PPERLC_ (HV *)SvRV(*av_hv), 
+	      if(rev_ARDisplayStruct( (HV *)SvRV(*av_hv), 
 				     &(d->displayList[i])) != 0)
 		return -1;
 	    } else 
-	      ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	      ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 			  "rev_ARDisplayList: inner array value is not a hash reference");
 	  }
 	  return 0;
 	} else 
-	  ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "rev_ARDisplayList: hash value is not an array reference");
       } else {
-	ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+	ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		    "rev_ARDisplayList: hv_fetch returned null");
 	return -2;
       }
     } else {
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+      ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		  "rev_ARDisplayList: key doesn't exist");
       return -2;
     }
   } else 
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARDisplayList: first argument is not a hash");
   return -1;
 }
@@ -459,12 +465,12 @@ rev_ARDisplayList(_AWPC_ HV *h, char *k, ARDisplayList *d)
  */
 
 static int
-rev_ARDisplayStruct_helper(_AWPC_ HV *h, char *k, ARDisplayStruct *d) 
+rev_ARDisplayStruct_helper( HV *h, char *k, ARDisplayStruct *d) 
 {
   SV **val;
 
   if(! d) {
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARDisplayStruct_helper: DisplayList param is NULL");
     return -1;
   }
@@ -477,24 +483,24 @@ rev_ARDisplayStruct_helper(_AWPC_ HV *h, char *k, ARDisplayStruct *d)
 	/* hash value should be an hash reference */
 
 	if(SvTYPE(SvRV(*val)) == SVt_PVHV) {
-	  if(rev_ARDisplayStruct(_PPERLC_ (HV *)SvRV(*val), d) != 0)
+	  if(rev_ARDisplayStruct( (HV *)SvRV(*val), d) != 0)
 	    return -1;
 	  return 0;
 	} else 
-	  ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "rev_ARDisplayStruct_helper: hash value is not an array reference");
       } else {
-	ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+	ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		    "rev_ARDisplayStruct_helper: hv_fetch returned null");
 	return -2;
       }
     } else {
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+      ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		  "rev_ARDisplayStruct_helper: key doesn't exist");
       return -2;
     }
   } else 
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARDisplayStruct_helper: first argument is not a hash");
   return -1;
 }
@@ -509,7 +515,7 @@ rev_ARDisplayStruct_helper(_AWPC_ HV *h, char *k, ARDisplayStruct *d)
  */
 
 int 
-rev_ARDisplayStruct(_AWPC_ HV *h, ARDisplayStruct *d)
+rev_ARDisplayStruct( HV *h, ARDisplayStruct *d)
 {
   int  rv = 0, rv2 = 0;
   char buf[1024];
@@ -584,11 +590,11 @@ rev_ARDisplayStruct(_AWPC_ HV *h, ARDisplayStruct *d)
  */
 
 int
-rev_ARInternalIdList(_AWPC_ HV *h, char *k, ARInternalIdList *il)
+rev_ARInternalIdList( HV *h, char *k, ARInternalIdList *il)
 {
 
   if(! il || ! h || ! k) {
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARInternalIdList: required param is NULL");
     return -1;
   }
@@ -609,7 +615,7 @@ rev_ARInternalIdList(_AWPC_ HV *h, char *k, ARInternalIdList *il)
 	  il->numItems = av_len(ar)+1;
 	  if(il->numItems == 0)
 	    return 0; /* nothing to do */
-	  il->internalIdList = MALLOCNN(sizeof(ARInternalId) * il->numItems);
+	  il->internalIdList = safemalloc(sizeof(ARInternalId) * il->numItems);
 
 	  /* iterate over the array, grabbing each integer out of it and
 	   * placing into the idlist.
@@ -620,27 +626,27 @@ rev_ARInternalIdList(_AWPC_ HV *h, char *k, ARInternalIdList *il)
 	    if(aval && *aval && SvIOK(*aval)) {
 	      il->internalIdList[i] = SvIV(*aval);
 	    } else {
-	      ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+	      ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 			  "rev_ARInternalIdList: array value is not an integer.");
 	      return -1;
 	    }
 	  }
 	  return 0;
 	} else 
-	  ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "rev_ARInternalIdList: hash value is not an array reference");
       } else {
-	ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+	ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		    "rev_ARInternalIdList: hv_fetch returned null");
 	return -2;
       }
     } else {
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+      ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		  "rev_ARInternalIdList: key doesn't exist");
       return -2;
     }
   } else 
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARInternalIdList: first argument is not a hash");
   return -1;
 }
@@ -659,13 +665,13 @@ rev_ARInternalIdList(_AWPC_ HV *h, char *k, ARInternalIdList *il)
  */
 
 int
-rev_ARActiveLinkActionList(_AWPC_ HV *h, char *k, ARActiveLinkActionList *al)
+rev_ARActiveLinkActionList( HV *h, char *k, ARActiveLinkActionList *al)
 {
   SV **val;
   int  i;
 
   if(! al) {
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARActiveLinkActionList: DisplayList param is NULL");
     return -1;
   }
@@ -686,7 +692,7 @@ rev_ARActiveLinkActionList(_AWPC_ HV *h, char *k, ARActiveLinkActionList *al)
 	  if(al->numItems == 0)
 	    return 0; /* nothing to do */
 
-	  al->actionList = MALLOCNN(sizeof(ARActiveLinkActionStruct) * al->numItems);
+	  al->actionList = safemalloc(sizeof(ARActiveLinkActionStruct) * al->numItems);
 
 	  /* iterate over the array, grabbing each hash reference out of it
 	   * and passing that to a helper routine to fill in the ActionList
@@ -697,29 +703,29 @@ rev_ARActiveLinkActionList(_AWPC_ HV *h, char *k, ARActiveLinkActionList *al)
 	    SV **av_hv = av_fetch(ar, i, 0);
 
 	    if(av_hv && *av_hv && (SvTYPE(SvRV(*av_hv)) == SVt_PVHV)) {
-	      if(rev_ARActiveLinkActionList_helper(_PPERLC_ 
+	      if(rev_ARActiveLinkActionList_helper( 
 						   (HV *)SvRV(*av_hv), al, i) != 0)
 		return -1;
 	    } else 
-	      ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	      ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 			  "rev_ARActiveLinkActionList: inner array value is not a hash reference");
 	  }
 	  return 0;
 	} else 
-	  ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "rev_ARActiveLinkActionList: hash value is not an array reference");
       } else {
-	ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+	ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		    "rev_ARActiveLinkActionList: hv_fetch returned null");
 	return -2;
       }
     } else {
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+      ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		  "rev_ARActiveLinkActionList: key doesn't exist");
       return -2;
     }
   } else 
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARActiveLinkActionList: first argument is not a hash");
   return -1;
 }
@@ -729,7 +735,7 @@ rev_ARActiveLinkActionList(_AWPC_ HV *h, char *k, ARActiveLinkActionList *al)
  */
 
 static int
-rev_ARActiveLinkActionList_helper(_AWPC_ HV *h, ARActiveLinkActionList *al, int idx)
+rev_ARActiveLinkActionList_helper( HV *h, ARActiveLinkActionList *al, int idx)
 {
   int  rv = 0;
 
@@ -739,26 +745,26 @@ rev_ARActiveLinkActionList_helper(_AWPC_ HV *h, ARActiveLinkActionList *al, int 
 
   if(hv_exists(h, VNAME("process"))) {
     al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_PROCESS;
-    rv += strmakHVal(_PPERLC_ h, "process", &(al->actionList[idx].u.process));
+    rv += strmakHVal( h, "process", &(al->actionList[idx].u.process));
   }  
   else if(hv_exists(h, VNAME("macro"))) {
     al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_MACRO;
-    rv += rev_ARActiveLinkMacroStruct(_PPERLC_ h, "macro", 
+    rv += rev_ARActiveLinkMacroStruct( h, "macro", 
 			    &(al->actionList[idx].u.macro));
   }
   else if(hv_exists(h, VNAME("assign_fields"))) {
     al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_FIELDS;
-    rv += rev_ARFieldAssignList(_PPERLC_ h, "assign_fields",
+    rv += rev_ARFieldAssignList( h, "assign_fields",
 			    &(al->actionList[idx].u.fieldList));
   }
   else if(hv_exists(h, VNAME("message"))) {
     al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_MESSAGE;
-    rv += rev_ARStatusStruct(_PPERLC_ h, "message",
+    rv += rev_ARStatusStruct( h, "message",
 			    &(al->actionList[idx].u.message));
   }
   else if(hv_exists(h, VNAME("characteristics"))) {
     al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_SET_CHAR;
-    rv += rev_ARFieldCharacteristics(_PPERLC_ h, "characteristics",
+    rv += rev_ARFieldCharacteristics( h, "characteristics",
 			    &(al->actionList[idx].u.characteristics));
   }
   else if(hv_exists(h, VNAME("none"))) {
@@ -785,13 +791,13 @@ rev_ARActiveLinkActionList_helper(_AWPC_ HV *h, ARActiveLinkActionList *al, int 
  */
 
 int
-rev_ARFieldAssignList(_AWPC_ HV *h, char *k, ARFieldAssignList *m)
+rev_ARFieldAssignList( HV *h, char *k, ARFieldAssignList *m)
 {
   SV **val;
   int  i;
 
   if(! m) {
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARFieldAssignList: FieldAssignList param is NULL");
     return -1;
   }
@@ -811,7 +817,7 @@ rev_ARFieldAssignList(_AWPC_ HV *h, char *k, ARFieldAssignList *m)
 	  m->numItems        = av_len(ar)+1;
 	  if(m->numItems == 0)
 	    return 0; /* nothing to do */
-	  m->fieldAssignList = MALLOCNN(sizeof(ARFieldAssignStruct) * m->numItems);
+	  m->fieldAssignList = safemalloc(sizeof(ARFieldAssignStruct) * m->numItems);
 
 	  /* iterate over the array, grabbing each hash reference out of it
 	   * and passing that to a helper routine to fill in the ActionList
@@ -822,49 +828,49 @@ rev_ARFieldAssignList(_AWPC_ HV *h, char *k, ARFieldAssignList *m)
 	    SV **av_hv = av_fetch(ar, i, 0);
 
 	    if(av_hv && *av_hv && (SvTYPE(SvRV(*av_hv)) == SVt_PVHV)) {
-	      if(rev_ARAssignList_helper(_PPERLC_ (HV *)SvRV(*av_hv), m, i) != 0)
+	      if(rev_ARAssignList_helper( (HV *)SvRV(*av_hv), m, i) != 0)
 		return -1;
 	    } else 
-	      ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	      ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 			  "rev_ARFieldAssignList: inner array value is not a hash reference");
 	  }
 	  return 0;
 	} else 
-	  ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "rev_ARFieldAssignList: hash value is not an array reference");
       } else {
-	ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+	ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		    "rev_ARFieldAssignList: hv_fetch returned null");
 	return -2;
       }
     } else {
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+      ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		  "rev_ARFieldAssignList: key doesn't exist");
       return -2;
     }
   } else 
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARFieldAssignList: first argument is not a hash");
   return -1;
 }
 
 static int
-rev_ARAssignList_helper(_AWPC_ HV *h, ARFieldAssignList *m, int i) 
+rev_ARAssignList_helper( HV *h, ARFieldAssignList *m, int i) 
 {
   int rv = 0;
 
-  rv += ulongcpyHVal(_PPERLC_ h, "fieldId", &(m->fieldAssignList[i].fieldId));
-  rv += rev_ARAssignStruct(_PPERLC_ h, "assignment", 
+  rv += ulongcpyHVal( h, "fieldId", &(m->fieldAssignList[i].fieldId));
+  rv += rev_ARAssignStruct( h, "assignment", 
 			   &(m->fieldAssignList[i].assignment));
 
   return rv;
 }
 
 int
-rev_ARAssignStruct(_AWPC_ HV *h, char *k, ARAssignStruct *m)
+rev_ARAssignStruct( HV *h, char *k, ARAssignStruct *m)
 {
   if(! m || ! h || ! k) {
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARFunctionAssignStruct: invalid (NULL) parameter");
     return -1;
   }
@@ -878,28 +884,28 @@ rev_ARAssignStruct(_AWPC_ HV *h, char *k, ARAssignStruct *m)
 
 	if(SvTYPE(SvRV(*val)) == SVt_PVHV) {
 	  HV  *a = (HV *)SvRV((SV *)*val);
-	  return rev_ARAssignStruct_helper(_PPERLC_ a, m);
+	  return rev_ARAssignStruct_helper( a, m);
 	} else 
-	  ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "rev_ARFunctionAssignStruct: hash value is not an array reference");
       } else {
-	ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+	ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		    "rev_ARFunctionAssignStruct: hv_fetch returned null");
 	return -2;
       }
     } else {
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+      ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		  "rev_ARFunctionAssignStruct: key doesn't exist");
       return -2;
     }
   } else 
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARFunctionAssignStruct: first argument is not a hash");
   return -1;  
 }
 
 static int
-rev_ARAssignStruct_helper(_AWPC_ HV *h, ARAssignStruct *m)
+rev_ARAssignStruct_helper( HV *h, ARAssignStruct *m)
 {
   int  rv = 0;
 
@@ -909,11 +915,11 @@ rev_ARAssignStruct_helper(_AWPC_ HV *h, ARAssignStruct *m)
 
   if(hv_exists(h, VNAME("process"))) {
     m->assignType = AR_ASSIGN_TYPE_PROCESS;
-    rv += strmakHVal(_PPERLC_ h, "process", &(m->u.process));
+    rv += strmakHVal( h, "process", &(m->u.process));
   }  
   else if(hv_exists(h, VNAME("value"))) {
     m->assignType = AR_ASSIGN_TYPE_VALUE;
-    rv += rev_ARValueStruct(_PPERLC_ h, "value", "valueType", &(m->u.value));
+    rv += rev_ARValueStruct( h, "value", "valueType", &(m->u.value));
   }
 
   /* note. the below union members are pointers. so we will
@@ -924,24 +930,24 @@ rev_ARAssignStruct_helper(_AWPC_ HV *h, ARAssignStruct *m)
 
   else if(hv_exists(h, VNAME("field"))) {
     m->assignType = AR_ASSIGN_TYPE_FIELD;
-    m->u.field = MALLOCNN(sizeof(ARAssignFieldStruct));
-    rv += rev_ARAssignFieldStruct(_PPERLC_ h, "field", m->u.field);
+    m->u.field = safemalloc(sizeof(ARAssignFieldStruct));
+    rv += rev_ARAssignFieldStruct( h, "field", m->u.field);
   }
   else if(hv_exists(h, VNAME("arith"))) {
     m->assignType = AR_ASSIGN_TYPE_ARITH;
-    m->u.arithOp = MALLOCNN(sizeof(ARArithOpAssignStruct));
-    rv += rev_ARArithOpAssignStruct(_PPERLC_ h, "arith", m->u.arithOp);
+    m->u.arithOp = safemalloc(sizeof(ARArithOpAssignStruct));
+    rv += rev_ARArithOpAssignStruct( h, "arith", m->u.arithOp);
   }
   else if(hv_exists(h, VNAME("function"))) {
     m->assignType = AR_ASSIGN_TYPE_FUNCTION;
-    m->u.function = MALLOCNN(sizeof(ARFunctionAssignStruct));
-    rv += rev_ARFunctionAssignStruct(_PPERLC_ h, "function", m->u.function);
+    m->u.function = safemalloc(sizeof(ARFunctionAssignStruct));
+    rv += rev_ARFunctionAssignStruct( h, "function", m->u.function);
   }
 #if AR_EXPORT_VERSION >= 3
   else if(hv_exists(h, VNAME("sql"))) {
     m->assignType = AR_ASSIGN_TYPE_SQL;
-    m->u.sql = MALLOCNN(sizeof(ARAssignSQLStruct));
-    rv += rev_ARAssignSQLStruct(_PPERLC_ h, "sql", m->u.sql);
+    m->u.sql = safemalloc(sizeof(ARAssignSQLStruct));
+    rv += rev_ARAssignSQLStruct( h, "sql", m->u.sql);
   }
 #endif
   else if(hv_exists(h, VNAME("none"))) {
@@ -956,7 +962,7 @@ rev_ARAssignStruct_helper(_AWPC_ HV *h, ARAssignStruct *m)
 
 #if AR_EXPORT_VERSION >= 3
 int
-rev_ARAssignSQLStruct(_AWPC_ HV *h, char *k, ARAssignSQLStruct *s)
+rev_ARAssignSQLStruct( HV *h, char *k, ARAssignSQLStruct *s)
 {
   SV   **h_sv = hv_fetch(h, VNAME(k), 0);
   SV   **svp;
@@ -970,7 +976,7 @@ rev_ARAssignSQLStruct(_AWPC_ HV *h, char *k, ARAssignSQLStruct *s)
   if(SvROK(*h_sv) && SvTYPE(SvRV(*h_sv)) == SVt_PVHV) {
     hr = (HV *)SvRV(*h_sv);
   } else {
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARAssignSQLStruct: hash key 'sql' doesn't contain a hash reference.");
     return -1;
   }
@@ -983,29 +989,29 @@ rev_ARAssignSQLStruct(_AWPC_ HV *h, char *k, ARAssignSQLStruct *s)
        hv_exists(hr, "noMatchOption", 0) &&
        hv_exists(hr, "multiMatchOption", 0))) {
 
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARAssignSQLStruct: required hash key not found");
     return -1;
   } 
 
   /* copy the key values into the buffer */
 
-  rv += strcpyHVal(_PPERLC_ hr, "server", s->server, AR_MAX_SERVER_SIZE + 1);
+  rv += strcpyHVal( hr, "server", s->server, AR_MAX_SERVER_SIZE + 1);
 
   svp = hv_fetch(hr, VNAME("sqlCommand"), 0);
   SvPV(*svp, len);
 
-  rv += strcpyHVal(_PPERLC_ hr, "sqlCommand", s->sqlCommand, len); /* FIX */
+  rv += strcpyHVal( hr, "sqlCommand", s->sqlCommand, len); /* FIX */
 
-  rv += uintcpyHVal(_PPERLC_ hr, "valueIndex", &(s->valueIndex));
+  rv += uintcpyHVal( hr, "valueIndex", &(s->valueIndex));
   svp = hv_fetch(hr, VNAME("noMatchOption"), 0);
   if(svp && *svp) {
     char *c = SvPV(*svp, na);
     if(rev_ARAssignFieldStructStr2NMO(c, &(s->noMatchOption)) != 0) {
       s->noMatchOption = AR_NO_MATCH_ERROR;
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+      ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		  "rev_ARAssignSQLStruct: unknown noMatchOption string:");
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_CONTINUE, 
+      ARError_add( AR_RETURN_WARNING, AP_ERR_CONTINUE, 
 		  c);
     }
   }
@@ -1015,9 +1021,9 @@ rev_ARAssignSQLStruct(_AWPC_ HV *h, char *k, ARAssignSQLStruct *s)
     char *c = SvPV(*svp, na);
     if(rev_ARAssignFieldStructStr2MMO(c, &(s->multiMatchOption)) != 0) {
       s->multiMatchOption = AR_MULTI_MATCH_ERROR;
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+      ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		  "rev_ARAssignSQLStruct: unknown multiMatchOption string:");
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_CONTINUE, 
+      ARError_add( AR_RETURN_WARNING, AP_ERR_CONTINUE, 
 		  c);
     }
   }
@@ -1041,12 +1047,12 @@ rev_ARAssignSQLStruct(_AWPC_ HV *h, char *k, ARAssignSQLStruct *s)
  */
 
 int
-rev_ARValueStruct(_AWPC_ HV *h, char *k, char *t, ARValueStruct *m)
+rev_ARValueStruct( HV *h, char *k, char *t, ARValueStruct *m)
 {
   SV   **val, **type;
 
   if(! m || ! h || ! k || ! t) {
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARValueStruct: invalid (NULL) parameter");
     return -1;
   }
@@ -1076,11 +1082,11 @@ rev_ARValueStruct(_AWPC_ HV *h, char *k, char *t, ARValueStruct *m)
       m->u.realVal = SvNV(*val);
       break;
     case AR_DATA_TYPE_CHAR:
-      if(strmakHVal(_PPERLC_ h, k, &(m->u.charVal)) == -1)
+      if(strmakHVal( h, k, &(m->u.charVal)) == -1)
 	return -1;
       break;
     case AR_DATA_TYPE_DIARY:
-      if(rev_ARValueStructDiary(_PPERLC_ h, k, &(m->u.diaryVal)) == -1)
+      if(rev_ARValueStructDiary( h, k, &(m->u.diaryVal)) == -1)
 	return -1;
       break;
     case AR_DATA_TYPE_ENUM:
@@ -1094,8 +1100,8 @@ rev_ARValueStruct(_AWPC_ HV *h, char *k, char *t, ARValueStruct *m)
       break;
 #if AR_EXPORT_VERSION >= 3
     case AR_DATA_TYPE_BYTES:
-      m->u.byteListVal = (ARByteList *)MALLOCNN(sizeof(ARByteList));
-      if(rev_ARByteList(_PPERLC_ h, k, m->u.byteListVal) == -1)
+      m->u.byteListVal = (ARByteList *)safemalloc(sizeof(ARByteList));
+      if(rev_ARByteList( h, k, m->u.byteListVal) == -1)
 	return -1;
       break;
     case AR_DATA_TYPE_JOIN:
@@ -1108,8 +1114,8 @@ rev_ARValueStruct(_AWPC_ HV *h, char *k, char *t, ARValueStruct *m)
       return -1; /* FIX: implement */
       break;
     case AR_DATA_TYPE_COORDS:
-      m->u.coordListVal = (ARCoordList *)MALLOCNN(sizeof(ARCoordList));
-      if(rev_ARCoordList(_PPERLC_ h, k, m->u.coordListVal) == -1)
+      m->u.coordListVal = (ARCoordList *)safemalloc(sizeof(ARCoordList));
+      if(rev_ARCoordList( h, k, m->u.coordListVal) == -1)
 	return -1;
       break;
     case AR_DATA_TYPE_ULONG:
@@ -1117,19 +1123,19 @@ rev_ARValueStruct(_AWPC_ HV *h, char *k, char *t, ARValueStruct *m)
       break;
 #endif
     default:
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL,
+      ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL,
 		  "rev_ARValueStruct: unknown data type:");
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_CONTINUE,
+      ARError_add( AR_RETURN_WARNING, AP_ERR_CONTINUE,
 		  tp);
       return -2;
     }
     return 0;
   }
 
-  ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+  ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 	      "rev_ARValueStruct: hash value(s) were invalid for keys:");
-  ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_CONTINUE, k);
-  ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_CONTINUE, t);
+  ARError_add( AR_RETURN_WARNING, AP_ERR_CONTINUE, k);
+  ARError_add( AR_RETURN_WARNING, AP_ERR_CONTINUE, t);
   return -2;
 }
 
@@ -1146,12 +1152,12 @@ rev_ARValueStructStr2Type(char *type, unsigned int *n)
       *n = DataTypeMap[i].number;
       return 0;
     }
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARValueStructStr2Type: type given is unknown:");
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_CONTINUE,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_CONTINUE,
 		type);
   } else
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARValueStructStr2Type: type param is NULL");
   return -1;
 }
@@ -1170,22 +1176,22 @@ rev_ARValueStructKW2KN(char *keyword, unsigned int *n)
       *n = KeyWordMap[i].number;
       return 0;
     }
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARValueStructKW2KN: keyword given is unknown:");
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_CONTINUE,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_CONTINUE,
 		keyword);
   } else
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARValueStructKW2KN: keyword param is NULL");
 
   return -1;
 }
 
 static int
-rev_ARValueStructDiary(_AWPC_ HV *h, char *k, char **d)
+rev_ARValueStructDiary( HV *h, char *k, char **d)
 {
   if(! h || ! k || ! d) {
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARValueStructDiary: invalid (NULL) parameter");
     return -1;
   }
@@ -1200,31 +1206,31 @@ rev_ARValueStructDiary(_AWPC_ HV *h, char *k, char **d)
 
       /* fetch the keys: timestamp, user and value */
 
-      rv += strmakHVal(_PPERLC_ h2, "user", &user);
-      rv += strmakHVal(_PPERLC_ h2, "value", &value);
-      rv += longcpyHVal(_PPERLC_ h2, "timestamp", &timestamp);
+      rv += strmakHVal( h2, "user", &user);
+      rv += strmakHVal( h2, "value", &value);
+      rv += longcpyHVal( h2, "timestamp", &timestamp);
 
       if(rv == 0) {
 	int   blen = strlen(user) + strlen(value) + 2 + 12;
-	char *buf  = (char *)MALLOCNN(blen);
+	char *buf  = (char *)safemalloc(blen);
 	sprintf(buf, "%d\003%s\003%s", timestamp, user, value);
 	*d = buf;
 #ifndef WASTE_MEM
-	if(user) FREE(user);
-	if(value) FREE(value);
+	if(user) safefree(user);
+	if(value) safefree(value);
 #endif
 	return 0;
       } 
     } else {
-      ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+      ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		  "rev_ARValueStructDiary: hash value is not hash ref for key:");
-      ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_CONTINUE,
+      ARError_add( AR_RETURN_ERROR, AP_ERR_CONTINUE,
 		  k);
     }
   } else {
-    ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL,
 		"rev_ARValueStructDiary: hash key doesn't exist:");
-    ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_CONTINUE,
+    ARError_add( AR_RETURN_WARNING, AP_ERR_CONTINUE,
 		k);
     return -2;
   }
@@ -1233,10 +1239,10 @@ rev_ARValueStructDiary(_AWPC_ HV *h, char *k, char **d)
 
 #if AR_EXPORT_VERSION >= 3
 int
-rev_ARByteList(_AWPC_ HV *h, char *k, ARByteList *b)
+rev_ARByteList( HV *h, char *k, ARByteList *b)
 {
   if(! h || ! k || ! b) {
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARByteList: invalid (NULL) parameter");
     return -1;
   }
@@ -1260,24 +1266,24 @@ rev_ARByteList(_AWPC_ HV *h, char *k, ARByteList *b)
 	  if(rev_ARByteListStr2Type(typeString, &(b->type)) == -1)
 	    return -1;
 	  b->numItems = byteLen;
-	  b->bytes = MALLOCNN(byteLen + 1); /* don't want FreeAR.. to whack us */
+	  b->bytes = safemalloc(byteLen + 1); /* don't want FreeAR.. to whack us */
 	  copymem(b->bytes, byteString, byteLen);
 	  return 0;
 	}
       } else {
-	ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+	ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		    "rev_ARByteList: required keys (type and value) not found in inner hash.");
       }
     } else {
-      ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+      ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		  "rev_ARByteList: hash value is not hash ref for key:");
-      ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_CONTINUE,
+      ARError_add( AR_RETURN_ERROR, AP_ERR_CONTINUE,
 		  k);
     }
   } else {
-    ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL,
 		"rev_ARByteList: hash key doesn't exist:");
-    ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_CONTINUE,
+    ARError_add( AR_RETURN_WARNING, AP_ERR_CONTINUE,
 		k);
     return -2;
   }
@@ -1303,13 +1309,13 @@ rev_ARByteListStr2Type(char *ts, unsigned long *tv)
 }
 
 int
-rev_ARCoordList(_AWPC_ HV *h, char *k, ARCoordList *m)
+rev_ARCoordList( HV *h, char *k, ARCoordList *m)
 {
   SV **val;
   int  i;
 
   if(! m) {
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARCoordList: FieldAssignList param is NULL");
     return -1;
   }
@@ -1329,7 +1335,7 @@ rev_ARCoordList(_AWPC_ HV *h, char *k, ARCoordList *m)
 	  m->numItems = av_len(ar)+1;
 	  if(m->numItems == 0)
 	    return 0; /* nothing to do */
-	  m->coords   = MALLOCNN(sizeof(ARCoordStruct) * m->numItems);
+	  m->coords   = safemalloc(sizeof(ARCoordStruct) * m->numItems);
 
 	  /* iterate over the array, grabbing each hash reference out of it
 	   * and passing that to a helper routine to fill in the Coord
@@ -1340,34 +1346,34 @@ rev_ARCoordList(_AWPC_ HV *h, char *k, ARCoordList *m)
 	    SV **av_hv = av_fetch(ar, i, 0);
 
 	    if(av_hv && *av_hv && (SvTYPE(SvRV(*av_hv)) == SVt_PVHV)) {
-	      if(rev_ARCoordList_helper(_PPERLC_ (HV *)SvRV(*av_hv), m, i) != 0)
+	      if(rev_ARCoordList_helper( (HV *)SvRV(*av_hv), m, i) != 0)
 		return -1;
 	    } else 
-	      ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	      ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 			  "rev_ARCoordList: inner array value is not a hash reference");
 	  }
 	  return 0;
 	} else 
-	  ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "rev_ARCoordList: hash value is not an array reference");
       } else {
-	ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+	ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		    "rev_ARCoordList: hv_fetch returned null");
 	return -2;
       }
     } else {
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+      ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		  "rev_ARCoordList: key doesn't exist");
       return -2;
     }
   } else 
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARCoordList: first argument is not a hash");
   return -1;
 }
 
 static int
-rev_ARCoordList_helper(_AWPC_ HV *h, ARCoordList *m, int idx)
+rev_ARCoordList_helper( HV *h, ARCoordList *m, int idx)
 {
   if(!(hv_exists(h, VNAME("x")) && hv_exists(h, VNAME("y")))) {
     SV **xv = hv_fetch(h, VNAME("x"), 0);
@@ -1378,10 +1384,10 @@ rev_ARCoordList_helper(_AWPC_ HV *h, ARCoordList *m, int idx)
       m->coords[idx].y = (long) SvIV(*yv);
       return 0;
     } else
-      ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+      ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		  "rev_ARCoordList_helper: coord values are not IV's");
   } else 
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARCoordList_helper: hash keys (x and y) do not exist.");
 
   return -1;
@@ -1402,10 +1408,10 @@ rev_ARCoordList_helper(_AWPC_ HV *h, ARCoordList *m, int idx)
  */
 
 int
-rev_ARAssignFieldStruct(_AWPC_ HV *h, char *k, ARAssignFieldStruct *m)
+rev_ARAssignFieldStruct( HV *h, char *k, ARAssignFieldStruct *m)
 {
   if(! m || ! h || ! k) {
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARAssignFieldStruct: invalid (NULL) parameter");
     return -1;
   }
@@ -1420,28 +1426,28 @@ rev_ARAssignFieldStruct(_AWPC_ HV *h, char *k, ARAssignFieldStruct *m)
 	if(SvTYPE(SvRV(*val)) == SVt_PVHV) {
 	  HV *h2 = (HV *)SvRV((SV *)*val);
 	  /* extract vals from hash ref and populate structure */
-	  return rev_ARAssignFieldStruct_helper(_PPERLC_ h2, m);
+	  return rev_ARAssignFieldStruct_helper( h2, m);
 	} else 
-	  ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "rev_ARAssignFieldStruct: hash value is not a hash reference");
       } else {
-	ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+	ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		    "rev_ARAssignFieldStruct: hv_fetch returned null");
 	return -2;
       }
     } else {
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+      ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		  "rev_ARAssignFieldStruct: key doesn't exist");
       return -2;
     }
   } else 
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARAssignFieldStruct: first argument is not a hash");
   return -1;
 }
 
 static int 
-rev_ARAssignFieldStruct_helper(_AWPC_ HV *h, ARAssignFieldStruct *m) 
+rev_ARAssignFieldStruct_helper( HV *h, ARAssignFieldStruct *m) 
 {
   ARQualifierStruct  *qp;
   SV                **qpsv, **svp;
@@ -1457,20 +1463,20 @@ rev_ARAssignFieldStruct_helper(_AWPC_ HV *h, ARAssignFieldStruct *m)
 	hv_exists(h, "statHistory", 0)))
      ) {
 
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARAssignFieldStruct_helper: required hash key not found");
     return -1;
   }
 
-  strcpyHVal(_PPERLC_ h, "server", m->server, AR_MAX_SERVER_SIZE + 1);
-  strcpyHVal(_PPERLC_ h, "schema", m->schema, sizeof(ARNameType));
+  strcpyHVal( h, "server", m->server, AR_MAX_SERVER_SIZE + 1);
+  strcpyHVal( h, "schema", m->schema, sizeof(ARNameType));
 
   if(hv_exists(h, "fieldId", 0)) {
-    if(ulongcpyHVal(_PPERLC_ h, "fieldId", &(m->u.fieldId)) != 0)
+    if(ulongcpyHVal( h, "fieldId", &(m->u.fieldId)) != 0)
       return -1;
   } 
   else if(hv_exists(h, "statHistory", 0)) {
-    if(rev_ARStatHistoryValue(_PPERLC_ h, "statHistory", &(m->u.statHistory)) != 0)
+    if(rev_ARStatHistoryValue( h, "statHistory", &(m->u.statHistory)) != 0)
       return -1;
   }
 
@@ -1501,19 +1507,19 @@ rev_ARAssignFieldStruct_helper(_AWPC_ HV *h, ARAssignFieldStruct *m)
     if(sv_derived_from(*qpsv, "ARQualifierStructPtr")) {
       qp = (ARQualifierStruct *)SvIV((SV *)SvRV(*qpsv));
 
-      if(dup_qualifier2(_PPERLC_ qp, &(m->qualifier), 0) != (ARQualifierStruct *)NULL) 
+      if(dup_qualifier2( qp, &(m->qualifier), 0) != (ARQualifierStruct *)NULL) 
 	{
-	  ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "rev_ARAssignFieldStruct_helper: dup_qualifier2() failed");
 	  return 0;
 	}
 
     } else 
-      ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+      ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		  "rev_ARAssignFieldStruct_helper: qualifier key of type ARQualifierStructPtr");
 
   } else 
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARAssignFieldStruct_helper: qualifier key is not a reference");
 
   return -1;
@@ -1565,10 +1571,10 @@ rev_ARAssignFieldStructStr2MMO(char *s, unsigned int *mmo)
  */
 
 int
-rev_ARStatHistoryValue(_AWPC_ HV *h, char *k, ARStatHistoryValue *s)
+rev_ARStatHistoryValue( HV *h, char *k, ARStatHistoryValue *s)
 {
   if(! s || ! h || ! k) {
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARStatHistoryValue: invalid (NULL) parameter");
     return -1;
   }
@@ -1583,38 +1589,38 @@ rev_ARStatHistoryValue(_AWPC_ HV *h, char *k, ARStatHistoryValue *s)
 	if(SvTYPE(SvRV(*val)) == SVt_PVHV) {
 	  HV *h2 = (HV *)SvRV((SV *)*val);
 	  /* extract vals from hash ref and populate structure */
-	  return rev_ARStatHistoryValue_helper(_PPERLC_ h2, s);
+	  return rev_ARStatHistoryValue_helper( h2, s);
 	} else 
-	  ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "rev_ARStatHistoryValue: hash value is not a hash reference");
       } else {
-	ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+	ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		    "rev_ARStatHistoryValue: hv_fetch returned null");
 	return -2;
       }
     } else {
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+      ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		  "rev_ARStatHistoryValue: key doesn't exist");
       return -2;
     }
   } else 
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARStatHistoryValue: first argument is not a hash");
   return -1;  
 }
 
 static int 
-rev_ARStatHistoryValue_helper(_AWPC_ HV *h, ARStatHistoryValue *s)
+rev_ARStatHistoryValue_helper( HV *h, ARStatHistoryValue *s)
 {
   if(!(hv_exists(h, "userOrTime", 0) && hv_exists(h, "enumVal", 0))) {
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARAssignFieldStruct_helper: required hash key not found");
     return -1;
   }
 
-  if(ulongcpyHVal(_PPERLC_ h, "enumVal", &(s->enumVal)) != 0)
+  if(ulongcpyHVal( h, "enumVal", &(s->enumVal)) != 0)
     return -1;
-  if(uintcpyHVal(_PPERLC_ h, "userOrTime", &(s->userOrTime)) != 0)
+  if(uintcpyHVal( h, "userOrTime", &(s->userOrTime)) != 0)
     return -1;
 
   return 0;
@@ -1634,10 +1640,10 @@ rev_ARStatHistoryValue_helper(_AWPC_ HV *h, ARStatHistoryValue *s)
  */
 
 int
-rev_ARArithOpAssignStruct(_AWPC_ HV *h, char *k, ARArithOpAssignStruct *s)
+rev_ARArithOpAssignStruct( HV *h, char *k, ARArithOpAssignStruct *s)
 {
   if(! s || ! h || ! k) {
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARArithOpAssignStruct: invalid (NULL) parameter");
     return -1;
   }
@@ -1652,33 +1658,33 @@ rev_ARArithOpAssignStruct(_AWPC_ HV *h, char *k, ARArithOpAssignStruct *s)
 	if(SvTYPE(SvRV(*val)) == SVt_PVHV) {
 	  HV *h2 = (HV *)SvRV((SV *)*val);
 	  /* extract vals from hash ref and populate structure */
-	  return rev_ARArithOpAssignStruct_helper(_PPERLC_ h2, s);
+	  return rev_ARArithOpAssignStruct_helper( h2, s);
 	} else 
-	  ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "rev_ARArithOpAssignStruct: hash value is not a hash reference");
       } else {
-	ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+	ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		    "rev_ARArithOpAssignStruct: hv_fetch returned null");
 	return -2;
       }
     } else {
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+      ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		  "rev_ARArithOpAssignStruct: key doesn't exist");
       return -2;
     }
   } else 
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARArithOpAssignStruct: first argument is not a hash");
   return -1;  
 }
 
 static int
-rev_ARArithOpAssignStruct_helper(_AWPC_ HV *h, ARArithOpAssignStruct *s)
+rev_ARArithOpAssignStruct_helper( HV *h, ARArithOpAssignStruct *s)
 {
   SV **svp;
   
   if(!hv_exists(h, "oper",0)) {
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARArithOpAssignStruct_helper: hash does not contain required key 'oper'.");
     return -1;
   }
@@ -1688,7 +1694,7 @@ rev_ARArithOpAssignStruct_helper(_AWPC_ HV *h, ARArithOpAssignStruct *s)
   svp = hv_fetch(h, VNAME("oper"), 0);
   if(svp && *svp) {
     char *c = SvPV(*svp, na);
-    if(rev_ARArithOpAssignStructStr2OP(_PPERLC_ c, &(s->operation)) != 0)
+    if(rev_ARArithOpAssignStructStr2OP( c, &(s->operation)) != 0)
       return -1;
   }
 
@@ -1699,9 +1705,9 @@ rev_ARArithOpAssignStruct_helper(_AWPC_ HV *h, ARArithOpAssignStruct *s)
 
   if(s->operation == AR_ARITH_OP_NEGATE) {
     if(hv_exists(h, "left", 0)) 
-      return rev_ARAssignStruct(_PPERLC_ h, "left", &(s->operandLeft));
+      return rev_ARAssignStruct( h, "left", &(s->operandLeft));
     else {
-      ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+      ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		  "rev_ARArithOpAssignStructStr2OP: operation 'negate' ('-') requires 'left' key.");
       return -1;
     }
@@ -1710,14 +1716,14 @@ rev_ARArithOpAssignStruct_helper(_AWPC_ HV *h, ARArithOpAssignStruct *s)
   /* other operations require both left and right */
 
   if(!(hv_exists(h, "left", 0) && hv_exists(h, "right", 0))) {
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARArithOpAssignStruct_helper: 'left' AND 'right' keys are required.");
     return -1;
   }
 
-  if(rev_ARAssignStruct(_PPERLC_ h, "left", &(s->operandLeft)) == -1)
+  if(rev_ARAssignStruct( h, "left", &(s->operandLeft)) == -1)
     return -1;
-  return rev_ARAssignStruct(_PPERLC_ h, "right", &(s->operandRight));
+  return rev_ARAssignStruct( h, "right", &(s->operandRight));
 }
 
 static int
@@ -1728,9 +1734,9 @@ rev_ARArithOpAssignStructStr2OP(char *c, unsigned int *o)
     if(strcasecmp(ArithOpMap[i].name, c) == 0)
       break;
   if(ArithOpMap[i].number == TYPEMAP_LAST) {
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARArithOpAssignStructStr2OP: unknown operation word:");
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, c);
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, c);
     return -1;
   }
   *o = ArithOpMap[i].number;
@@ -1751,10 +1757,10 @@ rev_ARArithOpAssignStructStr2OP(char *c, unsigned int *o)
  */
 
 int
-rev_ARFunctionAssignStruct(_AWPC_ HV *h, char *k, ARFunctionAssignStruct *s)
+rev_ARFunctionAssignStruct( HV *h, char *k, ARFunctionAssignStruct *s)
 {
   if(! s || ! h || ! k) {
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARFunctionAssignStruct: invalid (NULL) parameter");
     return -1;
   }
@@ -1772,7 +1778,7 @@ rev_ARFunctionAssignStruct(_AWPC_ HV *h, char *k, ARFunctionAssignStruct *s)
 	  int  i;
 
 	  if(av_len(a) < 0) {
-	    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 			"rev_ARFunctionAssignStruct: array must have at least 1 element.");
 	    return -1;
 	  }
@@ -1783,7 +1789,7 @@ rev_ARFunctionAssignStruct(_AWPC_ HV *h, char *k, ARFunctionAssignStruct *s)
 	    if(rev_ARFunctionAssignStructStr2FCODE(fn, &(s->functionCode)) == -1)
 	      return -1;
 	  } else {
-	    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+	    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 			"rev_ARFunctionAssignStruct: first element of array must be a string function name.");
 	    return -1;
 	  }
@@ -1793,12 +1799,12 @@ rev_ARFunctionAssignStruct(_AWPC_ HV *h, char *k, ARFunctionAssignStruct *s)
 	  s->numItems = av_len(a); /* no +1 in this case */
 	  if(s->numItems == 0)
 	    return 0; /* nothing to do */
-	  s->parameterList = (ARAssignStruct *)MALLOCNN(sizeof(ARAssignStruct) * s->numItems);
+	  s->parameterList = (ARAssignStruct *)safemalloc(sizeof(ARAssignStruct) * s->numItems);
 
 	  for(i = 1 ; i <= av_len(a) ; i++) {
 	    SV **hvr = av_fetch(a, i, 0);
 	    if(hvr && *hvr && (SvTYPE(SvRV(*hvr)) == SVt_PVHV))
-	      if(rev_ARAssignStruct_helper(_PPERLC_ (HV *)SvRV(*hvr), 
+	      if(rev_ARAssignStruct_helper( (HV *)SvRV(*hvr), 
 					   &(s->parameterList[i])) == -1)
 		return -1;
 	  }
@@ -1806,20 +1812,20 @@ rev_ARFunctionAssignStruct(_AWPC_ HV *h, char *k, ARFunctionAssignStruct *s)
 	  return 0;
 
 	} else 
-	  ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "rev_ARFunctionAssignStruct: hash value is not an array reference");
       } else {
-	ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+	ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		    "rev_ARFunctionAssignStruct: hv_fetch returned null");
 	return -2;
       }
     } else {
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+      ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		  "rev_ARFunctionAssignStruct: key doesn't exist");
       return -2;
     }
   } else 
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARFunctionAssignStruct: first argument is not a hash");
   return -1;  
 }
@@ -1832,9 +1838,9 @@ rev_ARFunctionAssignStructStr2FCODE(char *c, unsigned int *o)
     if(strcasecmp(FunctionMap[i].name, c) == 0)
       break;
   if(FunctionMap[i].number == TYPEMAP_LAST) {
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARFunctionAssignStructStr2FCODE: unknown function name:");
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, c);
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, c);
     return -1;
   }
   *o = FunctionMap[i].number;
@@ -1855,10 +1861,10 @@ rev_ARFunctionAssignStructStr2FCODE(char *c, unsigned int *o)
  */
 
 int
-rev_ARStatusStruct(_AWPC_ HV *h, char *k, ARStatusStruct *m)
+rev_ARStatusStruct( HV *h, char *k, ARStatusStruct *m)
 {
   if(! m || ! h || ! k) {
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARStatusStruct: invalid (NULL) parameter");
     return -1;
   }
@@ -1874,26 +1880,26 @@ rev_ARStatusStruct(_AWPC_ HV *h, char *k, ARStatusStruct *m)
 	  HV  *a = (HV *)SvRV((SV *)*val);
 	  int  rv = 0;
 
-	  rv += strmakHVal(_PPERLC_ a, "messageText", &(m->messageText));
-	  rv += uintcpyHVal(_PPERLC_ a, "messageType", &(m->messageType));
-	  rv += longcpyHVal(_PPERLC_ a, "messageNum", &(m->messageNum));
+	  rv += strmakHVal( a, "messageText", &(m->messageText));
+	  rv += uintcpyHVal( a, "messageType", &(m->messageType));
+	  rv += longcpyHVal( a, "messageNum", &(m->messageNum));
 
 	  return rv;
 	} else 
-	  ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "rev_ARStatusStruct: hash value is not a hash reference");
       } else {
-	ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+	ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		    "rev_ARStatusStruct: hv_fetch returned null");
 	return -2;
       }
     } else {
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+      ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		  "rev_ARStatusStruct: key doesn't exist");
       return -2;
     }
   } else 
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARStatusStruct: first argument is not a hash");
   return -1;  
 }
@@ -1911,10 +1917,10 @@ rev_ARStatusStruct(_AWPC_ HV *h, char *k, ARStatusStruct *m)
  */
 
 int
-rev_ARFieldCharacteristics(_AWPC_ HV *h, char *k, ARFieldCharacteristics *m)
+rev_ARFieldCharacteristics( HV *h, char *k, ARFieldCharacteristics *m)
 {
   if(! m || ! h || ! k) {
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARFieldCharacteristics: invalid (NULL) parameter");
     return -1;
   }
@@ -1930,44 +1936,44 @@ rev_ARFieldCharacteristics(_AWPC_ HV *h, char *k, ARFieldCharacteristics *m)
 	  HV  *a = (HV *)SvRV((SV *)*val);
 	  int  rv = 0; 
 
-	  rv += uintcpyHVal(_PPERLC_ a, "accessOption", &(m->accessOption));
-	  rv += uintcpyHVal(_PPERLC_ a, "focus", &(m->focus));
-	  rv += ulongcpyHVal(_PPERLC_ a, "fieldId", &(m->fieldId));
-	  rv += strmakHVal(_PPERLC_ a, "charMenu", &(m->charMenu));
+	  rv += uintcpyHVal( a, "accessOption", &(m->accessOption));
+	  rv += uintcpyHVal( a, "focus", &(m->focus));
+	  rv += ulongcpyHVal( a, "fieldId", &(m->fieldId));
+	  rv += strmakHVal( a, "charMenu", &(m->charMenu));
 #if AR_EXPORT_VERSION >= 3
-	  if(rev_ARPropList(_PPERLC_ a, "props", &(m->props)) == -1)
+	  if(rev_ARPropList( a, "props", &(m->props)) == -1)
 	    return -1;
 #else /* 2.x */
-	  m->display = (ARDisplayStruct *)MALLOCNN(sizeof(ARDisplayStruct));
-	  if(rev_ARDisplayStruct_helper(_PPERLC_ a, "display", m->display) == -1)
+	  m->display = (ARDisplayStruct *)safemalloc(sizeof(ARDisplayStruct));
+	  if(rev_ARDisplayStruct_helper( a, "display", m->display) == -1)
 	    return -1;
 #endif
 	  return rv;
 	} else 
-	  ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "rev_ARFieldCharacteristics: hash value is not a hash reference");
       } else {
-	ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+	ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		    "rev_ARFieldCharacteristics: hv_fetch returned null");
 	return -2;
       }
     } else {
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+      ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		  "rev_ARFieldCharacteristics: key doesn't exist");
       return -2;
     }
   } else 
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARFieldCharacteristics: first argument is not a hash");
   return -1;  
 }
 
 #if AR_EXPORT_VERSION >= 3
 int
-rev_ARPropList(_AWPC_ HV *h, char *k, ARPropList *m)
+rev_ARPropList( HV *h, char *k, ARPropList *m)
 {
   if(! m || ! h || ! k) {
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARPropList: invalid (NULL) parameter");
     return -1;
   }
@@ -1991,7 +1997,7 @@ rev_ARPropList(_AWPC_ HV *h, char *k, ARPropList *m)
 	  if(m->numItems == 0)
 	    return 0; /* nothing to do */
 
-	  m->props    = (ARPropStruct *)MALLOCNN(sizeof(ARPropStruct) * m->numItems);
+	  m->props    = (ARPropStruct *)safemalloc(sizeof(ARPropStruct) * m->numItems);
 
 	  /* iterate over the array, grabbing each hash reference out of it
 	   * and passing that to a helper routine to fill in the Prop
@@ -2002,35 +2008,35 @@ rev_ARPropList(_AWPC_ HV *h, char *k, ARPropList *m)
 	    SV **av_hv = av_fetch(a, i, 0);
 
 	    if(av_hv && *av_hv && (SvTYPE(SvRV(*av_hv)) == SVt_PVHV)) {
-	      if(rev_ARPropList_helper(_PPERLC_ (HV *)SvRV(*av_hv), m, i) != 0)
+	      if(rev_ARPropList_helper( (HV *)SvRV(*av_hv), m, i) != 0)
 		return -1;
 	    } else 
-	      ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	      ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 			  "rev_ARPropList: inner array value is not a hash reference");
 	  }
 	  return 0;
 
 	} else 
-	  ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "rev_ARPropList: hash value is not an array reference");
       } else {
-	ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+	ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		    "rev_ARPropList: hv_fetch returned null");
 	return -2;
       }
     } else {
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+      ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		  "rev_ARPropList: key doesn't exist");
       return -2;
     }
   } else 
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARPropList: first argument is not a hash");
   return -1;  
 }
 
 static int 
-rev_ARPropList_helper(_AWPC_ HV *h, ARPropList *m, int idx)
+rev_ARPropList_helper( HV *h, ARPropList *m, int idx)
 {
   int rv = 0;
 
@@ -2038,23 +2044,23 @@ rev_ARPropList_helper(_AWPC_ HV *h, ARPropList *m, int idx)
      hv_exists(h, VNAME("value")) &&
      hv_exists(h, VNAME("valueType"))) {
 
-    rv += ulongcpyHVal(_PPERLC_ h, "prop", &(m->props[idx].prop));
-    rv += rev_ARValueStruct(_PPERLC_ h, "value", "valueType", 
+    rv += ulongcpyHVal( h, "prop", &(m->props[idx].prop));
+    rv += rev_ARValueStruct( h, "value", "valueType", 
 			    &(m->props[idx].value));
 
     return rv;
   }
-  ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 	      "rev_ARPropList_helper: required hash keys not present (prop, value, valueType).");
   return -1;
 }
 #endif /* 3.x */
 
 int
-rev_ARActiveLinkMacroStruct(_AWPC_ HV *h, char *k, ARActiveLinkMacroStruct *m)
+rev_ARActiveLinkMacroStruct( HV *h, char *k, ARActiveLinkMacroStruct *m)
 {
   if(! m || ! h || ! k) {
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARActiveLinkMacroStruct: invalid (NULL) parameter");
     return -1;
   }
@@ -2068,28 +2074,28 @@ rev_ARActiveLinkMacroStruct(_AWPC_ HV *h, char *k, ARActiveLinkMacroStruct *m)
 
 	if(SvTYPE(SvRV(*val)) == SVt_PVHV) {
 	  HV  *a = (HV *)SvRV((SV *)*val);
-	  return rev_ARActiveLinkMacroStruct_helper(_PPERLC_ a, m);
+	  return rev_ARActiveLinkMacroStruct_helper( a, m);
 	} else 
-	  ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "rev_ARActiveLinkMacroStruct: hash value is not a hash reference");
       } else {
-	ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+	ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		    "rev_ARActiveLinkMacroStruct: hv_fetch returned null");
 	return -2;
       }
     } else {
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+      ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		  "rev_ARActiveLinkMacroStruct: key doesn't exist");
       return -2;
     }
   } else 
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARActiveLinkMacroStruct: first argument is not a hash");
   return -1;  
 }
 
 static int
-rev_ARActiveLinkMacroStruct_helper(_AWPC_ HV *h, ARActiveLinkMacroStruct *m)
+rev_ARActiveLinkMacroStruct_helper( HV *h, ARActiveLinkMacroStruct *m)
 {
   int rv = 0;
 
@@ -2097,22 +2103,22 @@ rev_ARActiveLinkMacroStruct_helper(_AWPC_ HV *h, ARActiveLinkMacroStruct *m)
      hv_exists(h, VNAME("macroText")) &&
      hv_exists(h, VNAME("macroName"))) {
 
-    rv += strcpyHVal(_PPERLC_ h, "macroName", m->macroName, sizeof(ARNameType));
-    rv += strmakHVal(_PPERLC_ h, "macroText", &(m->macroText));
-    rv += rev_ARMacroParmList(_PPERLC_ h, "macroParms", &(m->macroParms));
+    rv += strcpyHVal( h, "macroName", m->macroName, sizeof(ARNameType));
+    rv += strmakHVal( h, "macroText", &(m->macroText));
+    rv += rev_ARMacroParmList( h, "macroParms", &(m->macroParms));
 
     return 0;
   }
-  ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 	      "rev_ARActiveLinkMacroStruct_helper: required keys not present in hash (macroParms, macroText, macroName)");
   return -1;
 }
 
 int
-rev_ARMacroParmList(_AWPC_ HV *h, char *k, ARMacroParmList *m)
+rev_ARMacroParmList( HV *h, char *k, ARMacroParmList *m)
 {
   if(!h || !k || !*k || !m) {
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARMacroParmList: invalid parameter(s).");
     return -1;
   }
@@ -2140,7 +2146,7 @@ rev_ARMacroParmList(_AWPC_ HV *h, char *k, ARMacroParmList *m)
 	  (void) hv_iterinit(a);
 	  for(i = 0 ; hv_iternext(a) != (HE *)NULL ; i++);
 	  m->numItems = i;
-	  m->parms = (ARMacroParmStruct *)MALLOCNN(sizeof(ARMacroParmStruct)
+	  m->parms = (ARMacroParmStruct *)safemalloc(sizeof(ARMacroParmStruct)
 						   * m->numItems);
 	  (void) hv_iterinit(a);
 	  i2 = 0;
@@ -2154,33 +2160,78 @@ rev_ARMacroParmList(_AWPC_ HV *h, char *k, ARMacroParmList *m)
 		(void) copymem(m->parms[i2].value, vv, vl);
 		i2++;
 	      } else {
-		ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+		ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 			    "rev_ARMacroParmList: oops! more parms than i thought!");
 		return -1;
 	      }
 	    } else {
-	      ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMacroParmList: value for macro param is not a string. macro param name:");
-	      ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_CONTINUE, hkey);
+	      ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMacroParmList: value for macro param is not a string. macro param name:");
+	      ARError_add( AR_RETURN_ERROR, AP_ERR_CONTINUE, hkey);
 	      rv = -1;
 	    }
 	  }
 	  return rv;
 	} else 
-	  ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL, 
+	  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		      "rev_ARMacroParmList: hash value is not a hash reference");
       } else {
-	ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+	ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		    "rev_ARMacroParmList: hv_fetch returned null");
 	return -2;
       }
     } else {
-      ARError_add(_PPERLC_ AR_RETURN_WARNING, AP_ERR_GENERAL, 
+      ARError_add( AR_RETURN_WARNING, AP_ERR_GENERAL, 
 		  "rev_ARMacroParmList: key doesn't exist");
       return -2;
     }
   } else 
-    ARError_add(_PPERLC_ AR_RETURN_ERROR, AP_ERR_GENERAL,
+    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"rev_ARMacroParmList: first argument is not a hash");
   return -1;  
 } 
+/* roll our own strcasecmp and strncasecmp for Win */
+#ifdef _WIN32
 
+int strcasecmp(const char *s1, const char *s2){
+char *p1,*p2;
+char c1,c2;
+p1=s1;
+p2=s2;
+while((*p1 != NULL) && (*p2 != NULL)){
+	c1 = tolower(*p1);
+	c2 = tolower(*p2);
+	if((c1 - c2) == 0){
+		p2++;
+		p1++;
+	}
+	else{
+		return (c1 - c2);
+	}
+}
+return 0;
+}
+
+int strncasecmp(const char *s1, const char *s2, size_t n){
+
+char *p1,*p2;
+char c1,c2;
+int i;
+p1=s1;
+p2=s2;
+while((*p1 != NULL) && (*p2 != NULL) && (i <= n)){
+	c1 = tolower(*p1);
+	c2 = tolower(*p2);
+	if((c1 - c2) == 0){
+		p2++;
+		p1++;
+	}
+	else{
+		return (c1 - c2);
+	}
+	i++;
+}
+return 0;
+}
+
+
+#endif
