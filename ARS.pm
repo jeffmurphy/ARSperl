@@ -21,6 +21,9 @@
 #    Comments to: arsperl@smurfland.cit.buffalo.edu
 #
 # $Log: ARS.pm,v $
+# Revision 1.30  1998/03/31 23:30:29  jcmurphy
+# 1.6000 (beta) includes NT patch from  Bill Middleton <wjm@metronet.com>
+#
 # Revision 1.29  1998/03/31 15:54:25  jcmurphy
 # version=1.56
 #
@@ -173,7 +176,7 @@ ars_GetControlStructFields ars_GetVUI
 $ars_errstr %ARServerStats %ars_errhash
 );
 
-$VERSION   = '1.56';
+$VERSION   = '1.6000';
 $DEBUGGING = 0;
 
 bootstrap ARS $VERSION;
