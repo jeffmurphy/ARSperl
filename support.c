@@ -1546,9 +1546,11 @@ perl_ARFieldLimitStruct(ARControlStruct * ctrl, ARFieldLimitStruct * in)
 	case AR_DATA_TYPE_BYTES:
 	case AR_DATA_TYPE_DECIMAL:
 	case AR_DATA_TYPE_ATTACH:
+#if AR_EXPORT_VERSION >= 7
 	case AR_DATA_TYPE_CURRENCY:
 	case AR_DATA_TYPE_DATE:
 	case AR_DATA_TYPE_TIME_OF_DAY:
+#endif
 
 	case AR_DATA_TYPE_NULL:
 	default:

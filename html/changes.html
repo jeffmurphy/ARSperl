@@ -36,12 +36,30 @@
 </font></td></tr>
 <tr bgcolor='#eeeeee'><td width='10%'>(JCM)</td><td width='90%'><font color='black'>memory leak fixed in ars_MergeEntry 
 </font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(JCM)</td><td width='90%'><font color='black'>memory leak fixed in ars_Export 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(JCM)</td><td width='90%'><font color='black'>memory leak fixed in ars_GetListEntry wrt to join forms 
+</font></td></tr>
 <tr bgcolor='#dddddd'><td width='10%'>(JCM)</td><td width='90%'><font color='black'>memory leak fixed in QualifierStructPtr destructor 
 </font></td></tr>
 <tr bgcolor='#eeeeee'><td width='10%'>(JCM)</td><td width='90%'><font color='black'>memory leak fixed in ControlStruct destructor 
 </font></td></tr>
-<tr bgcolor='#dddddd'><td width='10%'>(JCM)</td><td width='90%'><font color='red'>5.0 integration 
-functions that no longer are available <blockquote> ars_NT*()   [notifier functions] </blockquote> functions whose parameters have changed <blockquote> ars_GetListEntry() </blockquote> </table></td></tr></table>
+<tr bgcolor='#dddddd'><td width='10%'>(JCM)</td><td width='90%'><font color='black'>various other memory related cleanups 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(JCM)</td><td width='90%'><font color='black'>bad/NULL ref fixed in ExpandCharMenu 
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(JCM)</td><td width='90%'><font color='black'>added new params to ars_Login: lang, authString, tcpport, rpcnumber 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(JCM)</td><td width='90%'><font color='black'>added new rv's to ars_GetControlStructFields: lang, authString 
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(JCM)</td><td width='90%'><font color='black'>updated example and test scripts  
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(JCM)</td><td width='90%'><font color='black'>added Alert functions (replaces NT/Notifier functions) 
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(JCM)</td><td width='90%'><font color='black'>added Alert example (example/5.x/...) 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(JCM)</td><td width='90%'><font color='red'>5.x (5.0.1, 5.1, 5.1.1) integration<BR> 
+functions that no longer are available or always return errors indicating they are no longer implemented: <blockquote> ars_NT*()   [notifier functions] </blockquote> functions whose parameters have changed: <blockquote> ars_GetListEntry() </blockquote> functions whose return values have changed: <blockquote> none that would cause incompatibilities </blockquote> </table></td></tr></table>
 
 <P>
 
@@ -1073,4 +1091,4 @@ Removed -lars from makefile (internal C library that wasn't released), not neede
 
 
 <P>
-<PRE>$Header: /cvsroot/arsperl/ARSperl/html/changes.html,v 1.17 2003/03/27 17:58:42 jcmurphy Exp $</PRE></body></html>
+<PRE>$Header: /cvsroot/arsperl/ARSperl/html/changes.html,v 1.18 2003/04/16 20:27:22 jcmurphy Exp $</PRE></body></html>

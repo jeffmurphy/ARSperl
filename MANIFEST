@@ -208,6 +208,9 @@ html/manual/loading.html
 html/manual/skel.html
 html/manual/toc.html
 html/manual/variables.html
+html/manual/ds_enumquerystruct.html
+html/manual/ds_enumitemstruct.html
+html/manual/ds_enumlimstruct.html
 html/AddUsersToGroup.html
 html/DelUsersFromGroup.html
 html/DumpSetup.html
@@ -223,6 +226,7 @@ infra/c4asp.sh
 infra/exsi.pl
 infra/mkchanges.pl
 infra/pcpp.pl
+infra/h2ph
 t/10getftinfo.t
 t/00connect.t
 t/01import.t

@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.91 2003/04/16 19:07:39 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.92 2003/04/16 20:27:22 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -373,7 +373,9 @@ ars_GetControlStructFields(ctrl)
 	   XPUSHs(sv_2mortal(newSVpv(ctrl->language, 0)));
 	   XPUSHs(sv_2mortal(newSVpv(ctrl->server, 0)));
 	   XPUSHs(sv_2mortal(newSViv(ctrl->sessionId)));
+#if AR_EXPORT_VERSION >= 7
 	   XPUSHs(sv_2mortal(newSVpv(ctrl->authString, 0)));
+#endif
 	}
 
 SV *
@@ -4040,7 +4042,7 @@ ars_DecodeAlertMessage(ctrl,message,messageLen)
 SV *
 ars_CreateAlertEvent(ctrl,user,alertText,priority,sourceTag,serverName,formName,objectId)
 	ARControlStruct *	ctrl
-	ARAccessNameType	user
+	char            *	user
 	char *			alertText
 	int			priority
 	ARNameType		sourceTag
@@ -4442,7 +4444,7 @@ DESTROY(ctrl)
 		(void) ARError_reset();
 		Zero(&status, 1, ARStatusList);
 		DBG( ("control struct destructor\n") );
-# if AR_EXPORT_VERSION > 4
+# if AR_EXPORT_VERSION >= 4
 		rv = ARTermination(ctrl, &status);
 # else
 		rv = ARTermination(&status);

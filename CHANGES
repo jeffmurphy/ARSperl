@@ -21,18 +21,41 @@ Released: xx/xx/2003 Version: 1.8000
 
 (JCM)   memory leak fixed in ars_MergeEntry
 
+(JCM)   memory leak fixed in ars_Export
+
+(JCM)   memory leak fixed in ars_GetListEntry wrt to join forms
+
 (JCM)   memory leak fixed in QualifierStructPtr destructor
 
 (JCM)   memory leak fixed in ControlStruct destructor
 
-(JCM) ! 5.0 integration
-        functions that no longer are available
+(JCM)   various other memory related cleanups
+
+(JCM)   bad/NULL ref fixed in ExpandCharMenu
+
+(JCM)   added new params to ars_Login: lang, authString, tcpport, rpcnumber
+
+(JCM)   added new rv's to ars_GetControlStructFields: lang, authString
+
+(JCM)   updated example and test scripts 
+
+(JCM)   added Alert functions (replaces NT/Notifier functions)
+
+(JCM)   added Alert example (example/5.x/...)
+
+(JCM) ! 5.x (5.0.1, 5.1, 5.1.1) integration 
+        functions that no longer are available or always
+        return errors indicating they are no longer implemented:
    		
    		ars_NT*()   [notifier functions]
         
-        functions whose parameters have changed
+        functions whose parameters have changed:
    		
    		ars_GetListEntry()
+        
+        functions whose return values have changed:
+   		
+   		none that would cause incompatibilities
         
 
 
@@ -606,5 +629,5 @@ Released: 01/12/96 Version: 1.0beta
 
 arsperl@arsperl.org
 
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.47 2003/03/27 17:58:42 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.48 2003/04/16 20:27:22 jcmurphy Exp $
 
