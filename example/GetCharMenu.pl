@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/GetCharMenu.pl,v 1.7 2001/10/24 14:21:27 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/GetCharMenu.pl,v 1.8 2003/03/28 05:51:56 jcmurphy Exp $
 #
 # NAME
 #   GetCharMenu.pl
@@ -16,6 +16,9 @@
 #   jcmurphy@acsu.buffalo.edu
 #
 # $Log: GetCharMenu.pl,v $
+# Revision 1.8  2003/03/28 05:51:56  jcmurphy
+# more 5.x edits
+#
 # Revision 1.7  2001/10/24 14:21:27  jcmurphy
 # MergeEntry doc update, minor test/example tweaks
 #
@@ -67,12 +70,17 @@ if(!defined($name)) {
 }
 
 $ctrl = ars_Login($server, $username, $password);
+
+print "Calling ars_GetCharMenu($ctrl, $name)..\n";
 ($finfo = ars_GetCharMenu($ctrl, $name)) ||
     die "error in GetCharMenu: $ars_errstr";
 
 # 10005
+print "Calling ars_GetCharMenuItems($ctrl, $name)..\n";
 my ($menuItems) = ars_GetCharMenuItems($ctrl, $name);
-print "menuItems $menuItems\n";
+die "$ars_errstr\n" unless defined($menuItems);
+print "menuItems=<<$menuItems>> (should be an array ref)\n";
+die "hmm. that wasnt an array ref." unless ref ($menuItems) eq "ARRAY";
 
 print "** Menu Info:\n";
 print "Name        : \"".$finfo->{"name"}."\"\n";

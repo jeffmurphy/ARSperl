@@ -1,8 +1,8 @@
-$Header: /cvsroot/arsperl/ARSperl/INSTALLATION,v 1.7 2000/08/31 05:18:40 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/INSTALLATION,v 1.8 2003/03/28 05:51:56 jcmurphy Exp $
 
-    ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
+    ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
-    Copyright (C) 1995,1996,1997,1998,1999
+    Copyright (C) 1995-2003
 	Joel Murphy, jmurphy@acsu.buffalo.edu
         Jeff Murphy, jcmurphy@acsu.buffalo.edu
 
@@ -13,12 +13,11 @@ $Header: /cvsroot/arsperl/ARSperl/INSTALLATION,v 1.7 2000/08/31 05:18:40 jcmurph
     of ARSperl (or the one that accompanies the source distribution of Perl
     itself) for a full description.
  
-    Comments to:  arsperl@smurfland.cit.buffalo.edu
+    Comments to:  arsperl@arsperl.org
                   (this is a *mailing list* and you must be
                    a subscriber before posting)
 
-    Comments to: arsperl@lurch.cit.buffalo.edu
-    Home Page: http://arsinfo.cit.buffalo.edu
+    Home Page: http://www.arsperl.org
 
 ---------------------------------------------------------------------------
 
@@ -33,7 +32,7 @@ PREPARATION
 
 You will need to have these already installed: 
 
-   o  ARS 2.x or 3.x API libraries and includes (header files).
+   o  ARS 2.x, 3.x, 4.x or 5.x API libraries and includes (header files).
    o  Perl 5.x with the dynamic loading option compiled in.
 
 TESTED OS'S
@@ -41,12 +40,11 @@ TESTED OS'S
 This extension has been successfully built and used under the following 
 OS versions:
 
-   o  Solaris 2.4, 2.5, 2.5.1
-   o  SunOS 4.1.3
+   o  Solaris 2.4 - 8
    o  Irix 6.2
    o  HPUX*
-   o  WindowsNT  (But NOT win95)
-   o  Linux
+   o  WindowsNT, 2000  (But NOT win95)
+   o  Linux (RH 7.3, 8.0)
 
 Users of other OS's might encounted problems with compiling. We'd be 
 interested in hearing about your experiences and if you got it working
@@ -79,23 +77,9 @@ then execute the following comands:
 > make
 > make install
 
-The first command will construct a Makefile. For the actual compile, an 
-ANSI compatible C compiler is needed. We use GCC (2.7.2). The third command
-might require special (i.e. root) access if your installed perl
-distribution is not owned by your userid.
-
-You may occasionally get a "bad free()" error message, or a segmentation
-fault.  I am pretty sure I fixed all the causes of this, but there
-may be more bugs lurking.  To prevent this from ever happening, and
-waste a lot of memory in the process, you can add the option
-"-DWASTE_MEM" to the 'DEFINE' in Makefile.PL.  (Also, please report
-this if it happens!)
-
-You can also define -DPROFILE if you wish to have profiling statistics
-kept during script runtime (query stats). There is minimal overhead,
-and this is enabled by default.  Note that profiling is not yet enabled on 
-NT.  It must be turned off when building.
-
-
+The first command will construct a Makefile. 
+The second comand will compile the source files.
+The third command might require special (i.e. root) access if your
+perl distribution is not owned by your userid.
 
 

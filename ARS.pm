@@ -1,7 +1,7 @@
 #
-#    ARSperl - An ARS v2-v4 / Perl5 Integration Kit
+#    ARSperl - An ARS v2-v5 / Perl5 Integration Kit
 #
-#    Copyright (C) 1995-1999 Joel Murphy, jmurphy@acsu.buffalo.edu
+#    Copyright (C) 1995-2003 Joel Murphy, jmurphy@acsu.buffalo.edu
 #                            Jeff Murphy, jcmurphy@acsu.buffalo.edu
 # 
 #    This program is free software; you can redistribute it and/or modify
@@ -12,10 +12,10 @@
 #    itself) for a full description.
 #
 #    Official Home Page: 
-#    http://arsinfo.cit.buffalo.edu/perl
+#    http://www.arsperl.org
 #
 #    Mailing List (must be subscribed to post):
-#    arsperl@arsinfo.cit.buffalo.edu
+#    arsperl@arsperl.org
 #
 
 # Routines for grabbing the current error message "stack" 
@@ -189,7 +189,24 @@ tie $ARS::ars_errstr, ARS::ERRORSTR;
  'SQL_DB_TIME'    ,53,
  'FTS_SRCH_COUNT' ,54,
  'FTS_SRCH_TIME'  ,55,
- 'SINCE_START'    ,56
+ 'SINCE_START'    ,56,
+ 'IDLE_TIME', 57,
+ 'NET_RESP_TIME', 58,
+ 'FILTER_FIELDP', 59,
+ 'ESCL_FIELDP', 60,
+ 'FILTER_SQL', 61,
+ 'ESCL_SQL', 62,
+ 'NUM_THREADS', 63,
+ 'FILTER_GOTO_ACTION', 64,
+ 'FILTER_CALL_GUIDE', 65,
+ 'FILTER_EXIT_GUIDE', 66,
+ 'FILTER_GOTO_GUIDE_LB', 67,
+ 'FILTER_FIELDS_SQL', 68,
+ 'FILTER_FIELDS_PROCESS', 69,
+ 'FILTER_FIELDS_FLTAPI', 70,
+ 'ESCL_FIELDS_SQL', 71,
+ 'ESCL_FIELDS_PROCESS', 72,
+ 'ESCL_FIELDS_FLTAPI', 73
 );
 
 
@@ -419,6 +436,7 @@ sub ars_GetCharMenuItems {
 		}
 		return ars_ExpandCharMenu2($ctrl, $menuName, $qual);
 	}
+	print "calling ECM2\n";
 	return ars_ExpandCharMenu2($ctrl, $menuName);
 }
 

@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.81 2003/03/27 17:58:42 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.82 2003/03/28 05:51:56 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -901,9 +901,11 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,firstRetrieve,...)
 #endif /* if ARS >= 3 */
 	
 	  /* build sortList */
-	printf("c %d\n", c);
+	  Zero(&sortList, 1, ARSortList);
 	  sortList.numItems = c;
+	printf("sl %x\n", sortList.sortList);
           Newz(777,sortList.sortList, c,  ARSortStruct);
+	printf("sl %x\n", sortList.sortList);
 	  for ( i = 0 ; i < c ; i++) {
 		sortList.sortList[i].fieldId   = SvIV(ST(i*2+field_off));
 		sortList.sortList[i].sortOrder = SvIV(ST(i*2+field_off+1));
@@ -950,6 +952,7 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,firstRetrieve,...)
 					joinId = strappend(joinId, joinSep);
 			}
 			XPUSHs(sv_2mortal(newSVpv(joinId, 0)));
+			safefree(joinId);
 		}
 #else /* ARS 2 */
 		XPUSHs(sv_2mortal(newSVpv(entryList.entryList[i].entryId, 0)));
@@ -1634,25 +1637,27 @@ ars_ExpandCharMenu2(ctrl,name,qual=NULL)
 		ARStatusList     status;
 		int              ret;
 
-		RETVAL = NULL; /*PL_sv_undef;*/
+		RETVAL = &PL_sv_undef;
 		(void) ARError_reset();
 		Zero(&status, 1,ARStatusList);
+		DBG( ("-> ARGetCharMenu\n") );
 		ret = ARGetCharMenu(ctrl, name, NULL, &menuDefn, 
 					NULL, NULL, NULL, NULL, NULL, 
 #if AR_EXPORT_VERSION >= 5
 			      		NULL,
 #endif
 			     		&status);
+		DBG( ("<- ARGetCharMenu\n") );
 #ifdef PROFILE
 		((ars_ctrl *)ctrl)->queries++;
 #endif
-		if (! ARError( ret,status)) {
+		if (! ARError(ret, status)) {
+			DBG( ("-> perl_expandARCharMenuStruct\n") );
 			RETVAL = perl_expandARCharMenuStruct(ctrl, 
 							     &menuDefn);
-#ifndef WASTE_MEM
+			DBG( ("<- perl_expandARCharMenuStruct\n") );
 			FreeARCharMenuStruct(&menuDefn, FALSE);
-#endif
-
+			DBG( ("after Free\n") );
 		}
 	}
 	OUTPUT:

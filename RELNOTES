@@ -1,11 +1,11 @@
-$Header: /cvsroot/arsperl/ARSperl/RELNOTES,v 1.10 2003/03/27 17:58:42 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/RELNOTES,v 1.11 2003/03/28 05:51:56 jcmurphy Exp $
 
 Release Notes for ARSperl
 
 ---------------------------------------------------------------------------
-    ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
+    ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
-    Copyright (C) 1995-2000
+    Copyright (C) 1995-2003
 	Joel Murphy, jmurphy@acsu.buffalo.edu
         Jeff Murphy, jcmurphy@acsu.buffalo.edu
 
@@ -16,20 +16,19 @@ Release Notes for ARSperl
     distribution of ARSperl (or the one that accompanies the source 
     distribution of Perl itself) for a full description.
  
-    Comments to:  arsperl@smurfland.cit.buffalo.edu
+    Comments to:  arsperl@arsperl.org
                   (this is a *mailing list* and you must be
                    a subscriber before posting)
 
-    Comments to: arsperl@lurch.cit.buffalo.edu
-    Home Page: http://arsinfo.cit.buffalo.edu
+    Home Page: http://www.arsperl.org
 
 ---------------------------------------------------------------------------
 
 1.80 Notes
 ----------
 
-The 1.80 release includes ARS 5.0 integration. When compiling against
-ARS 5.0 APIs, the ars_NT* functions (notifier library) will no longer
+The 1.80 release includes ARS 5.x integration. When compiling against
+ARS 5.x APIs, the ars_NT* functions (notifier library) will no longer
 work. The notifier system has completely changed in release 5.0 of
 ARsystem.
 
@@ -188,8 +187,6 @@ GetFieldTable and such.
 In addition, doing ars_SetEntry($ctrl, ..., $fieldId, undef) will now
 correctly set a field to $NULL$
 
-jeff
-
 1.0 Beta User Notes
 -------------------
 
@@ -204,11 +201,7 @@ jeff
      room for improvement. 
 
    o There is a mailing list available for people to share their 
-     thoughts concerning ARSperl. To subscribe send email to 
-     "majordomo@lurch.cit.buffalo.edu" with a body of "subscribe arsperl".
-     The subject line is ignored.
-
-joel
+     thoughts concerning ARSperl. 
 
 ---------------------------------------------------------------------------
-arsperl@smurfland.cit.buffalo.edu
+arsperl@arsperl.org

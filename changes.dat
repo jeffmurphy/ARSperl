@@ -2,8 +2,10 @@ released=xx/xx/2003 version=1.8000
 JCM memory leak fixed in ars_CreateEntry
 JCM memory leak fixed in ars_SetEntry
 JCM memory leak fixed in ars_MergeEntry
+JCM memory leak fixed in ars_GetListEntry wrt to join forms
 JCM memory leak fixed in QualifierStructPtr destructor
 JCM memory leak fixed in ControlStruct destructor
+JCM bad/NULL ref fixed in ExpandCharMenu
 !JCM 5.0 integration
 	functions that no longer are available
 	<blockquote>

@@ -1322,23 +1322,29 @@ perl_expandARCharMenuStruct(ARControlStruct * ctrl,
 	SV             *sub;
 	char           *string;
 
+	DBG( ("enter\n") );
+
 	Zero(&status, 1, ARStatusList);
 	Zero(&menu,   1, ARCharMenuStruct);
 
 	if (in->menuType != AR_CHAR_MENU_LIST) {
+		DBG( ("input menu is not a LIST, calling ARExpandCharMenu\n") );
 		ret = ARExpandCharMenu(ctrl, in, &menu, &status);
-#ifdef PROFILE
-		((ars_ctrl *) ctrl)->queries++;
-#endif
+		DBG( ("ARECM ret=%d\n", ret) );
 		if (ARError(ret, status)) {
 			FreeARCharMenuStruct(&menu, FALSE);
-			return NULL;
+			return &PL_sv_undef;
 		}
 		which = &menu;
-	} else
+	} else {
+		DBG( ("input menu is a LIST, just using that\n") );
 		which = in;
+	}
 
 	array = newAV();
+
+	DBG( ("expanded menu has %d items\n", 
+	      which->u.menuList.numItems) );
 
 	for (i = 0; i < which->u.menuList.numItems; i++) {
 		string = which->u.menuList.charMenuList[i].menuLabel;
@@ -1353,7 +1359,7 @@ perl_expandARCharMenuStruct(ARControlStruct * ctrl,
 			     which->u.menuList.charMenuList[i].u.childMenu);
 			if (!sub) {
 				FreeARCharMenuStruct(&menu, FALSE);
-				return NULL;
+				return &PL_sv_undef;
 			}
 			av_push(array, sub);
 			break;

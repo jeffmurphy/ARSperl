@@ -37,15 +37,25 @@ print "ok [2 openform]\n";
 
 my $id = $s->create("-values" => { 'Submitter' => &CCACHE::USERNAME,
 				 'Status' => 'Assigned',
-				 'Short Description' => 'A test submission'
+				 'Short Description' => 'A test submission',
+				   'Diary Field' => 'A diary entry'
 			       }
 		   );
 print "ok [3 create]\n";
 
 # test 2: retrieve the entry to see if it really worked
 
-my($v) = $s->get(-entry => $id, -field => [ 'Status' ] );
-if($v ne "Assigned") {
+my($v_status,
+   $v_diary) = $s->get(-entry => $id, -field => [ 'Status', 'Diary Field' ] );
+
+# status should be "Assigned" and the diary should contain
+# the expected text, with user=ourusername
+#use Data::Dumper;
+#print "vd ", Dumper($v_diary), "\n";
+
+if( ($v_status ne "Assigned") || 
+    ($v_diary->[0]->{'value'} ne "A diary entry") ||
+    ($v_diary->[0]->{'user'} ne &CCACHE::USERNAME) ) {
   print "not ok [4 $v]\n";
 } else {
   print "ok [4 get]\n";
