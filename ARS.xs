@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.29 1997/05/22 15:23:04 jmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.30 1997/07/02 15:52:18 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,10 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.29 1997/05/22 15:23:04 jmurphy Exp 
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.30  1997/07/02 15:52:18  jcmurphy
+altered error handling routines. remove err buffer and ars_errstr
+pointer from code.
+
 Revision 1.29  1997/05/22 15:23:04  jmurphy
 duh
 
@@ -109,9 +113,6 @@ modified comments
 #ifdef PROFILE
 #include <sys/time.h>
 #endif
-
-char *ars_errstr = "";
-char errbuf[8192];  /* that should be big enough to hold errors */
 
 typedef struct {
   unsigned int numItems;
@@ -195,6 +196,13 @@ SV *perl_ARByteList(ARByteList *);
 SV *perl_ARCoordStruct(ARCoordStruct *);
 #endif
 
+/* some useful macros: CharVaLiD and IntVaLiD .. 
+ * for checking validity of paramters
+ */
+
+#define CVLD(X) (X && *X)
+#define IVLD(X, L, H) ((X <= H) && (L >= X))
+
 /* malloc that will never return null */
 static void *mallocnn(int s) {
   void *m = malloc(s?s:1);
@@ -204,29 +212,223 @@ static void *mallocnn(int s) {
     return m;
 }
 
-/* new ARError which fixes sprintf incompatability under SUNOS
-   from Mark Feit <mfeit@uunet.uu.net> */
-int ARError(int returncode, ARStatusList status) {
-  char *index;         /* Index into error buffer */
-  int item;            /* Error item counter */
-  
-  ars_errstr = errbuf;
-  errbuf[0] = '\0';
-  if (returncode==0) {
-#ifndef WASTE_MEM
-/*    FreeARStatusList(&status, FALSE); */
+/* ROUTINE
+ *   ARError_add(type, num, text)
+ *   ARError_reset()
+ *
+ * DESCRIPTION
+ *   err_hash is a hash with the following keys:
+ *       {numItems}
+ *       {messageType} (array reference)
+ *       {messageNum}  (array reference)
+ *       {messageText} (array reference)
+ *   each of the array refs have exactly {numItems} elements in 
+ *   them. one for each error in the list. 
+ *
+ *   _add will add a new error onto the error hash/array and will 
+ *   incremement numItems appropriately.
+ *
+ *   _reset will reset the error hash to 0 elements and clear out
+ *   old entries.
+ *
+ * RETURN
+ *   0 on success
+ *   negative int on failure
+ */
+
+static HV *err_hash = (HV *)NULL;
+
+#define VNAME(X) X, strlen(X)
+#define ERRHASH "ARS::arserr_hash"
+#define EH_COUNT "numItems"
+#define EH_TYPE  "messageType"
+#define EH_NUM   "messageNum"
+#define EH_TEXT  "messageText"
+
+#define AP_ERR_BAD_ARGS     80000, "Invalid number of arguments"
+#define AP_ERR_BAD_EID      80001, "Invalid entry-id argument"
+#define AP_ERR_EID_TYPE     80002, "Entry-id should be an array or a single scalar"
+#define AP_ERR_EID_LEN      80003, "Invalid Entry-id length"
+#define AP_ERR_BAD_LFLDS    80004, "Bad GetListFields"
+#define AP_ERR_LFLDS_TYPE   80005, "GetListFields must be an array reference"
+#define AP_ERR_USAGE        80006  /* roll your own text */
+#define AP_ERR_MALLOC       80007, "mallocnn() failed to allocate space"
+#define AP_ERR_BAD_EXP      80009, "Unknown export type"
+#define AP_ERR_BAD_IMP      80010, "Unknown import type"
+#define AP_ERR_DEPRECATED   80011  /* roll your own text */
+#define AP_ERR_NO_SERVERS   80012, "No servers available"
+#define AP_ERR_FIELD_TYPE   80013, "Unknown field type"
+#define AP_ERR_COORD_LIST   80014, "Bad coord list"
+#define AP_ERR_COORD_STRUCT 80015, "Bad coord struct"
+#define AP_ERR_BYTE_LIST    80016, "Bad byte list"
+
+static int
+ARError_reset()
+{
+  SV **numItems, **messageType, **messageNum, **messageText, **t1;
+  SV *ni, *t2;
+  AV *mNum, *mType, *mText, *t3;
+
+  /* lookup hash, create if necessary */
+
+  err_hash    = perl_get_hv(ERRHASH, TRUE | 0x02);
+  if(!err_hash) return -1;
+
+  /* if keys already exist, delete them */
+
+  if(hv_exists(err_hash, VNAME(EH_COUNT)))
+	t2 = hv_delete(err_hash, VNAME(EH_COUNT), 0);
+
+  /* the following are array refs. if the _delete call returns
+   * the ref, we should remove all entries from the array and 
+   * delete it as well.
+   */
+
+  if(hv_exists(err_hash, VNAME(EH_TYPE)))
+	t2 = hv_delete(err_hash, VNAME(EH_TYPE), 0);
+
+  if(hv_exists(err_hash, VNAME(EH_NUM))) 
+	t2 = hv_delete(err_hash, VNAME(EH_NUM), 0);
+
+  if(hv_exists(err_hash, VNAME(EH_TEXT)))
+	t2 = hv_delete(err_hash, VNAME(EH_TEXT), 0);
+
+  /* create numItems key, set to zero */
+
+  ni = newSViv(0);
+  if(!ni) return -2;
+  t1 = hv_store(err_hash, VNAME(EH_COUNT), ni, 0);
+  if(!t1) return -3;
+
+  /* create array refs (with empty arrays) */
+
+  t3 = newAV();
+  if(!t3) return -4;
+  t1 = hv_store(err_hash, VNAME(EH_TYPE), newRV((SV *)t3), 0);
+  if(!t1 || !*t1) return -5;
+
+  t3 = newAV();
+  if(!t3) return -6;
+  t1 = hv_store(err_hash, VNAME(EH_NUM), newRV((SV *)t3), 0);
+  if(!t1 || !*t1) return -7;
+
+  t3 = newAV();
+  if(!t3) return -8;
+  t1 = hv_store(err_hash, VNAME(EH_TEXT), newRV((SV *)t3), 0);
+  if(!t1 || !*t1) return -9;
+
+  return 0;
+}
+
+static int
+ARError_add(unsigned int type, long num, char *text)
+{
+  SV          **numItems, **messageType, **messageNum, **messageText, **tmp;
+  AV           *a;
+  SV           *t2;
+  unsigned int  ni, ret;
+
+#ifdef ARSPERL_DEBUG
+  printf("ARError_add(%d, %d, %s)\n", type, num, text?text:"NULL");
 #endif
-    return 0;
+
+/* this is used to insert 'traceback' (debugging) messages into the
+ * error hash. these can be filtered out by modifying the FETCH clause
+ * of the ARSERRSTR package in ARS.pm
+ */
+#define ARSPERL_TRACEBACK -1
+
+  switch(type) {
+  case ARSPERL_TRACEBACK:
+  case AR_RETURN_OK:
+  case AR_RETURN_WARNING:
+  case AR_RETURN_ERROR:
+  case AR_RETURN_FATAL:
+     break;
+  default:
+     return -1;
   }
-  index = errbuf;
+
+  if(!text || !*text) return -2;
+
+  /* fetch base hash and numItems reference, it should already exist
+   * because you should call ARError_reset before using this routine.
+   * if you forgot.. no big deal.. we'll do it for you.
+   */
+
+  err_hash    = perl_get_hv(ERRHASH, FALSE);
+  if(!err_hash) {
+     ret = ARError_reset();
+     if(ret != 0) return -3;
+  }
+  numItems    = hv_fetch(err_hash, VNAME("numItems"), FALSE);
+  if(!numItems)    return -4;
+  messageType = hv_fetch(err_hash, VNAME("messageType"), FALSE);
+  if(!messageType) return -5;
+  messageNum  = hv_fetch(err_hash, VNAME("messageNum"), FALSE);
+  if(!messageNum)  return -6;
+  messageText = hv_fetch(err_hash, VNAME("messageText"), FALSE);
+  if(!messageText) return -7;
+
+  /* add the num, type and text to the appropriate arrays and 
+   * then increase the counter by 1 (one).
+   */
+
+  if(!SvIOK(*numItems)) return -8;
+  ni = (int) SvIV(*numItems) + 1;
+  (void) sv_setiv(*numItems, ni);
+
+  /* push type, num, and text onto each of the arrays */
+
+  if(!SvROK(*messageType) || (SvTYPE(SvRV(*messageType)) != SVt_PVAV))
+      return -9;
+
+  if(!SvROK(*messageNum) || (SvTYPE(SvRV(*messageNum)) != SVt_PVAV))
+      return -10;
+
+  if(!SvROK(*messageText) || (SvTYPE(SvRV(*messageText)) != SVt_PVAV))
+      return -11;
+
+  a = (AV *)SvRV(*messageType);
+  t2 = newSViv(type);
+  (void) av_push(a, t2);
+
+  a = (AV *)SvRV(*messageNum);
+  t2 = newSViv(num);
+  (void) av_push(a, t2);
+
+  a = (AV *)SvRV(*messageText);
+  t2 = newSVpv(text, strlen(text));
+  (void) av_push(a, t2);
+
+  return 0;  
+}
+
+/* ROUTINE
+ *   ARError(returnCode, statusList)
+ * 
+ * DESCRIPTION
+ *   This routine processes the given status list 
+ *   and pushes any data it contains into the err_hash.
+ *
+ * RETURNS
+ *   0 -> returnCode indicates no problems
+ *   1 -> returnCode indicates failure/warning
+ */
+
+int 
+ARError(int returncode, ARStatusList status) {
+  int item;
+
   for ( item=0; item < status.numItems; item++ ) {
-    if ( item > 0 ) {
-      strcpy(index, "  ");
-      index += 2;
-    }
-    strcpy( index, status.statusList[item].messageText );		 
-    index += strlen(index);
+    ARError_add(status.statusList[item].messageType,
+	status.statusList[item].messageNum,
+	status.statusList[item].messageText);
   }
+
+  if (returncode == 0)
+    return 0;
+
 #ifndef WASTE_MEM
   FreeARStatusList(&status, FALSE);
 #endif
@@ -236,26 +438,18 @@ int ARError(int returncode, ARStatusList status) {
 /* same as ARError, just uses the NT structures instead */
  
 int NTError(int returncode, NTStatusList status) {
-  char *index;         /* Index into error buffer */
-  int item;            /* Error item counter */
-  
-  ars_errstr = errbuf;
-  errbuf[0] = '\0';
-  if (returncode==0) {
-#ifndef WASTE_MEM
-/*    FreeNTStatusList(&status, FALSE); */
-#endif
-    return 0;
-  }
-  index = errbuf;
+  int item;
+
+
   for ( item=0; item < status.numItems; item++ ) {
-    if ( item > 0 ) {
-      strcpy(index, "  ");
-      index += 2;
-    }
-    strcpy( index, status.statusList[item].messageText );                
-    index += strlen(index);
+    ARError_add(status.statusList[item].messageType,
+	status.statusList[item].messageNum,
+	status.statusList[item].messageText);
   }
+
+  if (returncode==0)
+    return 0;
+
 #ifndef WASTE_MEM
   FreeNTStatusList(&status, FALSE);
 #endif
@@ -1684,22 +1878,22 @@ sv_to_ARValue(SV *in, unsigned int dataType, ARValueStruct *out) {
 	if (SvTYPE(hash = (HV *)SvRV(in)) == SVt_PVHV) {
 	  fetch = hv_fetch(hash, "type", 4, FALSE);
 	  if (!fetch) {
-	    ars_errstr = "bad byte list";
+            ARError_add(AR_RETURN_ERROR, AP_ERR_BYTE_LIST);
 	    return -1;
 	  }
 	  type = *fetch;
 	  if (! (SvOK(type) && SvTYPE(type) != SVt_RV)) {
-	    ars_errstr = "bad byte list";
+            ARError_add(AR_RETURN_ERROR, AP_ERR_BYTE_LIST);
 	    return -1;
 	  }
 	  fetch = hv_fetch(hash, "value", 5, FALSE);
 	  if (!fetch) {
-	    ars_errstr = "bad byte list";
+            ARError_add(AR_RETURN_ERROR, AP_ERR_BYTE_LIST);
 	    return -1;
 	  }
 	  val = *fetch;
 	  if (! (SvOK(val) && SvTYPE(val) != SVt_RV)) {
-	    ars_errstr = "bad byte list";
+	    ARError_add(AR_RETURN_ERROR, AP_ERR_BYTE_LIST);
 	    return -1;
 	  }
 	  out->u.byteListVal = mallocnn(sizeof(ARByteList));
@@ -1711,7 +1905,7 @@ sv_to_ARValue(SV *in, unsigned int dataType, ARValueStruct *out) {
 	  break;
 	}
       }
-      ars_errstr = "bad byte list";
+      ARError_add(AR_RETURN_ERROR, AP_ERR_BYTE_LIST);
       return -1;
     case AR_DATA_TYPE_ULONG:
       out->u.ulongVal = SvIV(in); /* FIX -- does perl have ulong ? */
@@ -1738,17 +1932,17 @@ sv_to_ARValue(SV *in, unsigned int dataType, ARValueStruct *out) {
 	    free(out->u.coordListVal->coords);
 	    free(out->u.coordListVal);
 #endif
-	    ars_errstr = "bad coord struct";
+            ARError_add(AR_RETURN_ERROR, AP_ERR_COORD_STRUCT);
 	    return -1;
 	  }
 	}
 	return 0;
       }
-      ars_errstr = "bad coord list";
+      ARError_add(AR_RETURN_ERROR, AP_ERR_COORD_LIST);
       return -1;
 #endif
     default:
-      ars_errstr = "unknown field type!";
+      ARError_add(AR_RETURN_ERROR, AP_ERR_FIELD_TYPE);
       return -1;
     }
   }
@@ -1792,15 +1986,6 @@ isa_string(...)
 	OUTPUT:
 	RETVAL
 
-char *
-_ars_errstr()
-	CODE:
-	{
-	RETVAL=ars_errstr;
-	}
-	OUTPUT:
-	RETVAL
-
 HV *
 ars_perl_qualifier(in)
 	ARQualifierStruct *	in
@@ -1822,6 +2007,7 @@ ars_LoadQualifier(ctrl,schema,qualstring)
 	  ARQualifierStruct *qual = mallocnn(sizeof(ARQualifierStruct));
 	  ARStatusList status;
 	  
+	  ARError_reset();
 	  /* this gets freed below in the ARQualifierStructPTR package */
 	  ret = ARLoadARQualifierStruct(ctrl, schema, NULL, qualstring, qual, &status);
 #ifdef PROFILE
@@ -1846,9 +2032,10 @@ __ars_Termination()
 	  int ret;
 	  ARStatusList status;
 	  
+	  ARError_reset();
 	  ret = ARTermination(&status);
 	  if (ARError(ret, status)) {
-	    warn("failed in ARTermination: %s\n", ars_errstr);
+	    warn("failed in ARTermination\n");
 	  }
 	}
 
@@ -1859,6 +2046,7 @@ __ars_init()
 	  int ret;
 	  ARStatusList status;
 	
+	  ARError_reset();
 	  ret = ARInitialization(&status);
 	  if (ARError(ret, status)) {
 	    croak("unable to initialize ARS module");
@@ -1880,7 +2068,8 @@ ars_Login(server,username,password)
 	  struct timeval tv;
 #endif
 
-	  RETVAL = NULL;	  
+	  RETVAL = NULL;
+	  ARError_reset();  
 	  /* this gets freed below in the ARControlStructPTR package */
 	  ctrl = (ARControlStruct *)mallocnn(sizeof(ars_ctrl));
 	  ((ars_ctrl *)ctrl)->queries = 0;
@@ -1906,7 +2095,7 @@ ars_Login(server,username,password)
 	      goto ar_login_end;
 	    }
 	    if (serverList.numItems < 0) {
-	      ars_errstr = "no servers available";
+	      ARError_add(AR_RETURN_ERROR, AP_ERR_NO_SERVERS);
 	      RETVAL = NULL;
 	      goto ar_login_end;
 	    }
@@ -1930,10 +2119,11 @@ ars_GetCurrentServer(ctrl)
 	ARControlStruct *	ctrl
 	CODE:
 	{
-	 RETVAL = NULL;
-	 if(ctrl && ctrl->server) {
+	  RETVAL = NULL;
+	  ARError_reset();
+	  if(ctrl && ctrl->server) {
 	    RETVAL = newSVpv(ctrl->server, strlen(ctrl->server));
-	 } 
+	  } 
 	}
 	OUTPUT:
 	RETVAL
@@ -1943,14 +2133,15 @@ ars_GetProfileInfo(ctrl)
 	ARControlStruct *	ctrl
 	CODE:
 	{
-	RETVAL = newHV();
+	  RETVAL = newHV();
+	  ARError_reset();
 #ifdef PROFILE
-	hv_store(RETVAL, "queries", strlen("queries"),
-		 newSViv(((ars_ctrl *)ctrl)->queries), 0);
-	hv_store(RETVAL, "startTime", strlen("startTime"),
-		 newSViv(((ars_ctrl *)ctrl)->startTime), 0);
+	  hv_store(RETVAL, "queries", strlen("queries"),
+	  	   newSViv(((ars_ctrl *)ctrl)->queries), 0);
+	  hv_store(RETVAL, "startTime", strlen("startTime"),
+		   newSViv(((ars_ctrl *)ctrl)->startTime), 0);
 #else /* profiling not compiled in */
-	fprintf(stderr, "arsperl: optional profiling not compiled in.\n");
+	  ARError_add(AR_RETURN_WARN, 10000, "optional profiling not compiled in");
 #endif
 	}
 	OUTPUT:
@@ -1966,14 +2157,10 @@ ars_Logoff(ctrl,a=0,b=0,c=1)
 	{
 	    int ret;
 	    ARStatusList status;
+	    ARError_reset();
 	    if (!ctrl) return;
 	    ret = XARReleaseCurrentUser(ctrl, ctrl->user, &status, a, b, c);
 	    ARError(ret, status);
-	/*
-	    ret = ARTermination(&status);
-	    ARError(ret, status);
-	    free(ctrl);
-	*/
 	}
 
 void
@@ -1987,6 +2174,7 @@ ars_GetListField(control,schema,changedsince=0,fieldType=ULONG_MAX)
 	  ARInternalIdList idlist;
 	  ARStatusList status;
 	  int ret, i;
+	  ARError_reset();
 #if AR_EXPORT_VERSION >= 3
 	  if (fieldType == ULONG_MAX)
 	    fieldType = AR_FIELD_TYPE_ALL;
@@ -2022,6 +2210,7 @@ ars_GetFieldByName(control,schema,field_name)
 #else
 	  ARDisplayList displayList;
 #endif
+	  ARError_reset();
 #if AR_EXPORT_VERSION >= 3
 	  ret = ARGetListField(control, schema, AR_FIELD_TYPE_ALL, (ARTimestamp)0, &idList, &status);
 #else
@@ -2043,7 +2232,7 @@ ars_GetFieldByName(control,schema,field_name)
 	      if (strcmp(field_name, fieldName) == 0)
 #else 
 	      if (displayList.numItems < 1) {
-		/* printf("No fields were returned in display list\n"); */
+		ARError_add(ARSPERL_TRACEBACK, 1, "No fields were returned in display list");
 		break;
 	      }
 	      if (strcmp(field_name,displayList.displayList[0].label)==0)
@@ -2083,6 +2272,7 @@ ars_GetFieldTable(control,schema)
 #else
 	  ARDisplayList displayList;
 #endif
+	  ARError_reset();
 #if AR_EXPORT_VERSION >= 3
 	  ret = ARGetListField(control, schema, AR_FIELD_TYPE_ALL, (ARTimestamp)0, &idList, &status);
 #else
@@ -2104,7 +2294,7 @@ ars_GetFieldTable(control,schema)
 	      XPUSHs(sv_2mortal(newSVpv(fieldName, 0)));
 #else
 	      if (displayList.numItems < 1) {
-		/* printf("No fields were returned in display list\n"); */
+		ARError_add(ARSPERL_TRACEBACK, 1, "No fields were returned in display list");
 		continue;
 	      }
 	      XPUSHs(sv_2mortal(newSVpv(displayList.displayList[0].label, strlen(displayList.displayList[0].label))));
@@ -2136,8 +2326,9 @@ ars_CreateEntry(ctrl,schema...)
 	  unsigned int dataType;
 	  
 	  RETVAL = "";
+	  ARError_reset();
 	  if (((items - 2) % 2) || c < 1) {
-	    ars_errstr = "Invalid number of arguments";
+	    ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
 	  } else {
 	    fieldList.numItems = c;
 	    fieldList.fieldValueList = mallocnn(sizeof(ARFieldValueStruct)*c);
@@ -2198,6 +2389,7 @@ ars_DeleteEntry(ctrl,schema,entry_id)
 	  AV *input_list;
 	  int i;
 	  RETVAL=-1; /* assume error */
+	  ARError_reset();
 	  /* build entryList */
 	  if (SvROK(entry_id)) {
 	    if (SvTYPE(input_list = (AV *)SvRV(entry_id)) == SVt_PVAV) {
@@ -2209,7 +2401,7 @@ ars_DeleteEntry(ctrl,schema,entry_id)
 		fetch_entry = av_fetch(input_list, i, 0);
 		if (! fetch_entry) {
 		  RETVAL=-1;
-		  ars_errstr = "undef entry_id";
+		  ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_EID);
 #ifndef WASTE_MEM
 		  free(entryList.entryIdList);
 #endif
@@ -2220,7 +2412,7 @@ ars_DeleteEntry(ctrl,schema,entry_id)
 	      }
 	    } else {
 	      /* invalid input */
-	      ars_errstr = "entry_id should be an array of entry ids or a single entry";
+	      ARError_add(AR_RETURN_ERROR, AP_ERR_EID_TYPE);
 	      RETVAL=-1;
 	      goto delete_fail;
 	    }
@@ -2230,7 +2422,7 @@ ars_DeleteEntry(ctrl,schema,entry_id)
 	    entryList.entryIdList = mallocnn(sizeof(AREntryIdType));
 	    strcpy(entryList.entryIdList[0], SvPV(entry_id, na));
 	  } else {
-	    ars_errstr = "bad entry_id";
+	    ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_EID);
 	    goto delete_fail;
 	  }
 	  ret = ARDeleteEntry(ctrl, schema, &entryList, 0, &status);
@@ -2272,7 +2464,8 @@ ars_GetEntry(ctrl,schema,entry_id,...)
 	  AREntryIdList entryList;
 	  AV *input_list;
 #endif
-	  
+
+	  ARError_reset();
 	  if (c < 1) {
 	    idList.numItems = 0; /* get all fields */
 	  } else {
@@ -2293,7 +2486,7 @@ ars_GetEntry(ctrl,schema,entry_id,...)
 	      for (i=0; i<entryList.numItems; i++) {
 		fetch_entry = av_fetch(input_list, i, 0);
 		if (! fetch_entry) {
-		  ars_errstr = "undef entry_id";
+		  ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_EID);
 #ifndef WASTE_MEM
 		  free(entryList.entryIdList);
 #endif
@@ -2304,7 +2497,7 @@ ars_GetEntry(ctrl,schema,entry_id,...)
 	      }
 	    } else {
 	      /* invalid input */
-	      ars_errstr = "entry_id should be an array of entry ids or a single entry";
+	      ARError_add(AR_RETURN_ERROR, AP_ERR_EID_TYPE);
 	      goto get_entry_end;
 	    }
 	  } else if (SvOK(entry_id)) {
@@ -2313,7 +2506,7 @@ ars_GetEntry(ctrl,schema,entry_id,...)
 	    entryList.entryIdList = mallocnn(sizeof(AREntryIdType));
 	    strcpy(entryList.entryIdList[0], SvPV(entry_id, na));
 	  } else {
-	    ars_errstr = "bad entry_id";
+	    ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_EID);
 	    goto get_entry_end;
 	  }
 	  ret = ARGetEntry(ctrl, schema, &entryList, &idList, &fieldList, &status);
@@ -2369,7 +2562,8 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,...)
 #if AR_EXPORT_VERSION >= 3
 	  AREntryListFieldList getListFields, *getList = NULL;
 	  AV *getListFields_array;
-	  
+
+	  ARError_reset();	  
 	  if ((items - 4) % 2) {
 	    /* odd number of arguments, so argument after maxRetrieve is
 	       optional getListFields (an array of hash refs) */
@@ -2389,7 +2583,7 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,...)
 		    SvTYPE(field_hash = (HV*)SvRV(*array_entry)) == SVt_PVHV) {
 		  /* get fieldId, columnWidth and separator from hash */
 		  if (! (hash_entry = hv_fetch(field_hash, "fieldId", 7, 0))) {
-		    ars_errstr = "bad getListFields";
+		    ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_LFLDS);
 #ifndef WASTE_MEM
 		    free(getListFields.fieldsList);
 #endif
@@ -2398,7 +2592,7 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,...)
 		  getListFields.fieldsList[i].fieldId = SvIV(*hash_entry);
 		  /* printf("field_id: %i\n", getListFields.fieldsList[i].fieldId); */ /* DEBUG */
 		  if (! (hash_entry = hv_fetch(field_hash, "columnWidth", 11, 0))) {
-		    ars_errstr = "bad getListFields";
+		    ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_LFLDS);
 #ifndef WASTE_MEM
 		    free(getListFields.fieldsList);
 #endif
@@ -2406,7 +2600,7 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,...)
 		  }
 		  getListFields.fieldsList[i].columnWidth = SvIV(*hash_entry);
 		  if (! (hash_entry = hv_fetch(field_hash, "separator", 9, 0))) {
-		    ars_errstr = "bad getListFields";
+		    ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_LFLDS);
 #ifndef WASTE_MEM
 		    free(getListFields.fieldsList);
 #endif
@@ -2418,7 +2612,7 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,...)
 		}
 	      }
 	    } else {
-	      ars_errstr = "getListFields must be a reference to an array of field ids";
+	      ARError_add(AR_RETURN_ERROR, AP_ERR_LFLDS_TYPE);
 	      goto getlistentry_end;
 	    }
 	    /* increase the offset of the first sortList field by one */
@@ -2426,7 +2620,7 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,...)
 	  }
 #else  /* ARS 2 */
 	  if ((items - 4) % 2) {
-	    ars_errstr = "invalid number of arguments";
+	    ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
 	    goto getlistentry_end;
 	  }
 #endif /* if ARS >= 3 */
@@ -2494,7 +2688,8 @@ ars_GetListSchema(ctrl,changedsince=0,...)
 #if AR_EXPORT_VERSION >= 3
 	  unsigned int schemaType=AR_LIST_SCHEMA_ALL;
 	  char *name=NULL;
-	  
+
+	  ARError_reset();	  
 	  /* fetch optional arguments schemaType and name */
 	  if (items == 3 || items == 4)
 	    schemaType = SvIV(ST(2));
@@ -2503,7 +2698,7 @@ ars_GetListSchema(ctrl,changedsince=0,...)
 	  ret = ARGetListSchema(ctrl, changedsince, schemaType, name, &nameList, &status);
 #else
 	  if (items != 2 && items != 1) {
-	    ars_errstr = "usage: ars_GetListSchema(ctrl,changedsince=0)";
+	    ARError_add(AR_RETURN_ERROR, AP_ERR_USAGE, "Usage: ars_GetListSchema(ctrl, changedSince=0)");
 	    goto getListSchema_end;
 	  }
 	  ret = ARGetListSchema(ctrl, changedsince, &nameList, &status);
@@ -2529,7 +2724,8 @@ ars_GetListServer()
 	  ARServerNameList serverList;
 	  ARStatusList status;
 	  int i, ret;
-	  
+
+	  ARError_reset();	  
 	  ret = ARGetListServer(&serverList, &status);
 	  if (! ARError(ret, status)) {
 	    for (i=0; i<serverList.numItems; i++) {
@@ -2571,7 +2767,9 @@ ars_GetActiveLink(ctrl,name)
 	  ARNameType lastChanged;
 	  char *changeDiary;
 	  ARStatusList status;
-	  SV *ref;	  
+	  SV *ref;
+
+	  ARError_reset();
 #if  AR_EXPORT_VERSION >= 3
 	  ret = ARGetActiveLink(ctrl,name,&order,schema,&groupList,&executeMask,&controlField,&focusField,&enable,query,&actionList,&elseList,&helpText,&timestamp,owner,lastChanged,&changeDiary,&status);
 #else
@@ -2679,6 +2877,8 @@ ars_GetFilter(ctrl,name)
 	  ARNameType lastChanged;
 	  ARStatusList status;
 	  SV *ref;
+
+	  ARError_reset();
 #if AR_EXPORT_VERSION >= 3
 	  ret = ARGetFilter(ctrl, name, &order, schema, &opSet, &enable, 
 			    query, &actionList, &elseList, &helpText,
@@ -2755,8 +2955,9 @@ ars_GetServerStatistics(ctrl,...)
 	  int i, ret;
 	  ARStatusList status;
 
+	  ARError_reset();
 	  if(items < 1) {
-		ars_errstr = "invalid number of arguments";
+		ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
 	  } else {
 		requestList.numItems = items - 1;
 		requestList.requestList = mallocnn(sizeof(unsigned int) * (items-1));
@@ -2797,8 +2998,8 @@ ars_GetServerStatistics(ctrl,...)
 #endif
 			}
 		} else {
-			ars_errstr = "mallocnn failed to allocated space";
-		}
+			ARError_add(AR_RETURN_ERROR, AP_ERR_MALLOC);
+		} 
 	  }
 	}
 
@@ -2820,6 +3021,7 @@ ars_GetCharMenu(ctrl,name)
 	  HV		    *menuDef = newHV();
 	  SV		    *ref;
 
+	  ARError_reset();
 	  RETVAL = newHV();
 	  ret = ARGetCharMenu(ctrl, name, &refreshCode, &menuDefn, &helpText, &timestamp, owner, lastChanged, &changeDiary, &status);
 #ifdef PROFILE
@@ -2901,7 +3103,8 @@ ars_GetCharMenuItems(ctrl,name)
 	  ARCharMenuStruct menuDefn;
       	  ARStatusList status;
 	  int ret;
-	  
+
+	  ARError_reset();
 	  ret = ARGetCharMenu(ctrl, name, NULL, &menuDefn, NULL, NULL, NULL, NULL, NULL, &status);
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
@@ -2941,6 +3144,8 @@ ars_GetSchema(ctrl,name)
 	  ARCompoundSchema schema;
 	  ARSortList sortList;
 #endif
+
+	  ARError_reset();
 	  RETVAL = newHV();
 #if AR_EXPORT_VERSION >= 3
 	  ret = ARGetSchema(ctrl, name, &schema, &groupList, &adminGroupList, &getListFields, &sortList, &indexList, &helpText, &timestamp, owner, lastChanged, &changeDiary, &status);
@@ -3021,7 +3226,8 @@ ars_GetListActiveLink(ctrl,schema=NULL,changedSince=0)
 	  ARNameList nameList;
 	  ARStatusList status;
 	  int ret, i;
-	  
+
+	  ARError_reset();
 	  ret=ARGetListActiveLink(ctrl,schema,changedSince,&nameList,&status);
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
@@ -3061,6 +3267,7 @@ ars_GetField(ctrl,schema,id)
 	  ARNameType lastChanged;
 	  char *changeDiary;
 	  
+	  ARError_reset();
 	  RETVAL = newHV();
 #if AR_EXPORT_VERSION >= 3
 	  ret = ARGetFieldCached(ctrl, schema, id, fieldName, &fieldMap, &dataType, &option, &createMode, &defaultVal, NULL /* &permissions */, &limit, &displayList, &helpText, &timestamp, owner, lastChanged, &changeDiary, &Status);
@@ -3166,19 +3373,22 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	  SV **fetch_entry;
 	  AREntryIdList entryList;
 	  AV *input_list;
+
+	  ARError_reset();
 	  RETVAL = 0; /* assume error */
 	  if ((items - 4) % 2) {
 	    option = SvIV(ST(offset));
 	    offset ++;
 	  }
 	  if (c < 1) {
-	    ars_errstr = "Invalid number of arguments";
+	    ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
 	    goto set_entry_exit;
 	  }
 #else
+	  ARError_reset();
 	  RETVAL = 0; /* assume error */
 	  if (((items - 4) % 2) || c < 1) {
-	    ars_errstr = "Invalid number of arguments";
+	    ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
 	    goto set_entry_exit;
 	  }
 #endif
@@ -3222,7 +3432,7 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	      for (i=0; i<entryList.numItems; i++) {
 		fetch_entry = av_fetch(input_list, i, 0);
 		if (! fetch_entry) {
-		  ars_errstr = "undef entry_id";
+		  ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_EID);
 #ifndef WASTE_MEM
 		  free(entryList.entryIdList);
 #endif
@@ -3233,7 +3443,7 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	      }
 	    } else {
 	      /* invalid input */
-	      ars_errstr = "entry_id should be an array of entry ids or a single entry";
+	      ARError_add(AR_RETURN_ERROR, AP_ERR_EID_TYPE);
 	      goto set_entry_exit;
 	    }
 	  } else if (SvOK(entry_id)) {
@@ -3283,8 +3493,9 @@ ars_Export(ctrl,displayTag,...)
 	  char *buf;
 	  ARStatusList status;
 	  
+	  ARError_reset();
 	  if (items % 2 || c < 1) {
-	    ars_errstr = "Invalid number of arguments";
+	    ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
 	  } else {
 	    structItems.numItems = c;
 	    structItems.structItemList = mallocnn(sizeof(ARStructItemStruct)*c);
@@ -3309,7 +3520,7 @@ ars_Export(ctrl,displayTag,...)
 	      else if (strcmp(SvPV(ST(a),na),"Escalation")==0)
 		structItems.structItemList[i].type=AR_STRUCT_ITEM_ESCALATION;
 	      else {
-		ars_errstr = "Unknown export type";
+	        ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_EXP);
 #ifndef WASTE_MEM
 		free(structItems.structItemList);
 #endif
@@ -3345,9 +3556,10 @@ ars_Import(ctrl,importBuf,...)
 	  int ret = 1, i, a, c = (items - 2) / 2;
 	  ARStructItemList *structItems = NULL;
 	  ARStatusList status;
-	  
+
+	  ARError_reset();	  
 	  if (items % 2) {
-	    ars_errstr = "Invalid number of arguments";
+	    ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
 	  } else {
 	    if (c > 0) {
 	      structItems = mallocnn(sizeof(ARStructItemList));
@@ -3374,7 +3586,7 @@ ars_Import(ctrl,importBuf,...)
 		else if (strcmp(SvPV(ST(a),na),"Escalation")==0)
 		  structItems->structItemList[i].type=AR_STRUCT_ITEM_ESCALATION;
 		else {
-		  ars_errstr = "Unknown import type";
+	          ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_IMP);
 #ifndef WASTE_MEM
 		  free(structItems->structItemList);
 		  free(structItems);
@@ -3415,6 +3627,8 @@ ars_GetListFilter(control,schema=NULL,changedsince=0)
 	  ARNameList nameList;
 	  ARStatusList status;
 	  int ret, i;
+
+	  ARError_reset();
 	  ret = ARGetListFilter(control,schema,changedsince,&nameList,&status);
 #ifdef PROFILE
 	  ((ars_ctrl *)control)->queries++;
@@ -3438,6 +3652,8 @@ ars_GetListEscalation(control,schema=NULL,changedsince=0)
 	  ARNameList nameList;
 	  ARStatusList status;
 	  int ret, i;
+
+	  ARError_reset();
 	  ret = ARGetListEscalation(control,schema,changedsince,&nameList,&status);
 #ifdef PROFILE
 	  ((ars_ctrl *)control)->queries++;
@@ -3460,6 +3676,8 @@ ars_GetListCharMenu(control,changedsince=0)
 	  ARNameList nameList;
 	  ARStatusList status;
 	  int ret, i;
+
+	  ARError_reset();
 	  ret = ARGetListCharMenu(control,changedsince,&nameList,&status);
 #ifdef PROFILE
 	  ((ars_ctrl *)control)->queries++;
@@ -3484,6 +3702,8 @@ ars_GetListAdminExtension(control,changedsince=0)
 	  ARNameList nameList;
 	  ARStatusList status;
 	  int ret, i;
+
+	  ARError_reset();
 	  ret = ARGetListAdminExtension(control,changedsince,&nameList,&status);
 #ifdef PROFILE
 	  ((ars_ctrl *)control)->queries++;
@@ -3498,237 +3718,117 @@ ars_GetListAdminExtension(control,changedsince=0)
 	}
 
 int
-ars_NTInitializationClient()
-        CODE:
-        {
-#if AR_EXPORT_VERSION < 3
-          NTStatusList status;
-          int ret;
-          RETVAL = 0;
-          ret = NTInitializationClient(&status);
-          if(!NTError(ret, status)) {
-            RETVAL = 1;
-          }
-#else
-          croak("NTInitializationClient() is only available in ARS2.x");
-#endif
-        }
-        OUTPUT:
-        RETVAL
-
-
-int 
-ars_NTDeregisterClient(user, password, filename)
-	char *		user
-	char *		password
-	char *		filename
+ars_DeleteActiveLink(ctrl, name)
+	ARControlStruct *	ctrl
+	char *			name
 	CODE:
 	{
-	  NTStatusList status;
+	  ARStatusList status;
 	  int ret;
-	  RETVAL = 0;
-#if AR_EXPORT_VERSION < 3
-	  if(user && password && filename) {
-	    ret = NTDeregisterClient(user, password, filename, &status);
-	    if(!NTError(ret, status)) {
-	      RETVAL = 1;
-	    }
-	  }
-#else
-	  croak("NTDeregisterClient() is only available in ARS2.x");
-#endif
-	}
-	OUTPUT:
-	RETVAL
 
-int
-ars_NTRegisterClient(user, password, filename)
-	char *		user
-	char *		password
-	char *		filename
-	CODE:
-	{
-#if AR_EXPORT_VERSION < 3
-	  NTStatusList status;
-	  int ret;
-	  RETVAL = 0;
-	  if(user && password && filename) {
-	    ret = NTRegisterClient(user, password, filename, &status);
-	    if(!NTError(ret, status)) {
-		RETVAL = 1;
-	    }
-	  }
-#else
-	  croak("NTRegisterClient() is only available in ARS2.x");
-#endif
-	}
-	OUTPUT:
-	RETVAL
-
-int
-ars_NTTerminationClient()
-	CODE:
-	{
-#if AR_EXPORT_VERSION < 3
-	  NTStatusList status;
-	  int ret;
-	  RETVAL = 0;
-	  ret = NTTerminationClient(&status);
-	  if(!NTError(ret, status)) {
-	    RETVAL = 1;
-	  }
-#else
-	  croak("NTTerminationClient() is only available in ARS2.x");
-	  RETVAL = 0;
-#endif
-	}
-	OUTPUT:
-	RETVAL
-
-int
-ars_NTRegisterServer(serverHost, user, password, ...)
-	char *		serverHost
-	char *		user
-	char *		password
-	CODE:
-	{
-	  NTStatusList status;
-	  int ret;
-#if AR_EXPORT_VERSION < 3
-	  RETVAL = 0;
-	  if(serverHost && user && password && items == 3) {
-	    ret = NTRegisterServer(serverHost, user, password, &status);
-	    if(!NTError(ret, status)) {
-		RETVAL = 1;
-	    }
+	  ARError_reset();
+	  RETVAL=-1;
+	  if(ctrl && name && *name) {
+		ret = ARDeleteActiveLink(ctrl, name, &status);
+		if(!ARError(ret, status)) {
+			RETVAL = 0;
+		}
 	  } else {
-	    croak("usage: ars_NTRegisterServer(serverHost, user, password)");
+		ARError_add(AR_RETURN_ERROR, AP_ERR_USAGE, "usage: ars_DeleteActiveLink(ctrl, name)");
 	  }
-#else
-	  unsigned long clientPort;
-	  unsigned int clientCommunication;
-	  unsigned int protocol;
-	  int multipleClients;
-	  
-	  RETVAL = 0;
-          if (items < 4 || items > 7) {
-	    ars_errstr = "usage: ars_NTRegisterServer(serverHost, user, password, clientPort, clientCommunication=2, protocol=1, multipleClients=1)";
-	  }
-	  clientPort = (unsigned int)SvIV(ST(4));
-	  if (items < 5) {
-	    clientCommunication = 2;
-	  } else {
-	    clientCommunication = (unsigned int)SvIV(ST(5));
-	  }
-	  if (items < 6) {
-	    protocol = 1;
-	  } else {
-	    protocol = (unsigned int)SvIV(ST(6));
-	  }
-	  if (items < 7) {
-	    multipleClients = 1;
-	  } else {
-	    multipleClients = (unsigned int)SvIV(ST(1));
-	  }
-	  
-	  if(clientCommunication == NT_CLIENT_COMMUNICATION_SOCKET) {
-	    if(protocol == NT_PROTOCOL_TCP) {
-	      ret = NTRegisterServer(serverHost, user, password, clientCommunication, clientPort, protocol, multipleClients, &status);
-	      if(!NTError(ret, status)) {
-		RETVAL = 1;
-	      }
-	    }
-	  }
-#endif
-	}
-	OUTPUT:
-	RETVAL
-
-int 
-ars_NTTerminationServer()
-	CODE:
-	{
-	 int ret;
-	 NTStatusList status;
-	 RETVAL = 0;
-	 ret = NTTerminationServer(&status);
-	 if(!NTError(ret, status)) {
-	   RETVAL = 1;
-	 }
 	}
 	OUTPUT:
 	RETVAL
 
 int
-ars_NTDeregisterServer(serverHost, user, password)
-	char *		serverHost
-	char *		user
-	char *		password
+ars_DeleteAdminExtension(ctrl, name)
+	ARControlStruct *	ctrl
+	char *			name
 	CODE:
 	{
-	 int ret;
-	 NTStatusList status;
-	 RETVAL = 0; /* error */
-	 if(serverHost && user && password) {
-	    ret = NTDeregisterServer(serverHost, user, password, &status);
-	    if(!NTError(ret, status)) {
-		RETVAL = 1; /* success */
-	    }
-	 }
-	}
-	OUTPUT:
-	RETVAL
-
-void
-ars_NTGetListServer()
-	PPCODE:
-	{
-	  NTServerNameList serverList;
-	  NTStatusList status;
-	  int ret,i;
-	  ret = NTGetListServer(&serverList, &status);
-	  if(!NTError(ret, status)) {
-	     for(i=0; i<serverList.numItems; i++) {
-	        XPUSHs(sv_2mortal(newSVpv(serverList.nameList[i], 0)));
-	     }
-#ifndef WASTE_MEM
-	     FreeNTServerNameList(&serverList, FALSE);
-#endif
-	  }
-	}
-
-int
-ars_NTInitializationServer()
-	CODE:
-	{
-	  NTStatusList status;
+	  ARStatusList status;
 	  int ret;
-	  RETVAL = 0; /* error */
-	  ret = NTInitializationServer(&status);
-	  if(!NTError(ret, status)) {
-	     RETVAL = 1; /* success */
+
+	  ARError_reset();
+	  RETVAL=-1;
+	  if(ctrl && name && *name) {
+		ret = ARDeleteAdminExtension(ctrl, name, &status);
+		if(!ARError(ret, status)) {
+			RETVAL = 0;
+		}
+	  } else {
+		ARError_add(AR_RETURN_ERROR, AP_ERR_USAGE, "usage: ars_DeleteAdminExtension(ctrl, name)");
 	  }
 	}
 	OUTPUT:
 	RETVAL
 
 int
-ars_NTNotificationServer(serverHost, user, notifyText, notifyCode, notifyCodeText)
-	char *		serverHost
-	char *		user
-	char *		notifyText
-	int		notifyCode
-	char *		notifyCodeText
+ars_DeleteCharMenu(ctrl, name)
+	ARControlStruct *	ctrl
+	char *			name
 	CODE:
 	{
-	  NTStatusList status;
+	  ARStatusList status;
 	  int ret;
-	  RETVAL = 0;
-	  if(serverHost && user && notifyText) {
-	     ret = NTNotificationServer(serverHost, user, notifyText, notifyCode, notifyCodeText, &status);
-	     if(!NTError(ret, status)) {
-		RETVAL = 1;
-	     }
+
+	  ARError_reset();
+	  RETVAL=-1;
+	  if(ctrl && name && *name) {
+		ret = ARDeleteCharMenu(ctrl, name, &status);
+		if(!ARError(ret, status)) {
+			RETVAL = 0;
+		}
+	  } else {
+		ARError_add(AR_RETURN_ERROR, AP_ERR_USAGE, "usage: ars_DeleteCharMenu(ctrl, name)");
+	  }
+	}
+	OUTPUT:
+	RETVAL
+
+int
+ars_DeleteEscalation(ctrl, name)
+	ARControlStruct *	ctrl
+	char *			name
+	CODE:
+	{
+	  ARStatusList status;
+	  int ret;
+
+	  ARError_reset();
+	  RETVAL=-1;
+	  if(ctrl && name && *name) {
+		ret = ARDeleteEscalation(ctrl, name, &status);
+		if(!ARError(ret, status)) {
+			RETVAL = 0;
+		}
+	  } else {
+		ARError_add(AR_RETURN_ERROR, AP_ERR_USAGE, "usage: ars_DeleteEscalation(ctrl, name)");
+	  }
+	}
+	OUTPUT:
+	RETVAL
+
+int
+ars_DeleteField(ctrl, schema, fieldId, deleteOption=0)
+	ARControlStruct *	ctrl
+	char * 			schema
+	ARInternalId		fieldId
+	unsigned int		deleteOption
+	CODE:
+	{
+	  ARStatusList status;
+	  int ret;
+
+	  ARError_reset();
+	  RETVAL=-1;
+	  if(ctrl && CVLD(schema) && IVLD(deleteOption, 0, 2)) {
+		ret = ARDeleteField(ctrl, schema, fieldId, deleteOption, &status);
+		if(!ARError(ret, status)) {
+			RETVAL = 0;
+		}
+	  } else {
+		ARError_add(AR_RETURN_ERROR, AP_ERR_USAGE, "usage: ars_DeleteField(ctrl, schema, fieldId, deleteOption=0)");
 	  }
 	}
 	OUTPUT:
@@ -3747,10 +3847,11 @@ ars_MergeEntry(ctrl, schema, mergeType, ...)
 	  int ret;
 	  unsigned int dataType;
 	  AREntryIdType entryId;
-	  
+
+	  ARError_reset();
 	  RETVAL = "";
 	  if ((items - 3) % 2 || c < 1) {
-	    ars_errstr = "Invalid number of arguments";
+	    ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
 	    goto merge_entry_exit;
 	  }
 	  fieldList.numItems = c;
@@ -3797,6 +3898,299 @@ ars_MergeEntry(ctrl, schema, mergeType, ...)
 	  free(fieldList.fieldValueList);
 #endif
 	merge_entry_exit:;
+	}
+	OUTPUT:
+	RETVAL
+
+#
+# NT (Notifier) ROUTINES
+#
+
+int
+ars_NTInitializationClient()
+        CODE:
+        {
+          NTStatusList status;
+          int ret;
+
+	  ARError_reset();
+          RETVAL = 0;
+#if AR_EXPORT_VERSION < 3
+          ret = NTInitializationClient(&status);
+          if(!NTError(ret, status)) {
+            RETVAL = 1;
+          }
+#else
+	  ARError_add(AR_RETURN_ERROR, AP_ERR_DEPRECATED, "NTInitializationClient() is only available in ARS2.x");
+#endif
+        }
+        OUTPUT:
+        RETVAL
+
+
+int 
+ars_NTDeregisterClient(user, password, filename)
+	char *		user
+	char *		password
+	char *		filename
+	CODE:
+	{
+	  NTStatusList status;
+	  int ret;
+
+	  ARError_reset();
+	  RETVAL = 0;
+#if AR_EXPORT_VERSION < 3
+	  if(user && password && filename) {
+	    ret = NTDeregisterClient(user, password, filename, &status);
+	    if(!NTError(ret, status)) {
+	      RETVAL = 1;
+	    }
+	  }
+#else
+	  ARError_add(AR_RETURN_ERROR, AP_ERR_DEPRECATED, "NTDeregisterClient() is only available in ARS2.x");
+#endif
+	}
+	OUTPUT:
+	RETVAL
+
+int
+ars_NTRegisterClient(user, password, filename)
+	char *		user
+	char *		password
+	char *		filename
+	CODE:
+	{
+	  NTStatusList status;
+	  int ret;
+
+	  ARError_reset();
+	  RETVAL = 0;
+#if AR_EXPORT_VERSION < 3
+	  if(user && password && filename) {
+	    ret = NTRegisterClient(user, password, filename, &status);
+	    if(!NTError(ret, status)) {
+		RETVAL = 1;
+	    }
+	  }
+#else
+	  ARError_add(AR_RETURN_ERROR, AP_ERR_DEPRECATED, "NTRegisterClient() is only available in ARS2.x");
+#endif
+	}
+	OUTPUT:
+	RETVAL
+
+int
+ars_NTTerminationClient()
+	CODE:
+	{
+	  NTStatusList status;
+	  int ret;
+
+	  ARError_reset();
+	  RETVAL = 0;
+#if AR_EXPORT_VERSION < 3
+	  ret = NTTerminationClient(&status);
+	  if(!NTError(ret, status)) {
+	    RETVAL = 1;
+	  }
+#else
+	  ARError_add(AR_RETURN_ERROR, AP_ERR_DEPRECATED, "NTTerminationClient() is only available in ARS2.x");
+#endif
+	}
+	OUTPUT:
+	RETVAL
+
+int
+ars_NTRegisterServer(serverHost, user, password, ...)
+	char *		serverHost
+	char *		user
+	char *		password
+	CODE:
+	{
+	  NTStatusList status;
+	  int ret;
+#if AR_EXPORT_VERSION < 3
+	  ARError_reset();
+	  RETVAL = 0;
+	  if(serverHost && user && password && items == 3) {
+	    ret = NTRegisterServer(serverHost, user, password, &status);
+	    if(!NTError(ret, status)) {
+		RETVAL = 1;
+	    }
+	  } else {
+	    ARError_add(AR_RETURN_ERROR, AP_ERR_USAGE, "usage: ars_NTRegisterServer(serverHost, user, password)");
+	  }
+#else
+	  unsigned long clientPort;
+	  unsigned int clientCommunication;
+	  unsigned int protocol;
+	  int multipleClients;
+
+	  ARError_reset();
+	  RETVAL = 0;
+          if (items < 4 || items > 7) {
+	    ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
+	  }
+	  clientPort = (unsigned int)SvIV(ST(4));
+	  if (items < 5) {
+	    clientCommunication = 2;
+	  } else {
+	    clientCommunication = (unsigned int)SvIV(ST(5));
+	  }
+	  if (items < 6) {
+	    protocol = 1;
+	  } else {
+	    protocol = (unsigned int)SvIV(ST(6));
+	  }
+	  if (items < 7) {
+	    multipleClients = 1;
+	  } else {
+	    multipleClients = (unsigned int)SvIV(ST(1));
+	  }
+	  
+	  if(clientCommunication == NT_CLIENT_COMMUNICATION_SOCKET) {
+	    if(protocol == NT_PROTOCOL_TCP) {
+	      ret = NTRegisterServer(serverHost, user, password, clientCommunication, clientPort, protocol, multipleClients, &status);
+	      if(!NTError(ret, status)) {
+		RETVAL = 1;
+	      }
+	    }
+	  }
+#endif
+	}
+	OUTPUT:
+	RETVAL
+
+int 
+ars_NTTerminationServer()
+	CODE:
+	{
+	 int ret;
+	 NTStatusList status;
+
+	 ARError_reset();
+	 RETVAL = 0;
+	 ret = NTTerminationServer(&status);
+	 if(!NTError(ret, status)) {
+	   RETVAL = 1;
+	 }
+	}
+	OUTPUT:
+	RETVAL
+
+int
+ars_NTDeregisterServer(serverHost, user, password)
+	char *		serverHost
+	char *		user
+	char *		password
+	CODE:
+	{
+	 int ret;
+	 NTStatusList status;
+
+	 ARError_reset();
+	 RETVAL = 0; /* assume error */
+	 if(serverHost && user && password) {
+	    ret = NTDeregisterServer(serverHost, user, password, &status);
+	    if(!NTError(ret, status)) {
+		RETVAL = 1; /* success */
+	    }
+	 }
+	}
+	OUTPUT:
+	RETVAL
+
+void
+ars_NTGetListServer()
+	PPCODE:
+	{
+	  NTServerNameList serverList;
+	  NTStatusList status;
+	  int ret,i;
+
+	  ARError_reset();
+	  ret = NTGetListServer(&serverList, &status);
+	  if(!NTError(ret, status)) {
+	     for(i=0; i<serverList.numItems; i++) {
+	        XPUSHs(sv_2mortal(newSVpv(serverList.nameList[i], 0)));
+	     }
+#ifndef WASTE_MEM
+	     FreeNTServerNameList(&serverList, FALSE);
+#endif
+	  }
+	}
+
+int
+ars_NTInitializationServer()
+	CODE:
+	{
+	  NTStatusList status;
+	  int ret;
+
+	  ARError_reset();
+	  RETVAL = 0; /* error */
+	  ret = NTInitializationServer(&status);
+	  if(!NTError(ret, status)) {
+	     RETVAL = 1; /* success */
+	  }
+	}
+	OUTPUT:
+	RETVAL
+
+int
+ars_NTNotificationServer(serverHost, user, notifyText, notifyCode, notifyCodeText)
+	char *		serverHost
+	char *		user
+	char *		notifyText
+	int		notifyCode
+	char *		notifyCodeText
+	CODE:
+	{
+	  NTStatusList status;
+	  int ret;
+
+	  ARError_reset();
+	  RETVAL = 0;
+	  if(serverHost && user && notifyText) {
+	     ret = NTNotificationServer(serverHost, user, notifyText, notifyCode, notifyCodeText, &status);
+	     if(!NTError(ret, status)) {
+		RETVAL = 1;
+	     }
+	  }
+	}
+	OUTPUT:
+	RETVAL
+
+#
+# test routine
+#
+
+HV *
+ars_Testing(i)
+	int	i
+	CODE:
+	{
+	int ret;
+	printf("resetting arerr\n");
+	ret = ARError_reset();
+	printf("reset return code: %d\n", ret);
+	printf("adding a bogus message\n");
+	ret = ARError_add(1, 2, "foo");
+	printf("add return code: %d\n", ret);
+
+	ret = ARError_add(2, 22, "foo3");
+	printf("add return code: %d\n", ret);
+
+	ret = ARError_add(1, 222, "foo4");
+	printf("add return code: %d\n", ret);
+
+	ret = ARError_add(3, 2222, "foo5");
+	printf("add return code: %d\n", ret);
+
+	printf("returning err_hash\n");
+	if(!err_hash) printf("err_hash undef\n");
+	RETVAL = err_hash;
 	}
 	OUTPUT:
 	RETVAL
