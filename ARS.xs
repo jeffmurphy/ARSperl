@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.67 2000/07/06 02:39:37 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.68 2000/07/06 02:47:03 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -1963,7 +1963,7 @@ ars_Import(ctrl,importOption=AR_IMPORT_OPT_CREATE,importBuf,...)
 
 		if(ok) {
 			ret = ARImport(ctrl, structItems, importBuf, 
-#if AR_EXPORT_VERSION > 5
+#if AR_EXPORT_VERSION >= 5
 				       importOption,
 #endif
 				       &status);
