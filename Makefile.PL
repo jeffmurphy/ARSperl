@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.27 2000/09/14 18:11:20 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.28 2000/09/14 18:18:25 jcmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -23,10 +23,10 @@ $debug = 0;
 
 # STEP 1 -> Set the path to your ARS API directory
 
-$ARSAPI     = "/usr/ars/api";
-$ARSAPI     = "/u1/project/ARSperl/api/sol2/api3.2";
+$ARSAPI     = "/usr/ar/api";
+#$ARSAPI     = "/u1/project/ARSperl/api/sol2/api3.2";
 #$ARSAPI     = "/u1/project/ARSperl/api/linux/4.0";
-$ARSAPI     = "/home/jcmurphy/arsperl/api/4.5";
+#$ARSAPI     = "/home/jcmurphy/arsperl/api/4.5";
 
 # STEP 2 -> Choose your version of ARS
 #           example: 2.0 2.1 3.0 3.1 3.2 4.0
