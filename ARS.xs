@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.22 1997/02/19 15:30:25 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.23 1997/02/19 20:24:41 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -20,13 +20,18 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.22 1997/02/19 15:30:25 jcmurphy Exp
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- 
-    Comments to: arsperl@smurfland.cit.buffalo.edu
-                 (this is a mailing list)
+
+    Comments to:  arsperl@smurfland.cit.buffalo.edu
+                  (this is a *mailing list*)
+
+    Bugs to: arsperl-bugs@smurfland.cit.buffalo.edu
  
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.23  1997/02/19 20:24:41  jcmurphy
+*** empty log message ***
+
 Revision 1.22  1997/02/19 15:30:25  jcmurphy
 fixed bad goto
 
