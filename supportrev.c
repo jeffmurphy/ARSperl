@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.14 2000/06/01 16:54:03 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.15 2000/06/03 00:41:41 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -24,6 +24,9 @@ $Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.14 2000/06/01 16:54:03 jcmurp
     LOG:
 
 $Log: supportrev.c,v $
+Revision 1.15  2000/06/03 00:41:41  jcmurphy
+*** empty log message ***
+
 Revision 1.14  2000/06/01 16:54:03  jcmurphy
 *** empty log message ***
 
@@ -216,12 +219,14 @@ strcpyHVal(HV * h, char *k, char *b, int len)
 				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
 				"strcpyHVal: hv_fetch returned null. key:");
 				ARError_add(AR_RETURN_WARNING, AP_ERR_CONTINUE,
-					    k ? k : "n/a");
+					    k ? k : "[key null]");
 				return -2;
 			}
 		} else {
 			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
-				    "strcpyHVal: key doesn't exist");
+				    "strcpyHVal: key doesn't exist. key specified in next message:");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_CONTINUE,
+				    k ? k : "[key null]");
 			return -2;
 		}
 	} else
@@ -1396,13 +1401,13 @@ rev_ARByteList(ARControlStruct * ctrl, HV * h, char *k, ARByteList * b)
 			ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
 				    "rev_ARByteList: hash value is not hash ref for key:");
 			ARError_add(AR_RETURN_ERROR, AP_ERR_CONTINUE,
-				    k);
+				    k ? k : "[key null]");
 		}
 	} else {
 		ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
 			    "rev_ARByteList: hash key doesn't exist:");
 		ARError_add(AR_RETURN_WARNING, AP_ERR_CONTINUE,
-			    k);
+			    k ? k : "[key null]");
 		return -2;
 	}
 	return -1;
@@ -2052,6 +2057,10 @@ rev_ARMessageStruct(ARControlStruct * ctrl, HV * h, char *k, ARMessageStruct * m
 							if (SvPOK(*sval)) 
 								str = SvPV(*sval, PL_na);
 						}
+					} else {
+						ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
+							    "rev_ARByteList: messageType key doesn't exist:");
+						return -1;
 					}
 
 
@@ -2065,12 +2074,15 @@ rev_ARMessageStruct(ARControlStruct * ctrl, HV * h, char *k, ARMessageStruct * m
 					 */
 
 					m->messageType = 
-						revTypeMap((TypeMapStruct *)StatusReturnTypeMap,
+						revTypeName((TypeMapStruct *)StatusReturnTypeMap,
 							   str);
 
-					if(m->messageType = TYPEMAP_LAST) {
+					if(m->messageType == TYPEMAP_LAST) {
 						ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
-							    "rev_ARMessageStruct: messageType key invalid");
+							    "rev_ARMessageStruct: messageType key invalid. key follows:");
+						ARError_add(AR_RETURN_WARNING, AP_ERR_CONTINUE,
+							    str ? str : "[key null]");
+
 						return -1;
 					}
 

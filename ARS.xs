@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.63 2000/05/24 18:05:25 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.64 2000/06/03 00:41:40 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -21,6 +21,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.63 2000/05/24 18:05:25 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.64  2000/06/03 00:41:40  jcmurphy
+*** empty log message ***
+
 Revision 1.63  2000/05/24 18:05:25  jcmurphy
 primary ars4.5 integration in this checkpoint.
 
@@ -1217,7 +1220,7 @@ ars_GetActiveLink(ctrl,name)
 #if AR_EXPORT_VERSION >= 5
 		hv_store(RETVAL, VNAME("schemaList"), /* WorkflowConnectStruct */
 			perl_ARNameList(ctrl, schemaList.u.schemaList), 0);
-		hv_store(RETVAL, VNAME("objProbList"),
+		hv_store(RETVAL, VNAME("objPropList"),
 			perl_ARPropList(ctrl, &objPropList), 0);
 #else
 		hv_store(RETVAL, VNAME("schema"), newSVpv(schema,0),0);
@@ -1358,7 +1361,7 @@ ars_GetFilter(ctrl,name)
 #if AR_EXPORT_VERSION >= 5
 		hv_store(RETVAL, VNAME("schemaList"), /* WorkflowConnectStruct */
 			perl_ARNameList(ctrl, schemaList.u.schemaList), 0);
-		hv_store(RETVAL, VNAME("objProbList"),
+		hv_store(RETVAL, VNAME("objPropList"),
 			perl_ARPropList(ctrl, &objPropList), 0);
 #else
 	    hv_store(RETVAL, VNAME("schema"), newSVpv(schema, 0), 0);
@@ -1681,6 +1684,10 @@ ars_GetSchema(ctrl,name)
 	  ((ars_ctrl *)ctrl)->queries++;
 #endif
 	  if (!ARError( ret,status)) {
+#if AR_EXPORT_VERSION >= 5
+		hv_store(RETVAL, VNAME("objPropList"),
+			 perl_ARPropList(ctrl, &objPropList), 0);
+#endif
 #if AR_EXPORT_VERSION >= 3
 	    hv_store(RETVAL, VNAME("groupList"),
 		     perl_ARPermissionList(ctrl, &groupList, PERMTYPE_SCHEMA), 0);
@@ -2740,7 +2747,7 @@ ars_GetEscalation(ctrl, name)
 #if AR_EXPORT_VERSION >= 5
 		hv_store(RETVAL, VNAME("schemaList"), /* WorkflowConnectStruct */
 			perl_ARNameList(ctrl, schemaList.u.schemaList), 0);
-		hv_store(RETVAL, VNAME("objProbList"),
+		hv_store(RETVAL, VNAME("objPropList"),
 			perl_ARPropList(ctrl, &objPropList), 0);
 #else
 	     hv_store(RETVAL, VNAME("schema"), newSVpv(schema, 0), 0);
