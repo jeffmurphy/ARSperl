@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.3 1997/10/02 15:39:48 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.4 1997/10/06 13:39:30 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/support.c,v 1.3 1997/10/02 15:39:48 jcmurphy E
     LOG:
 
 $Log: support.c,v $
+Revision 1.4  1997/10/06 13:39:30  jcmurphy
+fix up some compilation warnings
+
 Revision 1.3  1997/10/02 15:39:48  jcmurphy
 1.50beta
 
@@ -98,10 +101,11 @@ copymem(MEMCAST *m1, MEMCAST *m2, int size)
 void *
 mallocnn(int s) {
   void *m = malloc(s?s:1);
+
   if (! m)
     croak("can't malloc");
-  else  
-   return m;
+
+  return m;
 }
 
 /* ROUTINE

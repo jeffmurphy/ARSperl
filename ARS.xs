@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.33 1997/10/02 15:39:31 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.34 1997/10/06 13:39:02 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.33 1997/10/02 15:39:31 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.34  1997/10/06 13:39:02  jcmurphy
+fix up some compilation warnings
+
 Revision 1.33  1997/10/02 15:39:31  jcmurphy
 1.50beta
 
@@ -250,7 +253,7 @@ ars_Login(server,username,password)
 	      free(ctrl);
 	      goto ar_login_end;
 	    }
-	    if (serverList.numItems < 0) {
+	    if (serverList.numItems == 0) {
 	      (void) ARError_add(AR_RETURN_ERROR, AP_ERR_NO_SERVERS);
 	      free(ctrl);
 	      goto ar_login_end;
@@ -2117,7 +2120,7 @@ ars_GetAdminExtension(ctrl, name)
 	{
 	 ARStatusList  status;
 	 ARInternalIdList groupList;
-	 char         *command;
+	 char          command[AR_MAX_COMMAND_SIZE];
 	 char         *helpText;
 	 ARTimestamp   timestamp;
 	 ARNameType    owner;
@@ -2612,7 +2615,7 @@ ars_CreateAdminExtension(ctrl, aeDefRef)
 	SV *			aeDefRef
 	CODE:
 	{
-	  int               rv, ret;
+	  int               rv = 0, ret = 0;
 	  ARNameType        name, owner;
 	  ARInternalIdList  groupList;
 	  char             *command     = CPNULL, 
@@ -2671,7 +2674,7 @@ ars_CreateActiveLink(ctrl, alDefRef)
 	SV *			alDefRef
 	CODE:
 	{
-	  int                    ret, i, rv;
+	  int                    ret = 0, i, rv = 0;
 	  ARNameType             schema, name;
 	  ARInternalIdList       groupList;
 	  unsigned int           executeMask, order;
@@ -2756,7 +2759,7 @@ ars_CreateActiveLink(ctrl, alDefRef)
 #else /* 2.x */
 		if((executeMask & AR_EXECUTE_ON_RETURN) || 
 		   (executeMask & AR_EXECUTE_ON_MENU_CHOICE))
-			rv += longcpyHVal(alDef, "field", &field);
+			rv += ulongcpyHVal(alDef, "field", &field);
 		if(executeMask & AR_EXECUTE_ON_BUTTON)
 			rv += rev_ARDisplayList(alDef, "displayList", 
 					&displayList);

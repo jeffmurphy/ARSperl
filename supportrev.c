@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.3 1997/10/02 15:40:00 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.4 1997/10/06 13:39:40 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.3 1997/10/02 15:40:00 jcmurph
     LOG:
 
 $Log: supportrev.c,v $
+Revision 1.4  1997/10/06 13:39:40  jcmurphy
+fix up some compilation warnings
+
 Revision 1.3  1997/10/02 15:40:00  jcmurphy
 1.50beta
 
@@ -156,8 +159,8 @@ strmakHVal(HV *h, char *k, char **b)
 
   if(SvTYPE((SV *)h) == SVt_PVHV) {
     if(hv_exists(h, VNAME(k))) {
-      SV **val = hv_fetch(h, VNAME(k), 0);
-      int  len;
+      SV     **val = hv_fetch(h, VNAME(k), 0);
+      STRLEN   len;
 
       if(val && *val) {
 	if(SvPOK(*val)) {
@@ -299,7 +302,7 @@ longcpyHVal(HV *h, char *k, long *b)
       val = hv_fetch(h, VNAME(k), 0);
       if(val && *val) {
 	if(SvIOK(*val)) {
-	  *b = (unsigned int)SvIV(*val);
+	  *b = (long)SvIV(*val);
 	  return 0;
 	} else 
 	  ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, 
@@ -317,6 +320,37 @@ longcpyHVal(HV *h, char *k, long *b)
   } else 
     ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
 		"longcpyHVal: first argument is not a hash");
+  return -1;
+}
+
+int
+ulongcpyHVal(HV *h, char *k, unsigned long *b)
+{
+  SV **val;
+
+  if(SvTYPE((SV *)h) == SVt_PVHV) {
+    if(hv_exists(h, VNAME(k))) {
+      val = hv_fetch(h, VNAME(k), 0);
+      if(val && *val) {
+	if(SvIOK(*val)) {
+	  *b = (unsigned long)SvIV(*val);
+	  return 0;
+	} else 
+	  ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, 
+		      "ulongcpyHVal: hash value is not an integer");
+      } else {
+	ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, 
+		    "ulongcpyHVal: hv_fetch returned null");
+	return -2;
+      }
+    } else {
+      ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, 
+		  "ulongcpyHVal: key doesn't exist");
+      return -2;
+    }
+  } else 
+    ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
+		"ulongcpyHVal: first argument is not a hash");
   return -1;
 }
 
@@ -467,8 +501,8 @@ rev_ARDisplayStruct(HV *h, ARDisplayStruct *d)
 
   rv += strcpyHVal(h, "displayTag", d->displayTag, sizeof(ARNameType));
   rv += strcpyHVal(h, "label", d->label, sizeof(ARNameType));
-  rv += uintcpyHVal(h, "x",       &(d->x));
-  rv += uintcpyHVal(h, "y",       &(d->y));
+  rv += intcpyHVal(h, "x",       &(d->x));
+  rv += intcpyHVal(h, "y",       &(d->y));
   rv += uintcpyHVal(h, "length",  &(d->length));
   rv += uintcpyHVal(h, "numRows", &(d->numRows));
 
@@ -773,7 +807,7 @@ rev_ARFieldAssignList(HV *h, char *k, ARFieldAssignList *m)
 	    SV **av_hv = av_fetch(ar, i, 0);
 
 	    if(av_hv && *av_hv && (SvTYPE(SvRV(*av_hv)) == SVt_PVHV)) {
-	      if(rev_ARFieldAssignStruct_helper((HV *)SvRV(*av_hv), m, i) != 0)
+	      if(rev_ARAssignList_helper((HV *)SvRV(*av_hv), m, i) != 0)
 		return -1;
 	    } else 
 	      ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, 
@@ -804,7 +838,7 @@ rev_ARAssignList_helper(HV *h, ARFieldAssignList *m, int i)
 {
   int rv = 0;
 
-  rv += longcpyHVal(h, "fieldId", &(m->fieldAssignList[i].fieldId));
+  rv += ulongcpyHVal(h, "fieldId", &(m->fieldAssignList[i].fieldId));
   rv += rev_ARAssignStruct(h, "assignment", &(m->fieldAssignList[i].assignment));
 
   return rv;
@@ -1087,7 +1121,7 @@ rev_ARValueStructDiary(HV *h, char *k, char **d)
       if(rv == 0) {
 	int   blen = strlen(user) + strlen(value) + 2 + 12;
 	char *buf  = (char *)MALLOCNN(blen);
-	sprintf(buf, "%d\003\%s\003%s", timestamp, user, value);
+	sprintf(buf, "%d\003%s\003%s", timestamp, user, value);
 	*d = buf;
 #ifndef WASTE_MEM
 	if(user) free(user);
@@ -1348,7 +1382,7 @@ rev_ARAssignFieldStruct_helper(HV *h, ARAssignFieldStruct *m)
   strcpyHVal(h, "schema", m->schema, sizeof(ARNameType));
 
   if(hv_exists(h, "fieldId", 0)) {
-    if(longcpyHVal(h, "fieldId", &(m->u.fieldId)) != 0)
+    if(ulongcpyHVal(h, "fieldId", &(m->u.fieldId)) != 0)
       return -1;
   } 
   else if(hv_exists(h, "statHistory", 0)) {
@@ -1495,7 +1529,7 @@ rev_ARStatHistoryValue_helper(HV *h, ARStatHistoryValue *s)
     return -1;
   }
 
-  if(longcpyHVal(h, "enumVal", &(s->enumVal)) != 0)
+  if(ulongcpyHVal(h, "enumVal", &(s->enumVal)) != 0)
     return -1;
   if(uintcpyHVal(h, "userOrTime", &(s->userOrTime)) != 0)
     return -1;
@@ -1758,7 +1792,7 @@ rev_ARStatusStruct(HV *h, char *k, ARStatusStruct *m)
 
 	if(SvTYPE(SvRV(*val)) == SVt_PVHV) {
 	  HV  *a = (HV *)SvRV((SV *)*val);
-	  int  rv;
+	  int  rv = 0;
 
 	  rv += strmakHVal(a, "messageText", &(m->messageText));
 	  rv += uintcpyHVal(a, "messageType", &(m->messageType));
@@ -1818,7 +1852,7 @@ rev_ARFieldCharacteristics(HV *h, char *k, ARFieldCharacteristics *m)
 
 	  rv += uintcpyHVal(a, "accessOption", &(m->accessOption));
 	  rv += uintcpyHVal(a, "focus", &(m->focus));
-	  rv += longcpyHVal(a, "fieldId", &(m->fieldId));
+	  rv += ulongcpyHVal(a, "fieldId", &(m->fieldId));
 	  rv += strmakHVal(a, "charMenu", &(m->charMenu));
 #if AR_EXPORT_VERSION >= 3
 	  if(rev_ARPropList(a, "props", &(m->props)) == -1)

@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.3 1997/10/02 15:40:06 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.4 1997/10/06 13:39:48 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.3 1997/10/02 15:40:06 jcmurph
     LOG:
 
 $Log: supportrev.h,v $
+Revision 1.4  1997/10/06 13:39:48  jcmurphy
+fix up some compilation warnings
+
 Revision 1.3  1997/10/02 15:40:06  jcmurphy
 1.50beta
 
@@ -56,6 +59,7 @@ EXTERN int strmakHVal(HV *h, char *k, char **b);
 EXTERN int intcpyHVal(HV *h, char *k, int *b);
 EXTERN int uintcpyHVal(HV *h, char *k, unsigned int *b);
 EXTERN int longcpyHVal(HV *h, char *k, long *b);
+EXTERN int ulongcpyHVal(HV *h, char *k, unsigned long *b);
 EXTERN int rev_ARDisplayList(HV *h, char *k, ARDisplayList *d);
 EXTERN int rev_ARDisplayStruct(HV *h, ARDisplayStruct *d);
 EXTERN int rev_ARInternalIdList(HV *h, char *k, ARInternalIdList *il);
