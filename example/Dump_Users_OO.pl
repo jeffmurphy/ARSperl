@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/Dump_Users_OO.pl,v 1.1 1999/05/05 19:57:40 rgc Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/Dump_Users_OO.pl,v 1.2 1999/05/26 03:42:46 jcmurphy Exp $
 #
 # NAME
 #   Dump_Users_OO.pl [server] [username] [password]
@@ -12,6 +12,9 @@
 #   Jeff Murphy
 #
 # $Log: Dump_Users_OO.pl,v $
+# Revision 1.2  1999/05/26 03:42:46  jcmurphy
+# minor change to exception handler
+#
 # Revision 1.1  1999/05/05 19:57:40  rgc
 # Initial revision
 #
@@ -23,7 +26,9 @@ require Carp;
 sub mycatch { 
   my $type = shift;
   my $msg = shift;
-  Carp::confess("caught something: type=$type msg=$msg\n"); 
+  my $trace = shift;
+
+  print "i caught an exception:\ntype=$type msg=$msg\ntraceback:\n$trace\n"; 
   exit;
 }
 
