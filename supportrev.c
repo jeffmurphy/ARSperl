@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.5 1997/10/07 14:29:44 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.6 1997/10/07 14:32:51 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.5 1997/10/07 14:29:44 jcmurph
     LOG:
 
 $Log: supportrev.c,v $
+Revision 1.6  1997/10/07 14:32:51  jcmurphy
+fixed some logic errors
+
 Revision 1.5  1997/10/07 14:29:44  jcmurphy
 1.51
 
@@ -1236,7 +1239,7 @@ rev_ARByteList(HV *h, char *k, ARByteList *b)
       HV   *h2 = (HV *)SvRV(*hr);
       char *bytes = (char *)NULL;
 
-      if(hv_exists(h2, VNAME("type")) && hv_exists(h2, VNAME("value"))) {
+      if(!(hv_exists(h2, VNAME("type")) && hv_exists(h2, VNAME("value")))) {
 	SV **tv = hv_fetch(h2, VNAME("type"), 0);
 	SV **vv = hv_fetch(h2, VNAME("value"), 0);
 
@@ -1359,7 +1362,7 @@ rev_ARCoordList(HV *h, char *k, ARCoordList *m)
 static int
 rev_ARCoordList_helper(HV *h, ARCoordList *m, int idx)
 {
-  if(hv_exists(h, VNAME("x")) && hv_exists(h, VNAME("y"))) {
+  if(!(hv_exists(h, VNAME("x")) && hv_exists(h, VNAME("y")))) {
     SV **xv = hv_fetch(h, VNAME("x"), 0);
     SV **yv = hv_fetch(h, VNAME("y"), 0);
 
@@ -1599,7 +1602,7 @@ rev_ARStatHistoryValue(HV *h, char *k, ARStatHistoryValue *s)
 static int 
 rev_ARStatHistoryValue_helper(HV *h, ARStatHistoryValue *s)
 {
-  if(hv_exists(h, "userOrTime", 0) && hv_exists(h, "enumVal", 0)) {
+  if(!(hv_exists(h, "userOrTime", 0) && hv_exists(h, "enumVal", 0))) {
     ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, 
 		"rev_ARAssignFieldStruct_helper: required hash key not found");
     return -1;
