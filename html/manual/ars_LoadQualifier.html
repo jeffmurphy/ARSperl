@@ -4,9 +4,12 @@
 </HEAD>
 <BODY BGCOLOR="#FFFFFF">
 
-   <H2><CODE>ars_LoadQualifier(ctrl,schema,qualstring)</CODE></H2>
+   <H2><CODE>ars_LoadQualifier(ctrl, schema, qualstring, displayTag)</CODE></H2>
 
       Converts a qualifier string into a scalar qualifier record.<P>
+      When mapping field names, the server will refer to the view specified
+      in displayTag. If no view is specified, the server will use the
+      default admin view.
 
       <DL>
          <DT><B>On success</B><DD>
@@ -19,6 +22,14 @@
 
       <PRE>
       ($q = ars_LoadQualifier($c, "User", "'Login name' = \"jmurphy\"")) ||
+	    die $ars_errstr;
+      </PRE>
+
+	or, to specify a particular view:
+
+      <PRE>
+      ($q = ars_LoadQualifier($c, "User", "'User name' = \"jmurphy\"", 
+				"PC-640")) ||
 	    die $ars_errstr;
       </PRE>
 <P>
