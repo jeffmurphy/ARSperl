@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.17 2000/07/06 02:39:38 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.18 2001/10/28 03:45:44 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -1922,6 +1922,64 @@ rev_ARFunctionAssignStructStr2FCODE(ARControlStruct * ctrl, char *c, unsigned in
 	return 0;
 }
 
+#ifdef ARS452
+/* ROUTINE
+ *   rev_ARFilterStatusStruct(hash, key, filterstatusstruct)
+ *
+ * DESCRIPTION
+ *   take hash ref from hash/key and extract filter status struct fields
+ *   from that. populate filter status struct.
+ *
+ * RETURNS
+ *   0 on success
+ *  -1 on failure
+ *  -2 on warning
+ */
+
+int
+rev_ARFilterStatusStruct(ARControlStruct * ctrl, HV * h, char *k, 
+			 ARFilterStatusStruct * m)
+{
+	if (!m || !h || !k) {
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
+			    "rev_ARFilterStatusStruct: invalid (NULL) parameter");
+		return -1;
+	}
+	if (SvTYPE((SV *) h) == SVt_PVHV) {
+		if (hv_exists(h, VNAME(k))) {
+			SV            **val = hv_fetch(h, VNAME(k), 0);
+			if (val && *val) {
+
+				/* hash value should be a hash reference */
+
+				if (SvTYPE(SvRV(*val)) == SVt_PVHV) {
+					HV             *a = (HV *) SvRV((SV *) * val);
+					int             rv = 0;
+
+					rv += strmakHVal(a, "messageText", &(m->messageText));
+					rv += uintcpyHVal(a, "messageType", &(m->messageType));
+					rv += longcpyHVal(a, "messageNum", &(m->messageNum));
+					return rv;
+				} else
+					ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
+						    "rev_ARFilterStatusStruct: hash value is not a hash reference");
+			} else {
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
+					    "rev_ARFilterStatusStruct: hv_fetch returned null");
+				return -2;
+			}
+		} else {
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
+				    "rev_ARFilterStatusStruct: key doesn't exist");
+			return -2;
+		}
+	} else
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
+			"rev_ARFilterStatusStruct: first argument is not a hash");
+	return -1;
+}
+#endif
+
 /* ROUTINE
  *   rev_ARStatusStruct(hash, key, statusstruct)
  *
@@ -1957,7 +2015,9 @@ rev_ARStatusStruct(ARControlStruct * ctrl, HV * h, char *k, ARStatusStruct * m)
 					rv += strmakHVal(a, "messageText", &(m->messageText));
 					rv += uintcpyHVal(a, "messageType", &(m->messageType));
 					rv += longcpyHVal(a, "messageNum", &(m->messageNum));
-
+#if AR_EXPORT_VERSION >= 4
+					rv += strmakHVal(a, "appendedText", &(m->appendedText));
+#endif
 					return rv;
 				} else
 					ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,

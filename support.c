@@ -327,11 +327,11 @@ ARError(int returncode, ARStatusList status)
 #endif
 	}
 
-	if (returncode == 0)
-		return ret;
+	if(status.numItems > 0)  {
+		FreeARStatusList(&status, FALSE);
+		status.numItems = 0;
+	}
 
-	FreeARStatusList(&status, FALSE);
-	status.numItems = 0;
 	return ret;
 }
 
@@ -344,7 +344,7 @@ NTError(int returncode, NTStatusList status)
 
 	for (item = 0; item < status.numItems; item++) {
 #if AR_EXPORT_VERSION >= 4
-	        char *messageText = MALLOCNN(strlen(status.statusList[item].messageText) + 
+	        char *messageText = (char *)safemalloc(strlen(status.statusList[item].messageText) + 
 					     strlen(status.statusList[item].appendedText) + 4);
 		sprintf(messageText, "%s (%s)", 
 			status.statusList[item].messageText,
@@ -364,12 +364,11 @@ NTError(int returncode, NTStatusList status)
 #endif
 	}
 
-	if (returncode == 0)
-		return ret;
+        if(status.numItems > 0)  {
+		FreeNTStatusList(&status, FALSE);
+                status.numItems = 0;
+        }
 
-#ifndef WASTE_MEM
-	FreeNTStatusList(&status, FALSE);
-#endif
 	return ret;
 }
 
@@ -467,15 +466,32 @@ perl_ARMessageStruct(ARControlStruct * ctrl, ARMessageStruct * in)
 }
 #endif
 
+#ifdef ARS452
+SV             *
+perl_ARFilterStatusStruct(ARControlStruct * ctrl, ARFilterStatusStruct * in)
+{
+	HV             *hash = newHV();
+
+	hv_store(hash, VNAME("messageType"), newSViv(in->messageType), 0); 
+	hv_store(hash, VNAME("messageNum"), newSViv(in->messageNum), 0);
+	hv_store(hash, VNAME("messageText"), newSVpv(in->messageText, 0), 0);
+
+	return newRV_noinc((SV *) hash);
+}
+#endif
+
 SV             *
 perl_ARStatusStruct(ARControlStruct * ctrl, ARStatusStruct * in)
 {
 	HV             *hash = newHV();
 
 	hv_store(hash, VNAME("messageType"), newSViv(in->messageType), 0); 
-	hv_store(hash, VNAME("messageType"), newSViv(in->messageType), 0);
 	hv_store(hash, VNAME("messageNum"), newSViv(in->messageNum), 0);
 	hv_store(hash, VNAME("messageText"), newSVpv(in->messageText, 0), 0);
+
+#if AR_EXPORT_VERSION >= 4
+	hv_store(hash, VNAME("appendedText"), newSVpv(in->appendedText, 0), 0);
+#endif
 
 	return newRV_noinc((SV *) hash);
 }
@@ -1134,7 +1150,11 @@ perl_ARFilterActionStruct(ARControlStruct * ctrl, ARFilterActionStruct * in)
 		break;
 	case AR_FILTER_ACTION_MESSAGE:
 		hv_store(hash, VNAME("message"),
+#ifdef ARS452
+			 perl_ARFilterStatusStruct(ctrl, &in->u.message), 0);
+#else
 			 perl_ARStatusStruct(ctrl, &in->u.message), 0);
+#endif
 		break;
 	case AR_FILTER_ACTION_LOG:
 		hv_store(hash, VNAME("log"), newSVpv(in->u.logFile, 0), 0);

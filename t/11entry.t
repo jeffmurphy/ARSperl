@@ -19,7 +19,7 @@ sub mycatch {
 
 print "1..5\n";
 
-if( 1 ) { # BYPASS
+if( 0 ) { # BYPASS
 	for(my $i = 1 ; $i < 6 ; $i++) {
 		print "ok [$i]\n";
 	}

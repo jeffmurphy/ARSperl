@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.9 2000/07/06 02:39:38 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.10 2001/10/28 03:45:44 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -69,6 +69,10 @@ EXTERN int rev_ARArithOpAssignStruct(ARControlStruct *ctrl,
 EXTERN int rev_ARFunctionAssignStruct(ARControlStruct *ctrl,
 				      HV *h, char *k,
 				      ARFunctionAssignStruct *s);
+#ifdef ARS452
+EXTERN int rev_ARFilterStatusStruct(ARControlStruct *ctrl,
+			      HV *h, char *k, ARFilterStatusStruct *m);
+#endif
 EXTERN int rev_ARStatusStruct(ARControlStruct *ctrl,
 			      HV *h, char *k, ARStatusStruct *m);
 EXTERN int rev_ARFieldCharacteristics(ARControlStruct *ctrl,

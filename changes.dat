@@ -5,6 +5,8 @@ JCM memory leak fixes
 JCM duplicate free badness in ars_Login() fixed
 JCM updated doc for ars_MergeEntry
 JCM added form->merge() call to OO layer
+JCM fixed 4.5.2 induced warning (now there's a FilterActionStruct)
+    modified Makefile.PL so you can specify ARVERSION=4.52 
 
 released=10/30/2000 version=1.71
 JCM modified support-h.template to compile against api3.0

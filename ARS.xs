@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.78 2001/10/22 05:59:25 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.79 2001/10/28 03:45:44 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -1482,7 +1482,7 @@ ars_GetCharMenu(ctrl,name)
 					(void *)&(menuDefn.u.menuQuery.qualifier)));
 			hv_store(menuDef, VNAME("qualifier"), ref, 0);
 			hv_store(RETVAL, VNAME("menuQuery"), 
-				newRV((SV *)menuDef), 0);
+				newRV_noinc((SV *)menuDef), 0);
 			break;
 		case AR_CHAR_MENU_FILE:
 			hv_store(menuDef, VNAME("fileLocation"), 
@@ -1490,7 +1490,7 @@ ars_GetCharMenu(ctrl,name)
 			hv_store(menuDef, VNAME("filename"), 
 				newSVpv(menuDefn.u.menuFile.filename, 0), 0);
 			hv_store(RETVAL, VNAME("menuFile"),
-				newRV((SV *)menuDef), 0);
+				newRV_noinc((SV *)menuDef), 0);
 			break;
 #ifndef ARS20
 		case AR_CHAR_MENU_SQL:
@@ -1503,7 +1503,7 @@ ars_GetCharMenu(ctrl,name)
 			hv_store(menuDef, VNAME("valueIndex"), 
 				newSViv(menuDefn.u.menuSQL.valueIndex), 0);
 			hv_store(RETVAL, VNAME("menuSQL"), 
-				newRV((SV *)menuDef), 0);
+				newRV_noinc((SV *)menuDef), 0);
 			break;
 #endif
 		}
@@ -2759,7 +2759,7 @@ ars_GetFullTextInfo(ctrl)
 		      av_push(a, perl_ARValueStruct(ctrl,
 			&(fullTextInfo.fullTextInfoList[i].u.valueList.valueList[v])));
 		   }
-		   hv_store(RETVAL, VNAME("StopWords"), newRV((SV *)a), 0);
+		   hv_store(RETVAL, VNAME("StopWords"), newRV_noinc((SV *)a), 0);
 		   break;
 		case AR_FULLTEXTINFO_CASE_SENSITIVE_SRCH:
 		   hv_store(RETVAL, VNAME("CaseSensitive"),
@@ -2819,12 +2819,12 @@ ars_GetListGroup(ctrl, userName=NULL)
 		for(v = 0; v < groupList.groupList[i].groupName.numItems ; v++) {
 		   av_push(gnameList, newSVpv(groupList.groupList[i].groupName.nameList[v], 0));
 		}
-		av_push(gnameListList, newRV((SV *)gnameList));
+		av_push(gnameListList, newRV_noinc((SV *)gnameList));
 	    }
 
-	    hv_store(RETVAL, VNAME("groupId"), newRV((SV *)gidList), 0);
-	    hv_store(RETVAL, VNAME("groupType"), newRV((SV *)gtypeList), 0);
-	    hv_store(RETVAL, VNAME("groupName"), newRV((SV *)gnameListList), 0);
+	    hv_store(RETVAL, VNAME("groupId"), newRV_noinc((SV *)gidList), 0);
+	    hv_store(RETVAL, VNAME("groupType"), newRV_noinc((SV *)gtypeList), 0);
+	    hv_store(RETVAL, VNAME("groupName"), newRV_noinc((SV *)gnameListList), 0);
 #ifndef WASTE_MEM
 	    FreeARGroupInfoList(&groupList, FALSE);
 #endif
@@ -2868,9 +2868,9 @@ ars_GetListSQL(ctrl, sqlCommand, maxRetrieve=AR_NO_MAX_LIST_RETRIEVE)
 		   av_push(ca, perl_ARValueStruct(ctrl,
 			&(valueListList.valueListList[row].valueList[col])));
 		}
-		av_push(ra, newRV((SV *)ca));
+		av_push(ra, newRV_noinc((SV *)ca));
 	     }
-	     hv_store(RETVAL, VNAME("rows"), newRV((SV *)ra), 0);
+	     hv_store(RETVAL, VNAME("rows"), newRV_noinc((SV *)ra), 0);
 #ifndef WASTE_MEM
 	     FreeARValueListList(&valueListList, FALSE);
 #endif
@@ -2879,7 +2879,7 @@ ars_GetListSQL(ctrl, sqlCommand, maxRetrieve=AR_NO_MAX_LIST_RETRIEVE)
 	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, "Not available in pre-2.1 ARS");
 #endif
 	  if(RETVAL != NULL) {
-			XPUSHs(sv_2mortal(newRV((SV *)RETVAL)));
+			XPUSHs(sv_2mortal(newRV_noinc((SV *)RETVAL)));
 	  } else {
 			XPUSHs(sv_2mortal(newSViv(0)));
 	  }
@@ -2925,10 +2925,10 @@ ars_GetListUser(ctrl, userListType=AR_USER_LIST_MYSELF)
 		   av_push(licenseType, newSViv(userList.userList[i].licenseInfo.licenseList[j].licenseType));
 		   av_push(currentLicenseType, newSViv(userList.userList[i].licenseInfo.licenseList[j].currentLicenseType));
 		}
-		hv_store(userInfo, VNAME("licenseTag"), newRV((SV *)licenseTag), 0);
-		hv_store(userInfo, VNAME("licenseType"), newRV((SV *)licenseType), 0);
-		hv_store(userInfo, VNAME("currentLicenseType"), newRV((SV *)currentLicenseType), 0);
-	        XPUSHs(sv_2mortal(newRV((SV *)userInfo)));
+		hv_store(userInfo, VNAME("licenseTag"), newRV_noinc((SV *)licenseTag), 0);
+		hv_store(userInfo, VNAME("licenseType"), newRV_noinc((SV *)licenseType), 0);
+		hv_store(userInfo, VNAME("currentLicenseType"), newRV_noinc((SV *)currentLicenseType), 0);
+	        XPUSHs(sv_2mortal(newRV_noinc((SV *)userInfo)));
 	     }
 #ifndef WASTE_MEM
 	     FreeARUserInfoList(&userList, FALSE);

@@ -32,6 +32,12 @@ BUGS/00005-report
 BUGS/00005-status
 BUGS/00006-report
 BUGS/00007-report
+BUGS/00008-report
+BUGS/00009-report
+BUGS/00006-status
+BUGS/00007-status
+BUGS/00008-status
+BUGS/00009-status
 supportrev.h
 typemap
 example/Dump_Setup.pl
@@ -89,6 +95,7 @@ html/manual/ars_DeleteFilter.html
 html/manual/OO/connection.html
 html/manual/OO/form.html
 html/manual/OO/index.html
+html/manual/OO/form.html~
 html/manual/ars_DeleteMultipleFields.html
 html/manual/ars_DeleteSchema.html
 html/manual/ars_DeleteVUI.html
@@ -212,9 +219,12 @@ html/usage.html
 html/arsperl-logo.gif
 t/aptest40.def
 t/10entry.t
+t/11entry.t
 t/aptest.def
+t/20merge.t
 t/00connect.t
 t/01import.t
+t/aptest45.def
 infra/mkchanges.pl
 infra/c4asp.bat
 infra/pcpp.pl

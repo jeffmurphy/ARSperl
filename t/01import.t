@@ -21,7 +21,7 @@ my $d = "aptest.def";
 # with an attachment field so we can test that out.
 
 if(ars_APIVersion() >= 4) {
-  $d = "aptest40.def";
+  $d = "aptest45.def";
 }
 
 #  delete the schema (assuming it already exists). if it doesnt,
@@ -42,7 +42,8 @@ close(FD);
 
 my $rv = ars_Import($ctrl,
 	   &ARS::AR_IMPORT_OPT_CREATE,
-	   $buf, "Schema", "ARSperl Test"
+	   $buf, "Schema", "ARSperl Test",
+	   "Filter", "ARSperl Test-Filter1"
 	);
 
 
