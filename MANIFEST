@@ -210,10 +210,9 @@ html/install.html
 html/usage.html
 html/arsperl-logo.gif
 t/aptest40.def
-t/0connect.t
-t/1import.t
+t/00connect.t
+t/01import.t
 t/aptest.def
-t/entry.t
-t/config
+t/10entry.t
 infra/mkchanges.pl
 changes.dat

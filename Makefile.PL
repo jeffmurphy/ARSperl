@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.21 2000/07/21 01:38:22 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.22 2000/07/24 12:56:14 jcmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -26,7 +26,7 @@ $debug = 0;
 $ARSAPI     = "/usr/ars/api";
 $ARSAPI     = "/u1/project/ARSperl/api/sol2/api4.5";
 #$ARSAPI     = "/u1/project/ARSperl/api/linux/4.0";
-#$ARSAPI     = "/home/jcmurphy/arsperl/api";
+$ARSAPI     = "/home/jcmurphy/arsperl/api";
 
 # STEP 2 -> Choose your version of ARS
 #           example: 2.0 2.1 3.0 3.1 3.2 4.0
@@ -95,7 +95,7 @@ $INCLUDES   = "-I$ARSAPI/include";
 
 GenerateSupportDotH("support-h.template", $INCLUDES);
 
-print "Convering C header files to perl modules ..\n";
+print "Converting C header files to perl modules ..\n";
 
 foreach ("ar", "arerrno", "nt", "nterrno") {
 	system("h2ph < ${ARSAPI}/include/${_}.h > ARS${_}-h.pm");
@@ -165,12 +165,18 @@ WriteMakefile(
 # don't fiddle with this
 
               'realclean' => {
-		 'FILES' => 'support.h ARSar-h.pm ARSarerrno-h.pm ARSnt-h.pm ARSnterrno-h.pm' 
+		 'FILES' => 'support.h ARSar-h.pm ARSarerrno-h.pm ARSnt-h.pm ARSnterrno-h.pm t/config.cache' 
 	      } 
 );
 
-print "\nNote: if you want to do a \"make test\" you should first 
-edit t/config and fill in the blanks.\n\n";
+makeTestConfig();
+
+print "
+Type 'make' (windows: 'nmake') to build ARSperl.
+Type 'make test' to test ARSperl before installing.
+Type 'make install' to install ARSperl.
+
+";
 
 exit 0;
 
@@ -434,3 +440,55 @@ sub GenerateSupportDotH {
 
 }
 
+sub makeTestConfig {
+	my ($SERVER, $USERNAME, $PASSWORD);
+	my ($S, $U, $P) = ("", "", "");
+
+	if(-e "./t/config.cache") {
+		do './t/config.cache';
+		$S = &CCACHE::SERVER;
+		$U = &CCACHE::USERNAME;
+		$P = &CCACHE::PASSWORD;
+	}
+
+	print "=== ARSperl 'make test' configuration. ===
+
+Please enter the following information. This information will be
+recorded in ./t/config.cache
+
+If you want to skip the 'make test' step, just hit ENTER
+three times.
+
+Fair warning: you probably don't want to run 'make test' against a 
+production ARSystem server. 
+
+";
+	
+	print "Server Name [$S]: ";
+	chomp($SERVER = <STDIN>);
+	if($SERVER eq "") {
+		$SERVER = $S if ($S ne "");
+	} 
+
+	print "Admin Username [$U]: ";
+	chomp($USERNAME = <STDIN>);
+        if($USERNAME eq "") {
+                $USERNAME = $U if ($U ne "");
+        } 
+
+	print "Admin Password [$P]: ";
+	chomp($PASSWORD = <STDIN>);
+        if($PASSWORD eq "") {
+                $PASSWORD = $P if ($P ne "");
+        } 
+
+	#print "Storing $SERVER / $USERNAME / $PASSWORD ..\n";
+	open (FD, "> ./t/config.cache") || die "open failed: $!";
+	print FD "package CCACHE;\n";
+	print FD "sub SERVER { \"$SERVER\" ; }\n";
+	print FD "sub USERNAME { \"$USERNAME\" ; }\n";
+	print FD "sub PASSWORD { \"$PASSWORD\" ; }\n";
+	print FD "1;\n";
+	close(FD);
+
+}

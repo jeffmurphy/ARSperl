@@ -5,7 +5,7 @@
 #
 
 use ARS;
-require './t/config';
+require './t/config.cache';
 
 # notice the use of a custom error handler.
 
@@ -20,9 +20,9 @@ if(ars_APIVersion() >= 4) {
   print "1..7\n";
 }
 
-my $c = new ARS(-server => $SERVER, 
-		-username => $USERNAME,
-                -password => $PASSWORD,
+my $c = new ARS(-server => &CCACHE::SERVER, 
+		-username => &CCACHE::USERNAME,
+                -password => &CCACHE::PASSWORD,
                 -catch => { ARS::AR_RETURN_ERROR => "main::mycatch",
                             ARS::AR_RETURN_WARNING => "main::mycatch",
                             ARS::AR_RETURN_FATAL => "main::mycatch"

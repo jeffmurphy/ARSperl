@@ -5,7 +5,7 @@
 #
 
 use ARS;
-require './t/config';
+require './t/config.cache';
 
 print "1..2\n";
 
@@ -13,7 +13,9 @@ print "1..2\n";
 
 # test 1 -> login
 
-my($ctrl) = ars_Login($SERVER, $USERNAME, $PASSWORD);
+my($ctrl) = ars_Login(&CCACHE::SERVER, 
+		      &CCACHE::$USERNAME, 
+ 		      &CCACHE::$PASSWORD);
 if(!defined($ctrl)) {
   print "not ok\n";
 } else {
@@ -26,8 +28,9 @@ if(!defined($ctrl)) {
 
 # test 3 -> constructor
 
-my $c = new ARS(-server => $SERVER, -username => $USERNAME,
-		-password => $PASSWORD,
+my $c = new ARS(-server => &CCACHE::SERVER, 
+                -username => &CCACHE::USERNAME,
+		-password => &CCACHE::PASSWORD,
 		-catch => { ARS::AR_RETURN_ERROR => undef,
 			    ARS::AR_RETURN_WARNING => undef,
 			    ARS::AR_RETURN_FATAL => undef

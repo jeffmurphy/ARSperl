@@ -5,11 +5,11 @@
 #
 
 use ARS;
-require './t/config';
+require './t/config.cache';
 
 print "1..1\n";
 
-my($ctrl) = ars_Login($SERVER, $USERNAME, $PASSWORD);
+my($ctrl) = ars_Login(&CCACHE::SERVER, &CCACHE::USERNAME, &CCACHE::PASSWORD);
 if(!defined($ctrl)) {
   print "not ok (login $ars_errstr)\n";
   exit 0;

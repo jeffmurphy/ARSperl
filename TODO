@@ -72,5 +72,3 @@ allow substitution of current transaction values
 in qual and recompilation of qual. this facilitates
 the retrieval of dynamic query menu items
 
-
-
