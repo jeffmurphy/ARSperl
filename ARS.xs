@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.64 2000/06/03 00:41:40 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.65 2000/07/03 14:58:29 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -21,6 +21,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.64 2000/06/03 00:41:40 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.65  2000/07/03 14:58:29  jcmurphy
+*** empty log message ***
+
 Revision 1.64  2000/06/03 00:41:40  jcmurphy
 *** empty log message ***
 
@@ -1098,7 +1101,7 @@ ars_GetListContainer(ctrl,changedSince=0,attributes=0,...)
 
 		containerTypes.numItems = items - 3;
 		Newz(777, containerTypes.type, 
-		     containerTypes.numItems, unsigned int);
+		     containerTypes.numItems, int);
 		for(i = 3 ; i < items ; i++) {
 			containerTypes.type[i-3] = SvIV(ST(i));
 		}

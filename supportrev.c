@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.15 2000/06/03 00:41:41 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.16 2000/07/03 14:58:29 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -24,6 +24,9 @@ $Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.15 2000/06/03 00:41:41 jcmurp
     LOG:
 
 $Log: supportrev.c,v $
+Revision 1.16  2000/07/03 14:58:29  jcmurphy
+*** empty log message ***
+
 Revision 1.15  2000/06/03 00:41:41  jcmurphy
 *** empty log message ***
 
@@ -2059,7 +2062,7 @@ rev_ARMessageStruct(ARControlStruct * ctrl, HV * h, char *k, ARMessageStruct * m
 						}
 					} else {
 						ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
-							    "rev_ARByteList: messageType key doesn't exist:");
+							    "rev_ARMessageStruct: messageType key doesn't exist:");
 						return -1;
 					}
 
