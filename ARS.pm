@@ -101,7 +101,7 @@ $ars_errstr %ARServerStats %ars_errhash
 ars_decodeStatusHistory ars_APIVersion
 );
 
-$ARS::VERSION   = '1.68';
+$ARS::VERSION   = '1.69';
 $ARS::DEBUGGING = 0;
 
 bootstrap ARS $ARS::VERSION;

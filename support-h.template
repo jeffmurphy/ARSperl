@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.9 2000/07/04 14:44:22 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.10 2000/07/06 01:55:08 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -24,6 +24,9 @@ $Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.9 2000/07/04 14:44:22 j
     LOG:
 
 $Log: support-h.template,v $
+Revision 1.10  2000/07/06 01:55:08  jcmurphy
+*** empty log message ***
+
 Revision 1.9  2000/07/04 14:44:22  jcmurphy
 *** empty log message ***
 
@@ -163,6 +166,15 @@ typedef struct {
   unsigned int  number;
   char         *name;
 } TypeMapStruct;
+
+
+static struct {
+	unsigned int  number;
+	char	     *name;
+} StructItemTypeMap[] = {
+/*STRUCTITEMTYPEMAP*/
+	{ TYPEMAP_LAST, "" }
+};
 
 static struct {
 	unsigned int  number;
@@ -319,6 +331,7 @@ static struct {
 };
 
 EXTERN char *lookUpTypeName(TypeMapStruct *t, unsigned int v);
+EXTERN unsigned int  caseLookUpTypeNumber(TypeMapStruct *t, char *s);
 
 /* typedef SV* (*ARS_fn)(void *); */
 typedef void *(*ARS_fn)(ARControlStruct *ctrl, void *b);

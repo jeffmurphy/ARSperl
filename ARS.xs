@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.65 2000/07/03 14:58:29 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.66 2000/07/06 01:55:07 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -21,6 +21,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.65 2000/07/03 14:58:29 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.66  2000/07/06 01:55:07  jcmurphy
+*** empty log message ***
+
 Revision 1.65  2000/07/03 14:58:29  jcmurphy
 *** empty log message ***
 
@@ -2029,74 +2032,63 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	OUTPUT:
 	RETVAL
 
-void
+char *
 ars_Export(ctrl,displayTag,...)
 	ARControlStruct *	ctrl
 	char *			displayTag
-	PPCODE:
+	CODE:
 	{
-	  int              ret, i, a, c = (items - 2) / 2;
-	  ARStructItemList structItems;
-	  char            *buf;
-	  ARStatusList     status;
+		int              ret, i, a, c = (items - 2) / 2, ok = 1;
+		ARStructItemList structItems;
+		char            *buf = CPNULL;
+		ARStatusList     status;
 	  
-	  (void) ARError_reset();
-	  Zero(&status, 1,ARStatusList);
-	  if (items % 2 || c < 1) {
-	    (void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
-	  } else {
-	    structItems.numItems = c;
-	    Newz(777,structItems.structItemList,c,ARStructItemStruct);
-	    for (i=0; i<c; i++) {
-	      a = i*2+2;
-	      if (strcmp(SvPV(ST(a),PL_na),"Schema") == 0)
-		structItems.structItemList[i].type = AR_STRUCT_ITEM_SCHEMA;
-	      else if (strcmp(SvPV(ST(a), PL_na),"Schema_Defn") == 0)
-		structItems.structItemList[i].type = AR_STRUCT_ITEM_SCHEMA_DEFN;
-	      else if (strcmp(SvPV(ST(a), PL_na),"Schema_View") == 0)
-		structItems.structItemList[i].type = AR_STRUCT_ITEM_SCHEMA_VIEW;
-	      else if (strcmp(SvPV(ST(a), PL_na),"Schema_Mail") == 0)
-		structItems.structItemList[i].type = AR_STRUCT_ITEM_SCHEMA_MAIL;
-	      else if (strcmp(SvPV(ST(a), PL_na),"Filter") == 0)
-		structItems.structItemList[i].type = AR_STRUCT_ITEM_FILTER;
-	      else if (strcmp(SvPV(ST(a), PL_na),"Active_Link") == 0)
-		structItems.structItemList[i].type = AR_STRUCT_ITEM_ACTIVE_LINK;
-	      else if (strcmp(SvPV(ST(a), PL_na),"Admin_Ext") ==0)
-		structItems.structItemList[i].type = AR_STRUCT_ITEM_ADMIN_EXT;
-	      else if (strcmp(SvPV(ST(a), PL_na),"Char_Menu")== 0)
-		structItems.structItemList[i].type = AR_STRUCT_ITEM_CHAR_MENU;
-	      else if (strcmp(SvPV(ST(a), PL_na),"Escalation") == 0)
-		structItems.structItemList[i].type = AR_STRUCT_ITEM_ESCALATION;
-	      else {
-	        (void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_EXP);
-#ifndef WASTE_MEM
-		safefree(structItems.structItemList);
-#endif
-		goto export_end;
-	      }
-	      strncpy(structItems.structItemList[i].name,SvPV(ST(a+1), PL_na), 
-			sizeof(ARNameType));
-	      structItems.structItemList[i].name[sizeof(ARNameType)-1] = '\0';
-	    }
-	    ret = ARExport(ctrl, &structItems, displayTag, &buf, &status);
+		(void) ARError_reset();
+		Zero(&status, 1, ARStatusList);
+		RETVAL = NULL;
+		if (items % 2 || c < 1) {
+			(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
+		} else {
+			structItems.numItems = c;
+			Newz(777, structItems.structItemList, c, ARStructItemStruct);
+			for (i = 0 ; i < c ; i++) {
+				unsigned int et = 0;
+				a  = i * 2 + 2;
+				et = caseLookUpTypeNumber((TypeMapStruct *) 
+							     StructItemTypeMap,
+							   SvPV(ST(a), PL_na) );
+				if(et == TYPEMAP_LAST) {
+					(void) ARError_add(AR_RETURN_ERROR, AP_ERR_BAD_EXP);
+					(void) ARError_add(AR_RETURN_ERROR, AP_ERR_CONTINUE,
+						SvPV(ST(a), PL_na) );
+					ok = 0;
+				} else {
+					structItems.structItemList[i].type = et;
+					strncpy(structItems.structItemList[i].name,
+						SvPV(ST(a+1), PL_na), 
+						sizeof(ARNameType) );
+					structItems.structItemList[i].name[sizeof(ARNameType)-1] = '\0';
+				}
+			}
+		}
+
+		if(ok) {
+			ret = ARExport(ctrl, &structItems, displayTag, &buf, &status);
 #ifdef PROFILE
-	    ((ars_ctrl *)ctrl)->queries++;
+			((ars_ctrl *)ctrl)->queries++;
 #endif
-	    if (ARError( ret, status)) {
-#ifndef WASTE_MEM
-	      safefree(structItems.structItemList);
-#endif
-	      goto export_end;
-	    }
-	    XPUSHs(newSVpv(buf,0));
-#ifndef WASTE_MEM
-	    if(!CVLD(buf)){
-	    FREE(buf);
-	    }
-#endif
-	  }
-	export_end:;
+			if (ARError(ret, status)) {
+				safefree(structItems.structItemList);
+				if(buf) safefree(buf);
+			} else {
+				RETVAL = buf;
+			}
+		} else {
+			safefree(structItems.structItemList);
+		}
 	}
+	OUTPUT:
+	RETVAL
 
 int
 ars_Import(ctrl,importOption=AR_IMPORT_OPT_CREATE,importBuf,...)
