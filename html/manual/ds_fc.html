@@ -6,14 +6,48 @@
 
 <H2>Field Characteristics Structure</H2>
 
+The structure returned depends on the version of the ARS server.
+<p>
+For <b>ARS 3.0</b> the structure is:
 <PRE>
 {
- "accessOption" =&gt; integer,
- "focus"        =&gt; integer,
+["changeDiary"   =&gt; encoded string,]
+ "createMode"    =&gt; open <i>or</i> protected,
+ "dataType"      =&gt; string,
+ "defaultVal"    =&gt; string,
+ "displayInstanceList"   =&gt; reference to <A href="ds_disl_hash.html">displayInstancelist structure</a>,
+ "fieldId"       =&gt; integer,
+ "fieldMap"      =&gt; reference to a HASH,
+ "fieldName"     =&gt; string,
+["helpText"      =&gt; string,]
+ "lastChanged"   =&gt; string,
+ "limit"         =&gt; reference to <A href="ds_fls.html">Field Limit Structure</a>,
+ "option"        =&gt; enumerator,
+ "owner"         =&gt; string,
+ "permissions"   =&gt; reference to a HASH,
+ "timestamp"     =&gt; integer
+}
+</PRE>
+
+For <b>ARS 2.1</b> or earlier the structure is:
+
+<PRE>
+{
+["changeDiary"  =&gt; encoded string,]
  "charMenu"     =&gt; string,
- "fieldId"      =&gt; integer
- "display"      =&gt; reference to <A HREF="ds_ds.html">Display Structure</A>, <B>(2.x only)</B>
- "props"        =&gt; reference to <A HREF="ds_prop_hash.html">Props Structure</A>, <B>(3.x only)</B>
+ "createMode"   =&gt; open <i>or</i> protected,
+ "dataType"     =&gt; string,
+ "defaultVal"   =&gt; string,
+ "display"      =&gt; reference to <A HREF="ds_ds.html">Display Structure</A>,
+ "fieldId"      =&gt; integer,
+ "focus"        =&gt; integer,
+["helpText"     =&gt; string,]
+ "lastChanged"  =&gt; string,
+ "limit"        =&gt; reference to <A href="ds_fls.html">Field Limit Structure</a>,
+ "option"       =&gt; enumerator,
+ "owner"        =&gt; string,
+ "permissions"  =&gt; reference to a HASH,
+ "timestamp"    =&gt; integer
 }
 </PRE>
 
@@ -23,7 +57,7 @@
 <A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Table of Contents </A>
 <p>
 <address>
-Last changes to this page 4th August 1997 by jcmurphy@smurfland.cit.buffalo.edu<br>
+Last changes to this page 6th March 1998 by David Adams<br>
 &#169; J.C.Murphy, J.W.Murphy 1997 arsperl@smurfland.cit.buffalo.edu
 </address>
 </BODY>
