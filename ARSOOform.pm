@@ -97,13 +97,14 @@ sub getEnumValues {
 	return undef;
 }
 
-# query(-query => "qualifier", -maxhits => 100)
+# query(-query => "qualifier", -maxhits => 100, -firstretrieve => 0)
 
 sub query {
     my ($this) = shift;
-    my ($query, $maxhits) = ARS::rearrange([QUERY,MAXHITS], @_);
+    my ($query, $maxhits, $firstretr) = ARS::rearrange([QUERY,MAXHITS,FIRSTRETRIEVE], @_);
     $query = "(1 = 1)" unless defined($query);
     $maxhits = 0 unless defined($maxhits);
+    $firstretr = 0 unless defined($firstretr);
     
     if($this->{'connection'}->{'.debug'}) {
 	print "form->query(".$this->{'form'}.", $query, ".$this->{'vui'}.")\n";
@@ -125,7 +126,7 @@ sub query {
     my @matches = ARS::ars_GetListEntry($this->{'connection'}->{'ctrl'},
 					$this->{'form'},
 					$this->{'qualifier'},
-					$maxhits,
+					$maxhits, $firstretr,
 					@sortOrder);
     
     my(@mids, @mdescs);
