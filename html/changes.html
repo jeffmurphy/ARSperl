@@ -1,0 +1,299 @@
+<HTML>
+ <HEAD>
+  <TITLE>ARSperl: Revision History</TITLE>
+ </HEAD>
+ <BODY BGCOLOR="#FFFFFF">
+
+ The following lists the changes that have been made
+ for each release of ARSperl.
+ <P>
+ <DL>
+
+    <DT> 1.61 <DD>
+    <UL>
+  <LI>  new utility: example/AddUsersToGroup.pl - bulk add a bunch
+		of users to a specified group 
+  <LI>  new utility: example/DelUsersFromGroup.pl - bulk delete a bunch
+		of users from a specified group 
+  <LI>  fixed uninitialized variable warnings
+  <LI>  fixed bug in indexList returned by ars_GetSchema()
+  <LI>  updated all Get&lt;object&gt; functions so that changeDiary
+          is fully decoded. 
+  <LI>  changed return value of ars_DeleteEntry() so that
+           ars_DeleteEntry() || die() will work as expected. 
+  <LI>  fixed problem in example/Show_ALink.pl
+  <LI>  added/updated helper func: ars_decodeStatusHistory()
+  <LI>  added example/ars_decodeStatusHistory.pl
+  <LI>  fixed ars_GetSchema typo/bug w/regards to adminGroupList
+  <LI>  fixed GetField.pl example so that it decodes everything
+  <LI>  patch for bug in ars_GetServerInfo()
+  <LI>  updated Makefile.PL to dynamically generate the support.h
+           file based on the ar.h file specified.
+    </UL>
+
+    <DT> 1.6001 BETA <DD>
+    <UL>
+  <LI>   patch for bug in ars_CreateEntry()
+
+  <LI>  added ARS32 conditional compilation for AdminExtension 
+           routines (which were removed as of ars3.2 api)
+    </UL>
+
+    <DT> 1.6000 BETA <DD>
+    <UL>
+  <LI>   removed most of the PPERLC and AWP stuff that was intended
+           to help the port to ActiveState perl.  Use the One True Perl.
+ 
+  <LI>   Changed many of the allocations to use perl's memory manager,
+           except where the structure or element is grown further internally
+           by ARS, or where the structure is non-trivial to free().  I still
+           have concerns about some of the un-freed allocations in 
+           supportrev.c, but at least ALL of the demo scripts, 
+           including ARSDoc-1.11 (with small patch submitted to list) now 
+           run, and produce the right results.
+ 
+  <LI>   Removed all references to ZEROMEM in favor of perl's Zero, which
+           is guaranteed to work everywhere, and doesn't need additional logic.
+ 
+  <LI>   fixed a couple of small typos, including one in a elliptical 
+           declaration (...) which didn't have a comma separator.
+ 
+  <LI>   Changed the logic of CVLD in one place that was attempting to free()
+           null pointers.
+    </UL>
+
+    <DT> 1.56 <DD>
+    <UL>
+  <LI>   removed most of the PPERLC and AWP stuff that was intended
+	   to help the port to ActiveState perl.  Use the One True Perl.
+ 
+  <LI>   Changed many of the allocations to use perl's memory manager,
+ 	   except where the structure or element is grown further internally
+	   by ARS, or where the structure is non-trivial to free().  I still
+	   have concerns about some of the un-freed allocations in 
+	   supportrev.c, but at least ALL of the demo scripts, 
+	   including ARSDoc-1.11 (with small patch submitted to list) now 
+	   run, and produce the right results.
+ 
+  <LI>   Removed all references to ZEROMEM in favor of perl's Zero, which
+	   is guaranteed to work everywhere, and doesn't need additional logic.
+ 
+  <LI>   fixed a couple of small typos, including one in a elliptical 
+	   declaration (...) which didn't have a comma separator.
+ 
+  <LI>   Changed the logic of CVLD in one place that was attempting to free()
+	   null pointers.
+
+    </UL>
+
+    <DT> 1.56 <DD>
+    <UL>
+
+  <LI>  fixed a problem caused by some debugging code that
+           was left in 1.55 accidentally.
+
+    </UL>
+    <DT> 1.55 <DD>
+    <UL>
+  <LI>  added ars_GetListEntry.pl example to show how to use
+           customer query-list fields.
+ 
+  <LI>  numerous documentation updates by D.J.Adams@soton.ac.uk
+ 
+  <LI>  fixed bug in macroParm decoding. (D.J.Adams@soton.ac.uk)
+ 
+  <LI>  fixed bug when decoding results of GetFilter/GetActiveLink
+           in regards to set fields actions: values assigned to
+           diary fields were not being interpretted correctly.
+           (D.J.Adams@soton.ac.uk)
+ 
+  <LI>  patched perl_BuildEntryIdList to make it more robust
+           (Ulrich Pfeifer &lt;pfeifer@wait.de&gt;)
+ 
+  <LI>  patched ars_GetCharMenu for bug "GetCharMenu doesn't
+           return a qualifier for query menus" (D.J.Adams@soton.ac.uk)
+ 
+  <LI>  fixed dup_FieldValueOrArith to support decoding of
+           query style menus.
+    </UL>
+    <DT> 1.54 <DD>
+    <UL>
+      <LI> Fixed bug in ars_EncodeDiary().
+      <LI> Added ars_MergeEntry.pl example script.
+    </UL>
+    <DT> 1.53 <DD>
+    <UL>
+      <LI> minor doc fixes
+    </UL>
+    <DT> 1.5206 (beta) <DD>
+    <UL>
+      <LI>  added ars_GetVUI to the ARS.pm exports line.
+      <LI>  added refreshCode to GetCharMenu hash
+      <LI>  fixed bug in groupList value change in 1.5205
+    </UL>
+    <DT> 1.5205 (beta) <DD>
+    <UL>
+      <LI> updated groupList returned by GetSchema() call so that
+           it contains the correct keywords.
+    </UL>
+    <DT> 1.5204 (beta) <DD>
+    <UL>
+      <LI> added ars_GetControlStructFields()
+    </UL>
+    <DT> 1.5203 (beta) <DD>
+    <UL>
+      <LI>  beginnings of a WinNT port (not completed yet)
+      <LI>  added "timestamp" to the return hash of GetEscalation()
+      <LI>  added some extra malloc/free debugging stuff
+    </UL>
+    <DT> 1.5202 (beta) <DD>
+    <UL>
+      <LI> removed some debugging code that was left in
+    </UL>
+    <DT> 1.5201 (beta) <DD>
+    <UL>
+      <LI> fixed problem in GetEscalation  
+    </UL>
+    <DT> 1.52 (beta) <DD>
+    <UL> 
+      <LI> fixed core dump problem due to uninitialized variable(s)
+    </UL>
+    <DT> 1.51 (beta) <DD>
+    <UL>
+      <LI> fixed some typos/symbol errors. added a missing routine.
+    </UL>
+    <DT> 1.50 (beta) <DD>
+    <UL>
+      <LI> removed ars_errstr from C code. replaced with ars_errhash.
+           modified ARS.pm to refer to hash when $ars_errstr is 
+           accessed. $ars_errstr no longer tie'd to main:: package.
+ 
+      <LI> bug fix (Sid Van den Heede) "affecting getting of
+           displayInstanceList"
+ 
+      <LI> bug fix (James LewisMoss) for ars_GetCharMenu()
+ 
+      <LI> bug fix (Ian Flanigan) for perl_ARIndexStruct()
+ 
+      <LI> modified GetListEntry(), GetEntry(), SetEntry() and 
+           DeleteEntry() to make operations on join schemas 
+           transparent.
+ 
+      <LI> added a ARVerifyUser call to ars_Login so that
+           ars_Login() || die() will work as one would expect it to.
+ 
+      <LI> added $VERSION to the perl module file.
+ 
+      <LI> added "log to file" action to GetFilter action hash 
+           (requested by D.J.Adams@soton.ac.uk)
+ 
+      <LI> added updated doc tree to main distribution (contributed by
+           D.J.Adams@soton.ac.uk)
+ 
+      <LI> new functions and doc on new functions and new examples for some
+           of these new functions.
+ 
+      <LI> altered return value of perl_ARStatusStruct so that it 
+           returns a hash of the various StatusStruct members so that
+           reversing the operation is simpler. scripts that, for example,
+           retrieve active link definitions and print them out that previous
+           expected the {message} key to point to a string will need to
+           be updated.
+ 
+      <LI> added valueType to the assign structure to assist in 
+           reversing the operation (converting perl to C API assign 
+           structure).
+ 
+      <LI> added displayTag as an optional parameter to ars_LoadQualifier()
+           so that you can build queries against customized views (that
+           are stored on the server).
+
+      <LI> altered ARError() so that return codes of OK or WARNING don't
+           signal an error. For example, GetListEntries would return
+           nothing if you matched more than the max allowed, now it returns
+           the max allowable number of records and places a warning message
+           into the error hash. 
+
+    </UL>
+    <DT> 1.46 <DD>
+    <UL>
+      <LI> bug fixes
+      <LI> ars_MergeEntry() added
+    </UL>
+    <DT> 1.45 <DD>
+    <UL>
+      <LI> minor bug fix to the GetListSchema routine
+    </UL>
+    <DT> 1.44 <DD>
+    <UL>
+      <LI> added some extra code to assist in decoding
+           qualifier structures
+      <LI> included PrintQual.pl and ars_QualDecode.pl examples
+           to show how to do it.
+      <LI> modified GetFilter.pl example to dump the qualification
+           that is on the filter.
+    </UL>
+    <DT> 1.43 <DD>
+    <UL>
+      <LI> fixed some bad pointer/bad free problems
+    </UL>
+    <DT> 1.42 <DD>
+    <UL>
+      <LI> Minor bug fix for HP-UX
+      <LI> Compiled with -Wall and cleaned up quite a few questionable
+           pieces of code.
+      <LI> Added destructors for the package that will correctly call
+           ARTermination() when the script exits.
+    </UL>
+    <DT> 1.41 <DD>
+    <UL>
+      <LI> Bug fixes to 1.4
+      <LI> Added ars_GetCurrentServer()
+      <LI> Modification made to ars_Login() (suggested by Peter de Salis)
+      <LI> NT (notifier) function documentation add to programmer's guide.
+    </UL>
+    <DT> 1.4 <DD>
+    <UL>
+      <LI> Bug fixes to 1.32
+      <LI> NT (notifier) functions added.
+      <LI> Improved documentation.
+    </UL>
+    <DT> 1.32 (beta) <DD>
+    <UL>
+      <LI> ARS3.0 integration
+    </UL>
+    <DT> 1.31 <DD>
+    <UL>
+      <LI> minor fix to allow v1.3 to work with ARS2.0
+    </UL>
+    <DT> 1.3 <DD>
+    <UL>
+      <LI> Profiling code added to keep track of number of
+            queries made.
+ 
+      <LI> Field caching code added to make some of the functions
+            more efficient.
+ 
+      <LI> New functions: ars_GetFilter(), ars_GetCharMenu(), 
+                ars_GetServerStatistics
+ 
+      <LI> Internal GetField call now caches results to minimize
+                number of queries made.
+ 
+      <LI> Examples of new functions. 
+ 
+      <LI> <A HREF="WhoUsesIt.html">"WhoUsesIt.pl" utility</A>
+ 
+    </UL>
+    <P> 
+    <DT> 1.22 <DD>
+    <UL>
+       <LI> fixed the bug in arsperl that caused SetEntry to not always work
+            correctly.  The bug only appeared when you passed that fields in an
+            array.
+    </UL>
+ </DL> 
+<P>
+<a href="index.html">Back to ARSperl Home Page</a>
+</body>
+</html>
