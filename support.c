@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.14 1998/02/25 19:22:43 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.15 1998/03/11 14:09:25 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/support.c,v 1.14 1998/02/25 19:22:43 jcmurphy 
     LOG:
 
 $Log: support.c,v $
+Revision 1.15  1998/03/11 14:09:25  jcmurphy
+fixed bug in macroParm
+
 Revision 1.14  1998/02/25 19:22:43  jcmurphy
 applied fixes to dup_FieldValueOrArith to handle
 AR_FIELD_CURRENT, FIELD_TRAN and _DB
@@ -692,7 +695,7 @@ perl_ARMacroParmList(_AWPC_ ARMacroParmList *in) {
   int i;
 
   for (i=0; i<in->numItems; i++)
-    hv_store(hash, VNAME(in->parms[i].name), newSVpv(in->parms[0].value, 0), 0);
+    hv_store(hash, VNAME(in->parms[i].name), newSVpv(in->parms[i].value, 0), 0);
 
   return newRV((SV *)hash);
 }
