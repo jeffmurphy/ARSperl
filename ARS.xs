@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.25 1997/02/19 22:39:28 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.26 1997/02/20 20:27:47 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.25 1997/02/19 22:39:28 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.26  1997/02/20 20:27:47  jcmurphy
+added some minor code to handle decoding TR. and DB. values in qualifications
+
 Revision 1.25  1997/02/19 22:39:28  jcmurphy
 fixed problem with bad free() in ars_Login
 
@@ -1361,8 +1364,14 @@ SV *perl_ARFieldValueOrArithStruct(ARFieldValueOrArithStruct *in) {
 			 (ARS_fn)perl_ARValueStruct,
 			 sizeof(ARValueStruct)), 0);
     break;
-/*  case AR_FIELD_TRAN:
-  case AR_FIELD_DB: */
+  case AR_FIELD_TRAN:
+    hv_store(hash, "TR_fieldId", strlen("TR_fieldId"),
+	     newSViv(in->u.fieldId), 0);
+    break;
+  case AR_FIELD_DB:
+    hv_store(hash, "DB_fieldId", strlen("DB_fieldId"),
+	     newSViv(in->u.fieldId), 0);
+    break;
   case AR_LOCAL_VARIABLE:
     hv_store(hash, "variable", strlen("variable"),
 	     newSViv(in->u.variable), 0);
