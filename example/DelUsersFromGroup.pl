@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/DelUsersFromGroup.pl,v 1.1 1998/09/14 20:49:13 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/DelUsersFromGroup.pl,v 1.2 1998/09/14 20:50:08 jcmurphy Exp $
 #
 # NAME
 #   DelUsersFromGroup group user1 [user2] ...
@@ -12,6 +12,9 @@
 #   jeff murphy
 #
 # $Log: DelUsersFromGroup.pl,v $
+# Revision 1.2  1998/09/14 20:50:08  jcmurphy
+# removed some debugging statements
+#
 # Revision 1.1  1998/09/14 20:49:13  jcmurphy
 # Initial revision
 #
@@ -69,8 +72,6 @@ foreach (@users) {
 	    die "ars_SetEntry(User): $ars_errstr";
     } else {
 	print "\tnot a member of $group\n";
-	print "\t$group_id\n";
-	print "\t$cg\n";
 	next;
     }
 
