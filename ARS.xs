@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.36 1997/10/09 00:49:40 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.37 1997/10/09 15:21:33 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.36 1997/10/09 00:49:40 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.37  1997/10/09 15:21:33  jcmurphy
+fixed problems in GetEscalation.
+
 Revision 1.36  1997/10/09 00:49:40  jcmurphy
 1.52: uninit'd var bug fix
 
@@ -886,11 +889,11 @@ ars_GetActiveLink(ctrl,name)
 #if  AR_EXPORT_VERSION >= 3
 	  ARActiveLinkActionList elseList;
 #endif
-	  char            *helpText;
+	  char            *helpText = CPNULL;
 	  ARTimestamp      timestamp;
 	  ARNameType       owner;
 	  ARNameType       lastChanged;
-	  char            *changeDiary;
+	  char            *changeDiary = CPNULL;
 	  ARStatusList     status;
 	  SV              *ref;
 	  ARQualifierStruct *query=MALLOCNN(sizeof(ARQualifierStruct));
@@ -992,8 +995,8 @@ ars_GetFilter(ctrl,name)
 	  unsigned int opSet;
 	  ARNameType   schema;
 	  unsigned int enable;
-	  char        *helpText;
-	  char        *changeDiary;
+	  char        *helpText = CPNULL;
+	  char        *changeDiary = CPNULL;
 	  ARFilterActionList actionList;
 #if  AR_EXPORT_VERSION >= 3
 	  ARFilterActionList elseList;
@@ -1140,11 +1143,11 @@ ars_GetCharMenu(ctrl,name)
 	{
 	  unsigned int       refreshCode;
 	  ARCharMenuStruct   menuDefn;
-	  char	            *helpText;
+	  char	            *helpText = CPNULL;
 	  ARTimestamp	     timestamp;
 	  ARNameType	     owner;
 	  ARNameType	     lastChanged;
-	  char		    *changeDiary;
+	  char		    *changeDiary = CPNULL;
 	  ARStatusList	     status;
 	  int                ret;
 	  HV		    *menuDef = newHV();
@@ -1267,11 +1270,11 @@ ars_GetSchema(ctrl,name)
 	  ARInternalIdList     adminGroupList;
 	  AREntryListFieldList getListFields;
 	  ARIndexList          indexList;
-	  char                *helpText;
+	  char                *helpText = CPNULL;
 	  ARTimestamp          timestamp;
 	  ARNameType           owner;
 	  ARNameType           lastChanged;
-	  char                *changeDiary;
+	  char                *changeDiary = CPNULL;
 #if AR_EXPORT_VERSION >= 3
 	  ARCompoundSchema     schema;
 	  ARSortList           sortList;
@@ -1395,11 +1398,11 @@ ars_GetField(ctrl,schema,id)
 #else
 	  ARDisplayList         displayList;
 #endif
-	  char                 *helpText;
+	  char                 *helpText = CPNULL;
 	  ARTimestamp           timestamp;
 	  ARNameType            owner;
 	  ARNameType            lastChanged;
-	  char                 *changeDiary;
+	  char                 *changeDiary = CPNULL;
 	  
 	  (void) ARError_reset();
 	  ZEROMEM(&Status, ARStatusList);
@@ -2175,11 +2178,11 @@ ars_GetAdminExtension(ctrl, name)
 	 ARStatusList  status;
 	 ARInternalIdList groupList;
 	 char          command[AR_MAX_COMMAND_SIZE];
-	 char         *helpText;
+	 char         *helpText = CPNULL;
 	 ARTimestamp   timestamp;
 	 ARNameType    owner;
 	 ARNameType    lastChanged;
-	 char         *changeDiary;
+	 char         *changeDiary = CPNULL;
 	 int           ret;
 
 	 (void) ARError_reset();
@@ -2196,11 +2199,13 @@ ars_GetAdminExtension(ctrl, name)
 				    (ARS_fn)perl_ARInternalId,
 				    sizeof(ARInternalId)), 0);
 		hv_store(RETVAL, VNAME("command")  , newSVpv(command, 0), 0);
-		hv_store(RETVAL, VNAME("helpText") , newSVpv(helpText, 0), 0);
 		hv_store(RETVAL, VNAME("timestamp"), newSViv(timestamp), 0);
 		hv_store(RETVAL, VNAME("owner")    , newSVpv(owner, 0), 0);
 		hv_store(RETVAL, VNAME("lastChanged"), newSVpv(lastChanged, 0), 0);
-		hv_store(RETVAL, VNAME("changeDiary"), newSVpv(changeDiary, 0), 0);
+	        if(helpText)
+		   hv_store(RETVAL, VNAME("helpText") , newSVpv(helpText, 0), 0);
+	        if(changeDiary)
+		   hv_store(RETVAL, VNAME("changeDiary"), newSVpv(changeDiary, 0), 0);
 #ifndef WASTE_MEM
 		FreeARInternalIdList(&groupList, FALSE);
 		if(helpText) free(helpText);
@@ -2225,19 +2230,21 @@ ars_GetEscalation(ctrl, name)
 #if AR_EXPORT_VERSION >= 3
 	  ARFilterActionList   elseList;
 #endif
-	  char                *helpText;
+	  char                *helpText = CPNULL;
 	  ARTimestamp          timestamp;
 	  ARNameType           owner;
 	  ARNameType           lastChanged;
-          char                *changeDiary;
+          char                *changeDiary = CPNULL;
 	  SV                  *ref;
 	  int                  ret;
 	  ARQualifierStruct   *query = MALLOCNN(sizeof(ARQualifierStruct));
 
 	  RETVAL = newHV();
-	  ZEROMEM(&status, ARStatusList);
 	  (void) ARError_reset();
+	  ZEROMEM(&status, ARStatusList);
+	  ZEROMEM(&actionList, ARFilterActionList);
 #if AR_EXPORT_VERSION >= 3
+	  ZEROMEM(&elseList, ARFilterActionList);
 	  ret = ARGetEscalation(ctrl, name, &escalationTm, schema, &enable,
 			query, &actionList, &elseList, &helpText, &timestamp,
 			owner, lastChanged, &changeDiary, &status);
@@ -2253,22 +2260,24 @@ ars_GetEscalation(ctrl, name)
 	     hv_store(RETVAL, VNAME("name"), newSVpv(name, 0), 0);
 	     hv_store(RETVAL, VNAME("schema"), newSVpv(schema, 0), 0);
 	     hv_store(RETVAL, VNAME("enable"), newSViv(enable), 0);
-	     hv_store(RETVAL, VNAME("helpText"), newSVpv(helpText, 0), 0);
+	     if(helpText)
+	        hv_store(RETVAL, VNAME("helpText"), newSVpv(helpText, 0), 0);
 	     hv_store(RETVAL, VNAME("owner"), newSVpv(owner, 0), 0);
 	     hv_store(RETVAL, VNAME("lastChanged"), newSVpv(lastChanged, 0), 0);
-	     hv_store(RETVAL, VNAME("changeDiary"), newSVpv(changeDiary, 0), 0);
+	     if(changeDiary)
+	        hv_store(RETVAL, VNAME("changeDiary"), newSVpv(changeDiary, 0), 0);
 	     ref = newSViv(0);
 	     sv_setref_pv(ref, "ARQualifierStructPtr", (void *)query);
 	     hv_store(RETVAL, VNAME("query"), ref, 0);
 	     hv_store(RETVAL, VNAME("actionList"),
 			perl_ARList((ARList *)&actionList,
-				(ARS_fn)perl_ARActiveLinkActionStruct,
-				sizeof(ARActiveLinkActionStruct)), 0);
+				(ARS_fn)perl_ARFilterActionStruct,
+				sizeof(ARFilterActionStruct)), 0);
 #if AR_EXPORT_VERSION >= 3
 	     hv_store(RETVAL, VNAME("elseList"), 
 			perl_ARList((ARList *)&elseList,
-				(ARS_fn)perl_ARActiveLinkActionStruct,
-				sizeof(ARActiveLinkActionStruct)), 0);
+				(ARS_fn)perl_ARFilterActionStruct,
+				sizeof(ARFilterActionStruct)), 0);
 #endif
 	     hv_store(RETVAL, VNAME("TmType"), newSViv(escalationTm.escalationTmType), 0);
 	     switch(escalationTm.escalationTmType) {
@@ -2596,11 +2605,11 @@ ars_GetVUI(ctrl, schema, vuiId)
 	  ARStatusList status;
 	  ARNameType   vuiName;
 	  ARPropList   dPropList;
-	  char        *helpText;
+	  char        *helpText = CPNULL;
 	  ARTimestamp  timestamp;
 	  ARNameType   owner;
 	  ARNameType   lastChanged;
-	  char        *changeDiary;
+	  char        *changeDiary = CPNULL;
 	  int          i, ret;
 
 	  RETVAL = newHV();
@@ -2616,9 +2625,11 @@ ars_GetVUI(ctrl, schema, vuiId)
 	     hv_store(RETVAL, VNAME("vuiId"), newSViv(vuiId), 0);
 	     hv_store(RETVAL, VNAME("vuiName"), newSVpv(vuiName, 0), 0);
 	     hv_store(RETVAL, VNAME("owner"), newSVpv(owner, 0), 0);
-	     hv_store(RETVAL, VNAME("helpText"), newSVpv(helpText, 0), 0);
+	     if(helpText)
+	        hv_store(RETVAL, VNAME("helpText"), newSVpv(helpText, 0), 0);
 	     hv_store(RETVAL, VNAME("lastChanged"), newSVpv(lastChanged, 0), 0);
-	     hv_store(RETVAL, VNAME("changeDiary"), newSVpv(changeDiary, 0), 0);
+	     if(changeDiary)
+	        hv_store(RETVAL, VNAME("changeDiary"), newSVpv(changeDiary, 0), 0);
 	     hv_store(RETVAL, VNAME("timestamp"), newSViv(timestamp), 0);
 	     hv_store(RETVAL, VNAME("props"),
 		perl_ARList((ARList *)&dPropList,
@@ -2650,17 +2661,17 @@ ars_CreateCharMenu(ctrl, cmDefRef)
 	  ARNameType        name;
 	  unsigned int      refreshCode;
 	  ARCharMenuStruct  menuDefn;
-	  char             *helptext;
+	  char             *helptext = CPNULL;
 	  ARNameType        owner;
-	  char             *changeDiary;
+	  char             *changeDiary = CPNULL;
 	  ARStatusList      status;
 
 	  (void) ARError_reset();
-	  ZEROMEM(&status, ARStatusList);
 	  RETVAL = 0;
-	  zeromem(&menuDefn, sizeof(ARCharMenuStruct));
-	  zeromem(&owner, sizeof(ARNameType));
-	  zeromem(&name, sizeof(ARNameType));
+	  ZEROMEM(&status, ARStatusList);
+	  ZEROMEM(&menuDefn, ARCharMenuStruct);
+	  ZEROMEM(&owner, ARNameType);
+	  ZEROMEM(&name, ARNameType);
 
 	  if(SvTYPE((SV *)SvRV(cmDefRef)) != SVt_PVHV) {
 		(void) ARError_add(AR_RETURN_ERROR, AP_ERR_EXPECT_PVHV);
@@ -2755,9 +2766,9 @@ ars_CreateActiveLink(ctrl, alDefRef)
 #if AR_EXPORT_VERSION >= 3
 	  ARActiveLinkActionList elseList;
 #endif
-	  char                  *helpText = (char *)NULL;
+	  char                  *helpText = CPNULL;
 	  ARNameType             owner;
-	  char                  *changeDiary = (char *)NULL;
+	  char                  *changeDiary = CPNULL;
 	  ARStatusList           status;
 	  
 	  RETVAL = 0; /* assume error */
