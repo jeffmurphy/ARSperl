@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/Show_ALink.pl,v 1.2 1997/11/11 15:04:47 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/Show_ALink.pl,v 1.3 1998/09/11 17:22:13 jcmurphy Exp $
 #
 # EXAMPLE
 #    Show_ALink.pl
@@ -25,6 +25,10 @@
 # 01/12/96
 # 
 # $Log: Show_ALink.pl,v $
+# Revision 1.3  1998/09/11 17:22:13  jcmurphy
+# changed macroParms from array to hash since it is
+# a hashref.
+#
 # Revision 1.2  1997/11/11 15:04:47  jcmurphy
 # added qual decoding
 #
@@ -306,12 +310,12 @@ sub ProcessMacroStruct {
 
     if(defined($m)) {
 	printl $t, "Macro Name  : \"$m->{macroName}\"\n";
-	printl $t, "Macro Params:\n";
-	@p = @{$m->{macroParms}};
-	for($i = 0; $i <= $#p; $i+=2) {
-	    printl $t+1, "$i Name: $p[$i][0]\n";
-	    printl $t+1, "   Val: ".$p[$i+1][1]."\n";
+	printl $t, "Macro Params: $m->{macroParms}\n";
+
+	foreach (keys %{$m->{macroParms}}) {
+	    printl $t+1, "$_ = $m->{macroParms}{$_}\n";
 	}
+
 	printl $t, "Macro Text  :\n**START**\n$m->{macroText}\n**END**\n";
     }
 }
