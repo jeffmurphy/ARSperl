@@ -7,7 +7,7 @@
 
 <H2>Using the ARS Perl extension</H2>
 
-$Id: usage.html,v 1.6 1996/11/21 22:23:07 jcmurphy Exp $
+$Id: usage.html,v 1.7 1997/02/03 18:34:49 jmurphy Exp $
 
 <H3>Note</H3>
 
@@ -99,25 +99,27 @@ links, submit and modify data are available)</I>.
    <A NAME="ars_Login"></A>
    <DT><CODE>ars_Login(server,username,password)</CODE><DD>
 
-      Attempts to login to the server.<P>
+      Returns a control structure with the spacified server username
+      and password.  Specifying a null server will use whatever the default
+      server is for your system. <P>
 
       <DL>
          <DT><B>On success</B><DD>
                 Returns a scalar control record.
          <DT><B>On failure</B><DD>
-                Returns <CODE>undef</CODE>.
+                Returns <CODE>undef</CODE> for invalid number of arguments.
       </DL>
 
       <P>Example:
 
       <PRE>
-      ($c = ars_Login("server","jmurphy","blah")) || die "can't login";
+      $c = ars_Login("","jmurphy","blah")
       </PRE>
 
    <A NAME="ars_Logoff"></A>
    <DT><CODE>ars_Logoff(ctrl)</CODE><DD>
 
-      Closes an active session for the control record given.<P>
+      Releases the license for the control record given.<P>
 
       No return values.
 
@@ -143,12 +145,12 @@ links, submit and modify data are available)</I>.
 
       <PRE>
       ($q = ars_LoadQualifier($c, "User", "'Login name' = \"jmurphy\"")) ||
-	    print "error!";
+	    die $ars_errstr;
       </PRE>
 
    <A NAME="ars_GetListField"></A>
    <DT><CODE>ars_GetListField(control,schema,changedsince=0)</CODE><DD>
-   
+
       Fetches the Field ID's for all fields in the schema
       specified. <CODE>changedsince</CODE> is an optional unix timestamp
       and defaults to 0.<P>
@@ -159,7 +161,7 @@ links, submit and modify data are available)</I>.
           <DT><B>On failure</B><DD>
               Returns <CODE>undef</CODE>.
       </DL>
-      
+
       <P>Example:
 
       <PRE>
@@ -169,9 +171,10 @@ links, submit and modify data are available)</I>.
    <A NAME="ars_GetFieldByName"></A>
    <DT><CODE>ars_GetFieldByName(control,schema,field_name)</CODE><DD>
 
-      An easier way of looking up field attributes. This function allows
-      you to retrieve the Field ID (used by many functions) by just 
-      knowing the field name and schema name. <P>
+      This is a shortcut function that combine ars_GetListField and
+      ars_GetField.  Given a schema name and field name, it returns
+      the field id.  If you need more than a few field id's, use
+      ars_GetFieldTable. <P>
 
       <DL>
           <DT><B>On success</B><DD>
@@ -189,15 +192,14 @@ links, submit and modify data are available)</I>.
    <A NAME="ars_GetFieldTable"></A>
    <DT><CODE>ars_GetFieldTable(control,schema)</CODE><DD>
 
-      This function is a combination of the above two. It populates an
-      associative array with field names and values. The key of the array
-      is the field name and the value of the array is the field id. In most
-      cases, it is more efficient to call this and use the below example
-      for retrieving field id's. <P>
+      This function is a combination of ars_GetListField and ars_GetField.
+      It populates a hash (associative array) with field names and
+      values. The keys of the hash are the field names, and the values of the
+      hash are the field ids. <P>
 
       <DL>
           <DT><B>On success</B><DD>
-              Returns an associative array of all fields in the schema.
+              Returns a hash of all fields in the schema.
           <DT><B>On failure</B><DD>
               Returns <CODE>undef</CODE>.
       </DL>
@@ -205,21 +207,17 @@ links, submit and modify data are available)</I>.
       <P>Example:
 
       <PRE>
-      %fields = ars_GetFieldTable($c, "User");
-      if(defined($fields{"Login name"}) {
-          $id = $fields{"Login name"};
-      } else {
-          print "Field doesnt exist!\n";
-      }
+      (%fields = ars_GetFieldTable($c, "User")) || die $ars_errstr;
+      $id = $fields{"Login name"};
       </PRE>
 
    <A NAME="ars_CreateEntry"></A>
    <DT><CODE>ars_CreateEntry(ctrl, schema, field_name1, value1, ...)</CODE><DD>
-   
+
       This function creates a new entry (row) in the schema. This is 
-      the same as ``submitting a new ticket''. Alternating field ids and
+      the same as ``submitting a new ticket''.  Pairs of field ids and
       values should follow the schema name.  Data types are automatically
-      converted.<P>
+      converted. <P>
 
       <DL>
           <DT><B>On success</B><DD>
@@ -232,14 +230,14 @@ links, submit and modify data are available)</I>.
 
       <PRE>
       ($entry_id = ars_CreateEntry($c, "Schema01", $id, $val)) || 
-            print "submission failed\n"; 
+            die $ars_errstr;
       </PRE>
 
    <A NAME="ars_DeleteEntry"></A>
    <DT><CODE>ars_DeleteEntry(ctrl,schema,entry_id)</CODE><DD>
 
       This function deletes the entry (row) in the schema matching 
-      <CODE>entry_id</CODE>.<P>
+      <CODE>entry_id</CODE>.  Don't ask why it returns 0 on success. <P>
 
       <DL>
           <DT><B>On success</B><DD>
@@ -251,36 +249,27 @@ links, submit and modify data are available)</I>.
       <P>Example:
 
       <PRE>
-      ars_DeleteEntry(ctrl,"Schema01",$entry_id);
+      if (ars_DeleteEntry(ctrl,"Schema01",$entry_id) == -1) {
+	die $ars_errstr;
+      }
       </PRE>
 
    <A NAME="ars_GetEntry"></A>
    <DT><CODE>ars_GetEntry(ctrl,schema,entry_id,...)</CODE><DD>
 
-      This function returns a list (associative array) of values and field
-      ids for a particular schema and entry id. If you specify any 
+      This function returns a hash (associative array) of field ids and
+      values for a given schema and entry id. If you specify any 
       field ids after the <CODE>entry_id</CODE> parameter, only the values
-      for those fields will be returned. If no field ids are given after
-      <CODE>entry_id</CODE>, then all (fieldid, value) pairs are
-      retrieved.<P> If the fielid is for a Diary Field, the following 
-      bit of code shows how to decode the entries:
-
-      <PRE>
-      $diaryfield_fid = ars_GetFieldByName($ctrl, $schema, $diaryfield);
-      %vals = ars_GetEntry($ctrl, $schema, $entry_id);
-
-      foreach $diary_entry (@{$vals{$diaryfield_fid}}) {
-        print "$diary_entry->{timestamp}\t$diary_entry->{user}\n";
-        print "$diary_entry->{value}\n";
-      }
-      </PRE>
+      for those fields will be returned, otherwise all field id value pairs
+      are returned.  All field values are converted into numeric or string
+      values, except for the diary type.  The diary field type is encoded
+      as an array of hashes.  Each hash has a timestamp, user and value
+      field. <P>
 
       <DL>
           <DT><B>On success</B><DD>
-              Returns an associative array. The key of the array
-              is the field id and the value of the array are
-              the values of the fields as retrieved from the 
-              server.
+              Returns a hash. The keys of the hash are the field ids and
+              the values are the field values.
           <DT><B>On failure</B><DD>
               Returns <CODE>undef</CODE>.
       </DL>
@@ -288,32 +277,51 @@ links, submit and modify data are available)</I>.
       <P>Example:
 
       <PRE>
-      %vals = ars_GetEntry($c, "User", $entry_id);
-      print "Login name = ".$vals{"Login name"}."\n";
+      (%f = ars_GetFieldTable($c, "User")) || die $ars_errstr;
+      (%vals = ars_GetEntry($c, "User", $entry_id)) || die $ars_errstr;
+      print "Login name = ".$vals{$f{"Login name"}}."\n";
+      </PRE>
+
+      <P>Example of decoding a diary field:
+
+      <PRE>
+      $diaryfield_fid = ars_GetFieldByName($ctrl, $schema, $diaryfield);
+      %vals = ars_GetEntry($ctrl, $schema, $entry_id, $diaryfield_fid);
+
+      foreach $diary_entry (@{$vals{$diaryfield_fid}}) {
+        print "$diary_entry->{timestamp}\n";
+	print "$diary_entry->{user}\n";
+        print "$diary_entry->{value}\n";
+      }
       </PRE>
 
    <A NAME="ars_GetListEntry"></A>
    <DT><CODE>ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve,...)</CODE><DD>
 
-      This function is used to retrieve the list of <CODE>entry_id</CODE>'s
-      from the specified schema. The entries are returned as a list 
-      (associative array) of <I>(entry_id, short-description)</I> pairs. 
-      This function requires a Qualifier. If you wish to retrieve all 
-      entries in the schema (upto the maximum you specified) you should
-      load a Qualifier with something like <CODE>(1 = 1)</CODE>.
-      Optional field ids may be given after maxRetrieve to specify the
-      sorting order. If you specify <CODE>maxRetrieve = 0</CODE> then
-      all of the entries will be returned (or the maximum allow by the
-      server administrator, which ever is less). <P>
+      This function is used to retrieve the list of <CODE>entry_id</CODE>s
+      and description strings from the specified schema.  The entries
+      are returned as an array of <I>(entry_id, short-description)</I> pairs. 
+      If you wish to retrieve all entries in the schema (upto the maximum
+      allowed, or maxRetrieve) you should load a Qualifier with something
+      like <CODE>(1 = 1)</CODE>. <P>
 
-      <B>Note!</B> The "Short-Description" mentioned above is <I>not</I>
-      the contents of the "short-description" field in the schema. It is,
-      in fact, the contents of the "Query List Fields" for this schema.
+      The "short-description" mentioned above is <I>not</I> the contents of
+      the "short-description" field in the schema. It is a concatenation
+      of a list of fields specified by the "Query List Fields" for this schema.
       See <I>List_Entries.pl</I> for an example. <P>
+
+      An optional list of field ids and sorting type may be given after
+      maxRetrieve to specify the sorting order.  The sorting type can be
+      1 for ascending, or 2 for descending.  Also, note that if you want to
+      retain the order of the entry ids returned, then you must assign the
+      list to an array, and not a hash. <P>
+
+      Setting <CODE>maxRetrieve = 0</CODE> will return as many matches as
+      the server will allow. <P>
 
       <DL>
           <DT><B>On success</B><DD>
-               Returns a list (associative array) of 
+               Returns a list of 
                <I>(entry_id, short-description)</I> pairs.
           <DT><B>On failure</B><DD>
                Returns <CODE>undef</CODE>.
@@ -328,19 +336,14 @@ links, submit and modify data are available)</I>.
       }
       </PRE>
 
-      To specify a sort, you add the field you wish to sort on to the
-      end of the call and then either <B>1</B> or <B>2</B> to indicate
-      if you want it sorted in ascending or descending order, respectively.
-
       <P>Example of how to set sorting options:
 
       <PRE>
+      # returns entries for User schema sorted by login name
       $all = ars_LoadQualifier($c,"User","1=1");
       $login_name = ars_GetFieldByName($c,"User","Login Name");
       @a = ars_GetListEntry($c, "User", $all, 0, $login_name, 1);
       </PRE>
-
-      to get a list of all users, sorted based on Login Name.
 
    <A NAME="ars_GetListSchema"></A>
    <DT><CODE>ars_GetListSchema(ctrl, changedsince=0)</CODE><DD>
