@@ -62,7 +62,10 @@ sub new {
 		print "\tdatatype: $t{$_}\n" if $self->{'connection'}->{'.debug'};
 
 		if ($fv->{'dataType'} eq "enum") {
-			if (exists $fv->{'limit'}->{'enumLimits'}->{'regularList'}) {
+			if (ref($fv->{'limit'}->{'enumLimits'}) eq "ARRAY") {
+                                $enums{$_} = [@{$fv->{'limit'}->{'enumLimits'}}];
+                        }
+			elsif (exists $fv->{'limit'}->{'enumLimits'}->{'regularList'}) {
 				$enums{$_} = [@{$fv->{'limit'}->{'enumLimits'}->{'regularList'}}];
 			} else {
 				print "Sorry. I'm not sure what to do with non-regularLists of enums.\n";

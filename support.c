@@ -469,6 +469,45 @@ perl_ARMessageStruct(ARControlStruct * ctrl, ARMessageStruct * in)
 }
 #endif
 
+ARCoordList *
+dup_ARCoordList(ARControlStruct * ctrl, ARCoordList * in) 
+{
+	if ( in ) {
+		ARCoordList *n = MALLOCNN(sizeof(ARCoordList));
+		if (!n) return NULL;
+		n->numItems = in->numItems;
+		if (n->numItems) {
+			AMALLOCNN(n->coords, n->numItems, ARCoordStruct);
+			memcpy(n->coords, in->coords, 
+			       sizeof(ARCoordStruct) * in->numItems);
+		}
+		return n;
+	}
+	return NULL;
+}
+
+ARByteList *
+dup_ARByteList(ARControlStruct * ctrl, ARByteList * in) 
+{
+	if ( in ) {
+		ARByteList *n = MALLOCNN(sizeof(ARByteList));
+
+		if (!n) return NULL;
+		n->numItems = in->numItems;
+		n->type = in->type;
+		if (in->numItems) {
+			n->bytes = MALLOCNN(in->numItems);
+			if (!n->bytes) {
+				AP_FREE(n);
+				return NULL;
+			}
+			memcpy(n->bytes, in->bytes, in->numItems);
+		}
+		return n;
+	}
+	return NULL;
+}
+
 #if AR_EXPORT_VERSION >= 7L
 SV             *
 perl_AREnumItemStruct(ARControlStruct * ctrl, AREnumItemStruct * in)
@@ -505,6 +544,96 @@ perl_AREnumQueryStruct(ARControlStruct * ctrl, AREnumQueryStruct * in)
 
 	return newRV_noinc((SV *) hash);
 }
+
+#if AR_EXPORT_VERSION >= 7
+void
+dup_ARFuncCurrencyList(ARFuncCurrencyList *dst, ARFuncCurrencyList *src)
+{
+	if( dst && src ) {
+		dst->numItems = src->numItems;
+		AMALLOCNN(dst->funcCurrencyList,
+			  src->numItems,
+			  ARFuncCurrencyStruct);
+
+		memcpy(dst->funcCurrencyList, 
+		       src->funcCurrencyList,
+		       sizeof(ARFuncCurrencyStruct) * src->numItems);
+	}
+}
+
+ARCurrencyStruct *
+dup_ARCurrencyStruct(ARControlStruct * ctrl, ARCurrencyStruct * in)
+{
+	if ( in && in->value ) {
+		ARCurrencyStruct *n = MALLOCNN(sizeof(ARCurrencyStruct));
+		if ( !n ) return NULL;
+		if (in->value)
+			strcpy(n->value, in->value);
+		n->conversionDate = in->conversionDate;
+		strncpy(n->currencyCode, in->currencyCode, 
+		       sizeof(ARCurrencyCodeType));
+		dup_ARFuncCurrencyList(&(n->funcList), &(in->funcList));
+	}
+	return NULL;
+}
+
+SV             *
+perl_ARFuncCurrencyStruct(ARControlStruct * ctrl, ARFuncCurrencyStruct * in)
+{
+	HV            *hash = newHV();
+
+	if(in->value) {
+		hv_store(hash, "value", strlen("value"),
+			 newSVpv(in->value, 0), 0);
+	} else {
+		hv_store(hash, "value", strlen("value"),
+			 &PL_sv_undef, 0);
+	}
+
+	if(in->currencyCode) {
+		hv_store(hash, "currencyCode", strlen("currencyCode"),
+			 newSVpv(in->currencyCode, 0), 0);
+	} else {
+		hv_store(hash, "currencyCode", strlen("currencyCode"),
+			 &PL_sv_undef, 0);
+	}
+
+	return newRV_noinc((SV *) hash);
+}
+
+
+SV             *
+perl_ARCurrencyStruct(ARControlStruct * ctrl, ARCurrencyStruct * in)
+{
+	HV            *hash = newHV();
+
+	if(in->value) {
+		hv_store(hash, "value", strlen("value"),
+			 newSVpv(in->value, 0), 0);
+	} else {
+		hv_store(hash, "value", strlen("value"),
+			 &PL_sv_undef, 0);
+	}
+
+	if(in->currencyCode) {
+		hv_store(hash, "currencyCode", strlen("currencyCode"),
+			 newSVpv(in->currencyCode, 0), 0);
+	} else {
+		hv_store(hash, "currencyCode", strlen("currencyCode"),
+			 &PL_sv_undef, 0);
+	}
+
+	hv_store(hash, "conversionDate", strlen("conversionDate"),
+		 newSViv(in->conversionDate), 0);
+
+	hv_store(hash, "funcList", strlen("funcList"),
+		 perl_ARList(ctrl, (ARList *)&(in->funcList),
+			     (ARS_fn) perl_ARFuncCurrencyStruct,
+			     sizeof(ARFuncCurrencyStruct)), 0);
+
+	return newRV_noinc((SV *) hash);
+}
+#endif
 
 SV             *
 perl_AREnumLimitsStruct(ARControlStruct * ctrl, AREnumLimitsStruct * in)
@@ -1540,15 +1669,15 @@ perl_ARFieldLimitStruct(ARControlStruct * ctrl, ARFieldLimitStruct * in)
 			 0);
 #endif
 		return newRV_noinc((SV *) hash);
-
-	case AR_DATA_TYPE_BYTES:
-	case AR_DATA_TYPE_DECIMAL:
-	case AR_DATA_TYPE_ATTACH:
+		
 #if AR_EXPORT_VERSION >= 7
 	case AR_DATA_TYPE_CURRENCY:
 	case AR_DATA_TYPE_DATE:
 	case AR_DATA_TYPE_TIME_OF_DAY:
 #endif
+	case AR_DATA_TYPE_BYTES:
+	case AR_DATA_TYPE_DECIMAL:
+	case AR_DATA_TYPE_ATTACH:
 
 	case AR_DATA_TYPE_NULL:
 	default:
@@ -2113,13 +2242,30 @@ dup_Value(ARControlStruct * ctrl, ARValueStruct * n, ARValueStruct * in)
 	case AR_DATA_TYPE_TIME:
 	case AR_DATA_TYPE_BITMASK:
 	case AR_DATA_TYPE_ENUM:
+	case AR_DATA_TYPE_ULONG:
+	case AR_DATA_TYPE_DATE:
 		n->u = in->u;
+		break;
+	case AR_DATA_TYPE_CURRENCY:
+		n->u.currencyVal = dup_ARCurrencyStruct(ctrl, 
+							in->u.currencyVal);
 		break;
 	case AR_DATA_TYPE_CHAR:
 		n->u.charVal = strdup(in->u.charVal);
 		break;
+	case AR_DATA_TYPE_DECIMAL:
+		n->u.decimalVal = strdup(in->u.decimalVal);
+		break;
 	case AR_DATA_TYPE_DIARY:
 		n->u.diaryVal = strdup(in->u.diaryVal);
+		break;
+	case AR_DATA_TYPE_COORDS:
+		n->u.coordListVal = dup_ARCoordList(ctrl,
+						    in->u.coordListVal);
+		break;
+	case AR_DATA_TYPE_BYTES:
+		n->u.byteListVal = dup_ARByteList(ctrl,
+					       in->u.byteListVal);
 		break;
 	}
 }
@@ -2811,6 +2957,45 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 		case AR_DATA_TYPE_BITMASK:
 			out->u.maskVal = SvIV(in);
 			break;
+#if AR_EXPORT_VERSION >= 7
+		case AR_DATA_TYPE_DATE:
+			out->u.dateVal = SvIV(in);
+			break;
+		case AR_DATA_TYPE_TIME:
+			out->u.timeVal = SvIV(in);
+			break;
+		case AR_DATA_TYPE_CURRENCY:
+			if (SvROK(in)) {
+				if (SvTYPE (hash = (HV *)SvRV(in)) == SVt_PVHV) {
+					fetch = hv_fetch(hash, "value", 5, FALSE);
+					if (!fetch) {
+						ARError_add(AR_RETURN_ERROR, AP_ERR_CURRENCY_STRUCT);
+						return -1;
+					}
+					val = *fetch;
+					if(!(SvOK(val) && SvTYPE(val) != SVt_RV)) {
+						ARError_add(AR_RETURN_ERROR, AP_ERR_CURRENCY_STRUCT);
+						return -1;
+					}
+
+					fetch = hv_fetch(hash, "currencyCode", 
+							 strlen("currencyCode"), FALSE);
+					if (!fetch) {
+						ARError_add(AR_RETURN_ERROR, AP_ERR_CURRENCY_STRUCT);
+						return -1;
+					}
+					type = *fetch; 
+					if(!(SvOK(val) && SvTYPE(val) != SVt_RV)) {
+						ARError_add(AR_RETURN_ERROR, AP_ERR_CURRENCY_STRUCT);
+						return -1;
+					}
+					out->u.currencyVal = MALLOCNN(sizeof(ARCurrencyStruct));
+					out->u.currencyVal->value = strdup(SvPV(val, PL_na));
+					out->u.currencyVal->currencyCode = strdup(SvPV(type, PL_na));
+
+
+					
+
 #if AR_EXPORT_VERSION >= 3
 		case AR_DATA_TYPE_BYTES:
 			if (SvROK(in)) {

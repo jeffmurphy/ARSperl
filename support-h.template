@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.23 2003/07/03 19:01:14 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.24 2004/08/13 01:09:42 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -488,5 +488,6 @@ int  copymem(MEMCAST *m1, MEMCAST *m2, int size);
 #define AP_ERR_INV_ARGS     80026 /* roll your own - invalid argument(s) */
 #define AP_ERR_INV_ARITH    80027 /*, "Unknown arith operation in ARArithOpStruct" */
 #define AP_ERR_ENUM_LISTSTYLE 80028, "Unknown EnumLimits listStyle"
+#define AP_ERR_CURRENCY_STRUCT 80029, "Bad currency struct hash (missing a key or a key had an unexpected value)"
 
 #endif /* __support_h_ */
