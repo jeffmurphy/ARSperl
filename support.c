@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.6 1997/10/09 00:48:55 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support.c,v 1.7 1997/10/09 15:21:33 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/support.c,v 1.6 1997/10/09 00:48:55 jcmurphy E
     LOG:
 
 $Log: support.c,v $
+Revision 1.7  1997/10/09 15:21:33  jcmurphy
+code cleaning.
+
 Revision 1.6  1997/10/09 00:48:55  jcmurphy
 1.52: uninit'd var bug fix
 
@@ -397,8 +400,10 @@ SV *
 perl_ARList(ARList *in, ARS_fn fn, int size) {
   int i;
   AV *array = newAV();
-  for (i=0; i<in->numItems; i++)
+
+  for (i = 0; i < in->numItems; i++) 
     av_push(array, (*fn)((char *)in->array+(i*size)));
+
   return newRV((SV *)array);
 }
 
@@ -406,12 +411,9 @@ SV *
 perl_diary(ARDiaryStruct *in) {
   HV *hash = newHV();
   
-  hv_store(hash, "user", strlen("user"),
-	   newSVpv(in->user, 0), 0);
-  hv_store(hash, "timestamp", strlen("timestamp"),
-	   newSViv(in->timeVal), 0);
-  hv_store(hash, "value", strlen("value"),
-	   newSVpv(in->value, 0), 0);
+  hv_store(hash, VNAME("user"), newSVpv(in->user, 0), 0);
+  hv_store(hash, VNAME("timestamp"), newSViv(in->timeVal), 0);
+  hv_store(hash, VNAME("value"), newSVpv(in->value, 0), 0);
   return newRV((SV *)hash);
 }
 
@@ -419,10 +421,10 @@ SV *
 perl_dataType_names(unsigned int *in) {
   int i = 0;
 
-  while((DataTypeMap[i].number != *in) && (DataTypeMap[i].number != -1))
+  while((DataTypeMap[i].number != *in) && (DataTypeMap[i].number != TYPEMAP_LAST))
     i++;
 
-  if(DataTypeMap[i].number != -1)
+  if(DataTypeMap[i].number != TYPEMAP_LAST)
     return newSVpv(VNAME(DataTypeMap[i].name));
 
   return newSVpv(VNAME("NULL"));
@@ -442,7 +444,7 @@ perl_ARValueStruct(ARValueStruct *in) {
   ZEROMEM(&status, ARStatusList);
   switch (in->dataType) {
   case AR_DATA_TYPE_KEYWORD:
-    for(i = 0 ; KeyWordMap[i].number != -1 ; i++) {
+    for(i = 0 ; KeyWordMap[i].number != TYPEMAP_LAST ; i++) {
       if(KeyWordMap[i].number == in->u.keyNum)
 	break;
     }
@@ -512,11 +514,11 @@ perl_ARAssignFieldStruct(ARAssignFieldStruct *in) {
 #if AR_EXPORT_VERSION >= 3
   /* translate the noMatchOption value into english */
 
-  for(i = 0 ; NoMatchOptionMap[i].number != -1 ; i++) 
+  for(i = 0 ; NoMatchOptionMap[i].number != TYPEMAP_LAST ; i++) 
     if(NoMatchOptionMap[i].number == in->noMatchOption)
       break;
 
-  if(NoMatchOptionMap[i].number == -1) {
+  if(NoMatchOptionMap[i].number == TYPEMAP_LAST) {
     char optnum[25];
     sprintf(optnum, "%u", in->noMatchOption);
     ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
@@ -530,11 +532,11 @@ perl_ARAssignFieldStruct(ARAssignFieldStruct *in) {
 
   /* translate the multiMatchOption value into english */
 
-  for(i = 0 ; MultiMatchOptionMap[i].number != -1 ; i++) 
+  for(i = 0 ; MultiMatchOptionMap[i].number != TYPEMAP_LAST ; i++) 
     if(MultiMatchOptionMap[i].number == in->multiMatchOption)
       break;
 
-  if(MultiMatchOptionMap[i].number == -1) {
+  if(MultiMatchOptionMap[i].number == TYPEMAP_LAST) {
     char optnum[25];
     sprintf(optnum, "%u", in->multiMatchOption);
     ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
@@ -693,7 +695,8 @@ perl_ARDDEStruct(ARDDEStruct *in) {  /* FIX */
 
 SV *
 perl_ARActiveLinkActionStruct(ARActiveLinkActionStruct *in) {
-  HV *hash=newHV();
+  HV *hash = newHV();
+
   switch (in->action) {
   case AR_ACTIVE_LINK_ACTION_MACRO:
     hv_store(hash, VNAME("macro"),
@@ -706,8 +709,7 @@ perl_ARActiveLinkActionStruct(ARActiveLinkActionStruct *in) {
 			 sizeof(ARFieldAssignStruct)), 0);
     break;
   case AR_ACTIVE_LINK_ACTION_PROCESS:
-    hv_store(hash, VNAME("process"),
-	     newSVpv(in->u.process, 0), 0);
+    hv_store(hash, VNAME("process"), newSVpv(in->u.process, 0), 0);
     break;
   case AR_ACTIVE_LINK_ACTION_MESSAGE:
     hv_store(hash, VNAME("message"),
@@ -759,6 +761,9 @@ perl_ARFilterActionNotify(ARFilterActionNotify *in) {
 SV *
 perl_ARFilterActionStruct(ARFilterActionStruct *in) {
   HV *hash=newHV();
+
+  printf("action: %d\n", in->action);
+
   switch (in->action) {
   case AR_FILTER_ACTION_NOTIFY:
     hv_store(hash, VNAME("notify"),
@@ -1017,11 +1022,11 @@ perl_ARAssignSQLStruct(ARAssignSQLStruct *in)
 
   /* translate the noMatchOption value into english */
 
-  for(i = 0 ; NoMatchOptionMap[i].number != -1 ; i++) 
+  for(i = 0 ; NoMatchOptionMap[i].number != TYPEMAP_LAST ; i++) 
     if(NoMatchOptionMap[i].number == in->noMatchOption)
       break;
 
-  if(NoMatchOptionMap[i].number == -1) {
+  if(NoMatchOptionMap[i].number == TYPEMAP_LAST) {
     char optnum[25];
     sprintf(optnum, "%u", in->noMatchOption);
     ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
@@ -1035,11 +1040,11 @@ perl_ARAssignSQLStruct(ARAssignSQLStruct *in)
 
   /* translate the multiMatchOption value into english */
 
-  for(i = 0 ; MultiMatchOptionMap[i].number != -1 ; i++) 
+  for(i = 0 ; MultiMatchOptionMap[i].number != TYPEMAP_LAST ; i++) 
     if(MultiMatchOptionMap[i].number == in->multiMatchOption)
       break;
 
-  if(MultiMatchOptionMap[i].number == -1) {
+  if(MultiMatchOptionMap[i].number == TYPEMAP_LAST) {
     char optnum[25];
     sprintf(optnum, "%u", in->multiMatchOption);
     ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
@@ -1059,7 +1064,7 @@ perl_ARFunctionAssignStruct(ARFunctionAssignStruct *in) {
   AV  *array = newAV();
   int  i;
   
-  for(i = 0 ; FunctionMap[i].number != -1 ; i++) 
+  for(i = 0 ; FunctionMap[i].number != TYPEMAP_LAST ; i++) 
     if(FunctionMap[i].number == in->functionCode)
       break;
 
@@ -1076,7 +1081,7 @@ perl_ARArithOpAssignStruct(ARArithOpAssignStruct *in) {
   HV *hash = newHV();
   int i;
 
-  for(i = 0 ; ArithOpMap[i].number != -1 ; i++) 
+  for(i = 0 ; ArithOpMap[i].number != TYPEMAP_LAST ; i++) 
     if(ArithOpMap[i].number == in->operation)
       break;
 
@@ -1159,9 +1164,8 @@ perl_BuildEntryList(AREntryIdList *entryList, char *entry_id)
       entryList->numItems = strsrch(eid_dup, AR_ENTRY_ID_SEPARATOR) + 1; 
       entryList->entryIdList = (AREntryIdType *) MALLOCNN(sizeof(AREntryIdType) * entryList->numItems);
 
-      if(tok = strtok(eid_dup, eidSep)) {
+      if((tok = strtok(eid_dup, eidSep))) {
 	for(tn = 0; tn < entryList->numItems ; tn++) {
-	  /* printf("eid[%d] = \"%s\"\n", tn, tok); /**/
 	  strcpy(entryList->entryIdList[tn], tok);
 	  tok = strtok((char *)NULL, eidSep);
 	}
@@ -1316,7 +1320,7 @@ perl_ARByteList(ARByteList *in) {
   SV *byte_list = newSVpv((char *)in->bytes, in->numItems);
   int i;
 
-  for(i = 0 ; ByteListTypeMap[i].number != -1 ; i++) {
+  for(i = 0 ; ByteListTypeMap[i].number != TYPEMAP_LAST ; i++) {
     if(ByteListTypeMap[i].number == in->type)
       break;
   }
@@ -1943,7 +1947,7 @@ sv_to_ARValue(SV *in, unsigned int dataType, ARValueStruct *out) {
   HV           *hash;
   SV          **fetch, *type, *val, **fetch2;
   char         *bytelist;
-  unsigned int  len, i, len2;
+  unsigned int  len, i;
   
   out->dataType = dataType;
   if (! SvOK(in)) {
