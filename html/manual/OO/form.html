@@ -183,12 +183,26 @@
     or id parameter as well as the value parameter.
 
 <P>
+<DT><A NAME="setSort"><B>setSort()</B></A>
+<PRE>
+  $f->setSort("Field Name1", [<I>ARS::AR_SORT_ASCENDING</I> or <I>ARS::AR_SORT_DESCENDING</I>], 
+              "Field Name2", [<I>ARS::AR_SORT_ASCENDING</I> or <I>ARS::AR_SORT_DESCENDING</I>], 
+              ...);
+</PRE>
+
+    This method allows you to set the sort option (ascending or
+    descending) for field names. Each field name must be followed
+    by a sort option. The fields will be sorted in the order 
+    they are listed in the parameter list.
+
+<P>
+
 </DL>
 
 
 <HR>
-<A HREF="../toc.html">Back to Table of Contents</A>
-Last updated 12 Mar 1999 by jcmurphy@buffalo.edu.
+<A HREF="../toc.html">Back to Table of Contents</A><BR>
+Last updated 9 Jun 1999 by jcmurphy@buffalo.edu.
 </BODY>
 </HTML>
 
