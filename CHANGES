@@ -1,4 +1,4 @@
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.21 1998/03/31 23:44:31 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.22 1998/09/16 14:17:30 jcmurphy Exp $
 
 CHANGES for ARSperl
 
@@ -8,7 +8,45 @@ BM  = Bill Middleton <wjm@metronet.com>
 JCM = Jeff Murphy    <jcmurphy@buffalo.edu>
 JWM = Joel Murphy    <jmurphy@acsu.buffalo.edu>
 
+note: items tagged with a + denoted changes that are incompatible with
+previous versions of arsperl and may require altering of some arsperl
+scripts.
+
 MM/DD/YY
+=======================================================================
+#######################################################################
+=======================================================================
+09/11/98        (1.6002 BETA)
+
+  o (JCM)  new utility: example/AddUsersToGroup.pl - bulk add a bunch
+		of users to a specified group 
+  o (JCM)  new utility: example/DelUsersFromGroup.pl - bulk delete a bunch
+		of users from a specified group 
+  o (JCM)  fixed uninitialized variable warnings
+  o (JCM)  fixed bug in indexList returned by ars_GetSchema()
+  + (JCM)  updated all Get<object> functions so that changeDiary
+           is fully decoded.
+  + (JCM)  changed return value of ars_DeleteEntry() so that
+           ars_DeleteEntry() || die() will work as expected.
+  o (JCM)  fixed problem in example/Show_ALink.pl
+  o (JCM)  added/updated helper func: ars_decodeStatusHistory()
+  o (JCM)  added example/ars_decodeStatusHistory.pl
+  o (JCM)  fixed ars_GetSchema typo/bug w/regards to adminGroupList
+  o (JCM)  fixed GetField.pl example so that it decodes everything
+  o (JCM)  patch for bug in ars_GetServerInfo()
+  o (JCM)  updated Makefile.PL to dynamically generate the support.h
+           file based on the ar.h file specified.
+
+=======================================================================
+#######################################################################
+=======================================================================
+05/04/98        (1.6001 BETA)
+
+  o (BM)   patch for bug in ars_CreateEntry()
+
+  o (JCM)  added ARS32 conditional compilation for AdminExtension 
+           routines (which were removed as of ars3.2 api)
+
 =======================================================================
 #######################################################################
 =======================================================================
@@ -178,7 +216,7 @@ MM/DD/YY
   o  (JCM) new functions and doc on new functions and new examples for some
 	   of these new functions.
 
-  o  (JCM) altered return value of perl_ARStatusStruct so that it 
+  +  (JCM) altered return value of perl_ARStatusStruct so that it 
            returns a hash of the various StatusStruct members so that
            reversing the operation is simpler. scripts that, for example,
            retrieve active link definitions and print them out that previous

@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.51 1998/09/11 19:36:13 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.52 1998/09/16 14:18:49 jcmurphy Exp $
 
     ARSperl - An ARS2.x-3.0 / Perl5.x Integration Kit
 
@@ -29,6 +29,9 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.51 1998/09/11 19:36:13 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.52  1998/09/16 14:18:49  jcmurphy
+v1.61
+
 Revision 1.51  1998/09/11 19:36:13  jcmurphy
 updated all Get<object> functiosn so that the changeDiary
 hash key is fully decoded.
@@ -1372,24 +1375,20 @@ ars_GetSchema(ctrl,name)
 		     perl_ARPermissionList( &groupList, PERMTYPE_SCHEMA), 0);
 #else
 	    hv_store(RETVAL, VNAME("groupList"),
-		     perl_ARList( 
-				 (ARList *)&groupList, 
+		     perl_ARList((ARList *)&groupList, 
 				 (ARS_fn)perl_ARInternalId,
 				 sizeof(ARInternalId)),0);
 #endif
 	    hv_store(RETVAL, VNAME("adminList"),
-		     perl_ARList( 
-				 (ARList *)&adminGroupList, 
+		     perl_ARList((ARList *)&adminGroupList, 
 				 (ARS_fn)perl_ARInternalId,
 				 sizeof(ARInternalId)),0);
 	    hv_store(RETVAL, VNAME("getListFields"),
-		     perl_ARList( 
-				 (ARList *)&getListFields,
+		     perl_ARList((ARList *)&getListFields,
 				 (ARS_fn)perl_AREntryListFieldStruct,
 				 sizeof(AREntryListFieldStruct)),0);
 	    hv_store(RETVAL, VNAME("indexList"),
-		     perl_ARList(
-				 (ARList *)&indexList,
+		     perl_ARList((ARList *)&indexList,
 				 (ARS_fn)perl_ARIndexStruct,
 				 sizeof(ARIndexStruct)), 0);
 	    if (helpText)

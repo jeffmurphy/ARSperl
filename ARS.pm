@@ -21,6 +21,9 @@
 #    Comments to: arsperl@smurfland.cit.buffalo.edu
 #
 # $Log: ARS.pm,v $
+# Revision 1.34  1998/09/16 14:18:42  jcmurphy
+# v1.61
+#
 # Revision 1.33  1998/09/11 18:00:33  jcmurphy
 # updated decodeStatusHistory helper function
 #
@@ -186,7 +189,7 @@ $ars_errstr %ARServerStats %ars_errhash
 ars_decodeStatusHistory
 );
 
-$VERSION   = '1.6002';
+$VERSION   = '1.61';
 $DEBUGGING = 0;
 
 bootstrap ARS $VERSION;
