@@ -10,16 +10,31 @@
 	requested item name of the given type. Valid types are:
 	<P>
         <UL>
-          <LI> ``Schema''
-          <LI> ``Active_Link''
-          <LI> ``Filter''
-          <LI> ``Escalation''
-          <LI> ``Char_Menu''
-          <LI> ``Admin_Ext''
+                <LI> "schema" 
+                <LI>    "schema_defn" 
+                <LI>    "schema_view" 
+                <LI>    "schema_mail" 
+                <LI> "filter" 
+                <LI>    "active_link" 
+             <LI> "admin_ext" 
+             <LI> "char_menu" 
+            <LI> "escalation" 
+              <LI> "dist_map" 
+              <LI>  "schema_view_min" 
+             <LI> "container" 
+             <LI> "dist_pool" 
+             <LI>     "schema_view_2" 
 	</UL>
 	<P>
-        displayTag is the particular view to export. If you pass in 
-	an empty string for this parameter, all views will be exported.
+        <code>displayTag</code> is the particular view to export. If you pass in 
+	an empty string for this parameter, all views will be exported. <P>
+	Note that note all of the above types are available in earlier 
+	versions of ARSystem. The above list is valid as of ARSystem v4.5. <P>
+	It's recommended that if you want to export schema definitions you
+	should use "<code>schema</code>" and not use the other 
+	<code>schema_*</code> types. <P> If you are curious about what
+	non-obvious types are used for, you should read the 
+	<U>ARSystem Programmers Manual</U>.
 	<P>
       <DL>
           <DT><B>On success</B><DD>

@@ -3,7 +3,7 @@
 
 
 /*
-$Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.14 2000/06/01 16:54:03 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.15 2000/07/06 02:19:03 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -28,7 +28,16 @@ $Header: /cvsroot/arsperl/ARSperl/Attic/support.h,v 1.14 2000/06/01 16:54:03 jcm
     LOG:
 
 $Log: support.h,v $
-Revision 1.14  2000/06/01 16:54:03  jcmurphy
+Revision 1.15  2000/07/06 02:19:03  jcmurphy
+*** empty log message ***
+
+Revision 1.10  2000/07/06 01:55:08  jcmurphy
+*** empty log message ***
+
+Revision 1.9  2000/07/04 14:44:22  jcmurphy
+*** empty log message ***
+
+Revision 1.8  2000/06/01 16:54:03  jcmurphy
 *** empty log message ***
 
 Revision 1.7  2000/05/24 18:05:25  jcmurphy
@@ -164,6 +173,40 @@ typedef struct {
   unsigned int  number;
   char         *name;
 } TypeMapStruct;
+
+
+static struct {
+	unsigned int  number;
+	char	     *name;
+} StructItemTypeMap[] = {
+  { AR_STRUCT_ITEM_SCHEMA, 		"schema" },
+  { AR_STRUCT_ITEM_SCHEMA_DEFN, 		"schema_defn" },
+  { AR_STRUCT_ITEM_SCHEMA_VIEW, 		"schema_view" },
+  { AR_STRUCT_ITEM_SCHEMA_MAIL, 		"schema_mail" },
+  { AR_STRUCT_ITEM_FILTER, 		"filter" },
+  { AR_STRUCT_ITEM_ACTIVE_LINK, 		"active_link" },
+  { AR_STRUCT_ITEM_ADMIN_EXT, 		"admin_ext" },
+  { AR_STRUCT_ITEM_CHAR_MENU, 		"char_menu" },
+  { AR_STRUCT_ITEM_ESCALATION, 		"escalation" },
+  { AR_STRUCT_ITEM_DIST_MAP, 		"dist_map" },
+  { AR_STRUCT_ITEM_SCHEMA_VIEW_MIN, 		"schema_view_min" },
+  { AR_STRUCT_ITEM_CONTAINER, 		"container" },
+  { AR_STRUCT_ITEM_DIST_POOL, 		"dist_pool" },
+  { AR_STRUCT_ITEM_SCHEMA_VIEW_2, 		"schema_view_2" },
+	{ TYPEMAP_LAST, "" }
+};
+
+static struct {
+	unsigned int  number;
+	char	     *name;
+} SchemaTypeMap[] = {
+  { AR_SCHEMA_NONE, 		"none" },
+  { AR_SCHEMA_REGULAR, 		"regular" },
+  { AR_SCHEMA_JOIN, 		"join" },
+  { AR_SCHEMA_VIEW, 		"view" },
+  { AR_SCHEMA_DIALOG, 		"dialog" },
+	{ TYPEMAP_LAST, "" }
+};
 
 static struct {
 	unsigned int  number;
@@ -557,6 +600,7 @@ static struct {
 };
 
 EXTERN char *lookUpTypeName(TypeMapStruct *t, unsigned int v);
+EXTERN unsigned int  caseLookUpTypeNumber(TypeMapStruct *t, char *s);
 
 /* typedef SV* (*ARS_fn)(void *); */
 typedef void *(*ARS_fn)(ARControlStruct *ctrl, void *b);
