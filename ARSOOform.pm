@@ -377,6 +377,7 @@ sub create {
     
     my (%realmap);
     
+    print "Mapping field information.\n" if $self->{'connection'}->{'.debug'};
     foreach (keys %{$vals}) {
 	my ($rv) = $this->value2internal(-field => $_,
 					 -value => $vals->{$_});
@@ -384,10 +385,12 @@ sub create {
 	$realmap{$this->getFieldID($_)} = $rv;
     }
     
+    print "calling ars_CreateEntry..\n" if $self->{'connection'}->{'.debug'};
     my ($id) = ARS::ars_CreateEntry($this->{'connection'}->{'ctrl'},
 				    $this->{'form'},
 				    %realmap);
     
+    print "calling tryCatch()..\n" if $self->{'connection'}->{'.debug'};
     $this->{'connection'}->tryCatch();
     
     return $id;

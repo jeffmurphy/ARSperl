@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/ars_GetListSQL.pl,v 1.1 1997/07/23 18:21:29 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/ars_GetListSQL.pl,v 1.2 2000/02/03 21:29:03 jcmurphy Exp $
 #
 # NAME
 #   ars_GetListSQL.pl
@@ -20,6 +20,11 @@
 #   Jeff Murphy
 #
 # $Log: ars_GetListSQL.pl,v $
+# Revision 1.2  2000/02/03 21:29:03  jcmurphy
+#
+#
+# fixed bug in GetListSQL
+#
 # Revision 1.1  1997/07/23 18:21:29  jcmurphy
 # Initial revision
 #
@@ -37,8 +42,7 @@ $sql = "select name, schemaid, nextid from arschema";
 
 print "Calling GetListSQL with:\n\t$sql\n\n";
 
-($h = ars_GetListSQL($c, $sql)) || die "ERR: $ars_errstr\n";
-print "errstr=$ars_errstr\n";
+($h = ars_GetListSQL($c, $sql)) || die "GetListSQL Failed: $ars_errstr\n";
 
 print "GetListSQL returned the following rows:\n";
 

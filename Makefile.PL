@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.9 1999/12/03 22:13:55 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.10 2000/02/03 21:29:03 jcmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -13,6 +13,11 @@
 #    run with "perl Makefile.PL" then type "make"
 #
 # $Log: Makefile.PL,v $
+# Revision 1.10  2000/02/03 21:29:03  jcmurphy
+#
+#
+# fixed bug in GetListSQL
+#
 # Revision 1.9  1999/12/03 22:13:55  jcmurphy
 # *** empty log message ***
 #
@@ -43,7 +48,7 @@ $debug = 0;
 # STEP 1 -> Set the path to your ARS API directory
 
 $ARSAPI     = "/usr/ars/api";
-$ARSAPI     = "/u1/project/ARSperl/api/sol2/api3.2";
+#$ARSAPI     = "/u1/project/ARSperl/api/sol2/api3.2";
 #$ARSAPI     = "/u1/project/ARSperl/api/linux/4.0";
 
 # STEP 2 -> Choose your version of ARS
@@ -62,7 +67,7 @@ $WINDOWS = ($^O eq 'MSWin32');
 #        Windows NT: no "-lpthread"
 #        NCR UNIX: add "-lc -lnet"
 
-$AUTODEFINES = "-DPROFILE ";
+$AUTODEFINES = "-DPROFILE -g ";
 $AUTODEFINES = "-D_WIN32" if($WINDOWS);
 
 if($ARSVERSION >= 4.0) {

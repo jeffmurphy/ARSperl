@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.59 1999/10/03 04:00:27 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.60 2000/02/03 21:29:02 jcmurphy Exp $
 
     ARSperl - An ARS v2 - v4 / Perl5 Integration Kit
 
@@ -21,6 +21,11 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.59 1999/10/03 04:00:27 jcmurphy Exp
     LOG:
 
 $Log: ARS.xs,v $
+Revision 1.60  2000/02/03 21:29:02  jcmurphy
+
+
+fixed bug in GetListSQL
+
 Revision 1.59  1999/10/03 04:00:27  jcmurphy
 various
 
@@ -2745,7 +2750,7 @@ ars_GetListSQL(ctrl, sqlCommand, maxRetrieve=AR_NO_MAX_LIST_RETRIEVE)
 	ARControlStruct *	ctrl
 	char *			sqlCommand
 	unsigned int		maxRetrieve
-	CODE:
+	PPCODE:
 	{
 	  ARStatusList    status;
 	  ARValueListList valueListList;
@@ -2785,9 +2790,12 @@ ars_GetListSQL(ctrl, sqlCommand, maxRetrieve=AR_NO_MAX_LIST_RETRIEVE)
 #else
 	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, "Not available in pre-2.1 ARS");
 #endif
+	  if(RETVAL != NULL) {
+			XPUSHs(sv_2mortal(newRV((SV *)RETVAL)));
+	  } else {
+			XPUSHs(0);
+	  }
 	}
-	OUTPUT:
-	RETVAL
 
 void
 ars_GetListUser(ctrl, userListType=AR_USER_LIST_MYSELF)
