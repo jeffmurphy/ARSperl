@@ -4,7 +4,7 @@
 </HEAD>
 <BODY BGCOLOR="#FFFFFF">
 
-   <H2><CODE>ars_perl_qualifier($qual)</CODE></H2>
+   <H2><CODE>ars_perl_qualifier($ctrl, $qual)</CODE></H2>
 
       This function returns a Hash that contains a processed
       version of the qualifier structer (i.e. what is retured
@@ -28,7 +28,7 @@
       <P>Example:
 
       <PRE>
-      ($parsed_qual = ars_perl_qualifier($q)) || 
+      ($parsed_qual = ars_perl_qualifier($c, $q)) || 
             die $ars_errstr;
       </PRE>
 
