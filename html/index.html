@@ -18,12 +18,54 @@
 
  <H2> Version </H2>
 
- The current release it Version 1.46 and will compile against ARS 2.0, 2.1 and 3.0
+ The current release it Version 1.50 and will compile against ARS 2.0, 2.1 and 3.0
  API libraries.
 
  <H2> Release Notes </H2>
 
  <DL>
+    <DT> 1.50 <DD>
+    <UL>
+      <LI> removed ars_errstr from C code. replaced with ars_errhash.
+           modified ARS.pm to refer to hash when $ars_errstr is 
+           accessed. $ars_errstr no longer tie'd to main:: package.
+ 
+      <LI> bug fix (Sid Van den Heede) "affecting getting of
+           displayInstanceList"
+ 
+      <LI> bug fix (James LewisMoss) for ars_GetCharMenu()
+ 
+      <LI> bug fix (Ian Flanigan) for perl_ARIndexStruct()
+ 
+      <LI> modified GetListEntry(), GetEntry(), SetEntry() and 
+           DeleteEntry() to make operations on join schemas 
+           transparent.
+ 
+      <LI> added a ARVerifyUser call to ars_Login so that
+           ars_Login() || die() will work as one would expect it to.
+ 
+      <LI> added $VERSION to the perl module file.
+ 
+      <LI> added "log to file" action to GetFilter action hash 
+           (requested by D.J.Adams@soton.ac.uk)
+ 
+      <LI> added updated doc tree to main distribution (contributed by
+           D.J.Adams@soton.ac.uk)
+ 
+      <LI> new functions and doc on new functions and new examples for some
+           of these new functions.
+ 
+      <LI> altered return value of perl_ARStatusStruct so that it 
+           returns a hash of the various StatusStruct members so that
+           reversing the operation is simpler. scripts that, for example,
+           retrieve active link definitions and print them out that previous
+           expected the {message} key to point to a string will need to
+           be updated.
+ 
+      <LI> added valueType to the assign structure to assist in 
+           reversing the operation (converting perl to C API assign 
+           structure).
+    </UL>
     <DT> 1.46 <DD>
     <UL>
       <LI> bug fixes
