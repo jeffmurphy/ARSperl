@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.39 2001/10/30 14:47:02 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.40 2001/10/30 16:50:16 jcmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -55,7 +55,7 @@ $WINDOWS = ($^O eq 'MSWin32');
 #        Windows NT: no "-lpthread"
 #        NCR UNIX: add "-lc -lnet"
 #                -DARSPDEBUG
-$AUTODEFINES = "  -DPROFILE -g ";
+$AUTODEFINES = " -DARSPDEBUG  -DPROFILE -g ";
 $AUTODEFINES = "-D_WIN32" if($WINDOWS);
 
 if($ARSVERSION >= 4.0) {
@@ -124,7 +124,7 @@ foreach ("ar", "arerrno", "nt", "nterrno") {
 }
 
 print "Configuring with options:\n";
-printf "\tARSVERSION  = %.1f\n", $ARSVERSION;
+printf "\tARSVERSION  = %.2f\n", $ARSVERSION;
 print "\tARSAPI      = $ARSAPI\n";
 print "\tAUTODEFINES = $AUTODEFINES\n";
 

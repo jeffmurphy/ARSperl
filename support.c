@@ -472,6 +472,8 @@ perl_ARFilterStatusStruct(ARControlStruct * ctrl, ARFilterStatusStruct * in)
 {
 	HV             *hash = newHV();
 
+	DBG( ("enter\n") );
+
 	hv_store(hash, VNAME("messageType"), newSViv(in->messageType), 0); 
 	hv_store(hash, VNAME("messageNum"), newSViv(in->messageNum), 0);
 	hv_store(hash, VNAME("messageText"), newSVpv(in->messageText, 0), 0);
@@ -485,12 +487,24 @@ perl_ARStatusStruct(ARControlStruct * ctrl, ARStatusStruct * in)
 {
 	HV             *hash = newHV();
 
+	DBG( ("enter\n") );
+
 	hv_store(hash, VNAME("messageType"), newSViv(in->messageType), 0); 
 	hv_store(hash, VNAME("messageNum"), newSViv(in->messageNum), 0);
 	hv_store(hash, VNAME("messageText"), newSVpv(in->messageText, 0), 0);
 
 #if AR_EXPORT_VERSION >= 4
-	hv_store(hash, VNAME("appendedText"), newSVpv(in->appendedText, 0), 0);
+	DBG( ("doing appendedText [0x%x : %s]\n", 
+	      in->appendedText, 
+	      SAFEPRT(in->appendedText) ) );
+
+	if( CVLD((in->appendedText)) ) {
+	  hv_store(hash, VNAME("appendedText"), newSVpv(in->appendedText, 0), 0);
+	} else {
+	  hv_store(hash, VNAME("appendedText"), &PL_sv_undef, 0);
+	}
+
+	DBG( ("done appendedText\n") );
 #endif
 
 	return newRV_noinc((SV *) hash);
@@ -1115,6 +1129,8 @@ perl_ARFilterActionNotify(ARControlStruct * ctrl, ARFilterActionNotify * in)
 {
 	HV             *hash = newHV();
 
+	DBG( ("enter\n") );
+
 	hv_store(hash, VNAME("user"), newSVpv(in->user, 0), 0);
 	if (in->notifyText)
 		hv_store(hash, VNAME("notifyText"),
@@ -1143,6 +1159,10 @@ perl_ARFilterActionStruct(ARControlStruct * ctrl, ARFilterActionStruct * in)
 {
 	HV             *hash = newHV();
 
+	DBG( ("enter\n") );
+
+	DBG( ("action %d\n", in->action) );
+
 	switch (in->action) {
 	case AR_FILTER_ACTION_NOTIFY:
 		hv_store(hash, VNAME("notify"),
@@ -1150,9 +1170,11 @@ perl_ARFilterActionStruct(ARControlStruct * ctrl, ARFilterActionStruct * in)
 		break;
 	case AR_FILTER_ACTION_MESSAGE:
 #ifdef ARS452
+		DBG( ("452+ message action\n") );
 		hv_store(hash, VNAME("message"),
 			 perl_ARFilterStatusStruct(ctrl, &in->u.message), 0);
 #else
+		DBG( ("pre-452 message action\n") );
                 hv_store(hash, VNAME("message"),
 			 perl_ARStatusStruct(ctrl, &in->u.message), 0);
 #endif
@@ -1195,6 +1217,9 @@ perl_ARFilterActionStruct(ARControlStruct * ctrl, ARFilterActionStruct * in)
 		hv_store(hash, VNAME("none"), &PL_sv_undef, 0);
 		break;
 	}
+
+	DBG( ("leave\n") );
+
 	return newRV_noinc((SV *) hash);
 }
 
