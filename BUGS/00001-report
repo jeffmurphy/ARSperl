@@ -1,0 +1,65 @@
+From: Ben Rogers <bdr@uk.psi.com>
+Subject: ARSperl bug
+To: arsperl-bugs@smurfland.cit.buffalo.edu
+X-Sent: 14 weeks, 6 hours, 25 minutes, 17 seconds ago
+X-From-Line: bdr@uk.psi.com  Wed Jun 10 10:44:14 1998
+Received: from staff.uk.psi.com (root@staff.uk.psi.com [154.8.2.2]) by smurfland.cit.buffalo.edu (8.8.5/8.8.2) with ESMTP id KAA17050 for <arsperl-bugs@smurfland.cit.buffalo.edu>; Wed, 10 Jun 1998 10:44:09 -0400 (EDT)
+Received: from staff.uk.psi.com (bdr@staff.uk.psi.com [154.8.2.2])
+	by staff.uk.psi.com (8.8.4/) with SMTP
+	id PAA14057 for <arsperl-bugs@smurfland.cit.buffalo.edu>; Wed, 10 Jun 1998 15:43:48 +0100 (BST)
+Message-ID: <Pine.GSO.3.93.980610153555.4844F-100000@staff.uk.psi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Xref: smurfland.cit.buffalo.edu arsperl:205
+Lines: 49
+
+
+OS: Solaris 2.5.1
+Perl: 5.004_04
+ARS: 3.0.1 patch 532
+ARSperl: 1.6001
+
+Problem:
+
+Use ars_GetEntry on a join schema with an entry Id of, e.g.,
+
+	000000000000103|
+
+I have found the problem to be with using strtok(), which returns null
+pointer for the second schema entry id, buy changing the following code in
+perl_BuildEntryList() (in support.c):
+
+    for(tn = 0; tn < entryList->numItems ; tn++) {
+      /* patch by Ulrich Pfeifer <pfeifer@wait.de> */
+      strncpy(entryList->entryIdList[tn], tok, sizeof(AREntryIdType));
+      *(entryList->entryIdList[tn]+AR_MAX_ENTRYID_SIZE+1) = '\0';
+      tok = strtok((char *)NULL, eidSep);
+    }
+
+to
+
+    for(tn = 0; tn < entryList->numItems ; tn++) {
+      /* patch by Ulrich Pfeifer <pfeifer@wait.de> */
+      if( tok == NULL )
+      {
+        *(entryList->entryIdList[tn]) = '\0';
+      }
+      else
+      {
+        strncpy(entryList->entryIdList[tn], tok, sizeof(AREntryIdType));
+        *(entryList->entryIdList[tn]+AR_MAX_ENTRYID_SIZE+1) = '\0';
+      }
+      tok = strtok((char *)NULL, eidSep);
+    }
+
+fixes the problem, but this still doesn't handle join schema entry ids of
+the following format:
+
+	000000000004630||000000000000002
+
+since strtok just skips the first | and points to after the second |
+
+Regards, Ben Rogers
+PSINet UK Systems Administrator.
+
+

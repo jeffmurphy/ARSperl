@@ -1,0 +1,75 @@
+From: Graham Adams <gadams@takelap.com>
+Subject: Core dump with ARSperl 1.6000
+To: arsperl-bugs@smurfland.cit.buffalo.edu
+X-Sent: 22 weeks, 6 days, 6 hours, 15 minutes, 37 seconds ago
+X-From-Line: gadams@neptune.web-hosting.com  Thu Apr  9 11:04:37 1998
+Received: from neptune.web-hosting.com (neptune.web-hosting.com [151.196.71.138]) by smurfland.cit.buffalo.edu (8.8.5/8.8.2) with ESMTP id LAA06205 for <arsperl-bugs@smurfland.cit.buffalo.edu>; Thu, 9 Apr 1998 11:04:36 -0400 (EDT)
+Received: (from gadams@localhost)
+	by neptune.web-hosting.com (8.8.8/8.8.8) id LAA18115;
+	Thu, 9 Apr 1998 11:00:53 -0400 (EDT)
+X-Sender: gadams@neptune.web-hosting.com
+Message-ID: <Pine.SOL.3.91.980409103737.16705D-100000@neptune.web-hosting.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Xref: smurfland.cit.buffalo.edu arsperl:211
+Lines: 64
+
+
+OS - Solaris 2.5.1
+perl - 5.004_02
+ARS 3.0.1
+ARSperl - 1.6000
+
+The error message is:
+assertion botched: *(unsigned int *)((caddr_t)Perl_op +
+Perl_op->ovu.ovu_size + 1 - sizeof (unsigned int)) == 0x55555555 Abort
+(core dumped)
+
+The program is:
+--------
+#!/usr/remedy/Eigen/tools/bin/perl
+
+use ARS;
+
+
+$schema = "PR:Users";
+$newpass="newp";
+$username = "train1";
+$password = "oldp";
+$server = "dummy";
+# Log on to the AR server
+if (!($ctrl = ars_Login($server, $username, $password))) {
+    print "can't login to the server due to $ars_errstr\n";
+    exit(1);
+}
+print "logged in\n";
+# Load the qualifier structure to qualify on Login name
+$qualstring = "'Login name' = \"" . $username . "\"";
+if (!($qual = ars_LoadQualifier($ctrl, $schema, $qualstring))) {
+    print "error in ars_LoadQualifier due to $ars_errstr\n";
+    ars_Logoff($ctrl);
+    exit(1);
+}
+print "loaded qual\n";
+# Retrieve all of the entry-id's for the schema.
+%entries = ars_GetListEntry($ctrl, $schema, $qual, 0);
+print "got entry list\n";
+$lenentries = %entries;
+@keyarr = keys %entries;
+$entry_id = $keyarr[0];
+if (ars_SetEntry($ctrl, $schema, $entry_id, 0, 102, $newpass) != 1) {
+    print "cannot change password on entry $entry_id due to $ars_errstr\n";
+    ars_Logoff($ctrl);
+    exit(1);
+}
+print "have set entry\n";
+ars_Logoff($ctrl);
+print "have logged off\n";
+exit(0);
+--------
+
+The failure appears to occur in the ars_SetEntry function.  The password 
+is changed so the entry is nevertheless modified.
+
+The schema PR:Users is a join schema, one of the base schemas is the User 
+schema.

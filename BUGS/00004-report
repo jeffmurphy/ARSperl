@@ -1,0 +1,40 @@
+From: Juan-Alberto.Moreno@alcatel.fr
+Subject: Question of field names
+To: owner-arsperl@lurch.cit.buffalo.edu
+X-Sent: 27 weeks, 1 day, 3 hours, 17 minutes, 31 seconds ago
+X-From-Line: Juan-Alberto.Moreno@alcatel.fr  Tue Mar 10 13:12:53 1998
+Received: from lurch.cit.buffalo.edu (lurch.cit.buffalo.edu [128.205.10.9]) by smurfland.cit.buffalo.edu (8.8.5/8.8.2) with ESMTP id NAA22470 for <jcmurphy@smurfland.cit.buffalo.edu>; Tue, 10 Mar 1998 13:12:53 -0500 (EST)
+Received: from alcatel.fr (news2.alcatel.fr [194.133.58.131]) by lurch.cit.buffalo.edu (8.8.5/8.8.2) with ESMTP id NAA02326 for <owner-arsperl@lurch.cit.buffalo.edu>; Tue, 10 Mar 1998 13:12:52 -0500 (EST)
+Received: from alcatel.fr (gatekeeper-ssn.alcatel.fr [155.132.180.244])
+	by mailgate.alcatel.fr (Alcanet/SMTP) with ESMTP id TAA29658
+	for <owner-arsperl@lurch.cit.buffalo.edu>; Tue, 10 Mar 1998 19:16:47 +0100
+Received: from nsfhh3.ansf.alcatel.fr (localhost [127.0.0.1])
+        by aifhs2.alcatel.fr (ALCANET/SMTP2) with ESMTP id TAA07890
+        for <owner-arsperl@lurch.cit.buffalo.edu>; Tue, 10 Mar 1998 19:09:07 +0100 (MET)
+Received: from localhost by nsfhh3.ansf.alcatel.fr with SMTP
+	(1.37.109.24/16.2) id AA178352932; Tue, 10 Mar 1998 19:02:12 +0100
+X-Openmail-Hops: 1
+Message-Id: <H000017c06019921@MHS>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="openmail-part-06019749-00000001"
+Xref: smurfland.cit.buffalo.edu arsperl:214
+Lines: 69
+
+[1  <multipart/alternative>]
+
+[1.1 Question <text/plain; ISO-8859-1 (quoted-printable)>]
+Hi there,
+
+I need to validate a list of field names for a certain schema.
+
+I'm using GetFieldByName and GetFieldTAble and, in my experience, both
+calls return what I think corresponds to the field labels (dependent on
+the field display properties) in the Default Admin View. Is this right?
+
+I would rather expect (desire) to retrieve the field NAME as in the
+fieldname column in the field table in the underlying ar data dictionary
+(thus display properties  independent).
+Is this possible?
+
+TIA and Best Regards 
+JAM
