@@ -1,4 +1,4 @@
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.25 1998/09/18 14:42:50 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.26 1998/10/06 19:57:46 jcmurphy Exp $
 
 CHANGES for ARSperl
 
@@ -13,6 +13,13 @@ previous versions of arsperl and may require altering of some arsperl
 scripts.
 
 MM/DD/YY
+=======================================================================
+#######################################################################
+=======================================================================
+0//        (1.62)
+
+  o (JCM)  added bug fix to NTRegisterServer from  G David Frye <gdf@uiuc.edu>
+
 =======================================================================
 #######################################################################
 =======================================================================
