@@ -349,6 +349,7 @@ sub value2internal {
 				       "usage: form->value2internal(-field => name, -value => value)\nfield parameter is required.") 
 	unless (defined($f));
     
+    return $v unless defined $v;
     my ($t) = $this->getFieldType($f);
     
     print "value2internal($f, $v) type=$t\n" 
