@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.102 2005/04/06 18:17:13 jeffmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.103 2005/04/22 15:24:42 jeffmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -985,7 +985,8 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve=0,firstRetrieve=0,...)
 	  FreeAREntryListList(&entryList,FALSE);
 	}
 
-void ars_GetListSchema(ctrl,changedsince=0,schemaType=AR_LIST_SCHEMA_ALL,fieldPropList=NULL,name=NULL,fieldIdList=NULL)
+void
+ars_GetListSchema(ctrl,changedsince=0,schemaType=AR_LIST_SCHEMA_ALL,fieldPropList=NULL,name=NULL,fieldIdList=NULL)
 	ARControlStruct *	ctrl
 	unsigned int		changedsince
 	unsigned int		schemaType

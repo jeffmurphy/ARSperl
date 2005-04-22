@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.68 2005/03/31 16:22:18 jeffmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.69 2005/04/22 15:24:43 jeffmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -31,6 +31,7 @@ $ARSAPI     = "/usr/ar/api";
 #$ARSAPI     = "/u1/project/ARSperl/api/linux/4.0";
 #$ARSAPI     = "/u1/project/ARSperl/api/sol2/api6.3";
 $ARSAPI     = "/u1/project/ARSperl/api/linux/6.3";
+$ARSAPI     = "/u1/project/ARSperl/api/sol2/api6.3";
 # $ARSAPI     = "/home/jcmurphy/arsperl/api/5.1";
 # $ARSAPI     = q{\\\\ess7\devkits\ars\4.5\drops\drop4.5FCS\winnt};
 # $ARSAPI     = q{\\\\ess7\devkits\ars\4.5\drops\drop4.5.1FCS\winnt};
@@ -661,7 +662,7 @@ sub findAPIVersion {
   my $path_to_api_dir = shift;
 
   my $ar_fname = join('/', $path_to_api_dir, 'include', 'ar.h');
-  open ($ar_fh, '<', $ar_fname) or
+  open ($ar_fh, '<'. $ar_fname) or
     die "couldn't open ar.h include file from: \"$ar_fname\": $!\n";
 
   my $api_version = undef;
