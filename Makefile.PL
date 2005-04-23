@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.69 2005/04/22 15:24:43 jeffmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.70 2005/04/23 16:26:49 jeffmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -31,7 +31,7 @@ $ARSAPI     = "/usr/ar/api";
 #$ARSAPI     = "/u1/project/ARSperl/api/linux/4.0";
 #$ARSAPI     = "/u1/project/ARSperl/api/sol2/api6.3";
 $ARSAPI     = "/u1/project/ARSperl/api/linux/6.3";
-$ARSAPI     = "/u1/project/ARSperl/api/sol2/api6.3";
+#$ARSAPI     = "/u1/project/ARSperl/api/sol2/api6.3";
 # $ARSAPI     = "/home/jcmurphy/arsperl/api/5.1";
 # $ARSAPI     = q{\\\\ess7\devkits\ars\4.5\drops\drop4.5FCS\winnt};
 # $ARSAPI     = q{\\\\ess7\devkits\ars\4.5\drops\drop4.5.1FCS\winnt};
@@ -93,7 +93,8 @@ $WINDOWS = ($^O eq 'MSWin32');
 #        NCR UNIX: add "-lc -lnet"
 #                -DARSPDEBUG
 $AUTODEFINES = " -g ";
-$AUTODEFINES = "-D_WIN32" if($WINDOWS);
+$AUTODEFINES = " -D_WIN32 " if($WINDOWS);
+$AUTODEFINES .= "  -Wno-unused-variable -Wuninitialized " if $Config{'cc'} eq "gcc";
 
 
 $ARS_STATIC_LIB = "";

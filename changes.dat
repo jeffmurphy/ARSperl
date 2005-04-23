@@ -1,5 +1,6 @@
 released=03/14/2005 version=1.83
 JCM fixed "lang" compilation error for API 6.3
+JCM variable initialization
 JG  doc updates
 
 released=09/20/2004 version=1.82

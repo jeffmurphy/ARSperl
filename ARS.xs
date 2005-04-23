@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.103 2005/04/22 15:24:42 jeffmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.104 2005/04/23 16:26:49 jeffmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -86,7 +86,7 @@ ars_LoadQualifier(ctrl,schema,qualstring,displayTag=NULL)
 	char *			displayTag
 	CODE:
 	{
-		int                ret;
+		int                ret = 0;
 		ARStatusList       status;
 		ARQualifierStruct *qual;
 		AMALLOCNN(qual, 1, ARQualifierStruct);
@@ -165,7 +165,7 @@ ars_SetServerPort(ctrl, name, port, progNum)
 	int			progNum
 	CODE:
 	{
-		int 		ret;
+		int 		ret = 0;
 		ARStatusList	status;
 
 		RETVAL = 0;
@@ -436,7 +436,7 @@ ars_Logoff(ctrl)
 	ARControlStruct *	ctrl
 	CODE:
 	{
-		int          ret;
+		int          ret = 0;
 		ARStatusList status;
 		Zero(&status, 1, ARStatusList);
 		(void) ARError_reset();
@@ -460,9 +460,10 @@ ars_GetListField(control,schema,changedsince=0,fieldType=AR_FIELD_TYPE_ALL)
 	{
 	  ARInternalIdList idlist;
 	  ARStatusList     status;
-	  int              ret;
-	  unsigned int     i;
+	  int              ret = 0;
+	  unsigned int     i = 0;
 	  (void) ARError_reset();
+	  Zero(&idlist, 1, ARInternalIdList);
 	  Zero(&status, 1, ARStatusList);
 #if AR_EXPORT_VERSION >= 3
 	  ret = ARGetListField(control,schema,fieldType,changedsince,&idlist,&status);
@@ -486,8 +487,8 @@ ars_GetFieldByName(control,schema,field_name)
 	char *			field_name
 	PPCODE:
 	{
-	  int              ret;
-	  unsigned int     loop;
+	  int              ret = 0;
+	  unsigned int     loop = 0;
 	  ARInternalIdList idList;
 	  ARStatusList     status;
 #if AR_EXPORT_VERSION >= 3
@@ -496,6 +497,7 @@ ars_GetFieldByName(control,schema,field_name)
 	  ARDisplayList    displayList;
 #endif
 	  (void) ARError_reset();
+	  Zero(&idList, 1, ARInternalIdList);
 	  Zero(&status, 1, ARStatusList);
 #if AR_EXPORT_VERSION >= 3
 	  ret = ARGetListField(control, schema, AR_FIELD_TYPE_ALL, (ARTimestamp)0, &idList, &status);
@@ -544,8 +546,8 @@ ars_GetFieldTable(control,schema)
 	char *			schema
 	PPCODE:
 	{
-	  int              ret;
-	  unsigned int     loop;
+	  int              ret = 0;
+	  unsigned int     loop = 0;
 	  ARInternalIdList idList;
 	  ARStatusList     status;
 #if AR_EXPORT_VERSION >= 3
@@ -554,6 +556,7 @@ ars_GetFieldTable(control,schema)
 	  ARDisplayList    displayList;
 #endif
 	  (void) ARError_reset();
+	  Zero(&idList, 1, ARInternalIdList);
 	  Zero(&status, 1,ARStatusList);
 #if AR_EXPORT_VERSION >= 3
 	  ret = ARGetListField(control, schema, AR_FIELD_TYPE_ALL, (ARTimestamp)0, &idList, &status);
@@ -596,14 +599,19 @@ ars_CreateEntry(ctrl,schema,...)
 	char *			schema
 	CODE:
 	{
-	  int               a, i, c = (items - 2) / 2;
+	  int               a = 0, 
+			    i = 0, 
+			    c = (items - 2) / 2;
 	  AREntryIdType     entryId;
 	  ARFieldValueList  fieldList;
 	  ARStatusList      status;
-	  int               ret, rv = 0;
-	  unsigned int      dataType;
+	  int               ret = 0, rv = 0;
+	  unsigned int      dataType = 0;
 	  
+	  RETVAL=NULL;
 	  (void) ARError_reset();
+	  Zero(&entryId, 1, AREntryIdType);
+	  Zero(&fieldList, 1, ARFieldValueList);
 	  Zero(&status, 1, ARStatusList);
 	  if (((items - 2) % 2) || c < 1) {
 	    (void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
@@ -655,7 +663,7 @@ ars_DeleteEntry(ctrl,schema,entry_id)
 	char *			entry_id
 	CODE:
 	{
-	  int            ret;
+	  int            ret = 0;
 	  ARStatusList   status;
 #if AR_EXPORT_VERSION >= 3
 	  AREntryIdList  entryList;
@@ -702,9 +710,10 @@ ars_GetEntryBLOB(ctrl,schema,entry_id,field_id,locType,locFile=NULL)
 #if AR_EXPORT_VERSION >= 4
 		ARLocStruct     loc;
 #endif
-		int		ret;
+		int		ret = 0;
 
 		(void) ARError_reset();
+		Zero(&entryList, 1, AREntryIdList);
 		Zero(&status, 1, ARStatusList);
 #if AR_EXPORT_VERSION >= 4
 		/* build entryList */
@@ -771,7 +780,7 @@ ars_GetEntry(ctrl,schema,entry_id,...)
 	char *			entry_id
 	PPCODE:
 	{
-	  int               ret;
+	  int               ret = 0;
 	  unsigned int      c = items - 3, i;
 	  ARInternalIdList  idList;
 	  ARFieldValueList  fieldList;
@@ -781,6 +790,8 @@ ars_GetEntry(ctrl,schema,entry_id,...)
 #endif
 
 	  (void) ARError_reset();
+	  Zero(&idList, 1, ARInternalIdList);
+	  Zero(&fieldList, 1, ARFieldValueList);
 	  Zero(&status, 1, ARStatusList);
 	  if (c < 1) {
 	    idList.numItems = 0; /* get all fields */
@@ -837,13 +848,13 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve=0,firstRetrieve=0,...)
 	PPCODE:
 	{
 	  unsigned int     c = (items - 5) / 2;
-	  unsigned int     i;
+	  unsigned int     i = 0;
 	  int              field_off    = 5;
 	  int              staticParams = field_off;
 	  ARSortList       sortList;
 	  AREntryListList  entryList;
 	  ARStatusList     status;
-	  int              ret;
+	  int              ret = 0;
 #if AR_EXPORT_VERSION >= 3
 	  AREntryListFieldList getListFields, *getList = NULL;
 	  AV              *getListFields_array;
@@ -962,7 +973,7 @@ ars_GetListEntry(ctrl,schema,qualifier,maxRetrieve=0,firstRetrieve=0,...)
 			 * the list into a single entry-id to keep things
 			 * consistent.
 			 */
-			unsigned int   entry;
+			unsigned int   entry = 0;
 			char *joinId     = (char *)NULL;
 			char  joinSep[2] = {AR_ENTRY_ID_SEPARATOR, 0};
 	
@@ -997,8 +1008,8 @@ ars_GetListSchema(ctrl,changedsince=0,schemaType=AR_LIST_SCHEMA_ALL,fieldPropLis
 	{
 	  ARNameList   nameList;
 	  ARStatusList status;
-	  unsigned int i;
-	  int          ret;
+	  unsigned int i = 0;
+	  int          ret = 0;
 #if AR_EXPORT_VERSION >= 8L
 	  ARPropList propList;
 #endif
@@ -1113,11 +1124,12 @@ ars_GetListServer()
 	{
 	  ARServerNameList serverList;
 	  ARStatusList     status;
-	  int              ret;
-          unsigned int     i;
+	  int              ret = 0;
+          unsigned int     i = 0;
 	  ARControlStruct  ctrl;
 
 	  (void) ARError_reset();  
+	  Zero(&serverList, 1, ARServerNameList);
 	  Zero(&status, 1, ARStatusList);
 	  Zero(&ctrl, 1, ARControlStruct);
 #if AR_EXPORT_VERSION >= 4
@@ -1145,13 +1157,13 @@ ars_GetActiveLink(ctrl,name)
 	char *			name
 	CODE:
 	{
-	  int              ret;
-	  unsigned int     order;
+	  int              ret = 0;
+	  unsigned int     order = 0;
 #if AR_EXPORT_VERSION < 5
 	  ARNameType       schema;
 #endif
 	  ARInternalIdList groupList;
-	  unsigned int     executeMask;
+	  unsigned int     executeMask  = 0;
 #if AR_EXPORT_VERSION >= 3
 	  ARInternalId     controlField;
 	  ARInternalId     focusField;
@@ -1159,7 +1171,7 @@ ars_GetActiveLink(ctrl,name)
 	  ARInternalId     field;
 	  ARDisplayList    displayList;
 #endif
-	  unsigned int     enable;
+	  unsigned int     enable = 0;
 	  ARActiveLinkActionList actionList;
 #if  AR_EXPORT_VERSION >= 3
 	  ARActiveLinkActionList elseList;
@@ -1181,6 +1193,10 @@ ars_GetActiveLink(ctrl,name)
 	  AMALLOCNN(query,1,ARQualifierStruct);
 
 	  (void) ARError_reset();
+	  Zero(&timestamp, 1, ARTimestamp);
+	  Zero(&owner, 1, ARNameType);
+	  Zero(&lastChanged, 1, ARNameType);
+	  Zero(&diaryList, 1, ARDiaryList);
 	  Zero(&status, 1, ARStatusList);
 #if AR_EXPORT_VERSION >= 5 
 	  ret = ARGetActiveLink(ctrl, name, &order, 
@@ -1358,6 +1374,11 @@ ars_GetFilter(ctrl,name)
 	  AMALLOCNN(query,1,ARQualifierStruct);
 
 	  (void) ARError_reset();
+	  Zero(&actionList, 1, ARFilterActionList);
+	  Zero(&timestamp, 1, ARTimestamp);
+	  Zero(&owner, 1, ARNameType);
+	  Zero(&lastChanged, 1, ARNameType);
+	  Zero(&diaryList, 1, ARDiaryList);
 	  Zero(&status, 1,ARStatusList);
 #if AR_EXPORT_VERSION >= 5
 	  ret = ARGetFilter(ctrl, name, &order, 
@@ -1455,11 +1476,13 @@ ars_GetServerStatistics(ctrl,...)
 	{
 	  ARServerInfoRequestList requestList;
 	  ARServerInfoList        serverInfo;
-	  int                     i, ret;
-          unsigned int            ui;
+	  int                     i = 0, ret = 0;
+          unsigned int            ui = 0;
 	  ARStatusList            status;
 
 	  (void) ARError_reset();
+	  Zero(&requestList, 1, ARServerInfoRequestList);
+	  Zero(&serverInfo, 1, ARServerInfoList);
 	  Zero(&status, 1, ARStatusList);
 	  if(items < 1) {
 		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
@@ -1508,15 +1531,15 @@ ars_GetCharMenu(ctrl,name)
 	char *			name
 	CODE:
 	{
-	  unsigned int       refreshCode;
+	  unsigned int       refreshCode = 0;
 	  ARCharMenuStruct   menuDefn;
 	  char	            *helpText = CPNULL;
-	  ARTimestamp	     timestamp = 0;
+	  ARTimestamp	     timestamp;
 	  ARNameType	     owner;
 	  ARNameType	     lastChanged;
 	  char		    *changeDiary = CPNULL;
 	  ARStatusList	     status;
-	  int                ret, i;
+	  int                ret = 0, i = 0;
 	  HV		    *menuDef = newHV();
 	  SV		    *ref;
 	  ARDiaryList        diaryList;
@@ -1529,6 +1552,11 @@ ars_GetCharMenu(ctrl,name)
 #if AR_EXPORT_VERSION >= 5
 	  Zero(&objPropList, 1, ARPropList);
 #endif
+	  Zero(&menuDefn, 1, ARCharMenuStruct);
+	  Zero(&timestamp, 1, ARTimestamp);
+	  Zero(&owner, 1, ARNameType);
+	  Zero(&lastChanged, 1, ARNameType);
+	  Zero(&diaryList, 1, ARDiaryList);
 	  Zero(&owner, 1, ARNameType);
 	  Zero(&lastChanged, 1, ARNameType);
 	  RETVAL = newHV();
@@ -1681,6 +1709,7 @@ ars_ExpandCharMenu2(ctrl,name,qual=NULL)
 
 		RETVAL = &PL_sv_undef;
 		(void) ARError_reset();
+		Zero(&menuDefn, 1, ARCharMenuStruct);
 		Zero(&status, 1,ARStatusList);
 		DBG( ("-> ARGetCharMenu\n") );
 		ret = ARGetCharMenu(ctrl, name, NULL, &menuDefn, 
@@ -1712,7 +1741,7 @@ ars_GetSchema(ctrl,name)
 	CODE:
 	{
 	  ARStatusList         status;
-	  int                  ret;
+	  int                  ret = 0;
 #if AR_EXPORT_VERSION >= 3
 	  ARPermissionList     groupList;
 #else
@@ -1744,6 +1773,13 @@ ars_GetSchema(ctrl,name)
 
 	  (void) ARError_reset();
 	  Zero(&status, 1,  ARStatusList);
+	  Zero(&adminGroupList, 1, ARInternalIdList);
+	  Zero(&getListFields, 1, AREntryListFieldList);
+	  Zero(&indexList, 1, ARIndexList);
+	  Zero(&timestamp, 1, ARTimestamp);
+	  Zero(&owner, 1, ARNameType);
+	  Zero(&lastChanged, 1, ARNameType);
+	  Zero(&diaryList, 1, ARDiaryList);
 #if AR_EXPORT_VERSION >= 6
 	  Zero(&defaultVui, 1, ARNameType);
 #endif
@@ -1862,11 +1898,13 @@ ars_GetListActiveLink(ctrl,schema=NULL,changedSince=0)
 	  ARNameList   nameList;
 	  ARStatusList status;
           ARPropList   propList;
-	  int          ret;
-          unsigned int i;
+	  int          ret = 0;
+          unsigned int i = 0;
 
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
+	  Zero(&nameList, 1, ARNameList);
+	  Zero(&propList, 1, ARPropList);
 #if AR_EXPORT_VERSION >= 8L
 	  Zero(&propList, 1, ARPropList);
 #endif
@@ -1917,6 +1955,10 @@ ars_GetField(ctrl,schema,id)
 	  Zero(&defaultVal,  1, ARValueStruct);
 	  Zero(&permissions, 1, ARPermissionList);
 	  Zero(&limit,       1, ARFieldLimitStruct);
+	  Zero(&timestamp,   1, ARTimestamp);
+	  Zero(&owner,       1, ARNameType);
+	  Zero(&lastChanged, 1, ARNameType);
+	  Zero(&diaryList,   1, ARDiaryList);
 	  RETVAL = newHV();
 #if AR_EXPORT_VERSION >= 3
 	  ret = ARGetFieldCached(ctrl, schema, id, fieldName, &fieldMap, &dataType, &option, &createMode, &defaultVal, NULL /* &permissions */, &limit, &displayList, &helpText, &timestamp, owner, lastChanged, &changeDiary, &Status);
@@ -2019,12 +2061,12 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	unsigned long		getTime
 	CODE:
 	{
-	  int              a, i, c = (items - 4) / 2;
+	  int              a = 0, i = 0, c = (items - 4) / 2;
 	  int              offset = 4;
 	  ARFieldValueList fieldList;
 	  ARStatusList     status;
-	  int              ret;
-	  unsigned int     dataType;
+	  int              ret = 0;
+	  unsigned int     dataType = 0;
 #if AR_EXPORT_VERSION >= 3
 	  unsigned int     option = AR_JOIN_SETOPTION_NONE;
 	  AREntryIdList   entryList;
@@ -2114,7 +2156,7 @@ ars_Export(ctrl,displayTag,vuiType,...)
 	unsigned int		vuiType
 	CODE:
 	{
-		int              ret, i, a, c = (items - 3) / 2, ok = 1;
+		int              ret = 0, i = 0, a = 0, c = (items - 3) / 2, ok = 1;
 		ARStructItemList structItems;
 		char            *buf = CPNULL;
 		ARStatusList     status;
@@ -2182,7 +2224,7 @@ ars_Import(ctrl,importOption=AR_IMPORT_OPT_CREATE,importBuf,...)
 	unsigned int            importOption
 	CODE:
 	{
-		int               ret = 1, i, a, c = (items - 2) / 2, ok =1;
+		int               ret = 1, i = 0, a = 0, c = (items - 2) / 2, ok =1;
 		ARStructItemList *structItems = NULL;
 		ARStatusList      status;
 
@@ -2252,13 +2294,14 @@ ars_GetListFilter(control,schema=NULL,changedsince=0)
 	  ARNameList   nameList;
 	  ARStatusList status;
 	  ARPropList   propList;
-	  int          ret;
-          unsigned int i;
+	  int          ret = 0;
+          unsigned int i = 0;
 
 	  (void) ARError_reset();
 #if AR_EXPORT_VERSION >= 8L
 	  Zero(&propList, 1, ARPropList);
 #endif
+	  Zero(&nameList, 1, ARNameList);
 	  Zero(&status, 1,ARStatusList);
 	  ret = ARGetListFilter(control,schema,changedsince,
 #if AR_EXPORT_VERSION >= 8L
@@ -2285,13 +2328,14 @@ ars_GetListEscalation(control,schema=NULL,changedsince=0)
 	  ARNameList   nameList;
 	  ARStatusList status;
 	  ARPropList   propList;
-	  int          ret;
-          unsigned int i;
+	  int          ret = 0;
+          unsigned int i = 0;
 
 	  (void) ARError_reset();
 #if AR_EXPORT_VERSION >= 8L
 	  Zero(&propList, 1,ARPropList);
 #endif
+	  Zero(&nameList, 1, ARNameList);
 	  Zero(&status, 1,ARStatusList);
 	  ret = ARGetListEscalation(control,schema,changedsince,
 #if AR_EXPORT_VERSION >= 8L
@@ -2321,13 +2365,14 @@ ars_GetListCharMenu(control,changedsince=0)
 #endif
           ARNameList   schemaNameList;
           ARNameList   actLinkNameList;
-	  int          ret;
-          unsigned int i;
+	  int          ret = 0;
+          unsigned int i = 0;
 
 	  (void) ARError_reset();
 #if AR_EXPORT_VERSION >= 8L
 	  Zero(&propList, 1, ARPropList);
 #endif
+	  Zero(&status, 1, ARStatusList);
 	  Zero(&schemaNameList, 1, ARNameList);
 	  Zero(&actLinkNameList, 1, ARNameList);
 	  Zero(&nameList, 1, ARNameList);
@@ -2357,9 +2402,10 @@ ars_GetListAdminExtension(control,changedsince=0)
 #if !defined(ARS32) && (AR_EXPORT_VERSION < 4)
 	  ARNameList   nameList;
 	  ARStatusList status;
-	  int          ret, i;
+	  int          ret = 0, i = 0;
 
 	  (void) ARError_reset();
+	  Zero(&nameList, 1, ARNameList);
 	  Zero(&status,1, ARStatusList);
 	  ret = ARGetListAdminExtension(control,changedsince,&nameList,&status);
 #ifdef PROFILE
@@ -2382,7 +2428,7 @@ ars_DeleteActiveLink(ctrl, name)
 	CODE:
 	{
 	  ARStatusList status;
-	  int          ret;
+	  int          ret = 0;
 
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
@@ -2414,7 +2460,7 @@ ars_DeleteVUI(ctrl, schema, vuiId)
 	CODE:
 	{
 	  ARStatusList status;
-	  int          ret;
+	  int          ret = 0;
 
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
@@ -2446,7 +2492,7 @@ ars_DeleteAdminExtension(ctrl, name)
 	{
 #if !defined(ARS32) && (AR_EXPORT_VERSION < 4)
 	  ARStatusList status;
-	  int          ret;
+	  int          ret = 0;
 
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
@@ -2477,7 +2523,7 @@ ars_DeleteCharMenu(ctrl, name)
 	CODE:
 	{
 	  ARStatusList status;
-	  int          ret;
+	  int          ret = 0;
 
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
@@ -2508,7 +2554,7 @@ ars_DeleteEscalation(ctrl, name)
 	CODE:
 	{
 	  ARStatusList status;
-	  int          ret;
+	  int          ret = 0;
 
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
@@ -2541,7 +2587,7 @@ ars_DeleteField(ctrl, schema, fieldId, deleteOption=0)
 	CODE:
 	{
 	  ARStatusList status;
-	  int          ret;
+	  int          ret = 0;
 
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
@@ -2568,7 +2614,7 @@ ars_DeleteFilter(ctrl, name)
 	CODE:
 	{
 	  ARStatusList status;
-	  int          ret;
+	  int          ret = 0;
 
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
@@ -2600,7 +2646,7 @@ ars_DeleteSchema(ctrl, name, deleteOption)
 	CODE:
 	{
 	  ARStatusList status;
-	  int          ret;
+	  int          ret = 0;
 
 	  (void) ARError_reset();
 	  Zero(&status, 1, ARStatusList);
@@ -2625,12 +2671,13 @@ ars_DeleteMultipleFields(ctrl, schema, deleteOption, ...)
 	unsigned int		deleteOption
 	CODE:
 	{
-	  int              i, ret, c = (items - 3);
+	  int              i = 0, ret = 0, c = (items - 3);
 	  ARStatusList     status;
 	  ARInternalIdList fieldList;
 
 	  RETVAL = 0; /* assume error */
 	  Zero(&status, 1,ARStatusList);
+	  Zero(&fieldList, 1, ARInternalIdList);
 	  (void) ARError_reset();
 #if AR_EXPORT_VERSION >= 3
 	  if(items < 4)
@@ -2665,7 +2712,7 @@ ars_ExecuteAdminExtension(ctrl, name)
 	{
 #if !defined(ARS32) && (AR_EXPORT_VERSION < 4)
 	 ARStatusList status;
-	 int          ret;
+	 int          ret = 0;
 
 	 RETVAL = 0;
 	 Zero(&status, 1,ARStatusList);
@@ -2693,7 +2740,7 @@ ars_ExecuteProcess(ctrl, command, runOption=0)
 	PPCODE:
 	{
 	 ARStatusList status;
-	 int          returnStatus;
+	 int          returnStatus = 0;
 	 char        *returnString;
 	 int          ret = 0;
 
@@ -2744,11 +2791,16 @@ ars_GetAdminExtension(ctrl, name)
 	 ARNameType    owner;
 	 ARNameType    lastChanged;
 	 char         *changeDiary = CPNULL;
-	 int           ret;
+	 int           ret = 0;
 	 ARDiaryList      diaryList;
 
 	 (void) ARError_reset();
 	 Zero(&status, 1,ARStatusList);
+	 Zero(&groupList, 1, ARInternalIdList);
+	 Zero(&timestamp, 1, ARTimestamp);
+	 Zero(&owner, 1, ARNameType);
+	 Zero(&lastChanged, 1, ARNameType);
+	 Zero(&diaryList, 1, ARDiaryList);
 	 RETVAL = newHV();
 	 ret = ARGetAdminExtension(ctrl, name, &groupList, command, &helpText, &timestamp, owner, lastChanged, &changeDiary, &status);
 #ifdef PROFILE
@@ -2808,7 +2860,7 @@ ars_GetEscalation(ctrl, name)
 #if AR_EXPORT_VERSION < 5
 	  ARNameType           schema;
 #endif
-	  unsigned int         enable;
+	  unsigned int         enable =  0;
 	  ARFilterActionList   actionList;
 #if AR_EXPORT_VERSION >= 3
 	  ARFilterActionList   elseList;
@@ -2830,7 +2882,12 @@ ars_GetEscalation(ctrl, name)
 	  RETVAL = newHV();
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
+	  Zero(&escalationTm, 1, AREscalationTmStruct);
 	  Zero(&actionList, 1,ARFilterActionList);
+	  Zero(&timestamp, 1, ARTimestamp);
+	  Zero(&owner, 1, ARNameType);
+	  Zero(&lastChanged, 1, ARNameType);
+	  Zero(&diaryList, 1, ARDiaryList);
 #if AR_EXPORT_VERSION >= 5
 	  Zero(&elseList, 1,ARFilterActionList);
 	  Zero(&schemaList, 1, ARWorkflowConnectStruct);
@@ -2941,7 +2998,7 @@ ars_GetFullTextInfo(ctrl)
 	  ARFullTextInfoRequestList requestList;
 	  ARFullTextInfoList        fullTextInfo;
 	  ARStatusList              status;
-	  int                       ret;
+	  int                       ret = 0;
 	  unsigned int rlist[] = {AR_FULLTEXTINFO_COLLECTION_DIR,
 			 	  AR_FULLTEXTINFO_STOPWORD,
 				  AR_FULLTEXTINFO_CASE_SENSITIVE_SRCH,
@@ -2950,6 +3007,8 @@ ars_GetFullTextInfo(ctrl)
 
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
+	  Zero(&requestList, 1, ARFullTextInfoRequestList);
+	  Zero(&fullTextInfo, 1, ARFullTextInfoList);
 	  RETVAL = newHV();
 	  requestList.numItems = 5;
 	  requestList.requestList = rlist;
@@ -3007,11 +3066,12 @@ ars_GetListGroup(ctrl, userName=NULL,password=NULL)
 	{
 	  ARStatusList    status;
 	  ARGroupInfoList groupList;
-	  int             ret;
-          unsigned int    i, v;
+	  int             ret = 0;
+          unsigned int    i = 0, v = 0;
 
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
+	  Zero(&groupList, 1, ARGroupInfoList);
 	  RETVAL = newHV();
 	  ret = ARGetListGroup(ctrl, userName, 
 #if AR_EXPORT_VERSION >= 6
@@ -3054,12 +3114,13 @@ ars_GetListSQL(ctrl, sqlCommand, maxRetrieve=AR_NO_MAX_LIST_RETRIEVE)
 	{
 	  ARStatusList    status;
 	  ARValueListList valueListList;
-	  unsigned int    numMatches;
-	  int             ret;
+	  unsigned int    numMatches = 0;
+	  int             ret = 0;
 
 	  (void) ARError_reset();
 	  RETVAL = NULL;
 	  Zero(&status, 1, ARStatusList);
+	  Zero(&valueListList, 1, ARValueListList);
 #ifndef ARS20
 	  ret = ARGetListSQL(ctrl, sqlCommand, maxRetrieve, &valueListList, 
 			     &numMatches, &status);
@@ -3104,10 +3165,11 @@ ars_GetListUser(ctrl, userListType=AR_USER_LIST_MYSELF,changedSince=0)
 	{
 	  ARStatusList   status;
 	  ARUserInfoList userList;
-	  int            ret;
+	  int            ret = 0;
 
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
+	  Zero(&userList, 1, ARUserInfoList);
 	  ret = ARGetListUser(ctrl, userListType, 
 #if AR_EXPORT_VERSION >= 6
 				changedSince,
@@ -3159,11 +3221,12 @@ ars_GetListVUI(ctrl, schema, changedSince=0)
 #if AR_EXPORT_VERSION >= 3
 	  ARStatusList     status;
 	  ARInternalIdList idList;
-	  int              ret;
-          unsigned int     i;
+	  int              ret = 0;
+          unsigned int     i = 0;
 
 	  ret = ARGetListVUI(ctrl, schema, changedSince, &idList, &status);
 	  Zero(&status, 1,ARStatusList);
+	  Zero(&idList, 1, ARInternalIdList);
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
 #endif
@@ -3186,7 +3249,7 @@ ars_SetServerInfo(ctrl, ...)
 	{
 		ARStatusList     status;
 		ARServerInfoList serverInfo;
-		int		 ret, i, count = 0;
+		int		 ret = 0, i = 0, count = 0;
 
 		(void) ARError_reset();
 		Zero(&status, 1, ARStatusList);
@@ -3247,13 +3310,15 @@ ars_GetServerInfo(ctrl, ...)
 	  ARStatusList            status;
 	  ARServerInfoRequestList requestList;
 	  ARServerInfoList        serverInfo;
-	  int                     ret;
-          int                     i;
-          unsigned int            ui, count;
+	  int                     ret = 0;
+          int                     i  = 0;
+          unsigned int            ui = 0, count = 0;
 	  unsigned int            rlist[AR_MAX_SERVER_INFO_USED];
 
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
+	  Zero(&requestList, 1, ARServerInfoRequestList);
+	  Zero(&serverInfo, 1, ARServerInfoList);
 	  count = 0;
 	  if(items == 1) { /* none specified.. fetch all */
 	     for(i = 0; i < AR_MAX_SERVER_INFO_USED ; i++) {
@@ -3315,7 +3380,7 @@ ars_GetVUI(ctrl, schema, vuiId)
 	  ARNameType   owner;
 	  ARNameType   lastChanged;
 	  char        *changeDiary = CPNULL;
-	  int          ret;
+	  int          ret = 0;
 	  ARDiaryList      diaryList;
 # if AR_EXPORT_VERSION >= 6
 	  unsigned int vuiType = 0;
@@ -3325,6 +3390,11 @@ ars_GetVUI(ctrl, schema, vuiId)
 	  RETVAL = newHV();
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
+	  Zero(&vuiName, 1, ARNameType);
+	  Zero(&dPropList, 1, ARPropList);
+	  Zero(&timestamp, 1, ARTimestamp);
+	  Zero(&owner, 1, ARNameType);
+	  Zero(&lastChanged, 1, ARNameType);
 	  ret = ARGetVUI(ctrl, schema, vuiId, vuiName,
 # if AR_EXPORT_VERSION >= 6
 			 locale, &vuiType,
@@ -3517,8 +3587,11 @@ ars_CreateActiveLink(ctrl, alDefRef)
 	  RETVAL = 0; /* assume error */
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
+	  Zero(&schema, 1, ARNameType);
+	  Zero(&name, 1, ARNameType);
 	  Zero(&groupList, 1,ARInternalIdList);
 	  Zero(&actionList, 1,ARActiveLinkActionList);
+	  Zero(&owner, 1, ARNameType);
 #if AR_EXPORT_VERSION >= 3
 	  Zero(&elseList, 1,ARActiveLinkActionList);
 #else
@@ -3650,13 +3723,14 @@ ars_MergeEntry(ctrl, schema, mergeType, ...)
 	  int              a, i, c = (items - 3) / 2;
 	  ARFieldValueList fieldList;
 	  ARStatusList     status;
-	  int              ret;
-	  unsigned int     dataType;
+	  int              ret = 0;
+	  unsigned int     dataType = 0;
 	  AREntryIdType    entryId;
 
 	  (void) ARError_reset();
 	  Zero(&status,    1, ARStatusList);
 	  Zero(&fieldList, 1, ARFieldValueList);
+	  Zero(&entryId, 1, AREntryIdType);
 	  RETVAL = "";
 
 	  if ((items - 3) % 2 || c < 1) {
@@ -3722,7 +3796,7 @@ ars_GetMultipleEntries(ctrl,schema,...)
 	PPCODE:
 	{
 #if AR_EXPORT_VERSION >= 4
-	int               ret;
+	int               ret = 0;
         unsigned int      c = items - 3, i;
 	AREntryIdListList entryList;
 	ARInternalIdList  idList;
@@ -3737,6 +3811,10 @@ ars_GetMultipleEntries(ctrl,schema,...)
 	existList.booleanList = NULL;
 	(void) ARError_reset();
 	Zero(&status, 1, ARStatusList);
+	Zero(&entryList, 1, AREntryIdListList);
+	Zero(&idList, 1, ARInternalIdList);
+	Zero(&fieldList, 1, ARFieldValueListList);
+	Zero(&existList, 1, ARBooleanList);
 	/*
 	 * build list of field Id's
 	 */
@@ -3867,12 +3945,16 @@ ars_GetListEntryWithFields(ctrl,schema,qualifier,maxRetrieve=0,firstRetrieve=0,.
 	  int              field_off = 5;
 	  ARSortList       sortList;
 	  AREntryListFieldValueList  entryFieldValueList;
-	  int              ret;
+	  int              ret = 0;
 	  AREntryListFieldList getListFields, *getList = NULL;
 	  AV              *getListFields_array;
 
 	  (void) ARError_reset();
 	  Zero(&status, 1, ARStatusList);
+	  Zero(&sortList, 1, ARSortList);
+	  Zero(&entryFieldValueList, 1, AREntryListFieldValueList);
+	  Zero(&getListFields, 1, AREntryListFieldList);
+
 	  sortList.sortList = NULL;
 	  getListFields.fieldsList = NULL;
 	  entryFieldValueList.entryList = NULL;
@@ -3992,7 +4074,7 @@ ars_RegisterForAlerts(ctrl, clientPort, registrationFlags=0)
 	CODE:
 	{
 		ARStatusList status;
-		int          ret;
+		int          ret = 0;
 
 		(void) ARError_reset();
 		Zero(&status, 1, ARStatusList);
@@ -4018,7 +4100,7 @@ ars_DeregisterForAlerts(ctrl,clientPort)
 	CODE:
 	{
 		ARStatusList status;
-		int          ret;
+		int          ret = 0;
 
 		(void) ARError_reset();
 		Zero(&status, 1, ARStatusList);
@@ -4045,10 +4127,11 @@ ars_GetListAlertUser(ctrl)
 #if AR_EXPORT_VERSION >= 6
 		ARStatusList     status;
 		ARAccessNameList userList;
-		int              ret;
+		int              ret = 0;
 
 		(void) ARError_reset();
 		Zero(&status, 1, ARStatusList);
+	 	Zero(&userList, 1, ARAccessNameList);
 		ret = ARGetListAlertUser(ctrl, &userList,
 					 &status);
 		if( !ARError(ret, status) ) {
@@ -4074,7 +4157,7 @@ ars_GetAlertCount(ctrl,qualifier)
 	CODE:
 	{
 		ARStatusList     status;
-		int              ret;
+		int              ret = 0;
 		unsigned int	 count = 0;
 
 		RETVAL=newSVsv(&PL_sv_undef);
@@ -4102,10 +4185,10 @@ ars_DecodeAlertMessage(ctrl,message,messageLen)
 	CODE:
 	{
 		ARStatusList     status;
-		int              ret;
+		int              ret = 0;
 		ARTimestamp      timestamp;
-		unsigned int	 sourceType;
-		unsigned int	 priority;
+		unsigned int	 sourceType = 0;
+		unsigned int	 priority = 0;
 		char 		*alertText  = CPNULL;
 		char		*sourceTag  = CPNULL;
 		char		*serverName = CPNULL;
@@ -4116,6 +4199,7 @@ ars_DecodeAlertMessage(ctrl,message,messageLen)
 		RETVAL=newHV();
 		(void) ARError_reset();
 		Zero(&status, 1, ARStatusList);
+		Zero(&timestamp, 1, ARTimestamp);
 #if AR_EXPORT_VERSION >= 6
 		ret = ARDecodeAlertMessage(ctrl, message, messageLen,
 					&timestamp,
@@ -4176,12 +4260,13 @@ ars_CreateAlertEvent(ctrl,user,alertText,priority,sourceTag,serverName,formName,
 	CODE:
 	{
 		ARStatusList     status;
-		int              ret;
+		int              ret = 0;
 		AREntryIdType	 entryId;
 
 		RETVAL=newSVsv(&PL_sv_undef);
 		(void) ARError_reset();
 		Zero(&status, 1, ARStatusList);
+		Zero(&entryId, 1, AREntryIdType);
 #if AR_EXPORT_VERSION >= 6
 		ret = ARCreateAlertEvent(ctrl, 
 					user,
@@ -4218,7 +4303,7 @@ ars_NTInitializationClient()
         {
 #if AR_EXPORT_VERSION < 6
           NTStatusList status;
-          int          ret;
+          int          ret = 0;
 
 	  (void) ARError_reset();
 	  Zero(&status, 1, NTStatusList);
@@ -4252,7 +4337,7 @@ ars_NTDeregisterClient(user, password, filename)
 	{
 #if AR_EXPORT_VERSION < 6
 	  NTStatusList status;
-	  int ret;
+	  int ret = 0;
 
 	  (void) ARError_reset();
 	  RETVAL = 0;
@@ -4287,7 +4372,7 @@ ars_NTRegisterClient(user, password, filename)
 	{
 #if AR_EXPORT_VERSION < 6
 	  NTStatusList status;
-	  int ret;
+	  int ret = 0;
 
 	  (void) ARError_reset();
 	  Zero(&status, 1, NTStatusList);
@@ -4319,8 +4404,7 @@ ars_NTTerminationClient()
 	{
 #if AR_EXPORT_VERSION < 6
 	  NTStatusList status;
-	  int ret;
-
+	  int ret = 0;
 	  (void) ARError_reset();
 	  Zero(&status, 1, NTStatusList);
 	  RETVAL = 0;
@@ -4352,7 +4436,7 @@ ars_NTRegisterServer(serverHost, user, password, ...)
 	{
 #if AR_EXPORT_VERSION < 6
 	  NTStatusList status;
-	  int          ret;
+	  int          ret = 0;
 # if AR_EXPORT_VERSION < 3
 	  Zero(&status, 1, NTStatusList);
 	  (void) ARError_reset();
@@ -4368,9 +4452,9 @@ ars_NTRegisterServer(serverHost, user, password, ...)
 	  }
 # else /* >= 3 */
 	  NTPortAddr    clientPort;
-	  unsigned int  clientCommunication;
-	  unsigned int  protocol;
-	  int           multipleClients;
+	  unsigned int  clientCommunication = 0;
+	  unsigned int  protocol = 0;
+	  int           multipleClients = 0;
 
 	  (void) ARError_reset();
 	  Zero(&status, 1, NTStatusList);
@@ -4431,7 +4515,7 @@ ars_NTTerminationServer()
 	CODE:
 	{
 #if AR_EXPORT_VERSION < 6
-	 int ret;
+	 int ret = 0;
 	 NTStatusList status;
 
 	 (void) ARError_reset();
@@ -4459,7 +4543,7 @@ ars_NTDeregisterServer(serverHost, user, password, port=0)
 	CODE:
 	{
 #if AR_EXPORT_VERSION < 6
-	 int ret;
+	 int ret = 0;
 	 NTStatusList status;
 
 	 (void) ARError_reset();
@@ -4491,7 +4575,7 @@ ars_NTGetListServer()
 #if AR_EXPORT_VERSION < 6
 	  NTServerNameList serverList;
 	  NTStatusList     status;
-	  int              ret, i;
+	  int              ret = 0, i = 0;
 
 	  (void) ARError_reset();
 	  Zero(&status, 1, NTStatusList);
@@ -4514,7 +4598,7 @@ ars_NTInitializationServer()
 	{
 #if AR_EXPORT_VERSION < 6
 	  NTStatusList status;
-	  int          ret;
+	  int          ret = 0;
 
 	  (void) ARError_reset();
 	  Zero(&status, 1, NTStatusList);
@@ -4543,7 +4627,7 @@ ars_NTNotificationServer(serverHost, user, notifyText, notifyCode, notifyCodeTex
 	{
 #if AR_EXPORT_VERSION < 6
 	  NTStatusList status;
-	  int ret;
+	  int ret = 0;
 
 	  (void) ARError_reset();
 	  Zero(&status, 1, NTStatusList);
