@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.70 2005/04/23 16:26:49 jeffmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.71 2005/05/23 12:11:37 idtrimnell Exp $
 #
 # ARSperl Makefile
 #
@@ -371,6 +371,41 @@ sub GenerateSupportDotH {
 		print FD "  { $code, \t\t\"\L$1\E\" },\n";
 	    }
 	} 
+	elsif(/CHARMENUDDTYPEMAP/) {
+	    print "\tProcessing AR_CHAR_MENU_DD type codes..\n";
+	    my($code, $line);
+	    foreach $line (grep (/^\#define\s+AR_CHAR_MENU_DD_.*/, @arh)) {
+		$code = (split(/\s/, $line))[1];
+		print "\t\t$code\n" if $debug;
+		$code =~ /^AR_CHAR_MENU_(\w+)/;
+		last if ($1 eq "DD_DB_NAME");
+		print FD "  { $code, \t\t\"\L$1\E\" },\n";
+	    }
+	}
+	elsif(/CHARMENUDDNAMEMAP/) {
+	    print "\tProcessing AR_CHAR_MENU_DD name codes..\n";
+	    my($code, $line);
+	    foreach $line (grep (/^\#define\s+AR_CHAR_MENU_DD_.*/, @arh)) {
+		$code = (split(/\s/, $line))[1];
+		print "\t\t$code\n" if $debug;
+		$code =~ /^AR_CHAR_MENU_(\w+)/;
+		next if ($1 eq "DD_NONE");
+		next if ($1 eq "DD_FORM");
+		next if ($1 eq "DD_FIELD");
+		last if ($1 eq "DD_FORMAT_NONE");
+		print FD "  { $code, \t\t\"\L$1\E\" },\n";
+	    }
+	}
+	elsif(/CHARMENUDDVALUEMAP/) {
+	    print "\tProcessing AR_CHAR_MENU_DD value format..\n";
+	    my($code, $line);
+	    foreach $line (grep (/^\#define\s+AR_CHAR_MENU_DD_FORMAT_.*/, @arh)) {
+		$code = (split(/\s/, $line))[1];
+		print "\t\t$code\n" if $debug;
+		$code =~ /^AR_CHAR_MENU_(\w+)/;
+		print FD "  { $code, \t\t\"\L$1\E\" },\n";
+	    }
+	}
 	elsif(/CHARMENUTYPEMAP/) {
 	    print "\tProcessing AR_CHAR_MENU codes..\n";
 	    my($code, $line);
@@ -378,6 +413,7 @@ sub GenerateSupportDotH {
 		$code = (split(/\s/, $line))[1];
 		print "\t\t$code\n" if $debug;
 		$code =~ /^AR_CHAR_MENU_(\w+)/;
+		next if ($1 =~ m/^DD_/);
 		print FD "  { $code, \t\t\"\L$1\E\" },\n";
 	    }
 	}
@@ -511,6 +547,42 @@ sub GenerateSupportDotH {
 		print FD "  { $code, \t\t\"\L$1\E\" },\n";
 	    }
 	}
+	elsif(/CONTAINERTYPEMAP/) {
+	    print "\tProcessing ARCON codes..\n";
+	    my($code, $line);
+	    foreach $line (grep (/^\#define\s+ARCON.*/, @arh)) {
+		$code = (split(/\s/, $line))[1];
+
+		print "\t\t$code\n" if $debug;
+		$code =~ /^ARCON_(\w+)/;
+		last if ($1 eq "LAST_RESERVED");
+		print FD "  { $code, \t\t\"\L$1\E\" },\n";
+	    }
+	}
+	elsif(/CONTAINEROWNERMAP/) {
+	    print "\tProcessing ARCONOWNER codes..\n";
+	    my($code, $line);
+	    foreach $line (grep (/^\#define\s+ARCONOWNER.*/, @arh)) {
+		$code = (split(/\s/, $line))[1];
+
+		print "\t\t$code\n" if $debug;
+		$code =~ /^ARCONOWNER_(\w+)/;
+		print FD "  { $code, \t\t\"\L$1\E\" },\n";
+	    }
+	}
+	elsif(/REFERENCETYPEMAP/) {
+	    print "\tProcessing ARREF codes..\n";
+	    my($code, $line);
+	    foreach $line (grep (/^\#define\s+ARREF.*/, @arh)) {
+		$code = (split(/\s/, $line))[1];
+
+		print "\t\t$code\n" if $debug;
+		$code =~ /^ARREF_(\w+)/;
+		next if ($1 eq "LAST_SERVER_OBJ");
+		last if ($1 eq "LAST_RESERVED");
+		print FD "  { $code, \t\t\"\L$1\E\" },\n";
+	    }
+	}
 	elsif(/KEYWORDMAP/) {
 	    print "\tProcessing AR_KEYWORD codes..\n";
 	    my($code, $line);
@@ -535,6 +607,18 @@ sub GenerateSupportDotH {
 		print FD "  { $code, \t\"$1\" },\n";
 	    }
 	}
+	elsif(/DDEACTIONMAP/) {
+	    print "\tProcessing AR_DDE codes..\n";
+	    my($code, $line);
+	    foreach $line (grep (/^\#define\s+AR_DDE.*/, @arh))
+            {
+		$code = (split(/\s/, $line))[1];
+
+		print "\t\t$code\n" if $debug;
+		$code =~ /^AR_DDE_(\w+)/;
+		print FD "  { $code, \t\"\L$1\E\" },\n";
+	    }
+	}
 	elsif(/ACTIVELINKACTIONTYPEMAP/) {
 	    print "\tProcessing AR_ACTIVE_LINK_ACTION codes..\n";
 	    my($code, $line);
@@ -542,6 +626,18 @@ sub GenerateSupportDotH {
             {
 		$code = (split(/\s/, $line))[1];
 
+		print "\t\t$code\n" if $debug;
+		$code =~ /^AR_ACTIVE_LINK_ACTION_(\w+)/;
+		last if ($1 eq "OPEN_DLG");
+		print FD "  { $code, \t\"\L$1\E\" },\n";
+	    }
+	}
+	elsif(/OPENWINDOWMODEMAP/) {
+	    print "\tProcessing AR_ACTIVE_LINK_ACTION_OPEN codes..\n";
+	    my($code, $line);
+	    foreach $line (grep (/^\#define\s+AR_ACTIVE_LINK_ACTION_OPEN_.*/, @arh))
+            {
+		$code = (split(/\s/, $line))[1];
 		print "\t\t$code\n" if $debug;
 		$code =~ /^AR_ACTIVE_LINK_ACTION_(\w+)/;
 		print FD "  { $code, \t\"\L$1\E\" },\n";

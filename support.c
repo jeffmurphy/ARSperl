@@ -843,6 +843,10 @@ perl_ARValueStruct_Assign(ARControlStruct * ctrl, ARValueStruct * in)
 				   sizeof(ARCoordStruct));
 #endif
 #if AR_EXPORT_VERSION >= 4
+	case AR_DATA_TYPE_TIME_OF_DAY:
+		return newSViv(in->u.timeOfDayVal);
+	case AR_DATA_TYPE_DATE:
+		return newSViv(in->u.dateVal);
 	case AR_DATA_TYPE_ATTACH:
 		return perl_ARAttach(ctrl, in->u.attachVal);
         case AR_DATA_TYPE_DECIMAL:
@@ -919,6 +923,10 @@ perl_ARValueStruct(ARControlStruct * ctrl, ARValueStruct * in)
 		return perl_ARAttach(ctrl, in->u.attachVal);
         case AR_DATA_TYPE_DECIMAL:
 		return newSVpv(in->u.decimalVal, 0);
+	case AR_DATA_TYPE_TIME_OF_DAY:
+		return newSViv(in->u.timeOfDayVal);
+        case AR_DATA_TYPE_DATE:
+		return newSViv(in->u.dateVal);
 #endif
 	case AR_DATA_TYPE_NULL:
 	default:
@@ -1036,6 +1044,8 @@ SV             *
 perl_AROpenDlgStruct(ARControlStruct * ctrl, AROpenDlgStruct * in)
 {
 	HV          *hash = newHV();
+	SV          *qual = newSViv(0);
+
 	hv_store(hash,  "serverName", strlen("serverName") ,
 		 newSVpv(in->serverName, 0), 0);
 	hv_store(hash,  "schemaName", strlen("schemaName") ,
@@ -1058,7 +1068,156 @@ perl_AROpenDlgStruct(ARControlStruct * ctrl, AROpenDlgStruct * in)
 			     (ARList *)& in->outputValueFieldPairs,
 			     (ARS_fn) perl_ARFieldAssignStruct,
 			     sizeof(ARFieldAssignStruct)), 0);
+	hv_store(hash,  "windowMode", strlen("windowMode") ,
+		 newSVpv(lookUpTypeName((TypeMapStruct *)OpenWindowModeMap, 
+					in->windowMode), 0), 0); /* One of AR_ACTIVE_LINK_ACTION_OPEN_ */
+	hv_store(hash,  "targetLocation", strlen("targetLocation") ,
+		 newSVpv(in->targetLocation, 0), 0);
+	sv_setref_pv(qual, "ARQualifierStructPtr", dup_qualifier(ctrl,
+							    &in->query));
+	hv_store(hash,  "query", strlen("query") , qual, 0);
+	if(in->noMatchContinue)
+		hv_store(hash,  "noMatchContinue", strlen("noMatchContinue") ,
+			 newSVpv("true", 0), 0);
+	else 
+		hv_store(hash,  "noMatchContinue", strlen("noMatchContinue") ,
+			 newSVpv("false", 0), 0);
+	if(in->suppressEmptyLst)
+		hv_store(hash,  "suppressEmptyList", strlen("suppressEmptyList") ,
+			 newSVpv("true", 0), 0);
+	else 
+		hv_store(hash,  "suppressEmptyList", strlen("suppressEmptyList") ,
+			 newSVpv("false", 0), 0);
+	hv_store(hash,  "message", strlen("message") ,
+		perl_ARMessageStruct(ctrl, &(in->msg)), 0);
+	hv_store(hash,  "pollinginterval", strlen("pollinginterval"),
+		 newSViv(in->pollinginterval), 0);
+	hv_store(hash,  "reportString", strlen("reportString") ,
+		 newSVpv(in->reportString, 0), 0);
+	hv_store(hash,  "sortOrderList", strlen("sortOrderList") , 
+		 perl_ARSortList(ctrl, &(in->sortOrderList)), 0);
+
 	return newRV_noinc((SV *)hash);
+}
+
+SV             *
+perl_ARCallGuideStruct(ARControlStruct * ctrl, ARCallGuideStruct * in)
+{
+	HV          *hash = newHV();
+	hv_store(hash, "serverName", strlen("serverName") ,
+		 newSVpv(in->serverName, 0), 0);
+	hv_store(hash, "guideName", strlen("guideName") ,
+		 newSVpv(in->guideName, 0), 0);
+	hv_store(hash, "guideMode", strlen("guideMode") , newSViv(in->guideMode), 0);
+	hv_store(hash, "loopTable", strlen("loopTable"),
+		 perl_ARInternalId(ctrl, &(in->guideTableId)), 0);
+	hv_store(hash,  "inputValueFieldPairs", strlen("inputValueFieldPairs") ,
+		 perl_ARList(ctrl,
+			     (ARList *)& in->inputValueFieldPairs,
+			     (ARS_fn) perl_ARFieldAssignStruct,
+			     sizeof(ARFieldAssignStruct)), 0);
+	hv_store(hash,  "outputValueFieldPairs", strlen("outputValueFieldPairs") ,
+		 perl_ARList(ctrl,
+			     (ARList *)& in->outputValueFieldPairs,
+			     (ARS_fn) perl_ARFieldAssignStruct,
+			     sizeof(ARFieldAssignStruct)), 0);
+	hv_store(hash, "sampleServer", strlen("sampleServer") ,
+		 newSVpv(in->sampleServer, 0), 0);
+	hv_store(hash, "sampleGuide", strlen("sampleGuide") ,
+		 newSVpv(in->sampleGuide, 0), 0);
+	return newRV_noinc((SV *)hash);
+}
+
+SV             *
+perl_ARExitGuideStruct(ARControlStruct * ctrl, ARExitGuideStruct * in)
+{
+	HV          *hash = newHV();
+	if(in->closeAll)
+		hv_store(hash,  "closeAll", strlen("closeAll") ,
+			 newSVpv("true", 0), 0);
+	else 
+		hv_store(hash,  "closeAll", strlen("closeAll") ,
+			 newSVpv("false", 0), 0);
+	return newRV_noinc((SV *)hash);
+}
+
+SV             *
+perl_ARCloseWndStruct(ARControlStruct * ctrl, ARCloseWndStruct * in)
+{
+	HV          *hash = newHV();
+	if(in->closeAll)
+		hv_store(hash,  "closeAll", strlen("closeAll") ,
+			 newSVpv("true", 0), 0);
+	else 
+		hv_store(hash,  "closeAll", strlen("closeAll") ,
+			 newSVpv("false", 0), 0);
+	return newRV_noinc((SV *)hash);
+}
+
+SV             *
+perl_ARGotoActionStruct(ARControlStruct * ctrl, ARGotoActionStruct * in)
+{
+	HV          *hash = newHV();
+	hv_store(hash, "tag", strlen("tag") , newSViv(in->tag), 0);
+	hv_store(hash, "fieldIdOrValue", strlen("fieldIdOrValue"),
+			newSViv(in->fieldIdOrValue), 0);
+	return newRV_noinc((SV *)hash);
+}
+
+SV             *
+perl_ARCommitChangesStruct(ARControlStruct * ctrl, ARCommitChangesStruct * in)
+{
+	HV          *hash = newHV();
+	hv_store(hash, "schemaName", strlen("schemaName"), 
+			perl_ARNameType(ctrl, &(in->schemaName)), 0);
+	return newRV_noinc((SV *)hash);
+}
+
+SV             *
+perl_ARWaitStruct(ARControlStruct * ctrl, ARWaitStruct * in)
+{
+	HV          *hash = newHV();
+	hv_store(hash, "continueButtonTitle", strlen("continueButtonTitle"), 
+			newSVpv(in->continueButtonTitle, 0), 0);
+	return newRV_noinc((SV *)hash);
+}
+
+SV             *
+perl_ARReferenceStruct(ARControlStruct * ctrl, ARReferenceStruct * in)
+{
+	HV          *hash = newHV();
+	hv_store(hash, "label", strlen("label") ,
+		 newSVpv(in->label, 0), 0);
+	hv_store(hash, "description", strlen("description") ,
+		 newSVpv(in->description, 0), 0);
+	hv_store(hash, "type", strlen("type") , newSViv(in->type), 0);
+	hv_store(hash, "dataType", strlen("dataType") , newSViv(in->reference.dataType), 0);
+	if (in->reference.dataType == ARREF_DATA_ARSREF)
+		hv_store(hash,  "name", strlen("name") ,
+			perl_ARNameType(ctrl, &(in->reference.u.name)), 0);
+	else {
+		hv_store(hash,  "permittedGroups", strlen("permittedGroups") ,
+			perl_ARList(ctrl,
+				    (ARList *) &(in->reference.u.extRef.permittedGroups), 
+				    (ARS_fn) perl_ARInternalId,
+				    sizeof(ARInternalId)), 0);
+		hv_store(hash,  "value", strlen("value") ,
+			perl_ARValueStruct(ctrl, &(in->reference.u.extRef.value)), 0);
+	}
+	return newRV_noinc((SV *)hash);
+}
+
+SV             *
+perl_ARReferenceList(ARControlStruct * ctrl, ARReferenceList * in) 
+{
+	AV             *array = newAV();
+	unsigned int   i;
+
+	for(i = 0 ; i < in->numItems ; i++) 
+		av_push(array, 
+			perl_ARReferenceStruct(ctrl, &(in->referenceList[i]) ));
+
+	return newRV_noinc((SV *)array);
 }
 #endif
 
@@ -1226,6 +1385,7 @@ perl_ARFieldCharacteristics(ARControlStruct * ctrl, ARFieldCharacteristics * in)
 {
 	HV             *hash = newHV();
 
+	hv_store(hash,  "option", strlen("option") , newSViv(in->option), 0);
 	hv_store(hash,  "accessOption", strlen("accessOption") , newSViv(in->accessOption), 0);
 	hv_store(hash,  "focus", strlen("focus") , newSViv(in->focus), 0);
 #if AR_EXPORT_VERSION < 3
@@ -1249,8 +1409,37 @@ perl_ARFieldCharacteristics(ARControlStruct * ctrl, ARFieldCharacteristics * in)
 
 SV             *
 perl_ARDDEStruct(ARControlStruct * ctrl, ARDDEStruct * in)
-{				/* FIX */
-	return &PL_sv_undef;
+{
+	HV             *hash = newHV();
+	int             action = 0;
+
+	hv_store(hash,  "serviceName", strlen("serviceName") , newSVpv(in->serviceName, 0), 0);
+	hv_store(hash,  "topic", strlen("topic") , newSVpv(in->topic, 0), 0);
+	hv_store(hash,  "pathToProgram", strlen("pathToProgram") , newSVpv(in->pathToProgram, 0), 0);
+	hv_store(hash,  "action", strlen("action") , newSViv(in->action), 0);
+	action = in->action;
+	hv_store(hash,  "actionName", strlen("actionName") ,
+			newSVpv(DDEActionMap[action].name, strlen(DDEActionMap[action].name)), 0);
+	switch (action) {
+	case AR_DDE_EXECUTE:
+		hv_store(hash,  "command", strlen("command") , newSVpv(in->command, 0), 0);
+		hv_store(hash,  "item", strlen("item") , &PL_sv_undef, 0);
+		break;
+	case AR_DDE_POKE:
+		hv_store(hash,  "item", strlen("item") , newSVpv(in->item, 0), 0);
+		hv_store(hash,  "command", strlen("command") , newSVpv(in->command, 0), 0);
+		break;
+	case AR_DDE_REQUEST:
+		hv_store(hash,  "item", strlen("item") , newSVpv(in->item, 0), 0);
+		hv_store(hash,  "command", strlen("command") , &PL_sv_undef, 0);
+		break;
+	default:
+		hv_store(hash,  "item", strlen("item") , &PL_sv_undef, 0);
+		hv_store(hash,  "command", strlen("command") , &PL_sv_undef, 0);
+		break;
+	}
+
+	return newRV_noinc((SV *) hash);
 }
 
 SV             *
@@ -1335,18 +1524,42 @@ perl_ARActiveLinkActionStruct(ARControlStruct * ctrl, ARActiveLinkActionStruct *
 		break;
         case AR_ACTIVE_LINK_ACTION_COMMITC:
 		/*ARCommitChangesStruct;*/
+		hv_store(hash,  "commitChanges", strlen("commitChanges") ,
+				perl_ARCommitChangesStruct(ctrl, &in->u.commitChanges), 0);
+		break;
         case AR_ACTIVE_LINK_ACTION_CLOSEWND:
 		/*ARCloseWndStruct;*/
+		hv_store(hash,  "closeWnd", strlen("closeWnd") ,
+			 perl_ARCloseWndStruct(ctrl,
+					      &in->u.closeWnd), 0);
+		break;
         case AR_ACTIVE_LINK_ACTION_CALLGUIDE:
 		/*ARCallGuideStruct;*/
+		hv_store(hash,  "callGuide", strlen("callGuide") ,
+			 perl_ARCallGuideStruct(ctrl,
+					      &in->u.callGuide), 0);
+		break;
         case AR_ACTIVE_LINK_ACTION_EXITGUIDE:
 		/*ARExitGuideStruct;*/
+		hv_store(hash,  "exitGuide", strlen("exitGuide") ,
+			 perl_ARExitGuideStruct(ctrl,
+					      &in->u.exitGuide), 0);
+		break;
         case AR_ACTIVE_LINK_ACTION_GOTOGUIDELABEL:
 		/*ARGotoGuideLabelStruct;*/
+		hv_store(hash,  "gotoGuideLabel", strlen("gotoGuideLabel") ,
+			 newSVpv(in->u.gotoGuide.label, 0), 0);
+		break;
         case AR_ACTIVE_LINK_ACTION_WAIT:
 		/*ARWaitStruct;*/
+		hv_store(hash,  "waitAction", strlen("waitAction") ,
+			 perl_ARWaitStruct(ctrl, &in->u.waitAction), 0);
+		break;
         case AR_ACTIVE_LINK_ACTION_GOTOACTION:
 		/*ARGotoActionStruct;*/
+		hv_store(hash,  "gotoAction", strlen("gotoAction") ,
+			 perl_ARGotoActionStruct(ctrl, &in->u.gotoAction), 0);
+                break;
 #endif
         case AR_ACTIVE_LINK_ACTION_NONE:
 		hv_store(hash,  "none", strlen("none") , &PL_sv_undef, 0);
@@ -1460,6 +1673,24 @@ perl_ARFilterActionStruct(ARControlStruct * ctrl, ARFilterActionStruct * in)
                  break;
          case AR_FILTER_ACTION_GOTOACTION:
                  /*ARGotoActionStruct;*/
+		hv_store(hash,  "gotoAction", strlen("gotoAction") ,
+			 perl_ARGotoActionStruct(ctrl, &in->u.gotoAction), 0);
+                break;
+        case AR_FILTER_ACTION_CALLGUIDE:
+                /*ARCallGuideStruct;*/
+		hv_store(hash,  "callGuide", strlen("callGuide") ,
+			 perl_ARCallGuideStruct(ctrl, &in->u.callGuide), 0);
+                break;
+        case AR_FILTER_ACTION_EXITGUIDE:
+                /*ARExitGuideStruct;*/
+		hv_store(hash,  "exitGuide", strlen("exitGuide") ,
+			 perl_ARExitGuideStruct(ctrl, &in->u.exitGuide), 0);
+                break;
+        case AR_FILTER_ACTION_GOTOGUIDELABEL:
+                /*ARGotoGuideLabelStruct;*/
+		hv_store(hash,  "gotoGuide", strlen("gotoGuide") ,
+			 newSVpv(in->u.gotoGuide.label, 0), 0);
+                break;
  
 #endif
 	case AR_FILTER_ACTION_NONE:
@@ -1582,8 +1813,10 @@ SV             *
 perl_ARFieldLimitStruct(ARControlStruct * ctrl, ARFieldLimitStruct * in)
 {
 	HV             *hash = newHV();
+	SV             *qual = newSViv(0);
 
 	DBG( ("FLS dt=%d\n", in->dataType) );
+	hv_store(hash,  "dataType", strlen("dataType") , newSViv(in->dataType), 0);
 	switch (in->dataType) {
 	case AR_DATA_TYPE_KEYWORD:
 	  return &PL_sv_undef;
@@ -1703,14 +1936,50 @@ perl_ARFieldLimitStruct(ARControlStruct * ctrl, ARFieldLimitStruct * in)
 #endif
 		return newRV_noinc((SV *) hash);
 		
+	case AR_DATA_TYPE_BYTES:
+	  return &PL_sv_undef;
+
+	case AR_DATA_TYPE_DECIMAL:
+		hv_store(hash,  "rangeLow", strlen("rangeLow") , newSVpv(in->u.decimalLimits.rangeLow, 0), 0);
+		hv_store(hash,  "rangeHigh", strlen("rangeHigh") , newSVpv(in->u.decimalLimits.rangeHigh, 0), 0);
+		hv_store(hash,  "precision", strlen("precision") , newSViv(in->u.decimalLimits.precision), 0);
+		return newRV_noinc((SV *) hash);
+
+	case AR_DATA_TYPE_ATTACH:
+		hv_store(hash,  "maxSize", strlen("maxSize") , newSViv(in->u.attachLimits.maxSize), 0);
+		hv_store(hash,  "attachType", strlen("attachType") , newSViv(in->u.attachLimits.attachType), 0);
+		return newRV_noinc((SV *) hash);
+
 #if AR_EXPORT_VERSION >= 7
 	case AR_DATA_TYPE_CURRENCY:
 	case AR_DATA_TYPE_DATE:
 	case AR_DATA_TYPE_TIME_OF_DAY:
 #endif
-	case AR_DATA_TYPE_BYTES:
-	case AR_DATA_TYPE_DECIMAL:
-	case AR_DATA_TYPE_ATTACH:
+
+	case AR_DATA_TYPE_TABLE:
+		hv_store(hash,  "numColumns", strlen("numColumns") , newSViv(in->u.tableLimits.numColumns), 0);
+		sv_setref_pv(qual, "ARQualifierStructPtr", dup_qualifier(ctrl, &in->u.tableLimits.qualifier));
+		hv_store(hash,  "maxRetrieve", strlen("maxRetrieve") , newSViv(in->u.tableLimits.maxRetrieve), 0);
+		hv_store(hash,  "schema", strlen("schema") , newSVpv(in->u.tableLimits.schema, 0), 0);
+		hv_store(hash,  "server", strlen("server") , newSVpv(in->u.tableLimits.server, 0), 0);
+		hv_store(hash,  "sampleSchema", strlen("sampleSchema") , newSVpv(in->u.tableLimits.sampleSchema, 0), 0);
+		hv_store(hash,  "sampleServer", strlen("sampleServer") , newSVpv(in->u.tableLimits.sampleServer, 0), 0);
+		return newRV_noinc((SV *) hash);
+
+	case AR_DATA_TYPE_COLUMN:
+		hv_store(hash, "parent", strlen("parent"), perl_ARInternalId(ctrl, &(in->u.columnLimits.parent)), 0);
+		hv_store(hash, "dataField", strlen("dataField"), perl_ARInternalId(ctrl, &(in->u.columnLimits.dataField)), 0);
+		hv_store(hash,  "dataSource", strlen("dataSource") , newSViv(in->u.columnLimits.dataSource), 0);
+		hv_store(hash,  "colLength", strlen("colLength") , newSViv(in->u.columnLimits.colLength), 0);
+		return newRV_noinc((SV *) hash);
+
+	case AR_DATA_TYPE_VIEW:
+		hv_store(hash,  "maxLength", strlen("maxLength") , newSViv(in->u.viewLimits.maxLength), 0);
+		return newRV_noinc((SV *) hash);
+
+	case AR_DATA_TYPE_DISPLAY:
+		hv_store(hash,  "maxLength", strlen("maxLength") , newSViv(in->u.displayLimits.maxLength), 0);
+		return newRV_noinc((SV *) hash);
 
 	case AR_DATA_TYPE_NULL:
 	default:
@@ -1772,6 +2041,9 @@ perl_ARAssignStruct(ARControlStruct * ctrl, ARAssignStruct * in)
 #if AR_EXPORT_VERSION >= 3
 	case AR_ASSIGN_TYPE_SQL:
 		hv_store(hash,  "sql", strlen("sql") , perl_ARAssignSQLStruct(ctrl, in->u.sql), 0);
+		break;
+	case AR_ASSIGN_TYPE_FILTER_API:
+		hv_store(hash,  "filterApi", strlen("filterApi") , perl_ARAssignFilterApiStruct(ctrl, in->u.filterApi), 0);
 		break;
 #endif				/* ARS 3.x */
 	default:
@@ -1835,6 +2107,20 @@ perl_ARAssignSQLStruct(ARControlStruct * ctrl, ARAssignSQLStruct * in)
 	}
 	hv_store(hash,  "multiMatchOption", strlen("multiMatchOption") ,
 		 newSVpv(MultiMatchOptionMap[i].name, 0), 0);
+
+	return newRV_noinc((SV *) hash);
+}
+
+SV             *
+perl_ARAssignFilterApiStruct(ARControlStruct * ctrl, ARAssignFilterApiStruct * in)
+{
+	HV             *hash = newHV();
+	int             i;
+
+	hv_store(hash,  "serviceName", strlen("serviceName") , newSVpv(in->serviceName, 0), 0);
+	hv_store(hash,  "numItems", strlen("numItems") , newSViv(in->numItems), 0);
+	hv_store(hash,  "inputValues", strlen("inputValues") , perl_ARAssignStruct(ctrl, in->inputValues), 0);
+	hv_store(hash,  "valueIndex", strlen("valueIndex") , newSViv(in->valueIndex), 0);
 
 	return newRV_noinc((SV *) hash);
 }
@@ -2097,6 +2383,7 @@ perl_ARDisplayInstanceList(ARControlStruct * ctrl, ARDisplayInstanceList * in)
 	 * pass that to perl_ARList
 	 */
 
+	hv_store(hash,  "numItems", strlen("numItems") , newSViv(in->numItems), 0);
 	hv_store(hash,  "dInstanceList", strlen("dInstanceList") ,
 		 perl_ARList(ctrl,
 			     (ARList *) & in->numItems,
@@ -2205,6 +2492,49 @@ perl_ARSortList(ARControlStruct * ctrl, ARSortList * in)
 		av_push(array, newRV_noinc((SV *) sort));
 	}
 	return newRV_noinc((SV *) array);
+}
+  
+SV             *
+perl_ARArchiveInfoStruct(ARControlStruct * ctrl, ARArchiveInfoStruct * in)
+{
+	HV                *hash = newHV();
+	unsigned int       i;
+	SV                *qual = newSViv(0);
+
+	if(in->enable)
+		hv_store(hash,  "enable", strlen("enable") ,
+			 newSVpv("true", 0), 0);
+	else 
+		hv_store(hash,  "enable", strlen("enable") ,
+			 newSVpv("false", 0), 0);
+
+	hv_store(hash, "archiveType", strlen("archiveType") , newSViv(in->archiveType), 0);
+	i = in->archiveType;
+	if ((i & AR_ARCHIVE_FORM) || (i & AR_ARCHIVE_DELETE))
+		hv_store(hash, "formName", strlen("formName") ,
+			 newSVpv(in->u.formName, 0), 0);
+	if ((i & AR_ARCHIVE_FILE_XML) || (i & AR_ARCHIVE_FILE_ARX))
+		hv_store(hash, "dirPath", strlen("dirPath") ,
+			 newSVpv(in->u.dirPath, 0), 0);
+	/*
+	 * qual = dup_qualifier(ctrl, &in->query);
+	 * ref = newSViv(0);
+	 * sv_setref_pv(ref, "ARQualifierStructPtr", (void *) qual);
+	 */
+	sv_setref_pv(qual, "ARQualifierStructPtr", dup_qualifier(ctrl,
+							    &in->query));
+	hv_store(hash, "query", strlen("query") , qual, 0);
+	hv_store(hash, "TmMonthDayMask", strlen("TmMonthDayMask") ,
+		newSViv(in->archiveTime.monthday), 0);
+	hv_store(hash, "TmWeekDayMask", strlen("TmWeekDayMask") ,
+		newSViv(in->archiveTime.weekday), 0);
+	hv_store(hash, "TmHourMask", strlen("TmHourMask") ,
+		newSViv(in->archiveTime.hourmask), 0);
+	hv_store(hash, "TmMinute", strlen("TmMinute") ,
+		newSViv(in->archiveTime.minute), 0);
+	hv_store(hash, "archiveFrom", strlen("archiveFrom") ,
+		 newSVpv(in->archiveFrom, 0), 0);
+	return newRV_noinc((SV *) hash);
 }
   
 #if AR_EXPORT_VERSION >= 4
@@ -2570,6 +2900,31 @@ perl_ARNameList(ARControlStruct * ctrl, ARNameList * in) {
 
 	for(i = 0 ; i < in->numItems ; i++) {
 		av_push(array, newSVpv(in->nameList[i], 0));
+	}
+	return newRV_noinc((SV *)array);
+}
+
+SV *
+perl_AROwnerObj(ARControlStruct * ctrl, ARContainerOwnerObj * in)
+{
+	HV             *hash = newHV();
+
+	hv_store(hash,  "type", strlen("type") ,
+		 newSVpv(lookUpTypeName((TypeMapStruct *)ContainerOwnerMap, 
+					in->type), 0), 0); 
+	hv_store(hash,  "ownerName", strlen("ownerName") , perl_ARNameType(ctrl, &(in->ownerName)), 0);
+
+	return newRV_noinc((SV *) hash);
+}
+
+SV *
+perl_AROwnerObjList(ARControlStruct * ctrl, ARContainerOwnerObjList * in) {
+	AV *array = newAV();
+	unsigned int i;
+
+	for(i = 0 ; i < in->numItems ; i++) {
+		av_push(array, 
+			perl_AROwnerObj(ctrl, &(in->ownerObjList[i]) ));
 	}
 	return newRV_noinc((SV *)array);
 }

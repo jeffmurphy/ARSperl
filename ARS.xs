@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.104 2005/04/23 16:26:49 jeffmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.105 2005/05/23 12:11:36 idtrimnell Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -1068,13 +1068,16 @@ ars_GetListContainer(ctrl,changedSince=0,attributes=0,...)
 	PPCODE:
 	{
 	  ARStatusList 		status;
+	  int          		i, ret;
 
 	  (void) ARError_reset();	  
 	  Zero(&status, 1, ARStatusList);
 #if AR_EXPORT_VERSION >= 4
-	  if(items > 3) {
-		int 			i;
+	  if(items < 4)
+		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
+	  else {
 	  	ARContainerTypeList	containerTypes;
+		int			count, clist[ARCON_LAST_RESERVED];
 # if AR_EXPORT_VERSION >= 6
 		ARContainerOwnerObjList ownerObjList;
 # else
@@ -1085,16 +1088,20 @@ ars_GetListContainer(ctrl,changedSince=0,attributes=0,...)
 # endif
 		ARContainerInfoList	conList;
 
-		containerTypes.numItems = items - 3;
-		AMALLOCNN(containerTypes.type, 
-		     containerTypes.numItems, int);
+		count = 0;
 		for(i = 3 ; i < items ; i++) {
-			containerTypes.type[i-3] = SvIV(ST(i));
+			clist[count++] = SvIV(ST(i));
 		}
+		containerTypes.numItems = count;
+		containerTypes.type = clist; 
+# if AR_EXPORT_VERSION >= 6
+		ownerObjList.numItems = 0;
+		ownerObjList.ownerObjList = NULL;
+# endif
 # if AR_EXPORT_VERSION >= 8L
 		Zero(&propList, 1, ARPropList);
 # endif
-		i = ARGetListContainer(ctrl, changedSince,
+		ret = ARGetListContainer(ctrl, changedSince,
 					&containerTypes,
 					attributes,
 # if AR_EXPORT_VERSION >= 6
@@ -1107,16 +1114,134 @@ ars_GetListContainer(ctrl,changedSince=0,attributes=0,...)
 # endif
 
 					&conList, &status);
-		if(!ARError(i, status)) {
-			HV *r = newHV();				
+		if(!ARError(ret, status)) {
+		    for(i = 0 ; i < conList.numItems ; i++) {
+	        	HV 			*conInfo = newHV();
+			ARContainerOwnerObjList	 cOwnerObjList;
+
+	        	hv_store(conInfo,  "containerType", strlen("containerType") , 
+				newSVpv(ContainerTypeMap[conList.conInfoList[i].type].name, 0), 0);
+	        	hv_store(conInfo,  "containerName", strlen("containerName") , 
+				newSVpv(conList.conInfoList[i].name, 0), 0);
+			cOwnerObjList = conList.conInfoList[i].ownerList;
+			hv_store(conInfo,  "ownerObjList", strlen("ownerObjList") ,
+		     		perl_AROwnerObjList(ctrl, &cOwnerObjList), 0);
+	        	XPUSHs(sv_2mortal(newRV_noinc((SV *)conInfo)));
+		    }
 		}
 		FreeARContainerTypeList(&containerTypes, FALSE);
-	  } else {
-		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
+		FreeARContainerInfoList(&conList, FALSE);
+# if AR_EXPORT_VERSION >= 6
+		FreeARContainerOwnerObjList(&ownerObjList, FALSE);
+# endif
+# if AR_EXPORT_VERSION >= 8L
+		FreeARPropList(&propList, FALSE);
+# endif
 	  }
 #else
 #endif
 	}
+
+HV *
+ars_GetContainer(control,name)
+	ARControlStruct *	control
+	char *			name
+	CODE:
+	{
+	  ARStatusList            status;
+	  int                     ret;
+	  ARReferenceTypeList     refTypes;
+	  ARPermissionList        groupList;
+	  ARInternalIdList        adminGroupList;
+	  ARContainerOwnerObjList ownerObjList;
+	  char                   *label = CPNULL;
+	  char                   *description = CPNULL;
+	  unsigned int            type;
+	  ARReferenceList         references;
+	  char                   *helpText = CPNULL;
+	  ARAccessNameType        owner;
+	  ARTimestamp             timestamp;
+	  ARAccessNameType        lastChanged;
+	  char                   *changeDiary = CPNULL;
+	  ARPropList              objPropList;
+	  unsigned int            tlist[] = {ARREF_ALL};
+	  int                     i;
+	  ARDiaryList             diaryList;
+
+	  (void) ARError_reset();
+	  Zero(&status, 1, ARStatusList);
+
+	  refTypes.numItems = 1;
+	  refTypes.refType = tlist;
+
+	  ret = ARGetContainer(control, name, &refTypes, 
+			       &groupList, &adminGroupList,
+			       &ownerObjList, &label, &description,
+			       &type, &references, &helpText,
+			       owner, &timestamp, lastChanged, &changeDiary, 
+			       &objPropList, &status);
+#ifdef PROFILE
+	  ((ars_ctrl *)control)->queries++;
+#endif
+	  RETVAL = newHV();
+	  if (!ARError( ret,status)) {
+	    AV *rtypeList = newAV(), *rnameList = newAV();
+
+	    hv_store(RETVAL,  "objPropList", strlen("objPropList") ,
+		     perl_ARPropList(control, &objPropList), 0);
+	    hv_store(RETVAL,  "groupList", strlen("groupList") ,
+		     perl_ARPermissionList(control, &groupList, PERMTYPE_SCHEMA), 0);
+	    hv_store(RETVAL,  "adminList", strlen("adminList") ,
+		     perl_ARList(control, (ARList *)&adminGroupList, 
+				 (ARS_fn)perl_ARInternalId,
+				 sizeof(ARInternalId)),0);
+	    hv_store(RETVAL,  "ownerObjList", strlen("ownerObjList") ,
+		     perl_AROwnerObjList(control, &ownerObjList), 0);
+	    if (helpText)
+	      hv_store(RETVAL,  "helpText", strlen("helpText") , newSVpv(helpText, 0), 0);
+	    hv_store(RETVAL,  "timestamp", strlen("timestamp") , newSViv(timestamp), 0);
+	    hv_store(RETVAL,  "type", strlen("type") ,
+			    newSVpv( ContainerTypeMap[type].name, strlen(ContainerTypeMap[type].name) ) ,
+			    0);
+	    hv_store(RETVAL,  "name", strlen("name") , newSVpv(name, 0), 0);
+	    hv_store(RETVAL,  "owner", strlen("owner") , newSVpv(owner, 0), 0);
+	    hv_store(RETVAL,  "lastChanged", strlen("lastChanged") ,
+		     newSVpv(lastChanged, 0), 0);
+	    if (changeDiary) {
+		ret = ARDecodeDiary(control, changeDiary, &diaryList, &status);
+		if (!ARError(ret, status)) {
+			hv_store(RETVAL,  "changeDiary", strlen("changeDiary") ,
+				perl_ARList(control, (ARList *)&diaryList,
+				(ARS_fn)perl_diary,
+				sizeof(ARDiaryStruct)), 0);
+			FreeARDiaryList(&diaryList, FALSE);
+		}
+	    }
+	    hv_store(RETVAL,  "referenceList", strlen("referenceList") ,
+		     perl_ARReferenceList(control, &references), 0);
+	    if (label)
+	      hv_store(RETVAL,  "label", strlen("label") , newSVpv(label, 0), 0);
+	    if (description)
+	      hv_store(RETVAL,  "description", strlen("description") , newSVpv(description, 0), 0);
+	    hv_store(RETVAL,  "numReferences", strlen("numReferences") , newSViv(references.numItems), 0);
+
+	    FreeARPermissionList(&groupList,FALSE);
+	    FreeARInternalIdList(&adminGroupList,FALSE);
+	    FreeARContainerOwnerObjList(&ownerObjList,FALSE);
+	    FreeARReferenceList(&references,FALSE);
+	    FreeARPropList(&objPropList, FALSE);
+	    if(helpText)
+	      	AP_FREE(helpText);
+	    if(changeDiary)
+	      	AP_FREE(changeDiary);
+	    if(label)
+	      	AP_FREE(label);
+	    if(description)
+	      	AP_FREE(description);
+	  }
+	}
+	OUTPUT:
+	RETVAL
 
 void
 ars_GetListServer()
@@ -1679,6 +1804,36 @@ ars_GetCharMenu(ctrl,name)
 			hv_store(RETVAL,  "menuSQL", strlen("menuSQL") , 
 				newRV_noinc((SV *)menuDef), 0);
 			break;
+		case AR_CHAR_MENU_DATA_DICTIONARY:
+			hv_store(menuDef,  "server", strlen("server") , 
+				newSVpv(menuDefn.u.menuDD.server, 0), 0);
+			hv_store(menuDef,  "nameType", strlen("nameType") , 
+				newSViv(menuDefn.u.menuDD.nameType), 0);
+			hv_store(menuDef,  "valueFormat", strlen("valueFormat") , 
+				newSViv(menuDefn.u.menuDD.valueFormat), 0);
+			hv_store(menuDef,  "structType", strlen("structType") , 
+				newSViv(menuDefn.u.menuDD.structType), 0);
+			switch(menuDefn.u.menuDD.structType) {
+			case AR_CHAR_MENU_DD_FORM:
+				hv_store(menuDef,  "schemaType", strlen("schemaType") , 
+					newSViv(menuDefn.u.menuDD.u.formDefn.schemaType), 0);
+				if(menuDefn.u.menuDD.u.formDefn.includeHidden)
+					hv_store(menuDef,  "includeHidden", strlen("includeHidden") , 
+						newSVpv("true", 0), 0);
+				else
+					hv_store(menuDef,  "includeHidden", strlen("includeHidden") , 
+						newSVpv("false", 0), 0);
+				break;
+			case AR_CHAR_MENU_DD_FIELD:
+				hv_store(menuDef,  "fieldType", strlen("fieldType") , 
+					newSViv(menuDefn.u.menuDD.u.fieldDefn.fieldType), 0);
+				hv_store(menuDef,  "schema", strlen("schema") , 
+					newSVpv(menuDefn.u.menuDD.u.fieldDefn.schema, 0), 0);
+				break;
+			}
+			hv_store(RETVAL,  "menuDD", strlen("menuDD") , 
+				newRV_noinc((SV *)menuDef), 0);
+			break;
 #endif
 		}
 #if AR_EXPORT_VERSION >= 5
@@ -1864,6 +2019,8 @@ ars_GetSchema(ctrl,name)
 			perl_ARCompoundSchema(ctrl, &schema), 0);
 	    hv_store(RETVAL,  "sortList", strlen("sortList") , 
 			perl_ARSortList(ctrl, &sortList), 0);
+	    hv_store(RETVAL,  "archiveInfo", strlen("archiveInfo") , 
+			perl_ARArchiveInfoStruct(ctrl, &infoStruct), 0);
 #endif
 #if AR_EXPORT_VERSION >= 3
 	    FreeARPermissionList(&groupList,FALSE);
@@ -2170,6 +2327,7 @@ ars_Export(ctrl,displayTag,vuiType,...)
 		RETVAL = &PL_sv_undef;
 		if ( (items % 2 == 0) || (c < 1) ) {
 			(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
+			ok = 0;
 		} else {
 			structItems.numItems = c;
 			AMALLOCNN(structItems.structItemList, c, ARStructItemStruct);
@@ -2194,6 +2352,10 @@ ars_Export(ctrl,displayTag,vuiType,...)
 				}
 			}
 		}
+#if AR_EXPORT_VERSION >= 8L
+			workflowLockStruct.lockType = 0;
+			workflowLockStruct.lockKey[0] = '\0';
+#endif
 
 		if(ok) {
 			ret = ARExport(ctrl, &structItems, displayTag, 

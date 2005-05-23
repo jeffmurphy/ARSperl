@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.24 2004/08/13 01:09:42 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.25 2005/05/23 12:11:37 idtrimnell Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -144,8 +144,48 @@ static struct {
 static struct {
 	unsigned int  number;
 	char         *name;
+} DDEActionMap[] = {
+/*DDEACTIONMAP*/
+	{ TYPEMAP_LAST, "" }
+};
+
+static struct {
+	unsigned int  number;
+	char         *name;
 } ActiveLinkActionTypeMap[] = {
 /*ACTIVELINKACTIONTYPEMAP*/
+	{ TYPEMAP_LAST, "" }
+};
+
+static struct {
+	unsigned int  number;
+	char         *name;
+} OpenWindowModeMap[] = {
+/*OPENWINDOWMODEMAP*/
+	{ TYPEMAP_LAST, "" }
+};
+
+static struct {
+	unsigned int  number;
+	char         *name;
+} CharMenuDDTypeMap[] = {
+/*CHARMENUDDTYPEMAP*/
+	{ TYPEMAP_LAST, "" }
+};
+
+static struct {
+	unsigned int  number;
+	char         *name;
+} CharMenuDDNameMap[] = {
+/*CHARMENUDDNAMEMAP*/
+	{ TYPEMAP_LAST, "" }
+};
+
+static struct {
+	unsigned int  number;
+	char         *name;
+} CharMenuDDValueMap[] = {
+/*CHARMENUDDVALUEMAP*/
 	{ TYPEMAP_LAST, "" }
 };
 
@@ -256,6 +296,30 @@ static struct {
 static struct {
   unsigned int  number;
   char         *name;
+} ContainerTypeMap[] = {
+/*CONTAINERTYPEMAP*/
+  { TYPEMAP_LAST, "" }
+};
+
+static struct {
+  unsigned int  number;
+  char         *name;
+} ContainerOwnerMap[] = {
+/*CONTAINEROWNERMAP*/
+  { TYPEMAP_LAST, "" }
+};
+
+static struct {
+  unsigned int  number;
+  char         *name;
+} ReferenceTypeMap[] = {
+/*REFERENCETYPEMAP*/
+  { TYPEMAP_LAST, "" }
+};
+
+static struct {
+  unsigned int  number;
+  char         *name;
   int           len;
 } KeyWordMap[] = {
 /*KEYWORDMAP*/
@@ -329,6 +393,10 @@ EXTERN SV *perl_ARDDEStruct(ARControlStruct *ctrl,  ARDDEStruct *);
 EXTERN SV *perl_ARActiveLinkActionStruct(ARControlStruct *ctrl, 
 					 ARActiveLinkActionStruct *);
 EXTERN SV *perl_ARFilterActionStruct(ARControlStruct *ctrl,  ARFilterActionStruct *);
+EXTERN SV *perl_AROwnerObj(ARControlStruct *ctrl,  ARContainerOwnerObj *);
+EXTERN SV *perl_AROwnerObjList(ARControlStruct *ctrl,  ARContainerOwnerObjList *);
+EXTERN SV *perl_ARReferenceStruct(ARControlStruct *ctrl,  ARReferenceStruct *);
+EXTERN SV *perl_ARReferenceList(ARControlStruct *ctrl,  ARReferenceList *);
 EXTERN SV *perl_expandARCharMenuStruct( ARControlStruct *, ARCharMenuStruct *);
 EXTERN SV *perl_AREntryListFieldStruct(ARControlStruct *ctrl, 
 					AREntryListFieldStruct *);
@@ -385,12 +453,14 @@ EXTERN SV *perl_ARViewMappingStruct(ARControlStruct *ctrl,  ARViewMappingStruct 
 EXTERN SV *perl_ARJoinSchema(ARControlStruct *ctrl,  ARJoinSchema *);
 EXTERN SV *perl_ARViewSchema(ARControlStruct *ctrl,  ARViewSchema *);
 EXTERN SV *perl_ARCompoundSchema(ARControlStruct *ctrl,  ARCompoundSchema *);
+EXTERN SV *perl_ARArchiveInfoStruct(ARControlStruct *ctrl,  ARArchiveInfoStruct *);
 EXTERN SV *perl_ARSortList(ARControlStruct *ctrl,  ARSortList *);
 EXTERN SV *perl_ARByteList(ARControlStruct *ctrl,  ARByteList *);
 EXTERN SV *perl_ARCoordStruct(ARControlStruct *ctrl,  ARCoordStruct *);
 EXTERN int perl_BuildEntryList(ARControlStruct *ctrl,  AREntryIdList *entryList, 
 				char *entry_id);
 EXTERN SV *perl_ARAssignSQLStruct(ARControlStruct *ctrl,  ARAssignSQLStruct *in);
+EXTERN SV *perl_ARAssignFilterApiStruct(ARControlStruct *ctrl,  ARAssignFilterApiStruct *in);
 #endif
 
 #if AR_EXPORT_VERSION >= 4
@@ -408,6 +478,18 @@ EXTERN SV *perl_ARCOMValueStruct(ARControlStruct * ctrl,
 				 ARCOMValueStruct * in);
 EXTERN SV *perl_AROpenDlgStruct(ARControlStruct * ctrl,
 				AROpenDlgStruct * in);
+EXTERN SV *perl_ARCallGuideStruct(ARControlStruct * ctrl,
+				ARCallGuideStruct * in);
+EXTERN SV *perl_ARExitGuideStruct(ARControlStruct * ctrl,
+				ARExitGuideStruct * in);
+EXTERN SV *perl_ARGotoActionStruct(ARControlStruct * ctrl,
+				ARGotoActionStruct * in);
+EXTERN SV *perl_ARCommitChangesStruct(ARControlStruct * ctrl,
+				ARCommitChangesStruct * in);
+EXTERN SV *perl_ARCloseWndStruct(ARControlStruct * ctrl,
+				ARCloseWndStruct * in);
+EXTERN SV *perl_ARWaitStruct(ARControlStruct * ctrl,
+				ARWaitStruct * in);
 #endif
 
 #ifndef BSD
