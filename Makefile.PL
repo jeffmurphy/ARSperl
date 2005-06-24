@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.71 2005/05/23 12:11:37 idtrimnell Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.72 2005/06/24 14:48:52 jeffmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -98,10 +98,16 @@ $AUTODEFINES .= "  -Wno-unused-variable -Wuninitialized " if $Config{'cc'} eq "g
 
 
 $ARS_STATIC_LIB = "";
+
+$PM = {};
+foreach my $pm2install (qw{ARSarerrno-h.pm  ARSar-h.pm  ARSnparm.pm  ARSnterrno-h.pm  ARSnt-h.pm  ARSOOform.pm  ARSOOmsgs.pm  ARSOOsup.pm  ARS.pm}) {
+	$PM->{$pm2install} = '$(INST_LIBDIR)/'.$pm2install;
+}
+
 if ($ARSVERSION >= 6.3) {
         $ARS_STATIC_LIB = $ARSAPI."/lib/libar.a";
 	$ARS_LIBS = "";
-	push @extras, 'PM', { 'artypes.ph' => '$(INST_LIBDIR)/artypes.ph' };
+	$PM->{'artypes.ph'} = '$(INST_LIBDIR)/artypes.ph';
 	if ($WINDOWS) {
 		    $ARS_LIBS = join(' ', map { '-l' . $_ } @{$ra_arlibs});
 	} else {
@@ -260,6 +266,8 @@ printf "\tARSVERSION  = %.2f\n", $ARSVERSION;
 print "\tARSAPI      = $ARSAPI\n";
 print "\tAUTODEFINES = $AUTODEFINES\n";
 
+$PM->{'_h2ph_pre.ph'} = '$(INST_LIBDIR)/_h2ph_pre.ph';
+
 WriteMakefile(
 	      'NAME'	=> 'ARS',
 	      'VERSION_FROM' => 'ARS.pm',
@@ -267,7 +275,7 @@ WriteMakefile(
 	      'OBJECT'  => q[ARS$(OBJ_EXT) support$(OBJ_EXT) supportrev$(OBJ_EXT) ].$ARS_STATIC_LIB,
 	      'INC'	=> "${INCLUDES}",
 	
-	      # 'PM' =>{ '_h2ph_pre.ph' => '$(INST_LIBDIR)/_h2ph_pre.ph' },
+	      'PM' => $PM,
 
 	      ($] >= 5.005 ?    ## Add these new keywords supported since 5.005
                (ABSTRACT      => 'ARSperl is an integration kit for Perl5 and the Remedy Action Request System.',
