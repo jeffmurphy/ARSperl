@@ -1,3 +1,7 @@
+released=06/24/2005 version=1.84
+JCM fixed 'autosplit' issue in Makefile.PL
+IT  Updates by Ian Trimnell for ars_GetListContainer and ars_GetContainer
+
 released=03/14/2005 version=1.83
 JCM fixed "lang" compilation error for API 6.3
 JCM variable initialization

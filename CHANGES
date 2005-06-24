@@ -12,6 +12,14 @@ previous versions of arsperl and may require altering of some arsperl
 scripts.
 
 
+Released: 06/24/2005 Version: 1.84
+
+
+(JCM)   fixed 'autosplit' issue in Makefile.PL
+
+ (IT)   Updates by Ian Trimnell for ars_GetListContainer and ars_GetContainer
+
+
 Released: 03/14/2005 Version: 1.83
 
 
@@ -658,5 +666,5 @@ Released: 01/12/96 Version: 1.0beta
 
 arsperl@arsperl.org
 
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.55 2005/04/23 16:26:49 jeffmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.56 2005/06/24 14:51:16 jeffmurphy Exp $
 
