@@ -168,6 +168,12 @@ html/manual/ds_statstruct_hash.html
 html/manual/ds_vs.html
 html/manual/loading.html
 html/manual/skel.html
+html/manual/ars_CreateAlertEvent.html
+html/manual/ars_DecodeAlertMessage.html
+html/manual/ars_DeregisterForAlerts.html
+html/manual/ars_GetAlertCount.html
+html/manual/ars_GetListAlertUser.html
+html/manual/ars_RegisterForAlerts.html
 html/DelUsersFromGroup.html
 html/AddUsersToGroup.html
 html/DumpSetup.html
