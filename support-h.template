@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.25 2005/05/23 12:11:37 idtrimnell Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.26 2005/08/04 11:14:37 idtrimnell Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -453,7 +453,6 @@ EXTERN SV *perl_ARViewMappingStruct(ARControlStruct *ctrl,  ARViewMappingStruct 
 EXTERN SV *perl_ARJoinSchema(ARControlStruct *ctrl,  ARJoinSchema *);
 EXTERN SV *perl_ARViewSchema(ARControlStruct *ctrl,  ARViewSchema *);
 EXTERN SV *perl_ARCompoundSchema(ARControlStruct *ctrl,  ARCompoundSchema *);
-EXTERN SV *perl_ARArchiveInfoStruct(ARControlStruct *ctrl,  ARArchiveInfoStruct *);
 EXTERN SV *perl_ARSortList(ARControlStruct *ctrl,  ARSortList *);
 EXTERN SV *perl_ARByteList(ARControlStruct *ctrl,  ARByteList *);
 EXTERN SV *perl_ARCoordStruct(ARControlStruct *ctrl,  ARCoordStruct *);
@@ -490,6 +489,10 @@ EXTERN SV *perl_ARCloseWndStruct(ARControlStruct * ctrl,
 				ARCloseWndStruct * in);
 EXTERN SV *perl_ARWaitStruct(ARControlStruct * ctrl,
 				ARWaitStruct * in);
+#endif
+
+#if AR_EXPORT_VERSION >= 8L
+EXTERN SV *perl_ARArchiveInfoStruct(ARControlStruct *ctrl,  ARArchiveInfoStruct *);
 #endif
 
 #ifndef BSD

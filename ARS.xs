@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.105 2005/05/23 12:11:36 idtrimnell Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.106 2005/08/04 11:14:36 idtrimnell Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -2019,8 +2019,10 @@ ars_GetSchema(ctrl,name)
 			perl_ARCompoundSchema(ctrl, &schema), 0);
 	    hv_store(RETVAL,  "sortList", strlen("sortList") , 
 			perl_ARSortList(ctrl, &sortList), 0);
+#if AR_EXPORT_VERSION >= 8L
 	    hv_store(RETVAL,  "archiveInfo", strlen("archiveInfo") , 
 			perl_ARArchiveInfoStruct(ctrl, &infoStruct), 0);
+#endif
 #endif
 #if AR_EXPORT_VERSION >= 3
 	    FreeARPermissionList(&groupList,FALSE);
