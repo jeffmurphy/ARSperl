@@ -1111,6 +1111,7 @@ perl_ARCallGuideStruct(ARControlStruct * ctrl, ARCallGuideStruct * in)
 	hv_store(hash, "guideMode", strlen("guideMode") , newSViv(in->guideMode), 0);
 	hv_store(hash, "loopTable", strlen("loopTable"),
 		 perl_ARInternalId(ctrl, &(in->guideTableId)), 0);
+#if AR_EXPORT_VERSION >= 8L
 	hv_store(hash,  "inputValueFieldPairs", strlen("inputValueFieldPairs") ,
 		 perl_ARList(ctrl,
 			     (ARList *)& in->inputValueFieldPairs,
@@ -1125,6 +1126,7 @@ perl_ARCallGuideStruct(ARControlStruct * ctrl, ARCallGuideStruct * in)
 		 newSVpv(in->sampleServer, 0), 0);
 	hv_store(hash, "sampleGuide", strlen("sampleGuide") ,
 		 newSVpv(in->sampleGuide, 0), 0);
+#endif
 	return newRV_noinc((SV *)hash);
 }
 
@@ -1385,7 +1387,9 @@ perl_ARFieldCharacteristics(ARControlStruct * ctrl, ARFieldCharacteristics * in)
 {
 	HV             *hash = newHV();
 
+#if AR_EXPORT_VERSION >= 8L
 	hv_store(hash,  "option", strlen("option") , newSViv(in->option), 0);
+#endif
 	hv_store(hash,  "accessOption", strlen("accessOption") , newSViv(in->accessOption), 0);
 	hv_store(hash,  "focus", strlen("focus") , newSViv(in->focus), 0);
 #if AR_EXPORT_VERSION < 3
@@ -1962,8 +1966,10 @@ perl_ARFieldLimitStruct(ARControlStruct * ctrl, ARFieldLimitStruct * in)
 		hv_store(hash,  "maxRetrieve", strlen("maxRetrieve") , newSViv(in->u.tableLimits.maxRetrieve), 0);
 		hv_store(hash,  "schema", strlen("schema") , newSVpv(in->u.tableLimits.schema, 0), 0);
 		hv_store(hash,  "server", strlen("server") , newSVpv(in->u.tableLimits.server, 0), 0);
+#if AR_EXPORT_VERSION >= 8L
 		hv_store(hash,  "sampleSchema", strlen("sampleSchema") , newSVpv(in->u.tableLimits.sampleSchema, 0), 0);
 		hv_store(hash,  "sampleServer", strlen("sampleServer") , newSVpv(in->u.tableLimits.sampleServer, 0), 0);
+#endif
 		return newRV_noinc((SV *) hash);
 
 	case AR_DATA_TYPE_COLUMN:
@@ -2494,6 +2500,7 @@ perl_ARSortList(ARControlStruct * ctrl, ARSortList * in)
 	return newRV_noinc((SV *) array);
 }
   
+#if AR_EXPORT_VERSION >= 8L
 SV             *
 perl_ARArchiveInfoStruct(ARControlStruct * ctrl, ARArchiveInfoStruct * in)
 {
@@ -2536,6 +2543,7 @@ perl_ARArchiveInfoStruct(ARControlStruct * ctrl, ARArchiveInfoStruct * in)
 		 newSVpv(in->archiveFrom, 0), 0);
 	return newRV_noinc((SV *) hash);
 }
+#endif
   
 #if AR_EXPORT_VERSION >= 4
 SV             *
