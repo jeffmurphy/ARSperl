@@ -65,7 +65,7 @@ print "ok [", $TN++, "] CE\n";
 
 my %jft = ars_GetFieldTable($ctrl, "ARSperl Test-join");
 
-if(defined(%jft)) {
+if( %jft ) {
 	print "ok [", $TN++, "] GFT\n";
 } else {
 	print "not ok [", $TN++, "]\n";
