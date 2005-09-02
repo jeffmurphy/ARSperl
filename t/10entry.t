@@ -94,6 +94,7 @@ if(ars_APIVersion() >= 4) {
 			     -field => 'Attachment Field');
 
   open(FD, $filename) || die "not ok [open $!]\n";
+  binmode FD;
   my $fc;
   while(<FD>) {
     $fc .= $_;
@@ -130,6 +131,7 @@ if(ars_APIVersion() >= 4) {
 
 
   open(FD, $filename) || die "not ok [open $!]";
+  binmode FD;
   my $fc;
   while(<FD>) {
     $fc .= $_;
@@ -151,6 +153,7 @@ if(ars_APIVersion() >= 4) {
 				-file  => 'attach.txt');
 
   open(FD, 'attach.txt') || die "not ok [open $!]";
+  binmode FD;
   my $fc2;
   while(<FD>) {
     $fc2 .= $_;
