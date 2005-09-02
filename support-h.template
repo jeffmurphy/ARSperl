@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.26 2005/08/04 11:14:37 idtrimnell Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.27 2005/09/02 22:01:26 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -394,7 +394,9 @@ EXTERN SV *perl_ARActiveLinkActionStruct(ARControlStruct *ctrl,
 					 ARActiveLinkActionStruct *);
 EXTERN SV *perl_ARFilterActionStruct(ARControlStruct *ctrl,  ARFilterActionStruct *);
 EXTERN SV *perl_AROwnerObj(ARControlStruct *ctrl,  ARContainerOwnerObj *);
+#if AR_EXPORT_VERSION >= 6L
 EXTERN SV *perl_AROwnerObjList(ARControlStruct *ctrl,  ARContainerOwnerObjList *);
+#endif
 EXTERN SV *perl_ARReferenceStruct(ARControlStruct *ctrl,  ARReferenceStruct *);
 EXTERN SV *perl_ARReferenceList(ARControlStruct *ctrl,  ARReferenceList *);
 EXTERN SV *perl_expandARCharMenuStruct( ARControlStruct *, ARCharMenuStruct *);
@@ -459,6 +461,8 @@ EXTERN SV *perl_ARCoordStruct(ARControlStruct *ctrl,  ARCoordStruct *);
 EXTERN int perl_BuildEntryList(ARControlStruct *ctrl,  AREntryIdList *entryList, 
 				char *entry_id);
 EXTERN SV *perl_ARAssignSQLStruct(ARControlStruct *ctrl,  ARAssignSQLStruct *in);
+#endif
+#if AR_EXPORT_VERSION >= 6L
 EXTERN SV *perl_ARAssignFilterApiStruct(ARControlStruct *ctrl,  ARAssignFilterApiStruct *in);
 #endif
 

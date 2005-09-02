@@ -842,11 +842,13 @@ perl_ARValueStruct_Assign(ARControlStruct * ctrl, ARValueStruct * in)
 				   (ARS_fn) perl_ARCoordStruct,
 				   sizeof(ARCoordStruct));
 #endif
-#if AR_EXPORT_VERSION >= 4
+#if AR_EXPORT_VERSION >= 7L
 	case AR_DATA_TYPE_TIME_OF_DAY:
 		return newSViv(in->u.timeOfDayVal);
 	case AR_DATA_TYPE_DATE:
 		return newSViv(in->u.dateVal);
+#endif
+#if AR_EXPORT_VERSION >= 4
 	case AR_DATA_TYPE_ATTACH:
 		return perl_ARAttach(ctrl, in->u.attachVal);
         case AR_DATA_TYPE_DECIMAL:
@@ -923,6 +925,8 @@ perl_ARValueStruct(ARControlStruct * ctrl, ARValueStruct * in)
 		return perl_ARAttach(ctrl, in->u.attachVal);
         case AR_DATA_TYPE_DECIMAL:
 		return newSVpv(in->u.decimalVal, 0);
+#endif
+#if AR_EXPORT_VERSION >= 7L
 	case AR_DATA_TYPE_TIME_OF_DAY:
 		return newSViv(in->u.timeOfDayVal);
         case AR_DATA_TYPE_DATE:
@@ -1068,6 +1072,7 @@ perl_AROpenDlgStruct(ARControlStruct * ctrl, AROpenDlgStruct * in)
 			     (ARList *)& in->outputValueFieldPairs,
 			     (ARS_fn) perl_ARFieldAssignStruct,
 			     sizeof(ARFieldAssignStruct)), 0);
+#if AR_EXPORT_VERSION >= 6
 	hv_store(hash,  "windowMode", strlen("windowMode") ,
 		 newSVpv(lookUpTypeName((TypeMapStruct *)OpenWindowModeMap, 
 					in->windowMode), 0), 0); /* One of AR_ACTIVE_LINK_ACTION_OPEN_ */
@@ -1096,6 +1101,7 @@ perl_AROpenDlgStruct(ARControlStruct * ctrl, AROpenDlgStruct * in)
 		 newSVpv(in->reportString, 0), 0);
 	hv_store(hash,  "sortOrderList", strlen("sortOrderList") , 
 		 perl_ARSortList(ctrl, &(in->sortOrderList)), 0);
+#endif
 
 	return newRV_noinc((SV *)hash);
 }
@@ -1109,8 +1115,10 @@ perl_ARCallGuideStruct(ARControlStruct * ctrl, ARCallGuideStruct * in)
 	hv_store(hash, "guideName", strlen("guideName") ,
 		 newSVpv(in->guideName, 0), 0);
 	hv_store(hash, "guideMode", strlen("guideMode") , newSViv(in->guideMode), 0);
+#if AR_EXPORT_VERSION >= 6L
 	hv_store(hash, "loopTable", strlen("loopTable"),
 		 perl_ARInternalId(ctrl, &(in->guideTableId)), 0);
+#endif
 #if AR_EXPORT_VERSION >= 8L
 	hv_store(hash,  "inputValueFieldPairs", strlen("inputValueFieldPairs") ,
 		 perl_ARList(ctrl,
@@ -1147,12 +1155,17 @@ SV             *
 perl_ARCloseWndStruct(ARControlStruct * ctrl, ARCloseWndStruct * in)
 {
 	HV          *hash = newHV();
+#if AR_EXPORT_VERSION >= 6L
 	if(in->closeAll)
 		hv_store(hash,  "closeAll", strlen("closeAll") ,
 			 newSVpv("true", 0), 0);
 	else 
 		hv_store(hash,  "closeAll", strlen("closeAll") ,
 			 newSVpv("false", 0), 0);
+#else
+	hv_store(hash,  "schemaName", strlen("schemaName") ,
+		 newSVpv(in->schemaName, 0), 0);
+#endif
 	return newRV_noinc((SV *)hash);
 }
 
@@ -1680,6 +1693,7 @@ perl_ARFilterActionStruct(ARControlStruct * ctrl, ARFilterActionStruct * in)
 		hv_store(hash,  "gotoAction", strlen("gotoAction") ,
 			 perl_ARGotoActionStruct(ctrl, &in->u.gotoAction), 0);
                 break;
+# if AR_EXPORT_VERSION >= 6L
         case AR_FILTER_ACTION_CALLGUIDE:
                 /*ARCallGuideStruct;*/
 		hv_store(hash,  "callGuide", strlen("callGuide") ,
@@ -1695,7 +1709,7 @@ perl_ARFilterActionStruct(ARControlStruct * ctrl, ARFilterActionStruct * in)
 		hv_store(hash,  "gotoGuide", strlen("gotoGuide") ,
 			 newSVpv(in->u.gotoGuide.label, 0), 0);
                 break;
- 
+# endif 
 #endif
 	case AR_FILTER_ACTION_NONE:
 	default:
@@ -1975,10 +1989,13 @@ perl_ARFieldLimitStruct(ARControlStruct * ctrl, ARFieldLimitStruct * in)
 	case AR_DATA_TYPE_COLUMN:
 		hv_store(hash, "parent", strlen("parent"), perl_ARInternalId(ctrl, &(in->u.columnLimits.parent)), 0);
 		hv_store(hash, "dataField", strlen("dataField"), perl_ARInternalId(ctrl, &(in->u.columnLimits.dataField)), 0);
+#if AR_EXPORT_VERSION >= 6L
 		hv_store(hash,  "dataSource", strlen("dataSource") , newSViv(in->u.columnLimits.dataSource), 0);
+#endif
 		hv_store(hash,  "colLength", strlen("colLength") , newSViv(in->u.columnLimits.colLength), 0);
 		return newRV_noinc((SV *) hash);
 
+#if AR_EXPORT_VERSION >= 6L
 	case AR_DATA_TYPE_VIEW:
 		hv_store(hash,  "maxLength", strlen("maxLength") , newSViv(in->u.viewLimits.maxLength), 0);
 		return newRV_noinc((SV *) hash);
@@ -1986,6 +2003,7 @@ perl_ARFieldLimitStruct(ARControlStruct * ctrl, ARFieldLimitStruct * in)
 	case AR_DATA_TYPE_DISPLAY:
 		hv_store(hash,  "maxLength", strlen("maxLength") , newSViv(in->u.displayLimits.maxLength), 0);
 		return newRV_noinc((SV *) hash);
+#endif
 
 	case AR_DATA_TYPE_NULL:
 	default:
@@ -2048,6 +2066,8 @@ perl_ARAssignStruct(ARControlStruct * ctrl, ARAssignStruct * in)
 	case AR_ASSIGN_TYPE_SQL:
 		hv_store(hash,  "sql", strlen("sql") , perl_ARAssignSQLStruct(ctrl, in->u.sql), 0);
 		break;
+#endif
+#if AR_EXPORT_VERSION >= 6L
 	case AR_ASSIGN_TYPE_FILTER_API:
 		hv_store(hash,  "filterApi", strlen("filterApi") , perl_ARAssignFilterApiStruct(ctrl, in->u.filterApi), 0);
 		break;
@@ -2117,6 +2137,8 @@ perl_ARAssignSQLStruct(ARControlStruct * ctrl, ARAssignSQLStruct * in)
 	return newRV_noinc((SV *) hash);
 }
 
+#endif /* ARS3.x */
+#if AR_EXPORT_VERSION >= 6
 SV             *
 perl_ARAssignFilterApiStruct(ARControlStruct * ctrl, ARAssignFilterApiStruct * in)
 {
@@ -2130,7 +2152,7 @@ perl_ARAssignFilterApiStruct(ARControlStruct * ctrl, ARAssignFilterApiStruct * i
 
 	return newRV_noinc((SV *) hash);
 }
-#endif				/* ARS3.x */
+#endif				
 
 SV             *
 perl_ARFunctionAssignStruct(ARControlStruct * ctrl, ARFunctionAssignStruct * in)
@@ -2925,6 +2947,8 @@ perl_AROwnerObj(ARControlStruct * ctrl, ARContainerOwnerObj * in)
 	return newRV_noinc((SV *) hash);
 }
 
+#endif
+#if AR_EXPORT_VERSION >= 6
 SV *
 perl_AROwnerObjList(ARControlStruct * ctrl, ARContainerOwnerObjList * in) {
 	AV *array = newAV();
