@@ -22,12 +22,12 @@ my $c = 1;
 my @objects =  ("schema", "ARSperl Test",
 		"schema", "ARSperl Test2",
 		"schema", "ARSperl Test-join",
-		"filter", "ARSperl Test-filter",
+		"filter", "ARSperl Test-Filter1",
 		"active_link", "ARSperl Test-alink1",
 		"escalation", "ARSperl Test-escalation1",
 		"char_menu", "ARSperl Test-menu-search1");
 
-my $junk = ars_Export($ctrl, undef, 0, "schema", "blarg292394");
+my $junk = ars_Export($ctrl, "", 0, "schema", "blarg292394");
 if (defined($junk)) {
   print "not ok [$c]\n";
 } else {
@@ -38,11 +38,15 @@ $c++;
 for (my $i = 0 ; $i < $#objects ; $i += 2) {
   print $objects[$i], "><", $objects[$i+1], "\n";
 
-  my $d2 .= ars_Export($ctrl, undef, 0, $objects[$i], $objects[$i+1]);
+  my $d2 = ars_Export($ctrl, "", 0, $objects[$i], $objects[$i+1]);
   if (!defined($d2)) {
     print "not ok [$c] ($ars_errstr)\n";
   } else {
-    print "ok [$c] ($ars_errstr)\n";
+    if ($ars_errstr) { 
+      print "ok [$c] ($ars_errstr)\n";
+    } else {
+      print "ok [$c]\n";
+    }
   }
   $c++;
   $def .= $d2;
