@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.27 2005/09/02 22:01:26 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.28 2005/09/05 19:43:58 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -495,9 +495,19 @@ EXTERN SV *perl_ARWaitStruct(ARControlStruct * ctrl,
 				ARWaitStruct * in);
 #endif
 
+
+#if AR_EXPORT_VERSION >= 7L
+EXTERN SV *perl_ARCurrencyDetailList(ARControlStruct * ctrl,
+				ARCurrencyDetailList * in);
+#endif
+
+
 #if AR_EXPORT_VERSION >= 8L
 EXTERN SV *perl_ARArchiveInfoStruct(ARControlStruct *ctrl,  ARArchiveInfoStruct *);
 #endif
+
+
+
 
 #ifndef BSD
 # define MEMCAST void
