@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.24 2005/03/31 16:22:18 jeffmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.25 2005/09/05 20:30:59 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -218,7 +218,7 @@ strmakHVal(HV * h, char *k, char **b)
 					char           *pvchar = SvPV(*val, len);
 					*b = MALLOCNN(SvCUR(*val) + 1);
 					strcpy(*b, pvchar);
-					*(b + len) = 0;
+					*(*b + len) = 0;
 					return 0;
 				} else
 					ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
@@ -2436,7 +2436,7 @@ strcasecmp(char *s1, char *s2)
 	char            c1, c2;
 	p1 = s1;
 	p2 = s2;
-	while ((*p1 != NULL) && (*p2 != NULL)) {
+	while ((*p1 != '\0') && (*p2 != '\0')) {
 		c1 = tolower(*p1);
 		c2 = tolower(*p2);
 		if ((c1 - c2) == 0) {
@@ -2446,7 +2446,7 @@ strcasecmp(char *s1, char *s2)
 			return (c1 - c2);
 		}
 	}
-	return 0;
+	return *p1 - *p2;
 }
 
 int 
@@ -2459,7 +2459,7 @@ strncasecmp(char *s1, char *s2, size_t n)
 	p1 = s1;
 	p2 = s2;
 
-	while ((*p1 != NULL) && (*p2 != NULL) && (i <= n)) {
+	while ((*p1 != '\0') && (*p2 != '\0') && (i <= n)) {
 		c1 = tolower(*p1);
 		c2 = tolower(*p2);
 		if ((c1 - c2) == 0) {
@@ -2470,7 +2470,7 @@ strncasecmp(char *s1, char *s2, size_t n)
 		}
 		i++;
 	}
-	return 0;
+	return (i == n)? 0 : *p1 - *p2;
 }
 
 #endif
