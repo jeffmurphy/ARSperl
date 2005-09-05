@@ -98,6 +98,29 @@ debug_free(void *p, char *file, char *func, int line)
 	free(p);
 }
 
+
+FILE* 
+get_logging_file_ptr()
+{
+	SV  *file_ptr;
+	file_ptr = get_sv( "ARS::logging_file_ptr", FALSE );
+	if( file_ptr != NULL ){
+		return (FILE*) SvIV(file_ptr);
+	}else{
+		return NULL;
+	}
+}
+
+
+void
+set_logging_file_ptr( FILE* ptr )
+{
+	SV  *file_ptr;
+	file_ptr = get_sv( "ARS::logging_file_ptr", TRUE );
+	sv_setiv( file_ptr, (int)ptr );
+}
+
+
 /* ROUTINE
  *   ARError_add(type, num, text)
  *   ARError_reset()

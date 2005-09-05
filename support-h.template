@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.28 2005/09/05 19:43:58 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.29 2005/09/05 21:07:19 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -345,6 +345,9 @@ EXTERN unsigned int  caseLookUpTypeNumber(TypeMapStruct *t, char *s);
 
 /* typedef SV* (*ARS_fn)(void *); */
 typedef void *(*ARS_fn)(ARControlStruct *ctrl, void *b);
+
+EXTERN FILE* get_logging_file_ptr();
+EXTERN void  set_logging_file_ptr( FILE* );
 
 EXTERN void        *mallocnn(int s);
 EXTERN void        *debug_mallocnn(int s, char *file, char *func, int line);

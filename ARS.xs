@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.107 2005/09/02 22:00:05 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.108 2005/09/05 21:07:18 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -4256,6 +4256,69 @@ ars_GetListEntryWithFields(ctrl,schema,qualifier,maxRetrieve=0,firstRetrieve=0,.
 	  Zero(&status, 1, ARStatusList);
 	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED,
 	  "ars_GetListEntryWithFields() is only available in ARS >= 4.x");
+#endif
+	}
+
+
+void
+ars_SetLogging( ctrl, logTypeMask, ...)
+	ARControlStruct *	ctrl
+	unsigned long logTypeMask
+	PPCODE:
+	{
+#if AR_EXPORT_VERSION >= 5
+		ARStatusList     status;
+		unsigned long whereToWriteMask = AR_WRITE_TO_STATUS_LIST;
+		int	ret;
+		FILE *logFilePtr;
+
+		(void) ARError_reset();
+		Zero(&status, 1, ARStatusList);
+
+		logFilePtr = get_logging_file_ptr();
+		/* printf( "GET logging_file_ptr = %p\n", logFilePtr ); */
+
+		if( items > 2 && logTypeMask != 0 ){
+			char *fileName;
+			int len;
+			fileName = SvPV(ST(2),len);
+
+			if( logFilePtr != NULL ){
+				fclose( logFilePtr );
+				logFilePtr = NULL;
+			}
+
+			whereToWriteMask = AR_WRITE_TO_FILE;
+			logFilePtr = fopen( fileName, "a" );
+
+			if( logFilePtr == NULL ){
+				char buf[2048];
+				sprintf( buf, "Cannot open file: %s", fileName );
+				(void) ARError_add( AR_RETURN_ERROR, AP_ERR_INV_ARGS, buf);
+				XPUSHs(sv_2mortal(newSViv(0))); /* ERR */
+				goto SetLogging_fail;
+			}
+			set_logging_file_ptr( logFilePtr );
+			/* printf( "GET logging_file_ptr = %p\n", logFilePtr ); */
+		}
+
+		ret = ARSetLogging( ctrl, logTypeMask, whereToWriteMask, logFilePtr, &status );
+
+		if( logTypeMask == 0 && logFilePtr != NULL ){
+			fclose( logFilePtr );
+			set_logging_file_ptr( NULL );
+		}
+
+		if(ARError(ret, status)) {
+			XPUSHs(sv_2mortal(newSViv(0))); /* ERR */
+		} else {
+			XPUSHs(sv_2mortal(newSViv(1))); /* OK */
+		}
+	SetLogging_fail:;
+#else /* < 4.5 */
+	  RETVAL = 0; /* error */
+	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"SetLogging() is only available in ARSystem >= 4.5");
 #endif
 	}
 

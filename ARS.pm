@@ -102,6 +102,7 @@ ars_GetEntryBLOB
 ars_CreateActiveLink ars_CreateAdminExtension
 ars_GetControlStructFields ars_GetVUI
 ars_GetListContainer ars_GetContainer ars_SetServerPort
+ars_SetLogging
 $ars_errstr %ARServerStats %ars_errhash
 ars_decodeStatusHistory ars_APIVersion
 );
