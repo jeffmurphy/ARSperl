@@ -1970,8 +1970,16 @@ perl_ARFieldLimitStruct(ARControlStruct * ctrl, ARFieldLimitStruct * in)
 
 #if AR_EXPORT_VERSION >= 7
 	case AR_DATA_TYPE_CURRENCY:
+		hv_store(hash,  "rangeLow", strlen("rangeLow") , newSVpv(in->u.currencyLimits.rangeLow, 0), 0);
+		hv_store(hash,  "rangeHigh", strlen("rangeHigh") , newSVpv(in->u.currencyLimits.rangeHigh, 0), 0);
+		hv_store(hash,  "precision", strlen("precision") , newSViv(in->u.currencyLimits.precision), 0);
+		hv_store(hash,  "functionalCurrencies", strlen("functionalCurrencies"), perl_ARCurrencyDetailList(ctrl,&(in->u.currencyLimits.functionalCurrencies)), 0 );
+		hv_store(hash,  "allowableCurrencies",  strlen("allowableCurrencies"),  perl_ARCurrencyDetailList(ctrl,&(in->u.currencyLimits.allowableCurrencies)), 0 );
+		return newRV_noinc((SV *) hash);
 	case AR_DATA_TYPE_DATE:
+		return &PL_sv_undef;
 	case AR_DATA_TYPE_TIME_OF_DAY:
+		return &PL_sv_undef;
 #endif
 
 	case AR_DATA_TYPE_TABLE:
@@ -2250,7 +2258,7 @@ my_strtok(char *str, char *tok, int tlen, char sep)
 
 	/* str is NULL, we're done */
 
-	if (!str && !*str)
+	if ( !str )
 		return NULL;
 
 	for (i = 0; i < tlen; i++)
@@ -2295,12 +2303,13 @@ perl_BuildEntryList(ARControlStruct * ctrl, AREntryIdList * entryList, char *ent
 {
 	if (entry_id && *entry_id) {
 		/*
-		 * if the entry id is too long, it is probably refering to a
+		 * if the entry id contains at least one AR_ENTRY_ID_SEPARATOR, it is probably refering to a
 		 * join schema. split it, and fill in the entryIdList with
 		 * the components.
 		 */
 
-		if (strlen(entry_id) > AR_MAX_ENTRYID_SIZE) {
+		int numSep = strsrch(entry_id, AR_ENTRY_ID_SEPARATOR);
+		if( numSep > 0 ){
 			char           *eid_dup, *eid_orig, *tok;
 			int             tn = 0, len = 0;
 
@@ -2316,7 +2325,7 @@ perl_BuildEntryList(ARControlStruct * ctrl, AREntryIdList * entryList, char *ent
 			if (!eid_dup || !tok)
 				croak("perl_BuildEntryList out of memory: can't strdup entry-id buffer.");
 
-			entryList->numItems = strsrch(eid_dup, AR_ENTRY_ID_SEPARATOR) + 1;
+			entryList->numItems = numSep + 1;
 			entryList->entryIdList = (AREntryIdType *) MALLOCNN(sizeof(AREntryIdType) *
 						       entryList->numItems);
 
@@ -2332,12 +2341,12 @@ perl_BuildEntryList(ARControlStruct * ctrl, AREntryIdList * entryList, char *ent
 			eid_dup = my_strtok(eid_dup, tok, len, AR_ENTRY_ID_SEPARATOR);
 			while (*eid_dup) {
 				(void) strncpy(entryList->entryIdList[tn], tok, sizeof(AREntryIdType));
-				*(entryList->entryIdList[tn++] + AR_MAX_ENTRYID_SIZE + 1) = 0;
+				*(entryList->entryIdList[tn++] + AR_MAX_ENTRYID_SIZE) = 0;
 				eid_dup = my_strtok(eid_dup + 1, tok, len, AR_ENTRY_ID_SEPARATOR);
 			}
 
 			(void) strncpy(entryList->entryIdList[tn], tok, sizeof(AREntryIdType));
-			*(entryList->entryIdList[tn++] + AR_MAX_ENTRYID_SIZE + 1) = 0;
+			*(entryList->entryIdList[tn++] + AR_MAX_ENTRYID_SIZE) = 0;
 
 			AP_FREE(eid_orig);
 			AP_FREE(tok);
@@ -2599,9 +2608,16 @@ perl_ARAttach(ARControlStruct * ctrl, ARAttachStruct * in)
 SV             *
 perl_ARByteList(ARControlStruct * ctrl, ARByteList * in)
 {
-	HV             *hash = newHV();
-	SV             *byte_list = newSVpv((char *) in->bytes, in->numItems);
+	HV             *hash;
+	SV             *byte_list;
 	int             i;
+
+	if( in->numItems == 0 ){
+	    return newSVsv(&PL_sv_undef);
+	}
+
+	hash = newHV();
+	byte_list = newSVpv((char *) in->bytes, in->numItems);
 
 	for (i = 0; ByteListTypeMap[i].number != TYPEMAP_LAST; i++) {
 		if (ByteListTypeMap[i].number == in->type)
@@ -3627,4 +3643,28 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 	}
 	return 0;
 }
+
+
+
+
+#if AR_EXPORT_VERSION >= 7L
+SV*
+perl_ARCurrencyDetailList(ARControlStruct * ctrl, ARCurrencyDetailList * in)
+{
+	AV             *array = newAV();
+	unsigned int   i;
+
+	for (i = 0; i < in->numItems; i++) {
+		HV             *currDetail = newHV();
+
+		hv_store(currDetail,  "currencyCode", strlen("currencyCode"), newSVpv(in->currencyDetailList[i].currencyCode,0), 0);
+		hv_store(currDetail,  "precision",    strlen("precision"),    newSViv(in->currencyDetailList[i].precision), 0);
+		av_push(array, newRV_noinc((SV *) currDetail));
+	}
+	return newRV_noinc((SV *) array);
+}
+#endif
+
+
+
 
