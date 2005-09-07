@@ -1,5 +1,7 @@
 released=xx/xx/xx version=1.85
 
+TS  added binmode-statements in t/10entry.t (test failed on win32)
+TS  warning cleanup in test files (t/02export.t, t/13join.t)
 TS  added ars_SetLogging (changes to ARS.xs, ARS.pm, support.c, support-h.template,
     html/manual/toc.html;  new files: html/manual/ars_SetLogging.html, t/21setlogging.t)
 TS  fixed pointer dereferencing error in supportrev.c:strmakHval
