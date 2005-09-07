@@ -1,4 +1,4 @@
-
+released=xx/xx/xx version=1.85
 
 TS  added ars_SetLogging (changes to ARS.xs, ARS.pm, support.c, support-h.template,
     html/manual/toc.html;  new files: html/manual/ars_SetLogging.html, t/21setlogging.t)
