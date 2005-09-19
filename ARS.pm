@@ -104,7 +104,7 @@ ars_GetControlStructFields ars_GetVUI
 ars_GetListContainer ars_GetContainer ars_SetServerPort
 ars_SetLogging
 $ars_errstr %ARServerStats %ars_errhash
-ars_decodeStatusHistory ars_APIVersion
+ars_decodeStatusHistory ars_APIVersion ars_encodeStatusHistory
 );
 
 $ARS::VERSION   = '1.84';
@@ -443,6 +443,17 @@ sub ars_GetCharMenuItems {
 
 sub ars_ExpandCharMenu {
 	return ars_ExpandCharMenu2(@_);
+}
+
+# encodes status history from the same format
+# as returned by ars_decodeStatusHistory()
+
+sub ars_encodeStatusHistory {
+	my @sh = ();
+	while(my $hr = shift) {
+		push @sh, $hr->{USER} ? "$hr->{TIME}\cD$hr->{USER}" : "";
+	}
+	join "\cC", @sh;
 }
 
 # As of ARS4.0, these routines (which call ARInitialization and ARTermination)

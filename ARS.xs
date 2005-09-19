@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.108 2005/09/05 21:07:18 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.109 2005/09/19 14:40:30 jeffmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -1077,7 +1077,11 @@ ars_GetListContainer(ctrl,changedSince=0,attributes=0,...)
 		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
 	  else {
 	  	ARContainerTypeList	containerTypes;
-		int			count, clist[ARCON_LAST_RESERVED];
+		int			count;
+# if AR_EXPORT_VERSION <= 4L
+		unsigned
+# endif
+		int clist[ARCON_LAST_RESERVED];
 # if AR_EXPORT_VERSION >= 6
 		ARContainerOwnerObjList ownerObjList;
 # else
@@ -1138,7 +1142,9 @@ ars_GetListContainer(ctrl,changedSince=0,attributes=0,...)
 	        	XPUSHs(sv_2mortal(newRV_noinc((SV *)conInfo)));
 		    }
 		}
+# if AR_EXPORT_VERSION >= 5L
 		FreeARContainerTypeList(&containerTypes, FALSE);
+# endif
 		FreeARContainerInfoList(&conList, FALSE);
 # if AR_EXPORT_VERSION >= 6
 		FreeARContainerOwnerObjList(&ownerObjList, FALSE);
@@ -1185,7 +1191,10 @@ ars_GetContainer(control,name)
 # endif
 	  char                   *changeDiary = CPNULL;
 	  ARPropList              objPropList;
-	  unsigned int            tlist[] = {ARREF_ALL};
+# if AR_EXPORT_VERSION <= 4L
+	  unsigned 
+# endif
+		int            tlist[] = {ARREF_ALL};
 	  int                     i;
 	  ARDiaryList             diaryList;
 
@@ -1205,7 +1214,10 @@ ars_GetContainer(control,name)
 			       &label, &description,
 			       &type, &references, &helpText,
 			       owner, &timestamp, lastChanged, &changeDiary, 
-			       &objPropList, &status);
+# if AR_EXPORT_VERSION >= 5L
+			       &objPropList, 
+# endif
+				&status);
 #ifdef PROFILE
 	  ((ars_ctrl *)control)->queries++;
 #endif
@@ -4263,14 +4275,14 @@ ars_GetListEntryWithFields(ctrl,schema,qualifier,maxRetrieve=0,firstRetrieve=0,.
 void
 ars_SetLogging( ctrl, logTypeMask, ...)
 	ARControlStruct *	ctrl
-	unsigned long logTypeMask
+	unsigned long           logTypeMask
 	PPCODE:
 	{
 #if AR_EXPORT_VERSION >= 5
 		ARStatusList     status;
-		unsigned long whereToWriteMask = AR_WRITE_TO_STATUS_LIST;
-		int	ret;
-		FILE *logFilePtr;
+		unsigned long    whereToWriteMask = AR_WRITE_TO_STATUS_LIST;
+		int	         ret;
+		FILE            *logFilePtr;
 
 		(void) ARError_reset();
 		Zero(&status, 1, ARStatusList);
@@ -4316,7 +4328,7 @@ ars_SetLogging( ctrl, logTypeMask, ...)
 		}
 	SetLogging_fail:;
 #else /* < 4.5 */
-	  RETVAL = 0; /* error */
+	  XPUSHs(sv_2mortal(newSViv(0))); /* ERR */
 	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
 			"SetLogging() is only available in ARSystem >= 4.5");
 #endif

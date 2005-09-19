@@ -12,6 +12,10 @@ previous versions of arsperl and may require altering of some arsperl
 scripts.
 
 
+Released: 09/20/05 Version: 1.85
+
+
+
 Released: 06/24/2005 Version: 1.84
 
 
@@ -666,5 +670,5 @@ Released: 01/12/96 Version: 1.0beta
 
 arsperl@arsperl.org
 
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.56 2005/06/24 14:51:16 jeffmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.57 2005/09/19 14:42:28 jeffmurphy Exp $
 
