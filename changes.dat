@@ -1,5 +1,4 @@
 released=09/20/05 version=1.85
-
 TS  added binmode-statements in t/10entry.t (test failed on win32)
 TS  warning cleanup in test files (t/02export.t, t/13join.t)
 TS  added ars_SetLogging (changes to ARS.xs, ARS.pm, support.c, support-h.template,

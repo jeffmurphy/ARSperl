@@ -15,6 +15,34 @@ scripts.
 Released: 09/20/05 Version: 1.85
 
 
+ (TS)   added binmode-statements in t/10entry.t (test failed on win32)
+
+ (TS)   warning cleanup in test files (t/02export.t, t/13join.t)
+
+ (TS)   added ars_SetLogging (changes to ARS.xs, ARS.pm, support.c, support-h.template,
+        html/manual/toc.html;  new files: html/manual/ars_SetLogging.html, t/21setlogging.t)
+
+ (TS)   fixed pointer dereferencing error in supportrev.c:strmakHval
+
+ (TS)   fixed supportrev.c:strcasecmp, strncasecmp; failure to differentiate between 
+        string and substring (e.g. "page_holder" and "page")
+
+ (TS)   fixed support.c:perl_ARByteList (Bug ID 1213180)
+        (David Lindes {lindes at users.sourceforge.net})
+
+ (TS)   added support for DATA_TYPE_CURRENCY to perl_ARFieldLimitStruct
+
+ (TS)   added function perl_ARCurrencyDetailList
+
+ (TS)   fixed support.c:my_strtok, perl_BuildEntryList
+        (ars_GetEntry crashed when retrieving join form entries)
+
+ (TS)   added preprocessor directives (ARS.xs, support.c, support-h.template)
+        for conditional compilation depending on API version
+        (compiles now against version 4.5.1 to 6.3.0)
+
+(JCM)   added ars_encodeStatusHistory() routine 
+
 
 Released: 06/24/2005 Version: 1.84
 
@@ -670,5 +698,5 @@ Released: 01/12/96 Version: 1.0beta
 
 arsperl@arsperl.org
 
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.57 2005/09/19 14:42:28 jeffmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.58 2005/09/19 14:56:18 jeffmurphy Exp $
 

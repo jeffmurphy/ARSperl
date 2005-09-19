@@ -15,6 +15,42 @@
  denote changes that are incompatible with
  previous versions of ARSperl and may require altering of some ARSperl
  scripts.<P>
+
+    <TABLE CELLSPACING='0'
+      CELLPADDING='2'
+      WIDTH='100%'
+      BORDER='0' 
+      BGCOLOR='black'>
+      <TR>
+	<TD width='100%'>
+	  <TABLE CELLSPACING='0' CELLPADDING='3' WIDTH='100%' BORDER='0'
+	    BGCOLOR='lightblue'>
+	    <tr><td colspan='2'>
+  <table width='100%' border='0'><tr>
+	      <td width='50%'>Released: <B>09/20/05</B></td>
+              <td width='50%'>Version: <B>1.85</B></td>
+  </tr></table></td>
+            </tr><tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added binmode-statements in t/10entry.t (test failed on win32) 
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>warning cleanup in test files (t/02export.t, t/13join.t) 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added ars_SetLogging (changes to ARS.xs, ARS.pm, support.c, support-h.template, 
+html/manual/toc.html;  new files: html/manual/ars_SetLogging.html, t/21setlogging.t) </font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>fixed pointer dereferencing error in supportrev.c:strmakHval 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>fixed supportrev.c:strcasecmp, strncasecmp; failure to differentiate between  
+string and substring (e.g. "page_holder" and "page") </font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>fixed support.c:perl_ARByteList (Bug ID 1213180) 
+(David Lindes {lindes at users.sourceforge.net}) </font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added support for DATA_TYPE_CURRENCY to perl_ARFieldLimitStruct 
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added function perl_ARCurrencyDetailList 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>fixed support.c:my_strtok, perl_BuildEntryList 
+(ars_GetEntry crashed when retrieving join form entries) </font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added preprocessor directives (ARS.xs, support.c, support-h.template) 
+for conditional compilation depending on API version (compiles now against version 4.5.1 to 6.3.0) </font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(JCM)</td><td width='90%'><font color='black'>added ars_encodeStatusHistory() routine  
 </table></td></tr></table>
 
 <P>
@@ -1187,4 +1223,4 @@ Removed -lars from makefile (internal C library that wasn't released), not neede
 
 
 <P>
-<PRE>$Header: /cvsroot/arsperl/ARSperl/html/changes.html,v 1.26 2005/09/19 14:42:28 jeffmurphy Exp $</PRE></body></html>
+<PRE>$Header: /cvsroot/arsperl/ARSperl/html/changes.html,v 1.27 2005/09/19 14:56:18 jeffmurphy Exp $</PRE></body></html>
