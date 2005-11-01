@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.109 2005/09/19 14:40:30 jeffmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.110 2005/11/01 21:03:52 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -2850,6 +2850,37 @@ ars_DeleteFilter(ctrl, name)
 	RETVAL
 
 int
+ars_DeleteContainer(ctrl, name)
+	ARControlStruct *	ctrl
+	char *			name
+	CODE:
+	{
+	  ARStatusList status;
+	  int          ret = 0;
+
+	  (void) ARError_reset();
+	  Zero(&status, 1,ARStatusList);
+	  RETVAL = 0;
+	  if(ctrl && name && *name) {
+		ret = ARDeleteContainer( ctrl, name, 
+#if AR_EXPORT_VERSION >= 8L
+                                     0,
+#endif
+                                     &status);
+#ifdef PROFILE
+	        ((ars_ctrl *)ctrl)->queries++;
+#endif
+		if(!ARError( ret, status)) {
+			RETVAL = 1;
+		}
+	  } else {
+		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
+	  }
+	}
+	OUTPUT:
+	RETVAL
+
+int
 ars_DeleteSchema(ctrl, name, deleteOption)
 	ARControlStruct *	ctrl
 	char *			name
@@ -4948,7 +4979,11 @@ DESTROY(ctrl)
 		rv = ARTermination(&status);
 # endif /* AR_EXPORT_VERSION */
 		(void) ARError(rv, status);
+#ifdef PROFILE
 		free(ctrl);
+#else
+		safefree(ctrl);
+#endif
 	}
 
 MODULE = ARS		PACKAGE = ARQualifierStructPtr

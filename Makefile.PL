@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.73 2005/09/19 14:40:30 jeffmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.74 2005/11/01 21:03:52 tstapff Exp $
 #
 # ARSperl Makefile
 #
@@ -139,8 +139,12 @@ elsif($ARSVERSION >= 5.0) {
   if($ENCRYPT == 1) {
     $ARS_LIBS = "-lar -larencrypt -lnsl";
   }
-  $ARS_LIBS .= " -lnts" unless ($ARSVERSION >= 5.0);
-  $ARS_LIBS .= " -lpthread" unless $WINDOWS;
+  if ($WINDOWS) {
+    $ARS_LIBS = join(' ', map { '-l' . $_ } @{$ra_arlibs});
+  } else {
+	$ARS_LIBS .= " -lnts" unless ($ARSVERSION >= 5.0);
+    $ARS_LIBS .= " -lpthread";
+  }
   $AUTODEFINES .= " -DARS32 ";
   $AUTODEFINES .= " -DARS452 " if($ARSVERSION >= 4.52);
   if ( ($ARSVERSION >= 5.0) && ($^O eq 'linux') ) {
@@ -153,8 +157,12 @@ elsif($ARSVERSION >= 4.0) {
   if($ENCRYPT == 1) {
     $ARS_LIBS = "-lar -larencrypt -lnsl";
   } 
-  $ARS_LIBS .= " -lnts" unless ($ARSVERSION >= 5.0);
-  $ARS_LIBS .= " -lpthread" unless $WINDOWS;
+  if ($WINDOWS) {
+    $ARS_LIBS = join(' ', map { '-l' . $_ } @{$ra_arlibs});
+  } else {
+    $ARS_LIBS .= " -lnts" unless ($ARSVERSION >= 5.0);
+    $ARS_LIBS .= " -lpthread";
+  }
   $AUTODEFINES .= " -DARS32 ";	
   $AUTODEFINES .= " -DARS452 " if($ARSVERSION >= 4.52);
   if ( ($ARSVERSION >= 5.0) && ($^O eq 'linux') ) {

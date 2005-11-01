@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.25 2005/09/05 20:30:59 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.26 2005/11/01 21:03:52 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -1152,6 +1152,16 @@ rev_ARValueStruct(ARControlStruct * ctrl, HV * h, char *k, char *t, ARValueStruc
 		char           *tp = SvPV(*type, PL_na), 
 		               *vp = SvPV(*val,  PL_na);
 
+
+		int len;
+		char *str;
+		str = SvPV( *val, len );
+		if( len > 0 && str[0] == '\0' ){
+			m->dataType = AR_DATA_TYPE_KEYWORD;
+			if (rev_ARValueStructKW2KN(ctrl, str, &(m->u.keyNum)) == -1) return -1;
+			return 0;
+		}
+
 		(void) rev_ARValueStructStr2Type(ctrl, tp, &(m->dataType));
 		switch (m->dataType) {
 		case AR_DATA_TYPE_NULL:
@@ -1208,6 +1218,26 @@ rev_ARValueStruct(ARControlStruct * ctrl, HV * h, char *k, char *t, ARValueStruc
 			m->u.ulongVal = (unsigned long) SvIV(*val);
 			break;
 #endif
+#if AR_EXPORT_VERSION >= 4
+		case AR_DATA_TYPE_DECIMAL:
+			if (strmakHVal(h, k, &(m->u.decimalVal)) == -1)
+				return -1;
+			printf( "DECIMAL (%s)\n", m->u.decimalVal );
+			break;
+#endif
+#if AR_EXPORT_VERSION >= 7
+		case AR_DATA_TYPE_DATE:
+			m->u.dateVal = SvIV(*val);
+			break;
+		case AR_DATA_TYPE_TIME_OF_DAY:
+			m->u.timeOfDayVal = (ARTime) SvIV(*val);
+			break;
+		case AR_DATA_TYPE_CURRENCY:
+			m->u.currencyVal = MALLOCNN(sizeof(ARCurrencyStruct));
+			if( sv_to_ARCurrencyStruct(ctrl,*val,m->u.currencyVal) == -1 )
+				return -1;
+			break;
+#endif
 		default:
 			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
 				    "rev_ARValueStruct: unknown data type:");
@@ -1231,7 +1261,7 @@ rev_ARValueStructStr2Type(ARControlStruct * ctrl, char *type, unsigned int *n)
 
 	if (type && *type) {
 		for (i = 0; DataTypeMap[i].number != TYPEMAP_LAST; i++)
-			if (strncasecmp(type,  DataTypeMap[i].name, strlen(DataTypeMap[i].name) ) == 0)
+			if (strcasecmp(type,  DataTypeMap[i].name) == 0)
 				break;
 		if (DataTypeMap[i].number != TYPEMAP_LAST) {
 			*n = DataTypeMap[i].number;
@@ -1252,7 +1282,7 @@ rev_ARValueStructKW2KN(ARControlStruct * ctrl, char *keyword, unsigned int *n)
 {
 	int             i;
 
-	if (keyword && *keyword) {
+	if (keyword && (*keyword == '\0')) {
 		for (i = 0; KeyWordMap[i].number != TYPEMAP_LAST; i++) {
 			if (compmem(keyword, KeyWordMap[i].name, KeyWordMap[i].len) == 0)
 				break;
@@ -1462,7 +1492,7 @@ rev_ARCoordList(ARControlStruct * ctrl, HV * h, char *k, ARCoordList * m)
 static int
 rev_ARCoordList_helper(ARControlStruct * ctrl, HV * h, ARCoordList * m, int idx)
 {
-	if (!(hv_exists(h,  "x", strlen("x") ) && hv_exists(h,  "y", strlen("y") ))) {
+	if ( hv_exists(h,"x",strlen("x")) && hv_exists(h,"y",strlen("y")) ) {
 		SV            **xv = hv_fetch(h,  "x", strlen("x") , 0);
 		SV            **yv = hv_fetch(h,  "y", strlen("y") , 0);
 
@@ -2474,3 +2504,167 @@ strncasecmp(char *s1, char *s2, size_t n)
 }
 
 #endif
+
+
+
+int
+rev_ARDisplayInstanceList(ARControlStruct * ctrl, HV * h, char *k, ARDisplayInstanceList * d)
+{
+	SV            **val;
+	int             i;
+
+	if (!d) {
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
+			    "rev_ARDisplayInstanceList: DisplayInstanceList param is NULL");
+		return -1;
+	}
+	if (SvTYPE((SV *) h) == SVt_PVHV) {
+		if (hv_exists(h,  k, strlen(k) )) {
+			val = hv_fetch(h,  k, strlen(k) , 0);
+			if (val && *val) {
+				if (SvTYPE(SvRV(*val)) == SVt_PVHV) {
+					val = hv_fetch( (HV*) SvRV(*val), "dInstanceList", strlen("dInstanceList"), 0 );
+
+					if (val && *val) {
+						/* hash value should be an array reference */
+						if (SvTYPE(SvRV(*val)) == SVt_PVAV) {
+							AV *ar = (AV *) SvRV((SV *) * val);
+
+							/*
+							 * allocate space for display
+							 * structure list
+							 */
+
+							d->commonProps.numItems = 0;     /* TODO */
+							d->commonProps.props    = NULL;  /* TODO */
+							d->numItems = av_len(ar) + 1;
+							if (d->numItems == 0)
+								return 0;	/* nothing to do */
+								
+							/* d->dInstanceList = safemalloc(sizeof(ARDisplayInstanceStruct) * d->numItems); */
+							d->dInstanceList = MALLOCNN(sizeof(ARDisplayInstanceStruct) * d->numItems);
+
+							/*
+							 * iterate over the array, grabbing
+							 * each hash reference out of it and
+							 * passing that to a helper routine
+							 * to fill in the DisplayInstanceList
+							 * structure
+							 */
+
+							for (i = 0; i <= av_len(ar); i++) {
+								SV **av_hv = av_fetch(ar, i, 0);
+
+								if (av_hv && *av_hv && (SvTYPE(SvRV(*av_hv)) == SVt_PVHV)) {
+									if (rev_ARDisplayInstanceStruct(ctrl, (HV *) SvRV(*av_hv),
+												&(d->dInstanceList[i])) != 0)
+										return -1;
+								} else
+									ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
+											"rev_ARDisplayInstanceList: inner array value is not a hash reference");
+							}
+							return 0;
+						} else
+							ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
+									"rev_ARDisplayInstanceList: hash value is not an array reference");
+					} else {
+						ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
+						"rev_ARDisplayInstanceList: hv_fetch returned null (dInstanceList)");
+						return -2;
+					}
+				} else
+					ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
+							"rev_ARDisplayInstanceList: hash value is not a hash reference");
+			} else {
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
+				"rev_ARDisplayInstanceList: hv_fetch returned null");
+				return -2;
+			}
+		} else {
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
+				    "rev_ARDisplayInstanceList: key doesn't exist");
+			return -2;
+		}
+	} else
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
+			 "rev_ARDisplayInstanceList: first argument is not a hash");
+	return -1;
+}
+
+int
+rev_ARDisplayInstanceStruct(ARControlStruct *ctrl, HV *h, ARDisplayInstanceStruct *d){
+	int rv = 0;	
+
+	rv += uintcpyHVal( h, "vui", &(d->vui) );
+	/* printf( "vui=%d\n", d->vui ); */
+
+	rv += rev_ARPropList( ctrl, h, "props", &(d->props) );
+	/* printf( "props.numItems=%d\n", d->props.numItems ); */
+
+	return rv;
+}
+
+int
+rev_ARPermissionList(ARControlStruct * ctrl, HV * h, char *k, ARPermissionList * d)
+{
+	SV            **val;
+	int             i;
+
+	if (!d) {
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
+			    "rev_ARPermissionList: PermissionList param is NULL");
+		return -1;
+	}
+	if (SvTYPE((SV *) h) == SVt_PVHV) {
+		if (hv_exists(h,  k, strlen(k) )) {
+			val = hv_fetch(h,  k, strlen(k) , 0);
+			if (val && *val) {
+				if (SvTYPE(SvRV(*val)) == SVt_PVHV) {
+					HE *he;
+					int i = 0;					
+
+					d->numItems = hv_iterinit( (HV*) SvRV(*val) );
+					/* d->permissionList = safemalloc(sizeof(ARPermissionStruct) * d->numItems); */
+					d->permissionList = MALLOCNN(sizeof(ARPermissionStruct) * d->numItems);
+
+					while( he = hv_iternext((HV*) SvRV(*val)) ){
+						d->permissionList[i].groupId = atoi( HePV(he,PL_na) );
+						if( HeVAL(he) && SvPOK(HeVAL(he)) ){
+							d->permissionList[i].permissions
+								= caseLookUpTypeNumber( (TypeMapStruct*) FieldPermissionTypeMap, SvPV_nolen(HeVAL(he)) );
+
+							/* TS 18.08.05 */
+							if( d->permissionList[i].permissions == TYPEMAP_LAST ){
+								d->permissionList[i].permissions
+									= caseLookUpTypeNumber( (TypeMapStruct*) SchemaPermissionTypeMap, SvPV_nolen(HeVAL(he)) );
+							}
+						}else{
+							ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
+									"rev_ARPermissionList: no permission type value");
+							return -2;
+						}
+						++i; 
+					}
+					return 0;
+				} else
+					ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
+							"rev_ARPermissionList: hash value is not a hash reference");
+			} else {
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
+				"rev_ARPermissionList: hv_fetch returned null");
+				return -2;
+			}
+		} else {
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
+				    "rev_ARPermissionList: key doesn't exist");
+			return -2;
+		}
+	} else
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
+			 "rev_ARPermissionList: first argument is not a hash");
+	return -1;
+}
+
+
+
+

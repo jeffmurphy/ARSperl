@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.12 2004/09/23 17:34:24 jmccarrell Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.13 2005/11/01 21:03:52 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -102,4 +102,14 @@ EXTERN int strncasecmp(char *s1, char *s2, size_t n);
 
 #endif /* def _WIN32 */
 
+
+EXTERN int rev_ARDisplayInstanceList(ARControlStruct *ctrl,
+			  HV *h, char *k, ARDisplayInstanceList *d);
+EXTERN int rev_ARDisplayInstanceStruct(ARControlStruct *ctrl,
+			  HV *h, ARDisplayInstanceStruct *d);
+EXTERN int rev_ARPermissionList(ARControlStruct *ctrl,
+			  HV *h, char *k, ARPermissionList *d);
+
+
 #endif /* __supportrev_h_ */
+

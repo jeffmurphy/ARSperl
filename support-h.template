@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.29 2005/09/05 21:07:19 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.30 2005/11/01 21:03:52 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -446,6 +446,10 @@ EXTERN int ARGetFieldCached( ARControlStruct *, ARNameType, ARInternalId,
 		     ARStatusList *);
 EXTERN int sv_to_ARValue(ARControlStruct *ctrl, 
 			 SV *in, unsigned int dataType, ARValueStruct *out);
+#if AR_EXPORT_VERSION >= 7
+EXTERN int sv_to_ARCurrencyStruct(ARControlStruct *ctrl, 
+			 SV *in, ARCurrencyStruct *out);
+#endif
 #if AR_EXPORT_VERSION >= 3
 EXTERN SV *perl_ARPropStruct(ARControlStruct *ctrl,  ARPropStruct *in);
 EXTERN SV *perl_ARPropList(ARControlStruct *ctrl, ARPropList *in);

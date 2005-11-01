@@ -952,8 +952,10 @@ perl_ARValueStruct(ARControlStruct * ctrl, ARValueStruct * in)
 #if AR_EXPORT_VERSION >= 7L
 	case AR_DATA_TYPE_TIME_OF_DAY:
 		return newSViv(in->u.timeOfDayVal);
-        case AR_DATA_TYPE_DATE:
+	case AR_DATA_TYPE_DATE:
 		return newSViv(in->u.dateVal);
+	case AR_DATA_TYPE_CURRENCY:
+		return perl_ARCurrencyStruct(ctrl, in->u.currencyVal);
 #endif
 	case AR_DATA_TYPE_NULL:
 	default:
@@ -3423,39 +3425,15 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 		case AR_DATA_TYPE_DATE:
 			out->u.dateVal = SvIV(in);
 			break;
+		case AR_DATA_TYPE_TIME_OF_DAY:
+			out->u.timeOfDayVal = SvIV(in);
+			break;
 		case AR_DATA_TYPE_CURRENCY:
-#if 0 /* XX FINISH */
-			if (SvROK(in)) {
-				if (SvTYPE (hash = (HV *)SvRV(in)) == SVt_PVHV) {
-					fetch = hv_fetch(hash, "value", 5, FALSE);
-					if (!fetch) {
-						ARError_add(AR_RETURN_ERROR, AP_ERR_CURRENCY_STRUCT);
-						return -1;
-					}
-					val = *fetch;
-					if(!(SvOK(val) && SvTYPE(val) != SVt_RV)) {
-						ARError_add(AR_RETURN_ERROR, AP_ERR_CURRENCY_STRUCT);
-						return -1;
-					}
-
-					fetch = hv_fetch(hash, "currencyCode", 
-							 strlen("currencyCode"), FALSE);
-					if (!fetch) {
-						ARError_add(AR_RETURN_ERROR, AP_ERR_CURRENCY_STRUCT);
-						return -1;
-					}
-					type = *fetch; 
-					if(!(SvOK(val) && SvTYPE(val) != SVt_RV)) {
-						ARError_add(AR_RETURN_ERROR, AP_ERR_CURRENCY_STRUCT);
-						return -1;
-					}
-					out->u.currencyVal = MALLOCNN(sizeof(ARCurrencyStruct));
-					out->u.currencyVal->value = strdup(SvPV(val, PL_na));
-					out->u.currencyVal->currencyCode = strdup(SvPV(type, PL_na));
-#endif
+			out->u.currencyVal = MALLOCNN(sizeof(ARCurrencyStruct));
+			if( sv_to_ARCurrencyStruct(ctrl,in,out->u.currencyVal) == -1 )
+				return -1;
+			break;
 #endif /* 7L */
-
-					
 
 #if AR_EXPORT_VERSION >= 3
 		case AR_DATA_TYPE_BYTES:
@@ -3671,6 +3649,64 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 
 
 #if AR_EXPORT_VERSION >= 7L
+int 
+sv_to_ARCurrencyStruct(ARControlStruct *ctrl, SV *in, ARCurrencyStruct *out)
+{
+	SV **fetch, *val, *type, *val2;				
+	HV *hash;
+
+	if (SvROK(in)) {
+		if (SvTYPE (hash = (HV *)SvRV(in)) == SVt_PVHV) {
+
+			fetch = hv_fetch(hash, "value", 5, FALSE);
+			if (!fetch) {
+				ARError_add(AR_RETURN_ERROR, AP_ERR_CURRENCY_STRUCT);
+				return -1;
+			}
+			val = *fetch;
+			if(!(SvOK(val) && SvTYPE(val) != SVt_RV)) {
+				ARError_add(AR_RETURN_ERROR, AP_ERR_CURRENCY_STRUCT);
+				return -1;
+			}
+
+			fetch = hv_fetch(hash, "currencyCode", 
+					 strlen("currencyCode"), FALSE);
+			if (!fetch) {
+				ARError_add(AR_RETURN_ERROR, AP_ERR_CURRENCY_STRUCT);
+				return -1;
+			}
+			type = *fetch; 
+			if(!(SvOK(type) && SvTYPE(type) == SVt_PV)) {
+				ARError_add(AR_RETURN_ERROR, AP_ERR_CURRENCY_STRUCT);
+				return -1;
+			}
+
+			fetch = hv_fetch(hash, "conversionDate", 
+					 strlen("conversionDate"), FALSE);
+			if (!fetch) {
+				ARError_add(AR_RETURN_ERROR, AP_ERR_CURRENCY_STRUCT);
+				return -1;
+			}
+			val2 = *fetch; 
+			if(!(SvOK(val2) && SvTYPE(val2) == SVt_IV)) {
+				ARError_add(AR_RETURN_ERROR, AP_ERR_CURRENCY_STRUCT);
+				return -1;
+			}
+
+			out->value = strdup(SvPV(val, PL_na));
+			strncpy( out->currencyCode, SvPV(type, PL_na), AR_MAX_CURRENCY_CODE_SIZE );
+			out->currencyCode[AR_MAX_CURRENCY_CODE_SIZE] = '\0';
+			out->conversionDate = SvIV(val2);
+			out->funcList.numItems = 0;
+
+			return 0;
+		}
+	}
+	ARError_add(AR_RETURN_ERROR, AP_ERR_CURRENCY_STRUCT);
+	return -1;
+}
+
+
 SV*
 perl_ARCurrencyDetailList(ARControlStruct * ctrl, ARCurrencyDetailList * in)
 {
