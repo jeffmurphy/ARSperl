@@ -1,4 +1,5 @@
 
+TS  fixed Makefile.PL to work with $ARSAPI containing spaces on Windows
 TS  ARS.pm: changed $VERSION to '1.85' 
 TS  added ars_DeleteContainer (changes to ARS.xs, ARS.pm)
 TS  fixed Makefile.PL to use $ra_arlibs for Version <= 5.0 on Windows
