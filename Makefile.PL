@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.74 2005/11/01 21:03:52 tstapff Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.75 2005/11/04 22:14:24 tstapff Exp $
 #
 # ARSperl Makefile
 #
@@ -105,13 +105,13 @@ foreach my $pm2install (qw{ARSarerrno-h.pm  ARSar-h.pm  ARSnparm.pm  ARSnterrno-
 }
 
 if ($ARSVERSION >= 6.3) {
-        $ARS_STATIC_LIB = $ARSAPI."/lib/libar.a";
+	$ARS_STATIC_LIB = $ARSAPI."/lib/libar.a";
 	$ARS_LIBS = "";
 	$PM->{'artypes.ph'} = '$(INST_LIBDIR)/artypes.ph';
 	if ($WINDOWS) {
-		    $ARS_LIBS = join(' ', map { '-l' . $_ } @{$ra_arlibs});
+		$ARS_LIBS = join(' ', map { '-l' . $_ } @{$ra_arlibs});
 	} else {
-		    $ARS_LIBS .= " -lpthread";
+		$ARS_LIBS .= " -lpthread";
 	}
 	$AUTODEFINES .= " -DARS32 ";
 	$AUTODEFINES .= " -DARS452 " if($ARSVERSION >= 4.52);
@@ -135,7 +135,7 @@ elsif ($ARSVERSION >= 6.0) {
 }
 
 elsif($ARSVERSION >= 5.0) {
- $ARS_LIBS = "-lar -lnsl";
+  $ARS_LIBS = "-lar -lnsl";
   if($ENCRYPT == 1) {
     $ARS_LIBS = "-lar -larencrypt -lnsl";
   }
@@ -207,15 +207,21 @@ push(@extras, CAPI => 'TRUE') if ($] >= 5.005       &&
                                    ($Config{archname} =~ /-multi-thread\b/i))
                                  );
 
-$ARS_LDPATH = "-L$ARSAPI/lib";
-$INCLUDES   = "-I$ARSAPI/include";
+if( $WINDOWS ){
+  $ARS_LDPATH = qq{-L"$ARSAPI/lib"};
+  $INCLUDES   = qq{-I"$ARSAPI/include"};
+}else{
+  $ARS_LDPATH = "-L$ARSAPI/lib";
+  $INCLUDES   = "-I$ARSAPI/include";
+}
+
 
 GenerateSupportDotH("support-h.template", $INCLUDES);
 
 print "Generating serverTypeInfoHints.h ..\n";
 
 die "whoops. no file at ".$Config{'perlpath'} unless ( -f $Config{'perlpath'} );
-$cmd = "$Config{'perlpath'} infra/exsi.pl < ${ARSAPI}/include/ar.h > serverTypeInfoHints.h";
+$cmd = qq("$Config{'perlpath'}" infra/exsi.pl < "${ARSAPI}/include/ar.h" > serverTypeInfoHints.h);
 $rv = system($cmd);
 die "something went wrong when i ran \"$cmd\" (rv = $rv, expected 0)" unless ($rv == 0);
 
@@ -280,7 +286,7 @@ WriteMakefile(
 	      'NAME'	=> 'ARS',
 	      'VERSION_FROM' => 'ARS.pm',
 	      'LIBS'	=> ["${ARS_LDPATH} ${ARS_LIBS}"],
-	      'OBJECT'  => q[ARS$(OBJ_EXT) support$(OBJ_EXT) supportrev$(OBJ_EXT) ].$ARS_STATIC_LIB,
+	      'OBJECT'  => q[ARS$(OBJ_EXT) support$(OBJ_EXT) supportrev$(OBJ_EXT) ].($WINDOWS ? '' : $ARS_STATIC_LIB),
 	      'INC'	=> "${INCLUDES}",
 	
 	      'PM' => $PM,
@@ -361,6 +367,8 @@ sub GenerateSupportDotH {
     my (@arh);
 
     $incdir =~ s/^-I//g;
+    $incdir =~ s/^"//;
+    $incdir =~ s/"$//;
 
     print "Generating support.h file..\n";
 
