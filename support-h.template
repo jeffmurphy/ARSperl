@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.30 2005/11/01 21:03:52 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.31 2007/02/03 02:33:10 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -383,6 +383,9 @@ EXTERN SV *perl_ARValueStruct(ARControlStruct *ctrl, ARValueStruct *);
 EXTERN SV *perl_ARValueStructType(ARControlStruct *ctrl,  ARValueStruct *in);
 EXTERN SV *perl_dataType_names(ARControlStruct *ctrl,  unsigned int *);
 EXTERN SV *perl_ARStatHistoryValue(ARControlStruct *ctrl,  ARStatHistoryValue *);
+#if AR_EXPORT_VERSION >= 7L
+EXTERN SV *perl_ARCurrencyPartStruct(ARControlStruct *ctrl, ARCurrencyPartStruct *);
+#endif
 EXTERN SV *perl_ARAssignFieldStruct(ARControlStruct *ctrl,  ARAssignFieldStruct *);
 EXTERN SV *perl_ARAssignStruct(ARControlStruct *ctrl,  ARAssignStruct *);
 EXTERN SV *perl_ARFieldAssignStruct(ARControlStruct *ctrl,  ARFieldAssignStruct *);
@@ -395,6 +398,14 @@ EXTERN SV *perl_ARFieldCharacteristics(ARControlStruct *ctrl,
 EXTERN SV *perl_ARDDEStruct(ARControlStruct *ctrl,  ARDDEStruct *);
 EXTERN SV *perl_ARActiveLinkActionStruct(ARControlStruct *ctrl, 
 					 ARActiveLinkActionStruct *);
+EXTERN SV *perl_ARFilterActionNotify(ARControlStruct * ctrl, ARFilterActionNotify *);
+#if AR_EXPORT_VERSION >= 7L
+EXTERN SV *perl_ARFilterActionNotifyAdvanced(ARControlStruct * ctrl, ARFilterActionNotifyAdvanced *);
+#endif
+#if AR_EXPORT_VERSION >= 8L
+EXTERN SV *perl_ARSetFieldsActionStruct( ARControlStruct *ctrl, ARSetFieldsActionStruct *p );
+EXTERN SV *perl_ARPushFieldsActionStruct( ARControlStruct *ctrl, ARPushFieldsActionStruct *p );
+#endif
 EXTERN SV *perl_ARFilterActionStruct(ARControlStruct *ctrl,  ARFilterActionStruct *);
 EXTERN SV *perl_AROwnerObj(ARControlStruct *ctrl,  ARContainerOwnerObj *);
 #if AR_EXPORT_VERSION >= 6L
@@ -434,7 +445,11 @@ EXTERN int ARGetFieldCached( ARControlStruct *, ARNameType, ARInternalId,
 		     ARNameType, ARFieldMappingStruct *,
 #endif
 		     unsigned int *, unsigned int *,
-		     unsigned int *, ARValueStruct *,
+		     unsigned int *, 
+#if AR_EXPORT_VERSION >= 9
+		     unsigned int *, 
+#endif
+		     ARValueStruct *,
 		     ARPermissionList *, ARFieldLimitStruct *,
 #if AR_EXPORT_VERSION >= 3
 		     ARDisplayInstanceList *,
@@ -470,6 +485,8 @@ EXTERN int perl_BuildEntryList(ARControlStruct *ctrl,  AREntryIdList *entryList,
 EXTERN SV *perl_ARAssignSQLStruct(ARControlStruct *ctrl,  ARAssignSQLStruct *in);
 #endif
 #if AR_EXPORT_VERSION >= 6L
+EXTERN SV *perl_ARVendorMappingStruct(ARControlStruct *ctrl,  ARVendorMappingStruct *);
+EXTERN SV *perl_ARVendorSchema(ARControlStruct *ctrl,  ARVendorSchema *);
 EXTERN SV *perl_ARAssignFilterApiStruct(ARControlStruct *ctrl,  ARAssignFilterApiStruct *in);
 #endif
 
@@ -512,7 +529,18 @@ EXTERN SV *perl_ARCurrencyDetailList(ARControlStruct * ctrl,
 #if AR_EXPORT_VERSION >= 8L
 EXTERN SV *perl_ARArchiveInfoStruct(ARControlStruct *ctrl,  ARArchiveInfoStruct *);
 #endif
+#if AR_EXPORT_VERSION >= 9L
+EXTERN SV *perl_ARAuditInfoStruct( ARControlStruct *ctrl, ARAuditInfoStruct *);
+EXTERN SV *perl_ARBulkEntryReturn( ARControlStruct *ctrl, ARBulkEntryReturn *);
+EXTERN SV *perl_AREntryReturn( ARControlStruct *ctrl, AREntryReturn *);
+EXTERN SV *perl_ARXMLEntryReturn( ARControlStruct *ctrl, ARXMLEntryReturn *);
+EXTERN SV *perl_ARStatusList( ARControlStruct *ctrl, ARStatusList *);
+#endif
 
+EXTERN SV *perl_AREntryListFieldList( ARControlStruct *ctrl, AREntryListFieldList *p );
+EXTERN SV *perl_ARInternalIdList( ARControlStruct *ctrl, ARInternalIdList *p );
+EXTERN SV *perl_ARFieldValueList( ARControlStruct *ctrl, ARFieldValueList *p );
+EXTERN SV *perl_ARFieldValueStruct( ARControlStruct *ctrl, ARFieldValueStruct *p );
 
 
 

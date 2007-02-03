@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.26 2005/11/01 21:03:52 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.27 2007/02/03 02:33:10 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -38,6 +38,7 @@ $Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.26 2005/11/01 21:03:52 tstapf
 
 #include "support.h"
 #include "supportrev.h"
+#include "supportrev_generated.h"
 
 /*
  * forward declarations
@@ -102,11 +103,6 @@ rev_ARPropList_helper(ARControlStruct * ctrl,
 		      HV * h, ARPropList * m, int idx);
 #endif
 
-#if AR_EXPORT_VERSION >= 4
-static int
-rev_ARMessageStruct(ARControlStruct * ctrl, 
-                    HV * h, char *k, ARMessageStruct * m);
-#endif
 
 
 
@@ -161,6 +157,11 @@ strcpyHVal(HV * h, char *k, char *b, int len)
 	if (!b) {
 		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
 			    "strcpyHVal: char buffer parameter is NULL");
+		return -1;
+	}
+	if (!h) {
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
+			    "strcpyHVal: hash parameter is NULL");
 		return -1;
 	}
 	if (SvTYPE((SV *) h) == SVt_PVHV) {
@@ -317,20 +318,20 @@ boolcpyHVal(HV * h, char *k, ARBoolean * b)
 					return 0;
 				} else
 					ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
-						    "uintcpyHVal: hash value is not an integer");
+						    "boolcpyHVal: hash value is not an integer");
 			} else {
 				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
-				     "uintcpyHVal: hv_fetch returned null");
+				     "boolcpyHVal: hv_fetch returned null");
 				return -2;
 			}
 		} else {
 			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
-				    "uintcpyHVal: key doesn't exist");
+				    "boolcpyHVal: key doesn't exist");
 			return -2;
 		}
 	} else
 		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
-			    "uintcpyHVal: first argument is not a hash");
+			    "boolcpyHVal: first argument is not a hash");
 	return -1;
 }
 #endif
@@ -835,10 +836,11 @@ rev_ARActiveLinkActionList_helper(ARControlStruct * ctrl, HV * h, ARActiveLinkAc
 					    &(al->actionList[idx].u.macro));
 	} else if (hv_exists(h,  "assign_fields", strlen("assign_fields") )) {
 		al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_FIELDS;
-		rv += rev_ARFieldAssignList(ctrl, h, "assign_fields",
 #if AR_EXPORT_VERSION >= 8L
-					&(al->actionList[idx].u.setFields.fieldList));
+		rv += rev_ARSetFieldsActionStruct(ctrl, h, "assign_fields",
+					&(al->actionList[idx].u.setFields));
 #else
+		rv += rev_ARFieldAssignList(ctrl, h, "assign_fields",
 					&(al->actionList[idx].u.fieldList));
 #endif
 	} else if (hv_exists(h,  "message", strlen("message") )) {
@@ -854,6 +856,79 @@ rev_ARActiveLinkActionList_helper(ARControlStruct * ctrl, HV * h, ARActiveLinkAc
 		al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_SET_CHAR;
 		rv += rev_ARFieldCharacteristics(ctrl, h, "characteristics",
 				  &(al->actionList[idx].u.characteristics));
+
+	} else if (hv_exists(h,  "fieldp", strlen("fieldp") )) {
+		al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_FIELDP;
+#if AR_EXPORT_VERSION >= 8L
+		rv += rev_ARPushFieldsActionStruct(ctrl, h, "fieldp",
+				  &(al->actionList[idx].u.pushFields));
+#else
+		rv += rev_ARPushFieldsList(ctrl, h, "fieldp",
+				  &(al->actionList[idx].u.pushFieldsList));
+#endif
+
+	} else if (hv_exists(h,  "openDlg", strlen("openDlg") )) {
+		al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_OPENDLG;
+		rv += rev_AROpenDlgStruct(ctrl, h, "openDlg",
+				  &(al->actionList[idx].u.openDlg));
+
+	} else if (hv_exists(h,  "closeWnd", strlen("closeWnd") )) {
+		al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_CLOSEWND;
+		rv += rev_ARCloseWndStruct(ctrl, h, "closeWnd",
+				  &(al->actionList[idx].u.closeWnd));
+
+	} else if (hv_exists(h,  "commitChanges", strlen("commitChanges") )) {
+		al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_COMMITC;
+		rv += rev_ARCommitChangesStruct(ctrl, h, "commitChanges",
+				  &(al->actionList[idx].u.commitChanges));
+
+	} else if (hv_exists(h,  "callGuide", strlen("callGuide") )) {
+		al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_CALLGUIDE;
+		rv += rev_ARCallGuideStruct(ctrl, h, "callGuide",
+				  &(al->actionList[idx].u.callGuide));
+
+	} else if (hv_exists(h,  "exitGuide", strlen("exitGuide") )) {
+		al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_EXITGUIDE;
+		rv += rev_ARExitGuideStruct(ctrl, h, "exitGuide",
+				  &(al->actionList[idx].u.exitGuide));
+
+	} else if (hv_exists(h,  "gotoGuideLabel", strlen("gotoGuideLabel") )) {
+		SV **val;
+		al->actionList[idx].u.gotoGuide.label = NULL;
+		al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_GOTOGUIDELABEL;
+		val = hv_fetch( h, "gotoGuideLabel", strlen("gotoGuideLabel"), 0 );
+		if( val && *val ){
+			al->actionList[idx].u.gotoGuide.label = strdup( SvPV_nolen(*val) );
+		}
+		if( al->actionList[idx].u.gotoGuide.label == NULL ){
+			rv += -1;
+		}
+
+	} else if (hv_exists(h,  "gotoAction", strlen("gotoAction") )) {
+		al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_GOTOACTION;
+		rv += rev_ARGotoActionStruct(ctrl, h, "gotoAction",
+				  &(al->actionList[idx].u.gotoAction));
+
+	} else if (hv_exists(h,  "waitAction", strlen("waitAction") )) {
+		al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_WAIT;
+		rv += rev_ARWaitStruct(ctrl, h, "waitAction",
+				  &(al->actionList[idx].u.waitAction));
+
+	} else if (hv_exists(h,  "dde", strlen("dde") )) {
+		al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_DDE;
+		rv += rev_ARDDEStruct(ctrl, h, "dde",
+				  &(al->actionList[idx].u.dde));
+
+	} else if (hv_exists(h,  "sqlCommand", strlen("sqlCommand") )) {
+		al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_SQL;
+		rv += rev_ARSQLStruct(ctrl, h, "sqlCommand",
+				  &(al->actionList[idx].u.sqlCommand));
+
+	} else if (hv_exists(h,  "automation", strlen("automation") )) {
+		al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_AUTO;
+		rv += rev_ARAutomationStruct(ctrl, h, "automation",
+				  &(al->actionList[idx].u.automation));
+
 	} else if (hv_exists(h,  "none", strlen("none") )) {
 		al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_NONE;
 	} else {
@@ -963,7 +1038,7 @@ rev_ARAssignStruct(ARControlStruct * ctrl, HV * h, char *k, ARAssignStruct * m)
 {
 	if (!m || !h || !k) {
 		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
-		    "rev_ARFunctionAssignStruct: invalid (NULL) parameter");
+		    "rev_ARAssignStruct: invalid (NULL) parameter");
 		return -1;
 	}
 	if (SvTYPE((SV *) h) == SVt_PVHV) {
@@ -978,20 +1053,20 @@ rev_ARAssignStruct(ARControlStruct * ctrl, HV * h, char *k, ARAssignStruct * m)
 					return rev_ARAssignStruct_helper(ctrl, a, m);
 				} else
 					ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
-						    "rev_ARFunctionAssignStruct: hash value is not an array reference");
+						    "rev_ARAssignStruct: hash value is not an array reference");
 			} else {
 				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
-					    "rev_ARFunctionAssignStruct: hv_fetch returned null");
+					    "rev_ARAssignStruct: hv_fetch returned null");
 				return -2;
 			}
 		} else {
 			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
-			   "rev_ARFunctionAssignStruct: key doesn't exist");
+			   "rev_ARAssignStruct: key doesn't exist");
 			return -2;
 		}
 	} else
 		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
-		"rev_ARFunctionAssignStruct: first argument is not a hash");
+		"rev_ARAssignStruct: first argument is not a hash");
 	return -1;
 }
 
@@ -1035,7 +1110,7 @@ rev_ARAssignStruct_helper(ARControlStruct * ctrl, HV * h, ARAssignStruct * m)
 #if AR_EXPORT_VERSION >= 3
 	else if (hv_exists(h,  "sql", strlen("sql") )) {
 		m->assignType = AR_ASSIGN_TYPE_SQL;
-		m->u.sql = MALLOCNN(sizeof(ARAssignSQLStruct));
+		m->u.sql = (ARAssignSQLStruct*) MALLOCNN(sizeof(ARAssignSQLStruct));
 		rv += rev_ARAssignSQLStruct(ctrl, h, "sql", m->u.sql);
 	}
 #endif
@@ -1056,7 +1131,7 @@ rev_ARAssignSQLStruct(ARControlStruct * ctrl, HV * h, char *k, ARAssignSQLStruct
 	SV            **svp;
 	HV             *hr;
 	int             rv = 0;
-	STRLEN          len;
+	/* STRLEN       len; */
 
 
 	/* dereference the hash key and extract it */
@@ -1071,11 +1146,11 @@ rev_ARAssignSQLStruct(ARControlStruct * ctrl, HV * h, char *k, ARAssignSQLStruct
 
 	/* make sure the hash contains the keys we need */
 
-	if (!(hv_exists(hr, "server", 0) &&
-	      hv_exists(hr, "sqlCommand", 0) &&
-	      hv_exists(hr, "valueIndex", 0) &&
-	      hv_exists(hr, "noMatchOption", 0) &&
-	      hv_exists(hr, "multiMatchOption", 0))) {
+	if (!(hv_exists(hr, "server", 6) &&
+	      hv_exists(hr, "sqlCommand", 10) &&
+	      hv_exists(hr, "valueIndex", 10) &&
+	      hv_exists(hr, "noMatchOption", 13) &&
+	      hv_exists(hr, "multiMatchOption", 16))) {
 
 		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
 		      "rev_ARAssignSQLStruct: required hash key not found");
@@ -1085,10 +1160,12 @@ rev_ARAssignSQLStruct(ARControlStruct * ctrl, HV * h, char *k, ARAssignSQLStruct
 
 	rv += strcpyHVal(hr, "server", s->server, AR_MAX_SERVER_SIZE + 1);
 
+	/*
 	svp = hv_fetch(hr,  "sqlCommand", strlen("sqlCommand") , 0);
 	SvPV(*svp, len);
+	*/
 
-	rv += strcpyHVal(hr, "sqlCommand", s->sqlCommand, len);	/* FIX */
+	rv += strmakHVal( hr, "sqlCommand", &(s->sqlCommand) );
 
 	rv += uintcpyHVal(hr, "valueIndex", &(s->valueIndex));
 	svp = hv_fetch(hr,  "noMatchOption", strlen("noMatchOption") , 0);
@@ -1222,7 +1299,6 @@ rev_ARValueStruct(ARControlStruct * ctrl, HV * h, char *k, char *t, ARValueStruc
 		case AR_DATA_TYPE_DECIMAL:
 			if (strmakHVal(h, k, &(m->u.decimalVal)) == -1)
 				return -1;
-			printf( "DECIMAL (%s)\n", m->u.decimalVal );
 			break;
 #endif
 #if AR_EXPORT_VERSION >= 7
@@ -1233,8 +1309,12 @@ rev_ARValueStruct(ARControlStruct * ctrl, HV * h, char *k, char *t, ARValueStruc
 			m->u.timeOfDayVal = (ARTime) SvIV(*val);
 			break;
 		case AR_DATA_TYPE_CURRENCY:
-			m->u.currencyVal = MALLOCNN(sizeof(ARCurrencyStruct));
+			m->u.currencyVal = (ARCurrencyStruct*) MALLOCNN(sizeof(ARCurrencyStruct));
 			if( sv_to_ARCurrencyStruct(ctrl,*val,m->u.currencyVal) == -1 )
+				return -1;
+			break;
+		case AR_DATA_TYPE_DISPLAY:
+			if (strmakHVal(h, k, &(m->u.charVal)) == -1)
 				return -1;
 			break;
 #endif
@@ -1335,6 +1415,12 @@ rev_ARValueStructDiary(ARControlStruct * ctrl, HV * h, char *k, char **d)
 					AP_FREE(value);
 				return 0;
 			}
+		} else if (hr && *hr && SvOK(*hr)) {
+			char *buf = SvPV_nolen(*hr); 
+			*d = strdup( buf ); 
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
+				    "rev_ARValueStructDiary: non-hashref variant used");
+			return 0;
 		} else {
 			ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
 				    "rev_ARValueStructDiary: hash value is not hash ref for key:");
@@ -1362,10 +1448,10 @@ rev_ARByteList(ARControlStruct * ctrl, HV * h, char *k, ARByteList * b)
 	}
 	if (hv_exists(h,  k, strlen(k) )) {
 		SV            **hr = hv_fetch(h,  k, strlen(k) , 0);
-		if (hr && *hr && SvROK(*hr) && (SvTYPE(*hr) == SVt_PVHV)) {
+		if (hr && *hr && SvROK(*hr) && (SvTYPE(SvRV(*hr)) == SVt_PVHV)) {
 			HV             *h2 = (HV *) SvRV(*hr);
 
-			if (!(hv_exists(h2,  "type", strlen("type") ) && hv_exists(h2,  "value", strlen("value") ))) {
+			if ( hv_exists(h2, "type", strlen("type")) && hv_exists(h2, "value", strlen("value")) ) {
 				SV            **tv = hv_fetch(h2,  "type", strlen("type") , 0);
 				SV            **vv = hv_fetch(h2,  "value", strlen("value") , 0);
 
@@ -1393,6 +1479,7 @@ rev_ARByteList(ARControlStruct * ctrl, HV * h, char *k, ARByteList * b)
 				    "rev_ARByteList: hash value is not hash ref for key:");
 			ARError_add(AR_RETURN_ERROR, AP_ERR_CONTINUE,
 				    k ? k : "[key null]");
+			printf( "SvTYPE = %d\n", SvTYPE(*hr) );
 		}
 	} else {
 		ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
@@ -1571,15 +1658,16 @@ rev_ARAssignFieldStruct_helper(ARControlStruct * ctrl, HV * h, ARAssignFieldStru
 	ARQualifierStruct *qp;
 	SV            **qpsv, **svp;
 
-	if (!(hv_exists(h, "server", 0) &&
-	      hv_exists(h, "schema", 0) &&
-	      hv_exists(h, "qualifier", 0) &&
+	if (!(hv_exists(h, "server", 6) &&
+	      hv_exists(h, "schema", 6) &&
+	      hv_exists(h, "qualifier", 9) &&
 #if AR_EXPORT_VERSION >= 3
-	      hv_exists(h, "noMatchOption", 0) &&
-	      hv_exists(h, "multiMatchOption", 0) &&
+	      hv_exists(h, "noMatchOption", 13) &&
+	      hv_exists(h, "multiMatchOption", 16) &&
 #endif
-	      (hv_exists(h, "fieldId", 0) ||
-	       hv_exists(h, "statHistory", 0)))
+	      (hv_exists(h, "fieldId", 7)        ||
+	       hv_exists(h, "currencyField", 13) ||
+	       hv_exists(h, "statHistory", 11) ))
 		) {
 
 		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
@@ -1589,13 +1677,27 @@ rev_ARAssignFieldStruct_helper(ARControlStruct * ctrl, HV * h, ARAssignFieldStru
 	strcpyHVal(h, "server", m->server, AR_MAX_SERVER_SIZE + 1);
 	strcpyHVal(h, "schema", m->schema, sizeof(ARNameType));
 
-	if (hv_exists(h, "fieldId", 0)) {
+	if (hv_exists(h, "fieldId", 7)) {
+		m->tag = AR_FIELD;
 		if (ulongcpyHVal(h, "fieldId", &(m->u.fieldId)) != 0)
 			return -1;
-	} else if (hv_exists(h, "statHistory", 0)) {
+	} else if (hv_exists(h, "statHistory", 11)) {
+		m->tag = AR_STAT_HISTORY;
 		if (rev_ARStatHistoryValue(ctrl, h, "statHistory", &(m->u.statHistory)) != 0)
 			return -1;
+#if AR_EXPORT_VERSION >= 7L
+	} else if (hv_exists(h, "currencyField", 13)) {
+		m->tag = AR_CURRENCY_FLD;
+		m->u.currencyField = MALLOCNN(sizeof(ARCurrencyPartStruct));
+		if (rev_ARCurrencyPartStruct(ctrl, h, "currencyField", m->u.currencyField) != 0)
+			return -1;
+#endif
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
+				"rev_ARAssignFieldStruct_helper: invalid assign type");
+		return -1;
 	}
+
 #if AR_EXPORT_VERSION >= 3
 	svp = hv_fetch(h,  "noMatchOption", strlen("noMatchOption") , 0);
 	if (svp && *svp) {
@@ -1624,9 +1726,11 @@ rev_ARAssignFieldStruct_helper(ARControlStruct * ctrl, HV * h, ARAssignFieldStru
 			qp = (ARQualifierStruct *) SvIV((SV *) SvRV(*qpsv));
 
 			if (dup_qualifier2(ctrl, qp, &(m->qualifier), 0) != (ARQualifierStruct *) NULL) {
+				return 0;
+			}else{
 				ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
 					    "rev_ARAssignFieldStruct_helper: dup_qualifier2() failed");
-				return 0;
+				return -1;
 			}
 		} else
 			ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
@@ -1728,7 +1832,7 @@ rev_ARStatHistoryValue(ARControlStruct * ctrl, HV * h, char *k, ARStatHistoryVal
 static int
 rev_ARStatHistoryValue_helper(ARControlStruct * ctrl, HV * h, ARStatHistoryValue * s)
 {
-	if (!(hv_exists(h, "userOrTime", 0) && hv_exists(h, "enumVal", 0))) {
+	if (!(hv_exists(h, "userOrTime", 10) && hv_exists(h, "enumVal", 7))) {
 		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
 			    "rev_ARAssignFieldStruct_helper: required hash key not found");
 		return -1;
@@ -1802,7 +1906,7 @@ rev_ARArithOpAssignStruct_helper(ARControlStruct * ctrl,
 {
 	SV            **svp;
 
-	if (!hv_exists(h, "oper", 0)) {
+	if (!hv_exists(h, "oper", 4)) {
 		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
 			    "rev_ARArithOpAssignStruct_helper: hash does not contain required key 'oper'.");
 		return -1;
@@ -1821,9 +1925,13 @@ rev_ARArithOpAssignStruct_helper(ARControlStruct * ctrl,
 	 * to fill it the structure.
 	 */
 
+	if( s->operation == AR_ARITH_OP_SUBTRACT && ! hv_exists(h,"left",4) ){
+		s->operation = AR_ARITH_OP_NEGATE;
+	}
+
 	if (s->operation == AR_ARITH_OP_NEGATE) {
-		if (hv_exists(h, "left", 0))
-			return rev_ARAssignStruct(ctrl, h, "left", &(s->operandLeft));
+		if (hv_exists(h, "right", 5))
+			return rev_ARAssignStruct(ctrl, h, "right", &(s->operandRight));
 		else {
 			ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
 				    "rev_ARArithOpAssignStructStr2OP: operation 'negate' ('-') requires 'left' key.");
@@ -1832,7 +1940,7 @@ rev_ARArithOpAssignStruct_helper(ARControlStruct * ctrl,
 	}
 	/* other operations require both left and right */
 
-	if (!(hv_exists(h, "left", 0) && hv_exists(h, "right", 0))) {
+	if (!(hv_exists(h, "left", 4) && hv_exists(h, "right", 5))) {
 		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
 			    "rev_ARArithOpAssignStruct_helper: 'left' AND 'right' keys are required.");
 		return -1;
@@ -1923,7 +2031,7 @@ rev_ARFunctionAssignStruct(ARControlStruct * ctrl,
 						SV            **hvr = av_fetch(a, i, 0);
 						if (hvr && *hvr && (SvTYPE(SvRV(*hvr)) == SVt_PVHV))
 							if (rev_ARAssignStruct_helper(ctrl, (HV *) SvRV(*hvr),
-										      &(s->parameterList[i])) == -1)
+										      &(s->parameterList[i-1])) == -1)
 								return -1;
 					}
 
@@ -2102,8 +2210,8 @@ rev_ARMessageStruct(ARControlStruct * ctrl, HV * h, char *k, ARMessageStruct * m
 					int             rv = 0;
 					char           *str = NULL;
 
-					if(hv_exists(h,  "messageType", strlen("messageType") )) {
-						SV **sval = hv_fetch(h,  "messageType", strlen("messageType") , 0);
+					if(hv_exists(a,  "messageType", strlen("messageType") )) {
+						SV **sval = hv_fetch(a,  "messageType", strlen("messageType") , 0);
 						if(sval && *sval) {
 							if (SvPOK(*sval)) 
 								str = SvPV(*sval, PL_na);
@@ -2393,7 +2501,7 @@ rev_ARMacroParmList(ARControlStruct * ctrl, HV * h, char *k, ARMacroParmList * m
 
 				/* hash value should be a hash reference */
 
-				if (SvTYPE(SvRV(*val)) == SVt_PVAV) {
+				if (SvTYPE(SvRV(*val)) == SVt_PVHV) {
 					HV             *a = (HV *) SvRV((SV *) * val);
 					int             rv = 0, i, i2;
 					SV             *hval;
@@ -2423,7 +2531,8 @@ rev_ARMacroParmList(ARControlStruct * ctrl, HV * h, char *k, ARMacroParmList * m
 
 							if (i2 <= i) {
 								(void) strncpy(m->parms[i2].name, hkey, sizeof(ARNameType));
-								(void) copymem(m->parms[i2].value, vv, vl);
+								/* (void) copymem(m->parms[i2].value, vv, vl); */
+								m->parms[i2].value = strdup( vv );
 								i2++;
 							} else {
 								ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
@@ -2595,7 +2704,7 @@ int
 rev_ARDisplayInstanceStruct(ARControlStruct *ctrl, HV *h, ARDisplayInstanceStruct *d){
 	int rv = 0;	
 
-	rv += uintcpyHVal( h, "vui", &(d->vui) );
+	rv += ulongcpyHVal( h, "vui", &(d->vui) );
 	/* printf( "vui=%d\n", d->vui ); */
 
 	rv += rev_ARPropList( ctrl, h, "props", &(d->props) );
@@ -2608,7 +2717,6 @@ int
 rev_ARPermissionList(ARControlStruct * ctrl, HV * h, char *k, ARPermissionList * d)
 {
 	SV            **val;
-	int             i;
 
 	if (!d) {
 		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
@@ -2666,5 +2774,204 @@ rev_ARPermissionList(ARControlStruct * ctrl, HV * h, char *k, ARPermissionList *
 }
 
 
+
+
+int
+rev_ARReferenceStruct( ARControlStruct *ctrl, HV *h, char *k, ARReferenceStruct *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARReferenceStruct: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARReferenceStruct: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+				
+					{
+						char *pcase = NULL;
+						char errText[512];
+						SV **valDataType;
+				
+							// pcase = SvPV_nolen(*val);
+							// p->reference.dataType = caseLookUpTypeNumber( (TypeMapStruct*) dataType, pcase );
+							HV *h2 = (HV* ) SvRV((SV*) *val);
+							valDataType = hv_fetch( h2, "dataType", 8, 0 );
+							p->reference.dataType = SvIV(*valDataType);
+				
+				
+							switch( p->reference.dataType ){
+				
+							case ARREF_DATA_ARSREF:
+								{
+								
+								
+									if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+										int i = 0, num = 0;
+										HV *h = (HV* ) SvRV((SV*) *val);
+										char k[256];
+										k[255] = '\0';
+								
+								
+									{
+										SV **val;
+										strncpy( k, "name", 255 );
+										val = hv_fetch( h, "name", 4, 0 );
+										if( val	&& *val ){
+											{
+												strncpy( p->reference.u.name, SvPV_nolen(*val), sizeof(p->reference.u.name) );
+											}
+										}else{
+											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"name\"" );
+											return -1;
+										}
+									}
+								
+								
+									}else{
+										ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARReferenceStruct: hash value is not a hash reference" );
+										return -1;
+									}
+								
+								
+								}
+								break;
+				
+				
+							case ARREF_DATA_EXTREF:
+								{
+								
+								
+									if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+										int i = 0, num = 0;
+										HV *h = (HV* ) SvRV((SV*) *val);
+										char k[256];
+										k[255] = '\0';
+								
+								
+									{
+										SV **val;
+										strncpy( k, "permittedGroups", 255 );
+										val = hv_fetch( h, "permittedGroups", 15, 0 );
+										if( val	&& *val ){
+											rev_ARInternalIdList( ctrl, h, k, &(p->reference.u.extRef.permittedGroups) );
+										}else{
+											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"permittedGroups\"" );
+											return -1;
+										}
+									}
+								
+									{
+										SV **val;
+										strncpy( k, "value", 255 );
+										val = hv_fetch( h, "value", 5, 0 );
+										if( val	&& *val ){
+											rev_ARValueStruct( ctrl, h, k, "value_dataType", &(p->reference.u.extRef.value) );
+										}else{
+											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"value\"" );
+											return -1;
+										}
+									}
+								
+								
+									}else{
+										ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARReferenceStruct: hash value is not a hash reference" );
+										return -1;
+									}
+								
+								
+								}
+								break;
+				
+							default:
+								sprintf( errText, "rev_ARReferenceStruct: invalid switch value %d", p->reference.dataType );
+								ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, errText );
+							}
+				
+					}
+				
+				
+				
+					if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+						int i = 0, num = 0;
+						HV *h = (HV* ) SvRV((SV*) *val);
+						char k[256];
+						k[255] = '\0';
+				
+				
+					{
+						SV **val;
+						strncpy( k, "type", 255 );
+						val = hv_fetch( h, "type", 4, 0 );
+						if( val	&& *val ){
+							{
+								p->type = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"type\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "label", 255 );
+						val = hv_fetch( h, "label", 5, 0 );
+						if( val	&& *val ){
+							{
+								p->label = strdup( SvPV_nolen(*val) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"label\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "description", 255 );
+						val = hv_fetch( h, "description", 11, 0 );
+						if( val	&& *val ){
+							{
+								p->description = strdup( SvPV_nolen(*val) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"description\"" );
+							return -1;
+						}
+					}
+				
+				
+					}else{
+						ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARReferenceStruct: hash value is not a hash reference" );
+						return -1;
+					}
+				
+				
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARReferenceStruct: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARReferenceStruct: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARReferenceStruct: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
 
 

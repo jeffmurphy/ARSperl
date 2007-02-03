@@ -102,13 +102,20 @@ ars_GetEntryBLOB
 ars_CreateActiveLink ars_CreateAdminExtension
 ars_GetControlStructFields ars_GetVUI
 ars_GetListContainer ars_GetContainer ars_DeleteContainer ars_SetServerPort
-ars_SetLogging
+ars_SetLogging ars_SetSessionConfiguration
+ars_CreateField ars_SetField ars_CreateSchema ars_SetSchema ars_CreateVUI ars_SetVUI
+ars_CreateContainer ars_SetContainer
+ars_SetActiveLink ars_CreateFilter ars_CreateEscalation ars_SetEscalation
 $ars_errstr %ARServerStats %ars_errhash
 ars_decodeStatusHistory ars_APIVersion ars_encodeStatusHistory
+ars_BeginBulkEntryTransaction ars_EndBulkEntryTransaction
 );
 
-$ARS::VERSION   = '1.85';
+$ARS::VERSION   = '1.90';
 $ARS::DEBUGGING = 0;
+
+$ARS::logging_file_ptr = 0;
+
 
 # definitions required for backwards compatibility
 

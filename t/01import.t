@@ -20,7 +20,9 @@ my $d = "aptest.def";
 # if we're compiled against 4.0, we'll import a schema
 # with an attachment field so we can test that out.
 
-if(ars_APIVersion() >= 4) {
+if(ars_APIVersion() >= 7) {
+  $d = "aptest51.def";
+}elsif(ars_APIVersion() >= 4) {
   $d = "aptest50.def";
 }
 
@@ -31,6 +33,8 @@ if(ars_APIVersion() >= 4) {
 ars_DeleteSchema($ctrl, "ARSperl Test", ARS::AR_SCHEMA_FORCE_DELETE); 
 ars_DeleteSchema($ctrl, "ARSperl Test2", ARS::AR_SCHEMA_FORCE_DELETE); 
 ars_DeleteSchema($ctrl, "ARSperl Test-join", ARS::AR_SCHEMA_FORCE_DELETE); 
+ars_DeleteSchema($ctrl, "ARSperl Test3", ARS::AR_SCHEMA_FORCE_DELETE); 
+ars_DeleteSchema($ctrl, "ARSperl Test3 (copy)", ARS::AR_SCHEMA_FORCE_DELETE); 
 ars_DeleteFilter($ctrl, "ARSperl Test-Filter1"); 
 ars_DeleteActiveLink($ctrl, "ARSperl Test-alink1");
 ars_DeleteEscalation($ctrl, "ARSperl Test-escalation1");
@@ -53,10 +57,12 @@ my $rv = ars_Import($ctrl,
 		    "Schema", "ARSperl Test",
 		    "Schema", "ARSperl Test2",
 		    "Schema", "ARSperl Test-join",
+		    "Schema", "ARSperl Test3",
 		    "Filter", "ARSperl Test-Filter1",
 		    "Active_Link", "ARSperl Test-alink1",
 		    "Escalation", "ARSperl Test-escalation1",
-		    "Char_Menu", "ARSperl Test-menu-search1"
+		    "Char_Menu", "ARSperl Test-menu-search1",
+			"Container", "ARSperl Test-FilterGuide1",
 	);
 
 
@@ -68,5 +74,6 @@ if(defined($rv) && ($rv == 1)) {
 
 ars_Logoff($ctrl);
 
+sleep 5;
 exit 0;
 

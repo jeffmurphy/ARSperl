@@ -3,7 +3,7 @@
 use ARS;
 require './t/config.cache';
 
-print "1..8\n";
+print "1..9\n";
 
 my($ctrl) = ars_Login(&CCACHE::SERVER, &CCACHE::USERNAME, &CCACHE::PASSWORD);
 if(!defined($ctrl)) {
@@ -25,7 +25,9 @@ my @objects =  ("schema", "ARSperl Test",
 		"filter", "ARSperl Test-Filter1",
 		"active_link", "ARSperl Test-alink1",
 		"escalation", "ARSperl Test-escalation1",
-		"char_menu", "ARSperl Test-menu-search1");
+		"char_menu", "ARSperl Test-menu-search1",
+		"container", "ARSperl Test-FilterGuide1",
+	);
 
 my $junk = ars_Export($ctrl, "", 0, "schema", "blarg292394");
 if (defined($junk)) {
@@ -36,7 +38,6 @@ if (defined($junk)) {
 $c++;
 
 for (my $i = 0 ; $i < $#objects ; $i += 2) {
-  print $objects[$i], "><", $objects[$i+1], "\n";
 
   my $d2 = ars_Export($ctrl, "", 0, $objects[$i], $objects[$i+1]);
   if (!defined($d2)) {

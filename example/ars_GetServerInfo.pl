@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/ars_GetServerInfo.pl,v 1.1 1997/07/23 18:21:29 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/ars_GetServerInfo.pl,v 1.2 2007/02/03 02:33:11 tstapff Exp $
 #
 # NAME
 #   ars_GetServerInfo.pl
@@ -15,6 +15,9 @@
 #   Jeff Murphy
 #
 # $Log: ars_GetServerInfo.pl,v $
+# Revision 1.2  2007/02/03 02:33:11  tstapff
+# arsystem 7.0 port, new ars_Create/Set functions
+#
 # Revision 1.1  1997/07/23 18:21:29  jcmurphy
 # Initial revision
 #
@@ -29,7 +32,7 @@ print "Calling GetServerInfo ..\n";
 
 (%h = ars_GetServerInfo($c)) || die "ERR: $ars_errstr\n";
 
-for $it (keys %h) {
+for $it (sort keys %h) {
     printf("%25s %s\n", $it, $h{$it});
 }
 
