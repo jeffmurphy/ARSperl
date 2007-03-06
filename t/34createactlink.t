@@ -27,6 +27,7 @@ $| = 1;
 
 
 foreach my $obj ( @objects ){
+	next if $obj =~ / \((copy|renamed)\)$/;
 	my $objNew = "$obj (copy)";
 	ars_DeleteActiveLink( $ctrl, $objNew );
 	copyObject( $ctrl, $obj, $objNew );

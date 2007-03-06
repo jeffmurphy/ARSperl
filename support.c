@@ -352,7 +352,7 @@ ARError(int returncode, ARStatusList status)
 
 		sprintf( messageText, "%s (%s)", 
 			status.statusList[item].messageText,
-			status.statusList[item].appendedText );
+			appendedText );
 #endif
 		if (ARError_add(status.statusList[item].messageType,
 				status.statusList[item].messageNum,
@@ -4440,6 +4440,82 @@ perl_ARStatusList( ARControlStruct *ctrl, ARStatusList *p ){
 
 
 #endif
+
+
+
+
+SV *
+perl_ARCharMenuList( ARControlStruct *ctrl, ARCharMenuList *p ){
+	SV *ret;
+	{
+		AV *array;
+		SV *val;
+		U32 i;
+	
+		array = newAV();
+		av_extend( array, p->numItems-1 );
+	
+		for( i = 0; i < p->numItems; ++i ){
+			val = perl_ARCharMenuItemStruct( ctrl, &(p->charMenuList[i]) );
+			av_store( array, i, val );
+		}
+	
+		ret = newRV_noinc((SV *) array);
+	}
+	return ret;
+}
+
+SV *
+perl_ARCharMenuItemStruct( ARControlStruct *ctrl, ARCharMenuItemStruct *p ){
+	SV *ret;
+	
+	HV *hash;
+	hash = newHV();
+
+	hv_store( hash, "menuLabel", 9, newSVpv(p->menuLabel,0), 0 );
+
+	switch( p->menuType ){
+	case AR_MENU_TYPE_VALUE:
+		hv_store( hash, "menuValue", 9, newSVpv(p->u.menuValue,0), 0 );
+		break;
+	case AR_MENU_TYPE_MENU:
+		hv_store( hash, "childMenu", 9, perl_ARCharMenuStruct(ctrl, p->u.childMenu), 0 );
+		break;
+	default:
+		ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, ": Invalid case" );
+		break;
+	}
+
+	ret = newRV_noinc((SV *) hash);
+	return ret;
+}
+
+SV *
+perl_ARCharMenuStruct( ARControlStruct *ctrl, ARCharMenuStruct *p ){
+	SV *ret;
+	{
+		switch( p->menuType ){
+		case AR_CHAR_MENU_LIST:
+			{
+				SV *val;
+				val = perl_ARCharMenuList( ctrl, &(p->u.menuList) );
+				ret = val;
+			}
+			break;
+		case AR_CHAR_MENU_SQL:
+		case AR_CHAR_MENU_SS:
+		case AR_CHAR_MENU_FILE:
+		case AR_CHAR_MENU_DATA_DICTIONARY:
+		case AR_CHAR_MENU_QUERY:
+			ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, ": Unsupported case" );
+			break;
+		default:
+			ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, ": Invalid case" );
+			break;
+		}
+	}
+	return ret;
+}
 
 
 

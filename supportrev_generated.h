@@ -66,6 +66,30 @@ EXTERN int rev_ARCallGuideStruct( ARControlStruct *ctrl, HV *h, char *k, ARCallG
 EXTERN int rev_ARCharLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharLimitsStruct *p );
 
 
+EXTERN int rev_ARCharMenuDDFieldStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuDDFieldStruct *p );
+
+
+EXTERN int rev_ARCharMenuDDFormStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuDDFormStruct *p );
+
+
+EXTERN int rev_ARCharMenuDDStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuDDStruct *p );
+
+
+EXTERN int rev_ARCharMenuFileStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuFileStruct *p );
+
+
+EXTERN int rev_ARCharMenuList( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuList *p );
+
+
+EXTERN int rev_ARCharMenuQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuQueryStruct *p );
+
+
+EXTERN int rev_ARCharMenuSQLStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuSQLStruct *p );
+
+
+EXTERN int rev_ARCharMenuSSStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuSSStruct *p );
+
+
 EXTERN int rev_ARCloseWndStruct( ARControlStruct *ctrl, HV *h, char *k, ARCloseWndStruct *p );
 
 
@@ -235,6 +259,9 @@ EXTERN int rev_ARPushFieldsList( ARControlStruct *ctrl, HV *h, char *k, ARPushFi
 EXTERN int rev_ARPushFieldsStruct( ARControlStruct *ctrl, HV *h, char *k, ARPushFieldsStruct *p );
 
 
+EXTERN int rev_ARQualifierList( ARControlStruct *ctrl, HV *h, char *k, ARQualifierList *p );
+
+
 EXTERN int rev_ARQualifierStruct( ARControlStruct *ctrl, HV *h, char *k, ARQualifierStruct *p );
 
 
@@ -307,6 +334,9 @@ EXTERN int rev_ARWaitStruct( ARControlStruct *ctrl, HV *h, char *k, ARWaitStruct
 #if AR_EXPORT_VERSION >= 9L
 EXTERN int rev_ARXMLEntryReturn( ARControlStruct *ctrl, HV *h, char *k, ARXMLEntryReturn *p );
 #endif
+
+void copyIntArray( int size, int *dst, SV* src );
+void copyUIntArray( int size, unsigned int *dst, SV* src );
 
 #endif /* __supportrev_generated_h_ */
 

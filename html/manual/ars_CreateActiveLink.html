@@ -8,7 +8,7 @@
 
       This function creates an new active link. You must first
       populate the <CODE>activeLinkHash</CODE> before calling this routine.
-      <CODE>activeLinkHash</CODE> is an 
+      <P><CODE>activeLinkHash</CODE> is an 
       <A HREF="ds_al.html">Active Link Attributes</a> hash. 
 
       <P>
@@ -28,10 +28,10 @@
           a new name. </I></BLOCKQUOTE>
 
       <PRE>
-      ($a = ars_GetActiveLink($c, "AL-foobar")) ||
+      ($al = ars_GetActiveLink($c, "AL-foobar")) ||
 	    die $ars_errstr;
-      $a->{name} = "Copy of ".$a->{name};
-      ars_CreateActiveLink($c, $a) || die $ars_errstr;
+      $al->{name} = "Copy of ".$al->{name};
+      ars_CreateActiveLink($c, $al) || die $ars_errstr;
       </PRE>
 
 <B>Notes</B>: Hash keys <CODE>helpText, owner</CODE> and 

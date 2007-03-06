@@ -27,21 +27,20 @@ $| = 1;
 
 
 foreach my $obj ( @objects ){
-	modifyObject( $ctrl, $obj );
+	next if $obj !~ / \(copy\)$/;
+	my $objNew = $obj;
+	$objNew =~ s/ \(copy\)$/ (renamed)/;
+	ars_DeleteEscalation( $ctrl, $objNew );
+	modifyObject( $ctrl, $obj, $objNew );
 }
 
 
 sub modifyObject {
-	my( $ctrl, $obj ) = @_;
+	my( $ctrl, $name, $newName ) = @_;
 	print '-' x 60, "\n";
-#	print "GET ESCALATION $obj\n";
-	my $wfObj = ars_GetEscalation( $ctrl, $obj );
-	die "ars_GetEscalation( $obj ): $ars_errstr\n" if $ars_errstr;
-
-	my( $name, $newName );
-	$newName = $name = $wfObj->{name};
-	$newName =~ s/\(copy\)/(renamed)/;
-
+#	print "GET ESCALATION $name\n";
+	my $wfObj = ars_GetEscalation( $ctrl, $name );
+	die "ars_GetEscalation( $name ): $ars_errstr\n" if $ars_errstr;
 
 	my $ret = 1;
 	print "SET ESCALATION $name\n";

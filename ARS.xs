@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.111 2007/02/03 02:33:10 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.112 2007/03/06 01:54:26 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -1708,6 +1708,7 @@ ars_GetServerStatistics(ctrl,...)
 	  }
 	}
 
+
 HV *
 ars_GetCharMenu(ctrl,name)
 	ARControlStruct *	ctrl
@@ -1784,6 +1785,15 @@ ars_GetCharMenu(ctrl,name)
 		hv_store(RETVAL,  "refreshCode", strlen("refreshCode") , 
 			perl_MenuRefreshCode2Str(ctrl, refreshCode), 0);
 		switch(menuDefn.menuType) {
+		case AR_CHAR_MENU_LIST:
+			/* hv_store(menuDef,  "charMenuList", strlen("charMenuList") , 
+				perl_ARCharMenuList(ctrl,&(menuDefn.u.menuList)), 0 );
+			hv_store(RETVAL,  "menuList", strlen("menuList") , 
+				newRV_noinc((SV *)menuDef), 0); */
+
+			hv_store(RETVAL,  "menuList", strlen("menuList") , 
+				perl_ARCharMenuList(ctrl,&(menuDefn.u.menuList)), 0);
+			break;
 		case AR_CHAR_MENU_QUERY:
 			hv_store(menuDef,  "schema", strlen("schema") , 
 				newSVpv(menuDefn.u.menuQuery.schema, 0), 0);
@@ -1793,7 +1803,7 @@ ars_GetCharMenu(ctrl,name)
 			{
 				int lfn = 0;
 				AV *a = newAV();
-				while (lfn < 6) {
+				while (lfn < AR_MAX_LEVELS_DYNAMIC_MENU) {
 					if ( menuDefn.u.menuQuery.labelField[lfn] ) {
 						av_push(a, newSViv(menuDefn.u.menuQuery.labelField[lfn]));
 					} else {
@@ -1817,10 +1827,13 @@ ars_GetCharMenu(ctrl,name)
 			hv_store(menuDef,  "sortOnLabel", strlen("sortOnLabel") ,
 				newSViv(menuDefn.u.menuQuery.sortOnLabel), 0);
 			ref = newSViv(0);
-			sv_setref_pv(ref, "ARQualifierStructPtr", 
+			/* sv_setref_pv(ref, "ARQualifierStructPtr", 
 				dup_qualifier(ctrl,
 					(void *)&(menuDefn.u.menuQuery.qualifier)));
-			hv_store(menuDef,  "qualifier", strlen("qualifier") , ref, 0);
+			hv_store(menuDef,  "qualifier", strlen("qualifier") , ref, 0); */
+			hv_store( menuDef, "qualifier", strlen("qualifier"),
+				newRV_inc((SV*) perl_qualifier(ctrl,&(menuDefn.u.menuQuery.qualifier))), 0 );
+
 			hv_store(RETVAL,  "menuQuery", strlen("menuQuery") , 
 				newRV_noinc((SV *)menuDef), 0);
 			break;
@@ -1842,7 +1855,7 @@ ars_GetCharMenu(ctrl,name)
 			{
 				int lfn = 0;
 				AV *a = newAV();
-				while (lfn < 6) {
+				while (lfn < AR_MAX_LEVELS_DYNAMIC_MENU) {
 					if ( menuDefn.u.menuSQL.labelIndex[lfn] ) {
 						av_push(a, newSViv(menuDefn.u.menuSQL.labelIndex[lfn]));
 					} else {
@@ -3516,6 +3529,7 @@ ars_GetListVUI(ctrl, schema, changedSince=0)
 	  int              ret = 0;
       unsigned int     i = 0;
 
+	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
 	  Zero(&idList, 1, ARInternalIdList);
 
@@ -3748,36 +3762,331 @@ ars_GetVUI(ctrl, schema, vuiId)
 	OUTPUT:
 	RETVAL
 
+
+
 int
-ars_CreateCharMenu(ctrl, cmDefRef)
+ars_CreateCharMenu( ctrl, menuDefRef, removeFlag=TRUE )
 	ARControlStruct *	ctrl
-	SV *			cmDefRef
+	SV * menuDefRef
+	ARBoolean removeFlag;
+
 	CODE:
 	{
-	  ARNameType        name;
-	  ARCharMenuStruct  menuDefn;
-	  char             *helptext = CPNULL;
-	  ARNameType        owner;
-	  char             *changeDiary = CPNULL;
-	  ARStatusList      status;
+#if AR_EXPORT_VERSION >= 6L
+		ARNameType name;
+		int ret = 0, rv = 0;
+		unsigned int refreshCode;
+		char *refreshCodeStr = NULL;
+		char *menuTypeStr = NULL;
+		ARCharMenuStruct arMenuDef;
+		char *helpText = NULL;
+		ARAccessNameType owner;
+		char *changeDiary = NULL;
+		ARPropList objPropList;
+		ARStatusList status;
+		HV *menuDef = NULL;
+		SV **pSvTemp;
 
-	  (void) ARError_reset();
-	  RETVAL = 0;
-	  Zero(&status, 1, ARStatusList);
-	  Zero(&menuDefn, 1, ARCharMenuStruct);
-	  Zero(&owner, 1, ARNameType);
-	  Zero(&name, 1, ARNameType);
+		RETVAL = 0; /* assume error */
+		(void) ARError_reset();
+		Zero(&arMenuDef, 1,ARCharMenuStruct);
+		Zero(&objPropList, 1,ARPropList);
+		Zero(&status, 1,ARStatusList);
 
-	  if(SvTYPE((SV *)SvRV(cmDefRef)) != SVt_PVHV) {
-		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_EXPECT_PVHV);
-		printf("ars_CreateCharMenu: not implemented");
-	  } else {
-		HV *cmDef = (HV *)SvRV(cmDefRef);
-		printf("ars_CreateCharMenu: not implemented");
-	  }
+		if( SvROK(menuDefRef) && SvTYPE(SvRV(menuDefRef)) == SVt_PVHV ){
+			menuDef = (HV*) SvRV(menuDefRef);
+		}else{
+			croak("usage: ars_CreateCharMenu(...)");
+		}
+
+		rv += strcpyHVal( menuDef, "name", name, sizeof(ARNameType) );
+
+		/* rv += uintcpyHVal( menuDef, "refreshCode", &type ); */
+		rv += strmakHVal( menuDef, "refreshCode", &refreshCodeStr );
+		refreshCode = revTypeName( (TypeMapStruct*)CharMenuRefreshCodeTypeMap, refreshCodeStr );
+		if( refreshCode == TYPEMAP_LAST ){
+			ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
+					"ars_CreateCharMenu: refreshCode key invalid. key follows:");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_CONTINUE,
+					refreshCodeStr ? refreshCodeStr : "[key null]" );
+		}
+		if( refreshCodeStr != NULL ){  free(refreshCodeStr);  }
+
+		rv += strmakHVal( menuDef, "menuType", &menuTypeStr );
+		arMenuDef.menuType = revTypeName( (TypeMapStruct*)CharMenuTypeMap, menuTypeStr );
+		if( arMenuDef.menuType == TYPEMAP_LAST ){
+			ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
+					"ars_CreateCharMenu: menuType key invalid. key follows:");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_CONTINUE,
+					menuTypeStr ? menuTypeStr : "[key null]" );
+		}
+		if( menuTypeStr != NULL ){  free(menuTypeStr);  }
+
+		switch( arMenuDef.menuType ){
+		case AR_CHAR_MENU_LIST:
+			pSvTemp = hv_fetch( menuDef, "menuList", strlen("menuList") , 0 );
+			if( pSvTemp && *pSvTemp && SvTYPE(*pSvTemp) != SVt_NULL ){
+				rv += rev_ARCharMenuList( ctrl, menuDef, "menuList", &(arMenuDef.u.menuList) );
+			}
+			break;
+		case AR_CHAR_MENU_QUERY:
+			pSvTemp = hv_fetch( menuDef, "menuQuery", strlen("menuQuery") , 0 );
+			if( pSvTemp && *pSvTemp && SvTYPE(*pSvTemp) != SVt_NULL ){
+				rv += rev_ARCharMenuQueryStruct( ctrl, menuDef, "menuQuery", &(arMenuDef.u.menuQuery) );
+			}
+			break;
+		case AR_CHAR_MENU_FILE:
+			pSvTemp = hv_fetch( menuDef, "menuFile", strlen("menuFile") , 0 );
+			if( pSvTemp && *pSvTemp && SvTYPE(*pSvTemp) != SVt_NULL ){
+				rv += rev_ARCharMenuFileStruct( ctrl, menuDef, "menuFile", &(arMenuDef.u.menuFile) );
+			}
+			break;
+		case AR_CHAR_MENU_SQL:
+			pSvTemp = hv_fetch( menuDef, "menuSQL", strlen("menuSQL") , 0 );
+			if( pSvTemp && *pSvTemp && SvTYPE(*pSvTemp) != SVt_NULL ){
+				rv += rev_ARCharMenuSQLStruct( ctrl, menuDef, "menuSQL", &(arMenuDef.u.menuSQL) );
+			}
+			break;
+		case AR_CHAR_MENU_SS:
+			pSvTemp = hv_fetch( menuDef, "menuSS", strlen("menuSS") , 0 );
+			if( pSvTemp && *pSvTemp && SvTYPE(*pSvTemp) != SVt_NULL ){
+				rv += rev_ARCharMenuSSStruct( ctrl, menuDef, "menuSS", &(arMenuDef.u.menuSS) );
+			}
+			break;
+		case AR_CHAR_MENU_DATA_DICTIONARY:
+			pSvTemp = hv_fetch( menuDef, "menuDD", strlen("menuDD") , 0 );
+			if( pSvTemp && *pSvTemp && SvTYPE(*pSvTemp) != SVt_NULL ){
+				rv += rev_ARCharMenuDDStruct( ctrl, menuDef, "menuDD", &(arMenuDef.u.menuDD) );
+			}
+			break;
+		}
+
+		objPropList.numItems = 0;
+		objPropList.props = NULL;
+		pSvTemp = hv_fetch( menuDef, "objPropList", strlen("objPropList") , 0 );
+		if( pSvTemp && *pSvTemp && SvTYPE(*pSvTemp) != SVt_NULL ){
+			rv += rev_ARPropList( ctrl, menuDef, "objPropList", &objPropList );
+		}
+
+		if( hv_exists(menuDef,"helpText",8) ){
+			rv += strmakHVal( menuDef, "helpText", &helpText ); 
+		}
+		if( hv_exists(menuDef,"owner",5) ){
+			rv += strcpyHVal( menuDef, "owner", owner, AR_MAX_ACCESS_NAME_SIZE ); 
+		}
+		if( hv_exists(menuDef,"changeDiary",11) ){
+			rv += strmakHVal( menuDef, "changeDiary", &changeDiary );
+		}
+
+		if( rv == 0 ){
+			ret = ARCreateCharMenu( ctrl,
+				name,
+				refreshCode,
+				&arMenuDef,
+				helpText,
+				owner,
+				changeDiary,
+				&objPropList,
+				&status );
+
+			RETVAL = ARError(ret,status) ? 0 : 1;
+		}else{ 
+			ARError_add( AR_RETURN_ERROR, AP_ERR_PREREVFAIL);
+			RETVAL = 0;
+		}
+
+	    if( helpText != NULL ){
+			free( helpText );
+		}
+	    if( changeDiary != NULL ){
+			free( changeDiary );
+		}
+		FreeARCharMenuStruct( &arMenuDef, FALSE );
+		FreeARPropList( &objPropList, FALSE );
+#else /* < 5.0 */
+	  XPUSHs(sv_2mortal(newSViv(0))); /* ERR */
+	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"ARSperl supports CreateCharMenu() only for ARSystem >= 5.0");
+      RETVAL = AR_RETURN_ERROR;
+#endif
 	}
 	OUTPUT:
 	RETVAL
+
+
+
+
+int
+ars_SetCharMenu( ctrl, name, menuDefRef, removeFlag=TRUE )
+	ARControlStruct *	ctrl
+	ARNameType name
+	SV * menuDefRef
+	ARBoolean removeFlag;
+
+	CODE:
+	{
+#if AR_EXPORT_VERSION >= 6L
+		int ret = 0, rv = 0;
+		ARNameType newName;
+		char *newNamePtr = NULL;
+		unsigned int refreshCode;
+		unsigned int *refreshCodePtr = NULL;
+		char *refreshCodeStr = NULL;
+		char *menuTypeStr = NULL;
+		ARCharMenuStruct *arMenuDef = NULL;
+		char *helpText = NULL;
+		ARAccessNameType owner;
+		char *changeDiary = NULL;
+		ARPropList *objPropList = NULL;
+		ARStatusList status;
+		HV *menuDef = NULL;
+		SV **pSvTemp;
+
+		RETVAL = 0; /* assume error */
+		(void) ARError_reset();
+		Zero(&status, 1,ARStatusList);
+
+		if( SvROK(menuDefRef) && SvTYPE(SvRV(menuDefRef)) == SVt_PVHV ){
+			menuDef = (HV*) SvRV(menuDefRef);
+		}else{
+			croak("usage: ars_SetCharMenu(...)");
+		}
+
+		if( hv_exists(menuDef,"name",4) ){
+			rv += strcpyHVal( menuDef, "name", newName, AR_MAX_NAME_SIZE ); 
+			newNamePtr = newName;
+		}
+		
+		if( hv_exists(menuDef,"refreshCode",4) ){
+			/* rv += uintcpyHVal( menuDef, "refreshCode", &refreshCode ); */
+
+			rv += strmakHVal( menuDef, "refreshCode", &refreshCodeStr );
+			refreshCode = revTypeName( (TypeMapStruct*)CharMenuRefreshCodeTypeMap, refreshCodeStr );
+			if( refreshCode == TYPEMAP_LAST ){
+				ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
+						"ars_CreateCharMenu: refreshCode key invalid. key follows:");
+				ARError_add(AR_RETURN_WARNING, AP_ERR_CONTINUE,
+						refreshCodeStr ? refreshCodeStr : "[key null]" );
+			}
+			if( refreshCodeStr != NULL ){  free(refreshCodeStr);  }
+
+			refreshCodePtr = &refreshCode;
+		}
+
+		if( hv_exists(menuDef,"menuType",4) ){
+			/* rv += uintcpyHVal( menuDef, "menuType", &menuType ); */
+			arMenuDef = (ARCharMenuStruct*) MALLOCNN( sizeof(ARCharMenuStruct) );
+
+			rv += strmakHVal( menuDef, "menuType", &menuTypeStr );
+			arMenuDef->menuType = revTypeName( (TypeMapStruct*)CharMenuTypeMap, menuTypeStr );
+			if( arMenuDef->menuType == TYPEMAP_LAST ){
+				ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
+						"ars_CreateCharMenu: menuType key invalid. key follows:");
+				ARError_add(AR_RETURN_WARNING, AP_ERR_CONTINUE,
+						menuTypeStr ? menuTypeStr : "[key null]" );
+			}
+			if( menuTypeStr != NULL ){  free(menuTypeStr);  }
+
+			switch( arMenuDef->menuType ){
+			case AR_CHAR_MENU_LIST:
+				pSvTemp = hv_fetch( menuDef, "menuList", strlen("menuList") , 0 );
+				if( pSvTemp && *pSvTemp && SvTYPE(*pSvTemp) != SVt_NULL ){
+					rv += rev_ARCharMenuList( ctrl, menuDef, "menuList", &(arMenuDef->u.menuList) );
+				}
+				break;
+			case AR_CHAR_MENU_QUERY:
+				pSvTemp = hv_fetch( menuDef, "menuQuery", strlen("menuQuery") , 0 );
+				if( pSvTemp && *pSvTemp && SvTYPE(*pSvTemp) != SVt_NULL ){
+					rv += rev_ARCharMenuQueryStruct( ctrl, menuDef, "menuQuery", &(arMenuDef->u.menuQuery) );
+				}
+				break;
+			case AR_CHAR_MENU_FILE:
+				pSvTemp = hv_fetch( menuDef, "menuFile", strlen("menuFile") , 0 );
+				if( pSvTemp && *pSvTemp && SvTYPE(*pSvTemp) != SVt_NULL ){
+					rv += rev_ARCharMenuFileStruct( ctrl, menuDef, "menuFile", &(arMenuDef->u.menuFile) );
+				}
+				break;
+			case AR_CHAR_MENU_SQL:
+				pSvTemp = hv_fetch( menuDef, "menuSQL", strlen("menuSQL") , 0 );
+				if( pSvTemp && *pSvTemp && SvTYPE(*pSvTemp) != SVt_NULL ){
+					rv += rev_ARCharMenuSQLStruct( ctrl, menuDef, "menuSQL", &(arMenuDef->u.menuSQL) );
+				}
+				break;
+			case AR_CHAR_MENU_SS:
+				pSvTemp = hv_fetch( menuDef, "menuSS", strlen("menuSS") , 0 );
+				if( pSvTemp && *pSvTemp && SvTYPE(*pSvTemp) != SVt_NULL ){
+					rv += rev_ARCharMenuSSStruct( ctrl, menuDef, "menuSS", &(arMenuDef->u.menuSS) );
+				}
+				break;
+			case AR_CHAR_MENU_DATA_DICTIONARY:
+				pSvTemp = hv_fetch( menuDef, "menuDD", strlen("menuDD") , 0 );
+				if( pSvTemp && *pSvTemp && SvTYPE(*pSvTemp) != SVt_NULL ){
+					rv += rev_ARCharMenuDDStruct( ctrl, menuDef, "menuDD", &(arMenuDef->u.menuDD) );
+				}
+				break;
+			}
+		}
+
+		pSvTemp = hv_fetch( menuDef, "objPropList", strlen("objPropList") , 0 );
+		if( pSvTemp && *pSvTemp && SvTYPE(*pSvTemp) != SVt_NULL ){
+			objPropList = (ARPropList*) MALLOCNN( sizeof(ARPropList) );
+			rv += rev_ARPropList( ctrl, menuDef, "objPropList", objPropList );
+		}
+
+		if( hv_exists(menuDef,"helpText",8) ){
+			rv += strmakHVal( menuDef, "helpText", &helpText ); 
+		}
+		if( hv_exists(menuDef,"owner",5) ){
+			rv += strcpyHVal( menuDef, "owner", owner, AR_MAX_ACCESS_NAME_SIZE ); 
+		}
+		if( hv_exists(menuDef,"changeDiary",11) ){
+			rv += strmakHVal( menuDef, "changeDiary", &changeDiary );
+		}
+
+		if( rv == 0 ){
+			ret = ARSetCharMenu( ctrl,
+				name,
+				newNamePtr,
+				refreshCodePtr,
+				arMenuDef,
+				helpText,
+				owner,
+				changeDiary,
+				objPropList,
+				&status );
+
+			RETVAL = ARError(ret,status) ? 0 : 1;
+		}else{ 
+			ARError_add( AR_RETURN_ERROR, AP_ERR_PREREVFAIL);
+			RETVAL = 0;
+		}
+
+	    if( helpText != NULL ){
+			free( helpText );
+		}
+	    if( changeDiary != NULL ){
+			free( changeDiary );
+		}
+		if( arMenuDef != NULL ){
+			FreeARCharMenuStruct( arMenuDef, TRUE );
+		}
+		if( objPropList != NULL ){
+			FreeARPropList( objPropList, TRUE );
+		}
+#else /* < 5.0 */
+	  XPUSHs(sv_2mortal(newSViv(0))); /* ERR */
+	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"ARSperl supports SetCharMenu() only for ARSystem >= 5.0");
+      RETVAL = AR_RETURN_ERROR;
+#endif
+	}
+	OUTPUT:
+	RETVAL
+
+
+
+
+
 
 int 
 ars_CreateAdminExtension(ctrl, aeDefRef)
@@ -4010,16 +4319,16 @@ ars_CreateField( ctrl, schema, fieldDefRef, reservedIdOK=0 )
 
 
 int
-ars_SetField( ctrl, schema, fieldDefRef )
+ars_SetField( ctrl, schema, fieldId, fieldDefRef )
 	ARControlStruct *	ctrl
 	ARNameType schema
+	ARInternalId fieldId
 	SV * fieldDefRef
 
 	CODE:
 	{
 #if AR_EXPORT_VERSION >= 6L
 		int ret = 0, rv = 0;
-		ARInternalId fieldId;
 		ARNameType fieldName;
 		char *fieldNamePtr = NULL;
 		ARFieldMappingStruct *fieldMap = NULL;
@@ -4054,7 +4363,7 @@ ars_SetField( ctrl, schema, fieldDefRef )
 			croak("usage: ars_SetField(...)");
 		}
 
-		rv += ulongcpyHVal( fieldDef, "fieldId", &fieldId ); 
+		/* rv += ulongcpyHVal( fieldDef, "fieldId", &fieldId ); */
 
 		pSvTemp = hv_fetch( fieldDef, "fieldName", strlen("fieldName") , 0 );
 		if( pSvTemp && *pSvTemp && SvTYPE(*pSvTemp) != SVt_NULL ){
@@ -4815,9 +5124,8 @@ ars_SetVUI( ctrl, schemaName, vuiDefRef )
 
 
 int
-ars_CreateContainer( ctrl, name, containerDefRef, removeFlag=TRUE )
+ars_CreateContainer( ctrl, containerDefRef, removeFlag=TRUE )
 	ARControlStruct *	ctrl
-	ARNameType name
 	SV * containerDefRef
 	ARBoolean removeFlag;
 
@@ -4825,6 +5133,7 @@ ars_CreateContainer( ctrl, name, containerDefRef, removeFlag=TRUE )
 	{
 #if AR_EXPORT_VERSION >= 6L
 		int ret = 0, rv = 0;
+		ARNameType name;
 		ARPermissionList groupList;
 		ARInternalIdList admingrpList;
 		ARContainerOwnerObjList ownerObjList;
@@ -4856,6 +5165,8 @@ ars_CreateContainer( ctrl, name, containerDefRef, removeFlag=TRUE )
 		}else{
 			croak("usage: ars_CreateContainer(...)");
 		}
+
+		rv += strcpyHVal( containerDef, "name", name, sizeof(ARNameType) );
 
 		/* rv += uintcpyHVal( containerDef, "type", &type ); */
 		rv += strmakHVal( containerDef, "type", &typeStr );
@@ -6508,6 +6819,41 @@ ars_SetSessionConfiguration( ctrl, variableId, value )
 			"SetSessionConfiguration() is only available in ARSystem >= 5.0");
 #endif
 	}
+
+
+void
+ars_SetImpersonatedUser( ctrl, impersonatedUser )
+	ARControlStruct *	ctrl
+	ARAccessNameType  impersonatedUser
+	PPCODE:
+	{
+#if AR_EXPORT_VERSION >= 9
+		ARStatusList     status;
+		int	             ret;
+
+		(void) ARError_reset();
+		Zero(&status, 1, ARStatusList);
+
+		if( strcmp("",impersonatedUser) == 0 ){
+			ret = ARSetImpersonatedUser( ctrl, NULL, &status );
+		}else{
+			ret = ARSetImpersonatedUser( ctrl, impersonatedUser, &status );
+		}
+
+		if(ARError(ret, status)) {
+			XPUSHs(sv_2mortal(newSViv(0))); /* ERR */
+		} else {
+			XPUSHs(sv_2mortal(newSViv(1))); /* OK */
+		}
+	/* SetSessionConfiguration_fail:; */
+#else /* < 5.0 */
+	  XPUSHs(sv_2mortal(newSViv(0))); /* ERR */
+	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"SetImpersonatedUser() is only available in ARSystem >= 7.0");
+#endif
+	}
+
+
 
 
 

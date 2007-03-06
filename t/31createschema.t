@@ -27,16 +27,18 @@ if (defined($ctrl)) {
 #	'Application Statistics Configuration',
 #	'AR System Administrator Preference',
 #);
-#my @forms = ( 'ARSperl Test', 'ARSperl Test2', 'ARSperl Test-join', 'ARSperl Test3' );
-#my @forms = sort {lc($a) cmp lc($b)} grep {/^BPM:/} ars_GetListSchema( $ctrl, 0, 1024 );			# all
 #my @forms = sort {lc($a) cmp lc($b)} grep {$_ ge "BPM:MA:"} grep {/^BPM:/} ars_GetListSchema( $ctrl, 0, 1024 );			# all
+#my @forms = sort {lc($a) cmp lc($b)} grep {/^BPM:/} ars_GetListSchema( $ctrl, 0, 1024 );			# all
 #die "ars_GetListSchema( ALL ): $ars_errstr\n" if $ars_errstr;
+#my @forms = ( 'ARSperl Test', 'ARSperl Test2', 'ARSperl Test-join', 'ARSperl Test3' );
 my @forms = ( 'ARSperl Test3' );
+
 
 $| = 1;
 
 
 foreach my $form ( @forms ){
+	next if $form =~ / \((copy|renamed)\)$/;
 	my $formNew = "$form (copy)";
 	ars_DeleteSchema( $ctrl, $formNew, 1 );
 	copyForm( $ctrl, $form, $formNew );
@@ -67,7 +69,19 @@ sub copyForm {
 	my( $ret, $rv ) = ( 1, 0 );
 	print "CREATE SCHEMA $formNew\n";
 	$ret = ars_CreateSchema( $ctrl, $formNew, $formObj );
-	die "ars_CreateSchema( $formNew ): $ars_errstr\n" if $ars_errstr;
+	if( $ars_errstr ){
+		my $errTxt = $ars_errstr;
+#		$errTxt =~ s/\[WARNING\].*?\(ARERR #50\)/  (admin only)/;
+#		$errTxt =~ s/\[WARNING\] rev_ARQualifierStruct: hv_fetch \(hval\) returned null \(ARERR #80020\)//;
+		$errTxt =~ s/\[WARNING\].*?\(ARERR #8985\)/  (roles removed)/;
+		$errTxt =~ s/\[WARNING\].*?\(ARERR #8981\)/  (app owner property)/;
+		if( $errTxt =~ /ARERR/ ){
+			print "ars_CreateSchema( $formNew ): $ars_errstr\n";
+		}else{
+			print $errTxt;
+		}
+	}
+	print "\n";
 	printStatus( $ret, 2, 'create schema' );
 	sleep 5;
 
@@ -131,18 +145,14 @@ sub copyForm {
 		my $fieldSt = ars_GetField( $ctrl, $form, $fieldId );
 		die "ars_GetField( $form, $fieldId ): $ars_errstr\n" if $ars_errstr; 
 
-
 #		test_DisplayInstanceList( $ctrl, $form, $fieldSt );
 #		next;
-
-
 
 		$fieldSt->{changeDiary} = "COPY";
 
 		if( ($formType ne 'join' && $fieldId <= 8) || $fieldId == 1 ){
 			print "SET FIELD $fieldId $fieldSt->{dataType}\n";
-			$rv = ars_SetField( $ctrl, $formNew, {
-				fieldId   => $fieldId,
+			$rv = ars_SetField( $ctrl, $formNew, $fieldId, {
 				fieldName => $fieldSt->{fieldName},
 				limit     => $fieldSt->{limit},
 				displayInstanceList => $fieldSt->{displayInstanceList},
@@ -175,8 +185,7 @@ sub copyForm {
 	sleep 5;
 	foreach my $fieldId ( keys %tableLimit ){
 		print "SET TABLE LIMIT $fieldId\n";
-		$rv = ars_SetField( $ctrl, $formNew, {
-			fieldId  => int($fieldId),   # necessary for uintcpyHVal (SvIOK)
+		$rv = ars_SetField( $ctrl, $formNew, $fieldId, {
 			option   => 4,               # necessary to avoid ARERR 118
 			limit    => $tableLimit{$fieldId},
 		} );

@@ -13,6 +13,7 @@
 	'6.0.1' => '8L',
 	'6.3.0' => '8L',
 	'7.0.0' => '9L',
+	'7.0.1' => '9L',
 );
 
 $CTRL_PREFIX = '_';
@@ -373,14 +374,14 @@ ARInternalId => {
 	_typedef => 'unsigned long',
 },
 ARNameType => {
-	_typedef => 'char[255]',
+	_typedef => 'char[AR_MAX_NAME_SIZE+1]',
 },
 ARServerNameType => {
-	_typedef => 'char[65]',
+	_typedef => 'char[AR_MAX_SERVER_SIZE+1]',
 },
 ARCurrencyCodeType => {
 	_min_version => '5.1.0',
-	_typedef => 'char[4]',
+	_typedef => 'char[AR_MAX_CURRENCY_CODE_SIZE+1]',
 },
 
 ARFieldMappingList => {
@@ -756,7 +757,7 @@ ARJoinSchema => {
 },
 ARViewSchema => {
 	tableName => {
-		_type => 'char[256]',
+		_type => 'char[AR_MAX_TABLENAME_SIZE+1]',
 		_data => 'p->tableName',
 	},
 	keyField => {
@@ -771,7 +772,7 @@ ARVendorSchema => {
 		_data => 'p->vendorName',
 	},
 	tableName => {
-		_type => 'char[256]',
+		_type => 'char[AR_MAX_TABLENAME_SIZE+1]',
 		_data => 'p->tableName',
 	},
 },
@@ -1530,7 +1531,7 @@ ARSetFieldsActionStruct => {
 },
 ARSQLStruct => {
 	server => {
-		_type => 'char[65]',
+		_type => 'char[AR_MAX_SERVER_SIZE+1]',
 		_data => 'p->server',
 	},
 	command => {
@@ -1755,6 +1756,209 @@ ARStatusList => {
 },
 
 
+ARCharMenuList => {
+	_num  => 'p->numItems',
+	_list => 'p->charMenuList',
+	_type => 'ARCharMenuItemStruct',
+},
+ARCharMenuQueryStruct => {
+	schema => {
+		_type => 'ARNameType',
+		_data => 'p->schema',
+	},
+	server => {
+		_type => 'char[AR_MAX_SERVER_SIZE+1]',
+		_data => 'p->server',
+	},
+	labelField => {
+		_type => 'ARInternalId[AR_MAX_LEVELS_DYNAMIC_MENU]',
+		_data => 'p->labelField',
+	},
+	valueField => {
+		_type => 'ARInternalId',
+		_data => 'p->valueField',
+	},
+	sortOnLabel => {
+		_type => 'ARBoolean',
+		_data => 'p->sortOnLabel',
+	},
+	qualifier => {
+		_type => 'ARQualifierStruct',
+		_data => 'p->qualifier',
+	},
+},
+ARCharMenuFileStruct => {
+	fileLocation => {
+		_type => 'unsigned int',
+		_data => 'p->fileLocation',
+	},
+	filename => {
+		_type => 'char *',
+		_data => 'p->filename',
+	},
+},
+ARCharMenuSQLStruct => {
+	server => {
+		_type => 'char[AR_MAX_SERVER_SIZE+1]',
+		_data => 'p->server',
+	},
+	labelIndex => {
+		_type => 'int[AR_MAX_LEVELS_DYNAMIC_MENU]',
+		_data => 'p->labelIndex',
+	},
+	valueIndex => {
+		_type => 'int',
+		_data => 'p->valueIndex',
+	},
+	sqlCommand => {
+		_type => 'char *',
+		_data => 'p->sqlCommand',
+	},
+},
+ARCharMenuSSStruct => {
+	menuName => {
+		_type => 'ARNameType',
+		_data => 'p->menuName',
+	},
+	keywordList => {
+		_type => 'ARFieldValueList',
+		_data => 'p->keywordList',
+	},
+	parameterList => {
+		_type => 'ARFieldValueList',
+		_data => 'p->parameterList',
+	},
+	externList => {
+		_type => 'ARQualifierList',
+		_data => 'p->externList',
+	},
+	server => {
+		_type => 'char *',
+		_data => 'p->server',
+	},
+	schema => {
+		_type => 'char *',
+		_data => 'p->schema',
+	},
+},
+ARCharMenuDDStruct => {
+	server => {
+		_type => 'char[AR_MAX_SERVER_SIZE+1]',
+		_data => 'p->server',
+	},
+	nameType => {
+		_type => 'unsigned int',
+		_data => 'p->nameType',
+	},
+	valueFormat => {
+		_type => 'unsigned int',
+		_data => 'p->valueFormat',
+	},
+	structType => {
+		_type => 'unsigned int',
+		_data => 'p->structType',
+	},
+	_switch  => 'p->structType',
+	_map => 'structType',
+	_case    => {
+		AR_CHAR_MENU_DD_FORM => {
+			_type => 'ARCharMenuDDFormStruct',
+			_data => 'p->u.formDefn',
+		},
+		AR_CHAR_MENU_DD_FIELD => {
+			_type => 'ARCharMenuDDFieldStruct',
+			_data => 'p->u.fieldDefn',
+		},
+	},
+},
+ARCharMenuDDFormStruct => {
+	schemaType => {
+		_type => 'unsigned int',
+		_data => 'p->schemaType',
+	},
+	includeHidden => {
+		_type => 'ARBoolean',
+		_data => 'p->includeHidden',
+		_map  => {
+			FALSE => 'false',
+			TRUE  => 'true',
+		},
+	},
+},
+ARCharMenuDDFieldStruct => {
+	fieldType => {
+		_type => 'unsigned int',
+		_data => 'p->fieldType',
+	},
+	schema => {
+		_type => 'ARNameType',
+		_data => 'p->schema',
+	},
+},
+ARQualifierList => {
+	_num  => 'p->numItems',
+	_list => 'p->qualifierList',
+	_type => 'ARQualifierStruct',
+},
+
+#ARCharMenuItemStruct => {
+#	menuLabel => {
+#		_type => 'ARNameType',
+#		_data => 'p->menuLabel',
+#	},
+#	_switch  => 'p->menuType',
+#	_map => {
+#		AR_MENU_TYPE_VALUE  => 'menuValue',
+#		AR_MENU_TYPE_MENU   => 'childMenu',
+#	},
+#	_case    => {
+#		AR_MENU_TYPE_VALUE => {
+#			menuValue => {
+#				_type => 'char *',
+#				_data => 'p->u.menuValue',
+#			},
+#		},
+#		AR_MENU_TYPE_MENU => {
+#			childMenu => {
+##				_type => 'ARCharMenuStruct*',
+##				_data => 'p->u.childMenu',
+#				_type => 'ARCharMenuList',
+#				_data => 'p->u.childMenu->u.menuList',
+#			},
+#		},
+#	},
+#},
+#ARCharMenuStruct => {
+#	_switch  => 'p->menuType',
+#	_map => 'CharMenuTypeMap',
+#	_case    => {
+#		AR_CHAR_MENU_LIST => {
+#			_type => 'ARCharMenuList',
+#			_data => 'p->u.menuList',
+#		},
+#		AR_CHAR_MENU_QUERY => {
+#			_type => 'ARCharMenuQueryStruct',
+#			_data => 'p->u.menuQuery',
+#		},
+#		AR_CHAR_MENU_FILE => {
+#			_type => 'ARCharMenuFileStruct',
+#			_data => 'p->u.menuFile',
+#		},
+#		AR_CHAR_MENU_SQL => {
+#			_type => 'ARCharMenuSQLStruct',
+#			_data => 'p->u.menuSQL',
+#		},
+#		AR_CHAR_MENU_SS => {
+#			_type => 'ARCharMenuSSStruct',
+#			_data => 'p->u.menuSS',
+#		},
+#		AR_CHAR_MENU_DATA_DICTIONARY => {
+#			_type => 'ARCharMenuDDStruct',
+#			_data => 'p->u.menuDD',
+#		},
+#	},
+#},
+
 
 #ARInternalIdList => {
 #	_num  => 'p->numItems',
@@ -1857,27 +2061,33 @@ ARStatusList => {
 #		_data => '',
 #	},
 
-	
+# s/.*/$& => {\n\t_type => '',\n\t_data => 'p->u.',\n},/
+
+
 %TEMPLATES = (
 	_copy => [
-		'ARValueStruct'  => 'rev_%T( ctrl, h, k, "dataType", &(%L) )',
-		'ARValueStruct*' => '%L = MALLOCNN(sizeof(%B)); rev_%B( ctrl, h, k, "dataType", %L )',
+		'ARValueStruct'   => 'rev_%T( ctrl, h, k, "dataType", &(%L) )',
+		'ARValueStruct\*' => '%L = MALLOCNN(sizeof(%B)); rev_%B( ctrl, h, k, "dataType", %L )',
 		'AR\w+'   => 'rev_%T( ctrl, h, k, &(%L) )',
 		'AR\w+\*' => '%L = MALLOCNN(sizeof(%B)); rev_%B( ctrl, h, k, %L )',
-		'int|long|unsigned\s+int|unsigned\s+long' => '%L = SvIV(%R)',
-		'float|double'                            => '%L = SvNV(%R)',
-		'unsigned\s+char'                         => '%L = (char) SvIV(%R)',
+		'(int|long|unsigned\s+int|unsigned\s+long)' => '%L = SvIV(%R)',
+		'(float|double)'                            => '%L = SvNV(%R)',
+		'unsigned\s+char'                           => '%L = (char) SvIV(%R)',
 		'char\s*\*' => '%L = strdup( SvPV_nolen(%R) )',
 		'char\[.+]' => 'strncpy( %L, SvPV_nolen(%R), sizeof(%L) )',
+		'ARInternalId\[(\w+)\]' => 'copyUIntArray( %1, %L, %R )',
+		'int\[(\w+)\]'          => 'copyIntArray( %1, %L, %R )',
 	],
 	_perl => [
-		'ARInternalId\[\]'  => '*** unknown ***',     # ???
-		'unsigned\s+char'   => '%L = newSVnv( %R )',  # ???
+		'ARInternalId\[\]'     => '*** unknown ***',     # ???
+		'ARInternalId\[\w+\]'  => '*** unknown ***',     # ???
+		'int\[\w+\]'           => '*** unknown ***',     # ???
+		'unsigned\s+char'      => '%L = newSVnv( %R )',  # ???
 		
 		'AR\w+'   => '%L = perl_%T( ctrl, &(%R) )',
 		'AR\w+\*' => '%L = perl_%B( ctrl, %R )',
-		'int|long|unsigned\s+int|unsigned\s+long' => '%L = newSViv( %R )',
-		'float|double'                            => '%L = newSVnv( %R )',
+		'(int|long|unsigned\s+int|unsigned\s+long)' => '%L = newSViv( %R )',
+		'(float|double)'                            => '%L = newSVnv( %R )',
 		'char\s*\*' => '%L = newSVpv( %R, 0 )',
 		'char\[.+]' => '%L = newSVpv( %R, 0 )',
 	],

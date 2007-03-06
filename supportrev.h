@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.14 2007/02/03 02:33:10 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.15 2007/03/06 01:54:26 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -33,6 +33,11 @@ $Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.14 2007/02/03 02:33:10 tstapf
 # define EXTERN extern
 #else
 # define EXTERN 
+#endif
+
+/* not defined in AR version 5.0.0 */
+#ifndef AR_MAX_LEVELS_DYNAMIC_MENU
+#define AR_MAX_LEVELS_DYNAMIC_MENU  5
 #endif
 
 EXTERN int  compmem(MEMCAST *m1, MEMCAST *m2, int size);
@@ -112,6 +117,8 @@ EXTERN int rev_ARPermissionList(ARControlStruct *ctrl,
 			  HV *h, char *k, ARPermissionList *d);
 
 EXTERN int rev_ARReferenceStruct( ARControlStruct *ctrl, HV *h, char *k, ARReferenceStruct *p );
+
+EXTERN int rev_ARCharMenuItemStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuItemStruct *p );
 
 #if AR_EXPORT_VERSION >= 4
 EXTERN int

@@ -1,6 +1,6 @@
 #!perl
 
-# perl -w -Iblib/lib -Iblib/arch t/37setfilter.t 
+# perl -w -Iblib/lib -Iblib/arch t/41setcharmenu.t 
 
 use strict;
 use ARS;
@@ -18,9 +18,10 @@ if (defined($ctrl)) {
 }
 
 
-#my @objects = sort {lc($a) cmp lc($b)} grep {/\(copy\)/} ars_GetListFilter( $ctrl );
-#die "ars_GetListFilter( ALL ): $ars_errstr\n" if $ars_errstr;
-my @objects = ( 'ARSperl Test-Filter1 (copy)' );
+#my @objects = sort {lc($a) cmp lc($b)} grep {/\(copy\)/} ars_GetListCharMenu( $ctrl );
+#die "ars_GetListCharMenu( ALL ): $ars_errstr\n" if $ars_errstr;
+#my @objects = ( 'zTEST:CharMenu_List (copy)' );
+my @objects = ( 'ARSperl Test-menu-search1 (copy)' );
 
 
 $| = 1;
@@ -30,7 +31,7 @@ foreach my $obj ( @objects ){
 	next if $obj !~ / \(copy\)$/;
 	my $objNew = $obj;
 	$objNew =~ s/ \(copy\)$/ (renamed)/;
-	ars_DeleteFilter( $ctrl, $objNew );
+	ars_DeleteCharMenu( $ctrl, $objNew );
 	modifyObject( $ctrl, $obj, $objNew );
 }
 
@@ -38,15 +39,15 @@ foreach my $obj ( @objects ){
 sub modifyObject {
 	my( $ctrl, $name, $newName ) = @_;
 	print '-' x 60, "\n";
-#	print "GET FILTER $name\n";
-	my $wfObj = ars_GetFilter( $ctrl, $name );
-	die "ars_GetFilter( $name ): $ars_errstr\n" if $ars_errstr;
+#	print "GET MENU $name\n";
+	my $wfObj = ars_GetCharMenu( $ctrl, $name );
+	die "ars_GetCharMenu( $name ): $ars_errstr\n" if $ars_errstr;
 
 	my $ret = 1;
-	print "SET FILTER $name\n";
-	$ret = ars_SetFilter( $ctrl, $wfObj->{name}, {name => $newName, enable => 0, order => 327} );
-	die "ars_SetFilter( $name ): $ars_errstr\n" if $ars_errstr;
-	printStatus( $ret, 2, 'set filter' );
+	print "SET MENU $name\n";
+	$ret = ars_SetCharMenu( $ctrl, $wfObj->{name}, {name => $newName} );
+	die "ars_SetCharMenu( $name ): $ars_errstr\n" if $ars_errstr;
+	printStatus( $ret, 2, 'set menu' );
 }
 
 sub printStatus {

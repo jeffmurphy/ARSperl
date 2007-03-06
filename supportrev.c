@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.27 2007/02/03 02:33:10 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.28 2007/03/06 01:54:26 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -2968,6 +2968,184 @@ rev_ARReferenceStruct( ARControlStruct *ctrl, HV *h, char *k, ARReferenceStruct 
 		}
 	}else{
 		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARReferenceStruct: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+
+
+int
+rev_ARCharMenuItemStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuItemStruct *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuItemStruct: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARCharMenuItemStruct: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+				
+					{
+						char *pcase = NULL;
+						char errText[512];
+				
+						HV *h;
+						SV **hval = NULL;
+						char *k   = NULL;
+						if( SvTYPE(SvRV(*val)) != SVt_PVHV ){
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuItemStruct: not a hash value" );
+							return -1;
+						}
+						h = (HV* ) SvRV((SV*) *val);
+				
+							if( 0 ){
+				
+							}else if( hv_exists(h,"menuValue",9) ){
+								p->menuType = AR_MENU_TYPE_VALUE;
+								k = "menuValue";
+				
+				
+							}else if( hv_exists(h,"childMenu",9) ){
+								p->menuType = AR_MENU_TYPE_MENU;
+								k = "childMenu";
+				
+							}else{
+							    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuItemStruct: map error" );
+							}
+				
+				
+							switch( p->menuType ){
+				
+							case AR_MENU_TYPE_VALUE:
+								{
+								
+								
+									if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+										int i = 0, num = 0;
+										HV *h = (HV* ) SvRV((SV*) *val);
+										char k[256];
+										k[255] = '\0';
+								
+								
+									{
+										SV **val;
+										strncpy( k, "menuValue", 255 );
+										val = hv_fetch( h, "menuValue", 9, 0 );
+										if( val	&& *val ){
+											{
+												p->u.menuValue = strdup( SvPV_nolen(*val) );
+											}
+										}else{
+											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"menuValue\"" );
+											return -1;
+										}
+									}
+								
+								
+									}else{
+										ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuItemStruct: hash value is not a hash reference" );
+										return -1;
+									}
+								
+								
+								}
+								break;
+				
+				
+							case AR_MENU_TYPE_MENU:
+								{
+								
+								
+									if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+										int i = 0, num = 0;
+										HV *h = (HV* ) SvRV((SV*) *val);
+										char k[256];
+										k[255] = '\0';
+								
+								
+									{
+										SV **val;
+										strncpy( k, "childMenu", 255 );
+										val = hv_fetch( h, "childMenu", 9, 0 );
+										if( val	&& *val ){
+											{
+												p->u.childMenu = (ARCharMenuStruct*) MALLOCNN( sizeof(ARCharMenuStruct) );
+												p->u.childMenu->menuType = AR_CHAR_MENU_LIST;
+												rev_ARCharMenuList( ctrl, h, k, &(p->u.childMenu->u.menuList) );
+											}
+										}else{
+											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"childMenu\"" );
+											return -1;
+										}
+									}
+								
+								
+									}else{
+										ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuItemStruct: hash value is not a hash reference" );
+										return -1;
+									}
+								
+								
+								}
+								break;
+				
+							default:
+								sprintf( errText, "rev_ARCharMenuItemStruct: invalid switch value %d", p->menuType );
+								ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, errText );
+							}
+				
+					}
+				
+				
+				
+					if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+						int i = 0, num = 0;
+						HV *h = (HV* ) SvRV((SV*) *val);
+						char k[256];
+						k[255] = '\0';
+				
+				
+					{
+						SV **val;
+						strncpy( k, "menuLabel", 255 );
+						val = hv_fetch( h, "menuLabel", 9, 0 );
+						if( val	&& *val ){
+							{
+								strncpy( p->menuLabel, SvPV_nolen(*val), sizeof(p->menuLabel) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"menuLabel\"" );
+							return -1;
+						}
+					}
+				
+				
+					}else{
+						ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuItemStruct: hash value is not a hash reference" );
+						return -1;
+					}
+				
+				
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARCharMenuItemStruct: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARCharMenuItemStruct: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuItemStruct: first argument is not a hash");
 		return -1;
 	}
 

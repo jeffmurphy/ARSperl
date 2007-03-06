@@ -2274,6 +2274,888 @@ rev_ARCharLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharLimitsStruc
 
 
 int
+rev_ARCharMenuDDFieldStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuDDFieldStruct *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuDDFieldStruct: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARCharMenuDDFieldStruct: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+				
+				
+					if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+						int i = 0, num = 0;
+						HV *h = (HV* ) SvRV((SV*) *val);
+						char k[256];
+						k[255] = '\0';
+				
+				
+					{
+						SV **val;
+						strncpy( k, "fieldType", 255 );
+						val = hv_fetch( h, "fieldType", 9, 0 );
+						if( val	&& *val ){
+							{
+								p->fieldType = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"fieldType\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "schema", 255 );
+						val = hv_fetch( h, "schema", 6, 0 );
+						if( val	&& *val ){
+							{
+								strncpy( p->schema, SvPV_nolen(*val), sizeof(p->schema) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"schema\"" );
+							return -1;
+						}
+					}
+				
+				
+					}else{
+						ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuDDFieldStruct: hash value is not a hash reference" );
+						return -1;
+					}
+				
+				
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARCharMenuDDFieldStruct: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARCharMenuDDFieldStruct: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuDDFieldStruct: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+
+
+
+
+int
+rev_ARCharMenuDDFormStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuDDFormStruct *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuDDFormStruct: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARCharMenuDDFormStruct: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+				
+				
+					if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+						int i = 0, num = 0;
+						HV *h = (HV* ) SvRV((SV*) *val);
+						char k[256];
+						k[255] = '\0';
+				
+				
+					{
+						SV **val;
+						strncpy( k, "includeHidden", 255 );
+						val = hv_fetch( h, "includeHidden", 13, 0 );
+						if( val	&& *val ){
+							{
+								int flag = 0;
+								if( !strcmp(SvPV_nolen(*val),"true") ){
+									p->includeHidden = TRUE;
+									flag = 1;
+								}
+								if( !strcmp(SvPV_nolen(*val),"false") ){
+									p->includeHidden = FALSE;
+									flag = 1;
+								}
+								if( flag == 0 ){
+									ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,  "rev_ARCharMenuDDFormStruct: invalid key value" );
+									ARError_add( AR_RETURN_ERROR, AP_ERR_CONTINUE, SvPV_nolen(*val) );
+								}
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"includeHidden\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "schemaType", 255 );
+						val = hv_fetch( h, "schemaType", 10, 0 );
+						if( val	&& *val ){
+							{
+								p->schemaType = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"schemaType\"" );
+							return -1;
+						}
+					}
+				
+				
+					}else{
+						ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuDDFormStruct: hash value is not a hash reference" );
+						return -1;
+					}
+				
+				
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARCharMenuDDFormStruct: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARCharMenuDDFormStruct: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuDDFormStruct: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+
+
+
+
+int
+rev_ARCharMenuDDStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuDDStruct *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuDDStruct: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARCharMenuDDStruct: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+				
+					{
+						char *pcase = NULL;
+						char errText[512];
+				
+							// pcase = SvPV_nolen(*val);
+							// p->structType = caseLookUpTypeNumber( (TypeMapStruct*) structType, pcase );
+							HV *h2 = (HV* ) SvRV((SV*) *val);
+							SV** val = hv_fetch( h2, "structType", 10, 0 );
+							p->structType = SvIV(*val);
+				
+				
+							switch( p->structType ){
+				
+							case AR_CHAR_MENU_DD_FIELD:
+								{
+									rev_ARCharMenuDDFieldStruct( ctrl, h, k, &(p->u.fieldDefn) );
+								}
+								break;
+				
+				
+							case AR_CHAR_MENU_DD_FORM:
+								{
+									rev_ARCharMenuDDFormStruct( ctrl, h, k, &(p->u.formDefn) );
+								}
+								break;
+				
+							default:
+								sprintf( errText, "rev_ARCharMenuDDStruct: invalid switch value %d", p->structType );
+								ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, errText );
+							}
+				
+					}
+				
+				
+				
+					if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+						int i = 0, num = 0;
+						HV *h = (HV* ) SvRV((SV*) *val);
+						char k[256];
+						k[255] = '\0';
+				
+				
+					{
+						SV **val;
+						strncpy( k, "structType", 255 );
+						val = hv_fetch( h, "structType", 10, 0 );
+						if( val	&& *val ){
+							{
+								p->structType = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"structType\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "nameType", 255 );
+						val = hv_fetch( h, "nameType", 8, 0 );
+						if( val	&& *val ){
+							{
+								p->nameType = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"nameType\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "valueFormat", 255 );
+						val = hv_fetch( h, "valueFormat", 11, 0 );
+						if( val	&& *val ){
+							{
+								p->valueFormat = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"valueFormat\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "server", 255 );
+						val = hv_fetch( h, "server", 6, 0 );
+						if( val	&& *val ){
+							{
+								strncpy( p->server, SvPV_nolen(*val), sizeof(p->server) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"server\"" );
+							return -1;
+						}
+					}
+				
+				
+					}else{
+						ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuDDStruct: hash value is not a hash reference" );
+						return -1;
+					}
+				
+				
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARCharMenuDDStruct: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARCharMenuDDStruct: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuDDStruct: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+
+
+
+
+int
+rev_ARCharMenuFileStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuFileStruct *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuFileStruct: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARCharMenuFileStruct: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+				
+				
+					if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+						int i = 0, num = 0;
+						HV *h = (HV* ) SvRV((SV*) *val);
+						char k[256];
+						k[255] = '\0';
+				
+				
+					{
+						SV **val;
+						strncpy( k, "filename", 255 );
+						val = hv_fetch( h, "filename", 8, 0 );
+						if( val	&& *val ){
+							{
+								p->filename = strdup( SvPV_nolen(*val) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"filename\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "fileLocation", 255 );
+						val = hv_fetch( h, "fileLocation", 12, 0 );
+						if( val	&& *val ){
+							{
+								p->fileLocation = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"fileLocation\"" );
+							return -1;
+						}
+					}
+				
+				
+					}else{
+						ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuFileStruct: hash value is not a hash reference" );
+						return -1;
+					}
+				
+				
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARCharMenuFileStruct: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARCharMenuFileStruct: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuFileStruct: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+
+
+
+
+int
+rev_ARCharMenuList( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuList *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuList: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARCharMenuList: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+					{
+						if( SvTYPE(SvRV(*val)) == SVt_PVAV ){
+							int i = 0, num = 0;
+							AV *ar = (AV*) SvRV((SV*) *val);
+				
+							num = av_len(ar) + 1;
+							p->numItems = num;
+							if( num == 0 ) return 0;
+				
+							p->charMenuList = (ARCharMenuItemStruct*) MALLOCNN( sizeof(ARCharMenuItemStruct) * num );
+							/* if( p->charMenuList == NULL ){
+								croak( "rev_ARCharMenuList: malloc error\n" );
+								exit( 1 );
+							} */
+				
+							for( i = 0; i < num; ++i ){
+								SV **item = av_fetch( ar, i, 0 );
+				
+								if( item && *item ){
+									char *k = "_";
+									HV *h = newHV();
+									
+									SvREFCNT_inc( *item );
+				                    hv_store( h, k, strlen(k), *item, 0 );
+				
+									rev_ARCharMenuItemStruct( ctrl, h, k, &(p->charMenuList[i]) );
+									hv_undef( h );
+								}else{
+									ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuList: invalid inner array value" );
+								}
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuList: hash value is not an array reference" );
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, k );
+							return -1;
+						}
+					}
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARCharMenuList: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARCharMenuList: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuList: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+
+
+
+
+int
+rev_ARCharMenuQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuQueryStruct *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuQueryStruct: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARCharMenuQueryStruct: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+				
+				
+					if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+						int i = 0, num = 0;
+						HV *h = (HV* ) SvRV((SV*) *val);
+						char k[256];
+						k[255] = '\0';
+				
+				
+					{
+						SV **val;
+						strncpy( k, "labelField", 255 );
+						val = hv_fetch( h, "labelField", 10, 0 );
+						if( val	&& *val ){
+							{
+								copyUIntArray( AR_MAX_LEVELS_DYNAMIC_MENU, p->labelField, *val );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"labelField\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "qualifier", 255 );
+						val = hv_fetch( h, "qualifier", 9, 0 );
+						if( val	&& *val ){
+							{
+								rev_ARQualifierStruct( ctrl, h, k, &(p->qualifier) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"qualifier\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "sortOnLabel", 255 );
+						val = hv_fetch( h, "sortOnLabel", 11, 0 );
+						if( val	&& *val ){
+							{
+								p->sortOnLabel = (char) SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"sortOnLabel\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "server", 255 );
+						val = hv_fetch( h, "server", 6, 0 );
+						if( val	&& *val ){
+							{
+								strncpy( p->server, SvPV_nolen(*val), sizeof(p->server) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"server\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "valueField", 255 );
+						val = hv_fetch( h, "valueField", 10, 0 );
+						if( val	&& *val ){
+							{
+								p->valueField = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"valueField\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "schema", 255 );
+						val = hv_fetch( h, "schema", 6, 0 );
+						if( val	&& *val ){
+							{
+								strncpy( p->schema, SvPV_nolen(*val), sizeof(p->schema) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"schema\"" );
+							return -1;
+						}
+					}
+				
+				
+					}else{
+						ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuQueryStruct: hash value is not a hash reference" );
+						return -1;
+					}
+				
+				
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARCharMenuQueryStruct: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARCharMenuQueryStruct: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuQueryStruct: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+
+
+
+
+int
+rev_ARCharMenuSQLStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuSQLStruct *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuSQLStruct: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARCharMenuSQLStruct: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+				
+				
+					if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+						int i = 0, num = 0;
+						HV *h = (HV* ) SvRV((SV*) *val);
+						char k[256];
+						k[255] = '\0';
+				
+				
+					{
+						SV **val;
+						strncpy( k, "labelIndex", 255 );
+						val = hv_fetch( h, "labelIndex", 10, 0 );
+						if( val	&& *val ){
+							{
+								copyIntArray( AR_MAX_LEVELS_DYNAMIC_MENU, p->labelIndex, *val );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"labelIndex\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "sqlCommand", 255 );
+						val = hv_fetch( h, "sqlCommand", 10, 0 );
+						if( val	&& *val ){
+							{
+								p->sqlCommand = strdup( SvPV_nolen(*val) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"sqlCommand\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "server", 255 );
+						val = hv_fetch( h, "server", 6, 0 );
+						if( val	&& *val ){
+							{
+								strncpy( p->server, SvPV_nolen(*val), sizeof(p->server) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"server\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "valueIndex", 255 );
+						val = hv_fetch( h, "valueIndex", 10, 0 );
+						if( val	&& *val ){
+							{
+								p->valueIndex = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"valueIndex\"" );
+							return -1;
+						}
+					}
+				
+				
+					}else{
+						ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuSQLStruct: hash value is not a hash reference" );
+						return -1;
+					}
+				
+				
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARCharMenuSQLStruct: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARCharMenuSQLStruct: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuSQLStruct: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+
+
+
+
+int
+rev_ARCharMenuSSStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuSSStruct *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuSSStruct: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARCharMenuSSStruct: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+				
+				
+					if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+						int i = 0, num = 0;
+						HV *h = (HV* ) SvRV((SV*) *val);
+						char k[256];
+						k[255] = '\0';
+				
+				
+					{
+						SV **val;
+						strncpy( k, "externList", 255 );
+						val = hv_fetch( h, "externList", 10, 0 );
+						if( val	&& *val ){
+							{
+								rev_ARQualifierList( ctrl, h, k, &(p->externList) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"externList\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "server", 255 );
+						val = hv_fetch( h, "server", 6, 0 );
+						if( val	&& *val ){
+							{
+								p->server = strdup( SvPV_nolen(*val) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"server\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "parameterList", 255 );
+						val = hv_fetch( h, "parameterList", 13, 0 );
+						if( val	&& *val ){
+							{
+								rev_ARFieldValueList( ctrl, h, k, &(p->parameterList) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"parameterList\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "schema", 255 );
+						val = hv_fetch( h, "schema", 6, 0 );
+						if( val	&& *val ){
+							{
+								p->schema = strdup( SvPV_nolen(*val) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"schema\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "menuName", 255 );
+						val = hv_fetch( h, "menuName", 8, 0 );
+						if( val	&& *val ){
+							{
+								strncpy( p->menuName, SvPV_nolen(*val), sizeof(p->menuName) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"menuName\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "keywordList", 255 );
+						val = hv_fetch( h, "keywordList", 11, 0 );
+						if( val	&& *val ){
+							{
+								rev_ARFieldValueList( ctrl, h, k, &(p->keywordList) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"keywordList\"" );
+							return -1;
+						}
+					}
+				
+				
+					}else{
+						ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuSSStruct: hash value is not a hash reference" );
+						return -1;
+					}
+				
+				
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARCharMenuSSStruct: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARCharMenuSSStruct: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARCharMenuSSStruct: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+
+
+
+
+int
 rev_ARCloseWndStruct( ARControlStruct *ctrl, HV *h, char *k, ARCloseWndStruct *p ){
 	SV  **val;
 	int i = 0;
@@ -5269,7 +6151,7 @@ rev_ARFieldLimitStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldLimitStruc
 							// pcase = SvPV_nolen(*val);
 							// p->dataType = caseLookUpTypeNumber( (TypeMapStruct*) dataType, pcase );
 							HV *h2 = (HV* ) SvRV((SV*) *val);
-							val = hv_fetch( h2, "dataType", 8, 0 );
+							SV** val = hv_fetch( h2, "dataType", 8, 0 );
 							p->dataType = SvIV(*val);
 				
 				
@@ -8947,6 +9829,81 @@ rev_ARPushFieldsStruct( ARControlStruct *ctrl, HV *h, char *k, ARPushFieldsStruc
 
 
 int
+rev_ARQualifierList( ARControlStruct *ctrl, HV *h, char *k, ARQualifierList *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARQualifierList: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARQualifierList: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+					{
+						if( SvTYPE(SvRV(*val)) == SVt_PVAV ){
+							int i = 0, num = 0;
+							AV *ar = (AV*) SvRV((SV*) *val);
+				
+							num = av_len(ar) + 1;
+							p->numItems = num;
+							if( num == 0 ) return 0;
+				
+							p->qualifierList = (ARQualifierStruct*) MALLOCNN( sizeof(ARQualifierStruct) * num );
+							/* if( p->qualifierList == NULL ){
+								croak( "rev_ARQualifierList: malloc error\n" );
+								exit( 1 );
+							} */
+				
+							for( i = 0; i < num; ++i ){
+								SV **item = av_fetch( ar, i, 0 );
+				
+								if( item && *item ){
+									char *k = "_";
+									HV *h = newHV();
+									
+									SvREFCNT_inc( *item );
+				                    hv_store( h, k, strlen(k), *item, 0 );
+				
+									rev_ARQualifierStruct( ctrl, h, k, &(p->qualifierList[i]) );
+									hv_undef( h );
+								}else{
+									ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARQualifierList: invalid inner array value" );
+								}
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARQualifierList: hash value is not an array reference" );
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, k );
+							return -1;
+						}
+					}
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARQualifierList: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARQualifierList: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARQualifierList: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+
+
+
+
+int
 rev_ARQualifierStruct( ARControlStruct *ctrl, HV *h, char *k, ARQualifierStruct *p ){
 	SV  **val;
 	int i = 0;
@@ -10946,6 +11903,39 @@ rev_ARXMLEntryReturn( ARControlStruct *ctrl, HV *h, char *k, ARXMLEntryReturn *p
 }
 #endif
 
+
+
+
+
+void copyIntArray( int size, int *dst, SV* src ){
+	AV *ar = (AV*) SvRV((SV*) src);
+	int len = av_len(ar);
+	int i;
+	for( i = 0; i < size; ++i ){
+		dst[i] = 0;
+		if( i <= len ){ 
+			SV** item = av_fetch( ar, i, 0 );
+			if( item != NULL && *item != NULL && i <= len ){
+				dst[i] = SvIV( *item );
+			}
+		}
+	}
+}
+
+void copyUIntArray( int size, unsigned int *dst, SV* src ){
+	AV *ar = (AV*) SvRV((SV*) src);
+	int len = av_len(ar);
+	int i;
+	for( i = 0; i < size; ++i ){
+		dst[i] = 0;
+		if( i <= len ){ 
+			SV** item = av_fetch( ar, i, 0 );
+			if( item != NULL && *item != NULL && i <= len ){
+				dst[i] = SvUV( *item );
+			}
+		}
+	}
+}
 
 
 

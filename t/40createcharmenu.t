@@ -1,6 +1,6 @@
 #!perl
 
-# perl -w -Iblib/lib -Iblib/arch t/38createescalation.t 
+# perl -w -Iblib/lib -Iblib/arch t/40createcharmenu.t 
 
 use strict;
 use ARS;
@@ -18,10 +18,10 @@ if (defined($ctrl)) {
 }
 
 
-#my @objects = sort {lc($a) cmp lc($b)} ars_GetListEscalation( $ctrl );
-#die "ars_GetListEscalation( ALL ): $ars_errstr\n" if $ars_errstr;
-#my @objects = ( 'zTEST:TimeInterval', 'zTEST:TimeDate' );
-my @objects = ( 'ARSperl Test-escalation1' );
+#my @objects = sort {lc($a) cmp lc($b)} ars_GetListCharMenu( $ctrl );
+#die "ars_GetListCharMenu( ALL ): $ars_errstr\n" if $ars_errstr;
+#my @objects = ( 'zTEST:CharMenu_List' );
+my @objects = ( 'ARSperl Test-menu-search1' );
 
 
 $| = 1;
@@ -30,7 +30,7 @@ $| = 1;
 foreach my $obj ( @objects ){
 	next if $obj =~ / \((copy|renamed)\)$/;
 	my $objNew = "$obj (copy)";
-	ars_DeleteEscalation( $ctrl, $objNew );
+	ars_DeleteCharMenu( $ctrl, $objNew );
 	copyObject( $ctrl, $obj, $objNew );
 }
 
@@ -38,18 +38,13 @@ foreach my $obj ( @objects ){
 sub copyObject {
 	my( $ctrl, $obj, $objNew ) = @_;
 	print '-' x 60, "\n";
-#	print "GET ESCALATION $ctnr\n";
-	my $wfObj = ars_GetEscalation( $ctrl, $obj );
-	die "ars_GetEscalation( $obj ): $ars_errstr\n" if $ars_errstr;
+#	print "GET MENU $ctnr\n";
+	my $wfObj = ars_GetCharMenu( $ctrl, $obj );
+	die "ars_GetCharMenu( $obj ): $ars_errstr\n" if $ars_errstr;
 
 #use Data::Dumper;
 #$Data::Dumper::Sortkeys = 1;
-#my $data = $ctnrObj;
-#my $file = '-';
-#local *FILE;
-#open( FILE, "> $file" ) or die qq{Cannot open \"$file\" for writing: $!\n};
-#print FILE Data::Dumper->Dump( [$data], ['ctnrObj'] );
-#close FILE;
+#print Data::Dumper->Dump( [$wfObj], ['wfObj'] );
 
 	$wfObj->{name} = $objNew;
 
@@ -60,16 +55,16 @@ sub copyObject {
 	$wfObj->{changeDiary} = "Init";
 
 	my $ret = 1;
-	print "CREATE ESCALATION $objNew\n";
-	$ret = ars_CreateEscalation( $ctrl, $wfObj );
+	print "CREATE MENU $objNew\n";
+	$ret = ars_CreateCharMenu( $ctrl, $wfObj );
 	if( $ars_errstr ){
 		if( $ars_errstr =~ /\[ERROR\]/ ){
-			die "ars_CreateEscalation( $objNew ): $ars_errstr\n";
+			die "ars_CreateCharMenu( $objNew ): $ars_errstr\n";
 		}else{
-			warn "ars_CreateEscalation( $objNew ): $ars_errstr\n";
+			warn "ars_CreateCharMenu( $objNew ): $ars_errstr\n";
 		}
 	}
-	printStatus( $ret, 2, 'create escalation' );
+	printStatus( $ret, 2, 'create menu' );
 }
 
 sub printStatus {

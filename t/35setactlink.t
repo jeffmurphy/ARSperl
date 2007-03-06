@@ -27,25 +27,24 @@ $| = 1;
 
 
 foreach my $obj ( @objects ){
-	modifyObject( $ctrl, $obj );
+	next if $obj !~ / \(copy\)$/;
+	my $objNew = $obj;
+	$objNew =~ s/ \(copy\)$/ (renamed)/;
+	ars_DeleteActiveLink( $ctrl, $objNew );
+	modifyObject( $ctrl, $obj, $objNew );
 }
 
 
 sub modifyObject {
-	my( $ctrl, $obj ) = @_;
+	my( $ctrl, $name, $newName ) = @_;
 	print '-' x 60, "\n";
 #	print "GET ACTIVE LINK $obj\n";
-	my $wfObj = ars_GetActiveLink( $ctrl, $obj );
-	die "ars_GetActiveLink( $obj ): $ars_errstr\n" if $ars_errstr;
-
-	my( $name, $newName );
-	$newName = $name = $wfObj->{name};
-	$newName =~ s/\(copy\)/(renamed)/;
-
+	my $wfObj = ars_GetActiveLink( $ctrl, $name );
+	die "ars_GetActiveLink( $name ): $ars_errstr\n" if $ars_errstr;
 
 	my $ret = 1;
 	print "SET ACTIVE LINK $name\n";
-	$ret = ars_SetActiveLink( $ctrl, $name, {enable => 0, order => 327} );
+	$ret = ars_SetActiveLink( $ctrl, $name, {name => $newName, enable => 0, order => 327} );
 	die "ars_SetActiveLink( $name ): $ars_errstr\n" if $ars_errstr;
 	printStatus( $ret, 2, 'set active link' );
 }

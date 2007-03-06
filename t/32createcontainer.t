@@ -21,7 +21,7 @@ if (defined($ctrl)) {
 
 #my @containers = sort {lc($a) cmp lc($b)} map {$_->{containerName}} ars_GetListContainer( $ctrl, 0, &ARS::AR_HIDDEN_INCREMENT, &ARS::ARCON_ALL );
 #die "ars_GetListContainer( ALL ): $ars_errstr\n" if $ars_errstr;
-#my @containers = sort {lc($a) cmp lc($b)} map {$_->{containerName}} grep {$_->{type} =~ /guide/} ars_GetListContainer( $ctrl, 0, &ARS::AR_HIDDEN_INCREMENT, &ARS::ARCON_ALL );
+#my @containers = sort {lc($a) cmp lc($b)} map {$_->{containerName}} grep {$_->{containerType} =~ /guide/} ars_GetListContainer( $ctrl, 0, &ARS::AR_HIDDEN_INCREMENT, &ARS::ARCON_ALL );
 #die "ars_GetListContainer( ALL ): $ars_errstr\n" if $ars_errstr;
 my @containers = ( 'ARSperl Test-FilterGuide1' );
 
@@ -30,6 +30,7 @@ $| = 1;
 
 
 foreach my $ctnr ( @containers ){
+	next if $ctnr =~ / \((copy|renamed)\)$/;
 	my $ctnrNew = "$ctnr (copy)";
 	ars_DeleteContainer( $ctrl, $ctnrNew );
 	copyContainer( $ctrl, $ctnr, $ctnrNew );
@@ -48,6 +49,8 @@ sub copyContainer {
 #	$Data::Dumper::Sortkeys = 1;
 #	print Data::Dumper->Dump( [$ctnrObj], ['ctnrObj'] );
 
+	$ctnrObj->{name} = $ctnrNew;
+
 	@{$ctnrObj->{objPropList}} = grep {$_->{prop} < 90000} @{$ctnrObj->{objPropList}};
 	foreach my $prop ( @{$ctnrObj->{objPropList}} ){
 		$prop->{value} .= 'xCopy' if $prop->{prop} == 60020 && $prop->{value} ne '';
@@ -56,7 +59,7 @@ sub copyContainer {
 
 	my $ret = 1;
 	print "CREATE CONTAINER $ctnrNew\n";
-	$ret = ars_CreateContainer( $ctrl, $ctnrNew, $ctnrObj );
+	$ret = ars_CreateContainer( $ctrl, $ctnrObj );
 	die "ars_CreateContainer( $ctnrNew ): $ars_errstr\n" if $ars_errstr;
 	printStatus( $ret, 2, 'create container' );
 }

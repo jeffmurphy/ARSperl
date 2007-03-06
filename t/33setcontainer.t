@@ -19,30 +19,31 @@ if (defined($ctrl)) {
 }
 
 
-#my @containers = sort {lc($a) cmp lc($b)} grep {/\(copy\)/} map {$_->{containerName}} grep {$_->{type} =~ /guide/} ars_GetListContainer( $ctrl, 0, &ARS::AR_HIDDEN_INCREMENT, &ARS::ARCON_ALL );
+#my @objects = sort {lc($a) cmp lc($b)} grep {/\(copy\)/} map {$_->{containerName}} grep {$_->{containerType} =~ /guide/} ars_GetListContainer( $ctrl, 0, &ARS::AR_HIDDEN_INCREMENT, &ARS::ARCON_ALL );
 #die "ars_GetListContainer( ALL ): $ars_errstr\n" if $ars_errstr;
-my @containers = ( 'ARSperl Test-FilterGuide1 (copy)' );
+my @objects = ( 'ARSperl Test-FilterGuide1 (copy)' );
 
 
 $| = 1;
 
 
-foreach my $ctnr ( @containers ){
-	addReferences( $ctrl, $ctnr );
+foreach my $obj ( @objects ){
+	next if $obj !~ / \(copy\)$/;
+	my $objNew = $obj;
+	$objNew =~ s/ \(copy\)$/ (renamed)/;
+	ars_DeleteContainer( $ctrl, $objNew );
+	modifyObject( $ctrl, $obj, $objNew );
 }
 
 
-sub addReferences {
-	my( $ctrl, $ctnr ) = @_;
+sub modifyObject {
+	my( $ctrl, $name, $newName ) = @_;
 	print '-' x 60, "\n";
 #	print "GET CONTAINER $ctnr\n";
-	my $ctnrObj = ars_GetContainer( $ctrl, $ctnr );
-	die "ars_GetContainer( $ctnr ): $ars_errstr\n" if $ars_errstr;
+	my $ctnrObj = ars_GetContainer( $ctrl, $name );
+	die "ars_GetContainer( $name ): $ars_errstr\n" if $ars_errstr;
 #	my $ctnrType = $ctnrObj->{containerType};
 
-	my( $name, $newName );
-	$newName = $name = $ctnrObj->{name};
-	$newName =~ s/\(copy\)/(renamed)/;
 	my @refList = @{$ctnrObj->{referenceList}}; 
 
 	unshift @refList, makeRef(
@@ -79,7 +80,7 @@ sub addReferences {
 
 	my $ret = 1;
 	print "SET CONTAINER $name\n";
-	$ret = ars_SetContainer( $ctrl, $ctnrObj->{name}, {name => $newName, referenceList => \@refList} );
+	$ret = ars_SetContainer( $ctrl, $name, {name => $newName, referenceList => \@refList} );
 	die "ars_SetContainer( $name ): $ars_errstr\n" if $ars_errstr;
 	printStatus( $ret, 2, 'set container' );
 }

@@ -62,6 +62,9 @@ EXTERN int rev_<@ $class @>( ARControlStruct *ctrl, HV *h, char *k, <@ $class @>
 <@ versionEndif($obj) @>
 @> }
 
+void copyIntArray( int size, int *dst, SV* src );
+void copyUIntArray( int size, unsigned int *dst, SV* src );
+
 #endif /* __supportrev_generated_h_ */
 
 @@ > <@ $H_File @>
@@ -192,7 +195,7 @@ rev_<@ $class @>( ARControlStruct *ctrl, HV *h, char *k, <@ $class @> *p ){
 			// <@ $obj->{_switch} @> = caseLookUpTypeNumber( (TypeMapStruct*) <@ $obj->{_map} @>, pcase );
 @>             if( ! $obj->{_typeparam} ){
 			HV *h2 = (HV* ) SvRV((SV*) *val);
-			val = hv_fetch( h2, "<@ $obj->{_map} @>", <@ length($obj->{_map}) @>, 0 );
+			SV** val = hv_fetch( h2, "<@ $obj->{_map} @>", <@ length($obj->{_map}) @>, 0 );
 			<@ $obj->{_switch} @> = SvIV(*val);
 @>             }
 @>         }else{
@@ -363,6 +366,39 @@ rev_<@ $class @>( ARControlStruct *ctrl, HV *h, char *k, <@ $class @> *p ){
 }
 @> }
 
+
+void copyIntArray( int size, int *dst, SV* src ){
+	AV *ar = (AV*) SvRV((SV*) src);
+	int len = av_len(ar);
+	int i;
+	for( i = 0; i < size; ++i ){
+		dst[i] = 0;
+		if( i <= len ){ 
+			SV** item = av_fetch( ar, i, 0 );
+			if( item != NULL && *item != NULL && i <= len ){
+				dst[i] = SvIV( *item );
+			}
+		}
+	}
+}
+
+void copyUIntArray( int size, unsigned int *dst, SV* src ){
+	AV *ar = (AV*) SvRV((SV*) src);
+	int len = av_len(ar);
+	int i;
+	for( i = 0; i < size; ++i ){
+		dst[i] = 0;
+		if( i <= len ){ 
+			SV** item = av_fetch( ar, i, 0 );
+			if( item != NULL && *item != NULL && i <= len ){
+				dst[i] = SvUV( *item );
+			}
+		}
+	}
+}
+
+
+
 @@ > <@ $C_File @>
 
 
@@ -457,7 +493,7 @@ ARS::CodeTemplate::procdef( $ARS::CodeTemplate::DEF_CODE );
 
 sub evalTemplate {
 	my( $tag, $type, $L, $R ) = @_;
-#	print "evalTemplate( $tag, $type, $L, $R )\n";  # _DEBUG_
+#	print STDERR "evalTemplate( $tag, $type, $L, $R )\n";  # _DEBUG_
 	$tag = lc($tag);
 	$tag =~ s/^(?=[^_])/_/;
 
@@ -472,10 +508,13 @@ sub evalTemplate {
 #			$tp = $tpDef->{$rx};
 #			last;
 #		}
+	my @match;
 	for( my $i = 0; $i < $#{$tpDef}; $i+=2 ){
 		$rx = $tpDef->[$i];
 #		print "\$rx <$rx>\n";  # _DEBUG_
-		if( $type =~ /^$rx$/ ){
+		@match = ($type =~ /^$rx$/);
+		if( @match ){
+			unshift @match, 1 if $rx =~ /(?<!\\)\(/;
 			$tp = $tpDef->[$i+1];
 			last;
 		}
@@ -484,12 +523,15 @@ sub evalTemplate {
 		die "NO TEMPLATE\n", "\$tag <$tag>  \$type <$type>  \$L <$L>  \$R <$R>\n";  # _DEBUG_
 #		exit 1;
 	}
+#	print STDERR "\$tp <", $tp, ">\n";  # _DEBUG_
 
 	my $baseType = $type;
 	$baseType =~ s/\*$//;
 
 	my %val = ( L => $L, R => $R, T => $type, B => $baseType );
-	$tp =~ s/\%([LRTB])\b/$val{$1}/g;
+	map {$val{$_} = $match[$_]} (1..$#match) if $#match >= 1;
+#	print "\$rx <", $rx, ">  \@match <", join('|',@match), ">  \%val <", join('|',%val), ">\n";  # _DEBUG_
+	$tp =~ s/\%([LRTB0-9])\b/$val{$1}/g;
 
 	return $tp;
 }

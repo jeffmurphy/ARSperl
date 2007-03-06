@@ -1,4 +1,12 @@
 
+TS  added missing ARError_reset() to ars_GetListVUI
+TS  added ars_CreateCharMenu, ars_SetCharMenu
+TS  added handling of case AR_CHAR_MENU_LIST in ars_GetCharMenu
+TS  changed handling of qualifier struct in ars_GetCharMenu, case AR_CHAR_MENU_QUERY
+TS  corrected function signature for ars_SetField, ars_CreateContainer
+TS  bugfix in ars_GetCharMenu (incorrect array length for "labelFields", "labelIndex")
+TS  added ars_SetImpersonatedUser
+
 TS  bugfix in ARError (support.c, memory violation if appendedText == NULL)
 TS  ars_SetLogging: changed declaration "int len" to "STRLEN len" because of 
     compilation problems on Solaris

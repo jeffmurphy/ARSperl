@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.31 2007/02/03 02:33:10 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.32 2007/03/06 01:54:26 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -542,6 +542,9 @@ EXTERN SV *perl_ARInternalIdList( ARControlStruct *ctrl, ARInternalIdList *p );
 EXTERN SV *perl_ARFieldValueList( ARControlStruct *ctrl, ARFieldValueList *p );
 EXTERN SV *perl_ARFieldValueStruct( ARControlStruct *ctrl, ARFieldValueStruct *p );
 
+EXTERN SV *perl_ARCharMenuList( ARControlStruct *ctrl, ARCharMenuList *p );
+EXTERN SV *perl_ARCharMenuItemStruct( ARControlStruct *ctrl, ARCharMenuItemStruct *p );
+EXTERN SV *perl_ARCharMenuStruct( ARControlStruct *ctrl, ARCharMenuStruct *p );
 
 
 #ifndef BSD
