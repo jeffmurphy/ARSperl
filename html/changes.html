@@ -28,6 +28,132 @@
 	    BGCOLOR='lightblue'>
 	    <tr><td colspan='2'>
   <table width='100%' border='0'><tr>
+	      <td width='50%'>Released: <B>03/12/2007</B></td>
+              <td width='50%'>Version: <B>1.90</B></td>
+  </tr></table></td>
+            </tr><tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added missing ARError_reset() to ars_GetListVUI 
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added ars_CreateCharMenu, ars_SetCharMenu 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added handling of case AR_CHAR_MENU_LIST in ars_GetCharMenu 
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>changed handling of qualifier struct in ars_GetCharMenu, case AR_CHAR_MENU_QUERY 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>corrected function signature for ars_SetField, ars_CreateContainer 
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>bugfix in ars_GetCharMenu (incorrect array length for "labelFields", "labelIndex") 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added ars_SetImpersonatedUser 
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>bugfix in ARError (support.c, memory violation if appendedText == NULL) 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>ars_SetLogging: changed declaration "int len" to "STRLEN len" because of  
+compilation problems on Solaris </font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added ars_BeginBulkEntryTransaction, ars_EndBulkEntryTransaction 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added AR_FIELD_OFFSET handling in perl_ARFieldValueOrArithStruct (support.c) 
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added ars_SetSessionConfiguration 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>completed sv_to_ARCurrencyStruct (support.c) 
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>ARS.pm: set $ARS::logging_file_ptr = 0 to avoid "uninitialized" warning  
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>changed t/01import.t to import form "ARSperl Test3" 
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added ars_CreateContainer, ars_SetContainer 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added ars_CreateFilter, ars_SetFilter, ars_CreateEscalation, ars_SetEscalation, 
+ars_SetActiveLink </font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added declaration of boolcpyHVal(...) to supportrev.h 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added declaration of revTypeName(...) to supportrev.h 
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added "rev_ARReferenceStruct" to supportrev.c 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>changed perl_ARReferenceStruct (added "value_dataType" key, necessary for 
+ars_CreateContainer) </font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>changed ars_CreateActiveLink to read "schemaList" from alDef struct 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>bugfix in rev_ARMessageStruct 
+( hv_exists(h,"messageType"... ->  hv_exists(a,"messageType"... ) </font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>moved declaration of rev_ARMessageStruct from supportrev.c to supportrev.h 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>bugfix in rev_ARAssignFieldStruct_helper: hv_exists needs key length 
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>bugfix in rev_ARAssignFieldStruct_helper: hv_exists needs key length 
+(dup_qualifier2(...) != NULL ... return ...) </font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added case: AR_COND_OP_FROM_FIELD to dup_qualifier2 
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added functions perl_ARSetFieldsActionStruct, perl_ARPushFieldsActionStruct; 
+changed perl_ARFilterActionStruct accordingly. </font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>bugfix in rev_ARFunctionAssignStruct (parameterList[i] -> parameterList[i-1]) 
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>bugfix in rev_ARArithOpAssignStruct_helper (AR_ARITH_OP_NEGATE uses operandRight, 
+not operandLeft), fixed condition for AR_ARITH_OP_NEGATE. </font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>bugfix in rev_ARAssignSQLStruct 
+(strcpyHVal(hr,"sqlCommand"...)  -> strmakHVal(hr, "sqlCommand"...)) </font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>bugfix in rev_ARActiveLinkMacroParmList (... == SVt_PVAV -> ... == SVt_PVHV)  
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>bugfix in rev_ARActiveLinkMacroParmList (copymem -> strdup)  
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>changed rev_ARValueStructDiary to support non-hashref diary values 
+(necessary in ARAssignStruct context) </font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added ars_CreateSchema, ars_SetSchema, ars_CreateField, ars_SetField, 
+ars_CreateVUI, ars_SetVUI </font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added scripts (StructDef.pl, rev_AR_template.pl) for automatic generation of 
+conversion code (perl data structures -> AR API structs) </font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added module (ARS/CodeTemplate.pm) for code generation 
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>change in perl_ARFieldValueOrArithStruct; if tag == AR_VALUE, put dataType into hash 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added check for h != NULL to strcpyHVal  
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added "case AR_COND_OP_FROM_FIELD" to perl_qualifier() 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>changed handling of qualifier structs in perl_ARFieldLimitStruct, perl_ARJoinSchema, 
+perl_ARArchiveInfoStruct; those functions now return the converted perl structure instead of the pointer to a C structure.  </font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>fixed Makefile.PL to work with $ARSAPI containing spaces on Windows 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>ARS.pm: changed $VERSION to '1.85'  
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added ars_DeleteContainer (changes to ARS.xs, ARS.pm) 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>fixed Makefile.PL to use $ra_arlibs for Version <= 5.0 on Windows 
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>fixed rev_ARValueStructStr2Type: use strcasecmp instead of strncasecmp 
+(failure to differentiate between string and substring) </font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added "case AR_DATA_TYPE_CURRENCY" to perl_ARValueStruct 
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>moved existing code for AR_DATA_TYPE_CURRENCY from sv_to_ARValueStruct 
+to new function sv_to_ARCurrencyStruct, completed ARCurrencyStruct handling </font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added handling of AR_DATA_TYPE_DATE, AR_DATA_TYPE_TIME_OF_DAY, 
+to rev_ARValueStruct, sv_to_ARValueStruct </font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added conversion functions rev_ARDisplayInstanceList, 
+rev_ARDisplayInstanceStruct and rev_ARPermissionList </font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>fixed DESTROY(ctrl) (use safefree if allocated with safemalloc) 
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>minor fix in in rev_ARValueStructKW2KN (*keyword == '\0') 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>minor fix in rev_ARCoordList_helper ( if (hv_exists("x"... ) 
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>changed handling of keyword values in rev_ARValueStruct 
+(assume "keyword" if first character == '\0' and length > 0)   </table></td></tr></table>
+
+<P>
+
+
+    <TABLE CELLSPACING='0'
+      CELLPADDING='2'
+      WIDTH='100%'
+      BORDER='0' 
+      BGCOLOR='black'>
+      <TR>
+	<TD width='100%'>
+	  <TABLE CELLSPACING='0' CELLPADDING='3' WIDTH='100%' BORDER='0'
+	    BGCOLOR='lightblue'>
+	    <tr><td colspan='2'>
+  <table width='100%' border='0'><tr>
 	      <td width='50%'>Released: <B>09/20/2005</B></td>
               <td width='50%'>Version: <B>1.85</B></td>
   </tr></table></td>
@@ -1224,4 +1350,4 @@ Removed -lars from makefile (internal C library that wasn't released), not neede
 
 
 <P>
-<PRE>$Header: /cvsroot/arsperl/ARSperl/html/changes.html,v 1.28 2005/09/19 15:01:05 jeffmurphy Exp $</PRE></body></html>
+<PRE>$Header: /cvsroot/arsperl/ARSperl/html/changes.html,v 1.29 2007/03/12 17:27:43 jeffmurphy Exp $</PRE></body></html>

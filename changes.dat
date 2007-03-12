@@ -1,4 +1,5 @@
 
+released=03/12/2007 version=1.90
 TS  added missing ARError_reset() to ars_GetListVUI
 TS  added ars_CreateCharMenu, ars_SetCharMenu
 TS  added handling of case AR_CHAR_MENU_LIST in ars_GetCharMenu
@@ -6,7 +7,6 @@ TS  changed handling of qualifier struct in ars_GetCharMenu, case AR_CHAR_MENU_Q
 TS  corrected function signature for ars_SetField, ars_CreateContainer
 TS  bugfix in ars_GetCharMenu (incorrect array length for "labelFields", "labelIndex")
 TS  added ars_SetImpersonatedUser
-
 TS  bugfix in ARError (support.c, memory violation if appendedText == NULL)
 TS  ars_SetLogging: changed declaration "int len" to "STRLEN len" because of 
     compilation problems on Solaris
@@ -43,7 +43,6 @@ TS  bugfix in rev_ARActiveLinkMacroParmList (... == SVt_PVAV -> ... == SVt_PVHV)
 TS  bugfix in rev_ARActiveLinkMacroParmList (copymem -> strdup) 
 TS  changed rev_ARValueStructDiary to support non-hashref diary values
     (necessary in ARAssignStruct context)
-
 TS  added ars_CreateSchema, ars_SetSchema, ars_CreateField, ars_SetField,
     ars_CreateVUI, ars_SetVUI
 TS  added scripts (StructDef.pl, rev_AR_template.pl) for automatic generation of
@@ -55,7 +54,6 @@ TS  added "case AR_COND_OP_FROM_FIELD" to perl_qualifier()
 TS  changed handling of qualifier structs in perl_ARFieldLimitStruct, perl_ARJoinSchema,
     perl_ARArchiveInfoStruct; those functions now return the converted perl structure
     instead of the pointer to a C structure. 
-
 TS  fixed Makefile.PL to work with $ARSAPI containing spaces on Windows
 TS  ARS.pm: changed $VERSION to '1.85' 
 TS  added ars_DeleteContainer (changes to ARS.xs, ARS.pm)
