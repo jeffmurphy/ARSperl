@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/Dump_Users.pl,v 1.6 2003/03/27 17:58:42 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/Dump_Users.pl,v 1.7 2007/03/13 13:20:32 jeffmurphy Exp $
 #
 # EXAMPLE
 #    Dump_Users.pl
@@ -19,6 +19,9 @@
 # 01/12/96
 #
 # $Log: Dump_Users.pl,v $
+# Revision 1.7  2007/03/13 13:20:32  jeffmurphy
+# minor update to example scripts
+#
 # Revision 1.6  2003/03/27 17:58:42  jcmurphy
 # 5.0 changes, bug fixes
 #
@@ -76,7 +79,7 @@ if(!defined($loginname_fid)) {
 
 # Retrieve all of the entry-id's for the schema.
 
-@entries = ars_GetListEntry($ctrl, $SCHEMA, $qual, 0, [], 
+@entries = ars_GetListEntry($ctrl, $SCHEMA, $qual, 0, 0, [], 
 			$loginname_fid, &ARS::AR_SORT_ASCENDING);
 
 die "No entries found in User schema? [$ars_errstr]" 

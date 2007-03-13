@@ -55,7 +55,6 @@ TS  changed handling of qualifier structs in perl_ARFieldLimitStruct, perl_ARJoi
     perl_ARArchiveInfoStruct; those functions now return the converted perl structure
     instead of the pointer to a C structure. 
 TS  fixed Makefile.PL to work with $ARSAPI containing spaces on Windows
-TS  ARS.pm: changed $VERSION to '1.85' 
 TS  added ars_DeleteContainer (changes to ARS.xs, ARS.pm)
 TS  fixed Makefile.PL to use $ra_arlibs for Version <= 5.0 on Windows
 TS  fixed rev_ARValueStructStr2Type: use strcasecmp instead of strncasecmp
@@ -72,6 +71,7 @@ TS  minor fix in in rev_ARValueStructKW2KN (*keyword == '\0')
 TS  minor fix in rev_ARCoordList_helper ( if (hv_exists("x"... )
 TS  changed handling of keyword values in rev_ARValueStruct
     (assume "keyword" if first character == '\0' and length > 0)  
+JCM minor update to example scripts Dump_User*.pl
 
 released=09/20/2005 version=1.85
 TS  added binmode-statements in t/10entry.t (test failed on win32)

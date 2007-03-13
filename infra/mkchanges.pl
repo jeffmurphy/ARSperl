@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/infra/mkchanges.pl,v 1.7 2005/09/19 15:01:05 jeffmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/infra/mkchanges.pl,v 1.8 2007/03/13 13:20:33 jeffmurphy Exp $
 #
 # mkchanges.pl [-t] -f changes.dat
 #
@@ -183,9 +183,9 @@ sub headerHTML {
  <table  border='0'>
  <tr><td>BM</td><td>=</td><td>Bill Middleton {wjm at metronet.com}</td></tr>
  <tr><td>GDF</td><td>=</td><td>G. David Frye {gdf at uiuc.edu}</td></tr>
- <tr><td>JCM</td><td>=</td><td>Jeff Murphy {jcmurphy at buffalo.edu}</td></tr>
+ <tr><td>JCM</td><td>=</td><td>Jeff Murphy {jeffmurphy at sourceforge.net}</td></tr>
  <tr><td>JWM</td><td>=</td><td>Joel Murphy {jmurphy at buffalo.edu}</td></tr>
- <tr><td>TS</td><td>=</td><td>Thilo Stapff {thilo.stapff at t-online.de}</td></tr>
+ <tr><td>TS</td><td>=</td><td>Thilo Stapff {tstapff at sourceforge.net}</td></tr>
  </table>
  <P>
  The following lists the changes that have been made

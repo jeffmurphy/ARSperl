@@ -4,9 +4,9 @@
  <table  border='0'>
  <tr><td>BM</td><td>=</td><td>Bill Middleton {wjm at metronet.com}</td></tr>
  <tr><td>GDF</td><td>=</td><td>G. David Frye {gdf at uiuc.edu}</td></tr>
- <tr><td>JCM</td><td>=</td><td>Jeff Murphy {jcmurphy at buffalo.edu}</td></tr>
+ <tr><td>JCM</td><td>=</td><td>Jeff Murphy {jeffmurphy at sourceforge.net}</td></tr>
  <tr><td>JWM</td><td>=</td><td>Joel Murphy {jmurphy at buffalo.edu}</td></tr>
- <tr><td>TS</td><td>=</td><td>Thilo Stapff {thilo.stapff at t-online.de}</td></tr>
+ <tr><td>TS</td><td>=</td><td>Thilo Stapff {tstapff at sourceforge.net}</td></tr>
  </table>
  <P>
  The following lists the changes that have been made
@@ -115,30 +115,30 @@ conversion code (perl data structures -> AR API structs) </font></td></tr>
 perl_ARArchiveInfoStruct; those functions now return the converted perl structure instead of the pointer to a C structure.  </font></td></tr>
 <tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>fixed Makefile.PL to work with $ARSAPI containing spaces on Windows 
 </font></td></tr>
-<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>ARS.pm: changed $VERSION to '1.85'  
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added ars_DeleteContainer (changes to ARS.xs, ARS.pm) 
 </font></td></tr>
-<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added ars_DeleteContainer (changes to ARS.xs, ARS.pm) 
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>fixed Makefile.PL to use $ra_arlibs for Version <= 5.0 on Windows 
 </font></td></tr>
-<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>fixed Makefile.PL to use $ra_arlibs for Version <= 5.0 on Windows 
-</font></td></tr>
-<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>fixed rev_ARValueStructStr2Type: use strcasecmp instead of strncasecmp 
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>fixed rev_ARValueStructStr2Type: use strcasecmp instead of strncasecmp 
 (failure to differentiate between string and substring) </font></td></tr>
-<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added "case AR_DATA_TYPE_CURRENCY" to perl_ARValueStruct 
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added "case AR_DATA_TYPE_CURRENCY" to perl_ARValueStruct 
 </font></td></tr>
-<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>moved existing code for AR_DATA_TYPE_CURRENCY from sv_to_ARValueStruct 
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>moved existing code for AR_DATA_TYPE_CURRENCY from sv_to_ARValueStruct 
 to new function sv_to_ARCurrencyStruct, completed ARCurrencyStruct handling </font></td></tr>
-<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added handling of AR_DATA_TYPE_DATE, AR_DATA_TYPE_TIME_OF_DAY, 
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added handling of AR_DATA_TYPE_DATE, AR_DATA_TYPE_TIME_OF_DAY, 
 to rev_ARValueStruct, sv_to_ARValueStruct </font></td></tr>
-<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added conversion functions rev_ARDisplayInstanceList, 
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added conversion functions rev_ARDisplayInstanceList, 
 rev_ARDisplayInstanceStruct and rev_ARPermissionList </font></td></tr>
-<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>fixed DESTROY(ctrl) (use safefree if allocated with safemalloc) 
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>fixed DESTROY(ctrl) (use safefree if allocated with safemalloc) 
 </font></td></tr>
-<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>minor fix in in rev_ARValueStructKW2KN (*keyword == '\0') 
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>minor fix in in rev_ARValueStructKW2KN (*keyword == '\0') 
 </font></td></tr>
-<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>minor fix in rev_ARCoordList_helper ( if (hv_exists("x"... ) 
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>minor fix in rev_ARCoordList_helper ( if (hv_exists("x"... ) 
 </font></td></tr>
-<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>changed handling of keyword values in rev_ARValueStruct 
-(assume "keyword" if first character == '\0' and length > 0)   </table></td></tr></table>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>changed handling of keyword values in rev_ARValueStruct 
+(assume "keyword" if first character == '\0' and length > 0)   </font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(JCM)</td><td width='90%'><font color='black'>minor update to example scripts Dump_User*.pl 
+</table></td></tr></table>
 
 <P>
 
@@ -1350,4 +1350,4 @@ Removed -lars from makefile (internal C library that wasn't released), not neede
 
 
 <P>
-<PRE>$Header: /cvsroot/arsperl/ARSperl/html/changes.html,v 1.29 2007/03/12 17:27:43 jeffmurphy Exp $</PRE></body></html>
+<PRE>$Header: /cvsroot/arsperl/ARSperl/html/changes.html,v 1.30 2007/03/13 13:20:33 jeffmurphy Exp $</PRE></body></html>

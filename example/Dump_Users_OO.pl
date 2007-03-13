@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/Dump_Users_OO.pl,v 1.2 1999/05/26 03:42:46 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/Dump_Users_OO.pl,v 1.3 2007/03/13 13:20:32 jeffmurphy Exp $
 #
 # NAME
 #   Dump_Users_OO.pl [server] [username] [password]
@@ -12,6 +12,9 @@
 #   Jeff Murphy
 #
 # $Log: Dump_Users_OO.pl,v $
+# Revision 1.3  2007/03/13 13:20:32  jeffmurphy
+# minor update to example scripts
+#
 # Revision 1.2  1999/05/26 03:42:46  jcmurphy
 # minor change to exception handler
 #
@@ -32,24 +35,26 @@ sub mycatch {
   exit;
 }
 
+my $LoginNameField = "Login name"; # earlier versions of ars used "Login Name"
+
 my $connection = new ARS (-server   => shift,
 			  -username => shift, 
 			  -password => shift,
 			  -catch => { ARS::AR_RETURN_ERROR => "main::mycatch" },
 			  -ctrl => undef,
-			  -debug => 1);
+			  -debug => undef);
 
 print "Opening \"User\" form ..\n";
 
 my ($u) = $connection->openForm(-form => "User");
 
-$u->setSort("Login Name", &ARS::AR_SORT_ASCENDING);
+$u->setSort($LoginNameField, &ARS::AR_SORT_ASCENDING);
 
 my @entries = $u->query(); # empty query means "get everything"
 
-printf("%-30s %-45s\n", "Login Name", "Full name");
+printf("%-30s %-45s\n", $LoginNameField, "Full name");
 foreach my $id (@entries) {
-  my($fullname, $loginname) = $u->get($id, ['Full Name', 'Login Name'] );
+  my($fullname, $loginname) = $u->get($id, ['Full Name', $LoginNameField] );
   printf("%-30s %-45s\n", $loginname, $fullname);
 }
 
