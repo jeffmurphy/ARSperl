@@ -37,7 +37,7 @@ foreach my $obj ( @objects ){
 sub copyObject {
 	my( $ctrl, $obj, $objNew ) = @_;
 	print '-' x 60, "\n";
-#	print "GET FILTER $ctnr\n";
+#	print "GET FILTER $obj\n";
 	my $wfObj = ars_GetFilter( $ctrl, $obj );
 	die "ars_GetFilter( $obj ): $ars_errstr\n" if $ars_errstr;
 
@@ -48,7 +48,7 @@ sub copyObject {
 	$wfObj->{name} = $objNew;
 
 	@{$wfObj->{objPropList}} = grep {$_->{prop} < 90000} @{$wfObj->{objPropList}};
-#	foreach my $prop ( @{$ctnrObj->{objPropList}} ){
+#	foreach my $prop ( @{$wfObj->{objPropList}} ){
 #		$prop->{value} .= 'xCopy' if $prop->{prop} == 60020 && $prop->{value} ne '';
 #	}
 	$wfObj->{changeDiary} = "Init";

@@ -4,11 +4,13 @@
 </HEAD>
 <BODY BGCOLOR="#FFFFFF">
 
-   <H2><CODE>ars_SetVUI(ctrl, vuiHash)</CODE></H2>
+   <H2><CODE>ars_SetVUI(ctrl, schema, vuiId, vuiHash)</CODE></H2>
 
       This function modifies an existing VUI. You must first
       populate the <CODE>vuiHash</CODE> before calling this routine.
-      <P><CODE>vuiHash</CODE> is an 
+      <P><CODE>schema</CODE> is the name of the schema containing the VUI.
+      <P><CODE>vuiId</CODE> is the numeric VUI id.
+      <P><CODE>vuiHash</CODE> is a partially assigned
       <A HREF="ds_getvui_hash.html">VUI Attributes</a> hash. 
 
       <P>

@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.32 2007/03/06 01:54:26 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.33 2007/04/21 22:22:06 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -383,7 +383,17 @@ EXTERN SV *perl_ARValueStruct(ARControlStruct *ctrl, ARValueStruct *);
 EXTERN SV *perl_ARValueStructType(ARControlStruct *ctrl,  ARValueStruct *in);
 EXTERN SV *perl_dataType_names(ARControlStruct *ctrl,  unsigned int *);
 EXTERN SV *perl_ARStatHistoryValue(ARControlStruct *ctrl,  ARStatHistoryValue *);
+EXTERN ARByteList *dup_ARByteList(ARControlStruct * ctrl, ARByteList * in); 
+EXTERN ARCoordList *dup_ARCoordList(ARControlStruct * ctrl, ARCoordList * in); 
+#if AR_EXPORT_VERSION >= 6L
+EXTERN SV *perl_AREnumItemStruct(ARControlStruct * ctrl, AREnumItemStruct * in);
+EXTERN SV *perl_AREnumQueryStruct(ARControlStruct * ctrl, AREnumQueryStruct * in);
+EXTERN SV *perl_AREnumLimitsStruct(ARControlStruct * ctrl, AREnumLimitsStruct * in);
+#endif
 #if AR_EXPORT_VERSION >= 7L
+EXTERN void dup_ARFuncCurrencyList(ARFuncCurrencyList *dst, ARFuncCurrencyList *src);
+EXTERN ARCurrencyStruct *dup_ARCurrencyStruct(ARControlStruct * ctrl, ARCurrencyStruct * in);
+EXTERN SV *perl_ARFuncCurrencyStruct(ARControlStruct * ctrl, ARFuncCurrencyStruct * in);
 EXTERN SV *perl_ARCurrencyPartStruct(ARControlStruct *ctrl, ARCurrencyPartStruct *);
 #endif
 EXTERN SV *perl_ARAssignFieldStruct(ARControlStruct *ctrl,  ARAssignFieldStruct *);

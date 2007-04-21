@@ -550,7 +550,7 @@ dup_ARByteList(ARControlStruct * ctrl, ARByteList * in)
 	return NULL;
 }
 
-#if AR_EXPORT_VERSION >= 7L
+#if AR_EXPORT_VERSION >= 6
 SV             *
 perl_AREnumItemStruct(ARControlStruct * ctrl, AREnumItemStruct * in)
 {
@@ -587,7 +587,48 @@ perl_AREnumQueryStruct(ARControlStruct * ctrl, AREnumQueryStruct * in)
 	return newRV_noinc((SV *) hash);
 }
 
-#if AR_EXPORT_VERSION >= 7
+SV             *
+perl_AREnumLimitsStruct(ARControlStruct * ctrl, AREnumLimitsStruct * in)
+{
+	HV            *hash = newHV();
+
+	switch (in->listStyle) {
+	case AR_ENUM_STYLE_REGULAR:
+		hv_store(hash, "regularList", strlen("regularList"),
+			 perl_ARList(ctrl, 
+				     (ARList *) & in->u.regularList,
+				     (ARS_fn) perl_ARNameType,
+				     sizeof(ARNameType)
+				     )
+			 ,0
+			 );
+		break;
+	case AR_ENUM_STYLE_CUSTOM:
+		hv_store(hash, "customList", strlen("customList"),
+			 perl_ARList(ctrl,
+				     (ARList *) & in->u.customList,
+				     (ARS_fn) perl_AREnumItemStruct,
+				     sizeof(AREnumItemStruct)
+				     )
+			 ,0
+			 );
+		break;
+	case AR_ENUM_STYLE_QUERY:
+		hv_store(hash, "queryList", strlen("queryList"),
+			 perl_AREnumQueryStruct(ctrl, &(in->u.queryList)), 0);
+		break;
+	default:
+		hv_store(hash, "error", 5,
+			 newSVpv("unknown listStyle", 0), 0);
+		hv_store(hash, "listStyle", strlen("listStyle"),
+			 newSViv(in->listStyle), 0);
+		ARError_add(AR_RETURN_ERROR, AP_ERR_ENUM_LISTSTYLE);
+	}
+	return newRV_noinc((SV *) hash);
+}
+#endif
+
+#if AR_EXPORT_VERSION >= 7L
 void
 dup_ARFuncCurrencyList(ARFuncCurrencyList *dst, ARFuncCurrencyList *src)
 {
@@ -677,46 +718,6 @@ perl_ARCurrencyStruct(ARControlStruct * ctrl, ARCurrencyStruct * in)
 }
 #endif
 
-SV             *
-perl_AREnumLimitsStruct(ARControlStruct * ctrl, AREnumLimitsStruct * in)
-{
-	HV            *hash = newHV();
-
-	switch (in->listStyle) {
-	case AR_ENUM_STYLE_REGULAR:
-		hv_store(hash, "regularList", strlen("regularList"),
-			 perl_ARList(ctrl, 
-				     (ARList *) & in->u.regularList,
-				     (ARS_fn) perl_ARNameType,
-				     sizeof(ARNameType)
-				     )
-			 ,0
-			 );
-		break;
-	case AR_ENUM_STYLE_CUSTOM:
-		hv_store(hash, "customList", strlen("customList"),
-			 perl_ARList(ctrl,
-				     (ARList *) & in->u.customList,
-				     (ARS_fn) perl_AREnumItemStruct,
-				     sizeof(AREnumItemStruct)
-				     )
-			 ,0
-			 );
-		break;
-	case AR_ENUM_STYLE_QUERY:
-		hv_store(hash, "queryList", strlen("queryList"),
-			 perl_AREnumQueryStruct(ctrl, &(in->u.queryList)), 0);
-		break;
-	default:
-		hv_store(hash, "error", 5,
-			 newSVpv("unknown listStyle", 0), 0);
-		hv_store(hash, "listStyle", strlen("listStyle"),
-			 newSViv(in->listStyle), 0);
-		ARError_add(AR_RETURN_ERROR, AP_ERR_ENUM_LISTSTYLE);
-	}
-	return newRV_noinc((SV *) hash);
-}
-#endif
 
 #ifdef ARS452
 SV             *
@@ -1329,9 +1330,9 @@ SV             *
 perl_ARAssignFieldStruct(ARControlStruct * ctrl, ARAssignFieldStruct * in)
 {
 	HV             *hash = newHV();
+	int             i;
 	ARQualifierStruct *qual;
 	SV             *ref;
-	int             i;
 
 	hv_store(hash,  "server", strlen("server") , newSVpv(in->server, 0), 0);
 	hv_store(hash,  "schema", strlen("schema") , newSVpv(in->schema, 0), 0);
@@ -1372,12 +1373,16 @@ perl_ARAssignFieldStruct(ARControlStruct * ctrl, ARAssignFieldStruct * in)
 		 newSVpv(MultiMatchOptionMap[i].name, 0),
 		 0);
 #endif
-
-	qual = dup_qualifier(ctrl, &in->qualifier);
+	
+	qual = dup_qualifier(ctrl, &(in->qualifier));
 	ref = newSViv(0);
 	sv_setref_pv(ref, "ARQualifierStructPtr", (void *) qual);
 	hv_store(hash,  "qualifier", strlen("qualifier") , ref, 0);
-
+	
+	/*
+	hv_store( hash, "qualifier", strlen("qualifier"),
+		newRV_inc((SV*) perl_qualifier(ctrl,&(in->qualifier))), 0 );
+	*/
 	switch (in->tag) {
 	case AR_FIELD:
 		hv_store(hash,  "fieldId", strlen("fieldId") , newSViv(in->u.fieldId), 0);
@@ -2182,8 +2187,8 @@ perl_ARFieldLimitStruct(ARControlStruct * ctrl, ARFieldLimitStruct * in)
 		 * 5.0beta still had it as a list of NameTypes)
 		 */
 
-#if AR_EXPORT_VERSION >= 7L
-		DBG( ("case ENUM api v7+\n") );
+#if AR_EXPORT_VERSION >= 6L
+		DBG( ("case ENUM api v6+\n") );
 		hv_store(hash,  "enumLimits", strlen("enumLimits") ,
 			 perl_AREnumLimitsStruct(ctrl,
 						 &(in->u.enumLimits))
@@ -2206,7 +2211,7 @@ perl_ARFieldLimitStruct(ARControlStruct * ctrl, ARFieldLimitStruct * in)
 	case AR_DATA_TYPE_BITMASK:
 
 		DBG( ("case BITMASK\n") );
-#if AR_EXPORT_VERSION >= 7L
+#if AR_EXPORT_VERSION >= 6L
 		hv_store(hash,  "maskLimits", strlen("maskLimits") ,
 			 perl_AREnumLimitsStruct(ctrl,
 						 &(in->u.enumLimits))
@@ -2949,6 +2954,8 @@ dup_Value(ARControlStruct * ctrl, ARValueStruct * n, ARValueStruct * in)
 	case AR_DATA_TYPE_BITMASK:
 	case AR_DATA_TYPE_ENUM:
 	case AR_DATA_TYPE_ULONG:
+		n->u = in->u;
+		break;
 #if AR_EXPORT_VERSION > 6L
 	case AR_DATA_TYPE_DATE:
 		n->u = in->u;
@@ -3721,6 +3728,10 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 			break;
 		case AR_DATA_TYPE_CHAR:
 			out->u.charVal = strdup(SvPV(in, PL_na));
+			/* charData = SvPV( in, slen );
+			out->u.charVal = MALLOCNN( slen + 1 );
+			strncpy( out->u.charVal, charData, slen );
+			out->u.charVal[slen] = '\0'; */
 			break;
 		case AR_DATA_TYPE_DIARY:
 			out->u.diaryVal = strdup(SvPV(in, PL_na));

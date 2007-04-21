@@ -5068,7 +5068,7 @@ field {
 tablefield-schema : $536870938$
 tablefield-server : $536870937$
 tablefield-query  : (null)
-      samp-server : arsys63
+      samp-server : @
       samp-schema : @
    permission     : 0\1
  display-instance : 536870912\24\227\6\1\5023\6\0\224\40\1\226\6\1\5001\6\0\14\40\1\5009\4\42\{2} entries returned - {3} entries matched\5013\4\10\Select All\5014\4\12\DeSelect &

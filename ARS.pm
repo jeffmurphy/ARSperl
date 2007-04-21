@@ -111,7 +111,7 @@ ars_decodeStatusHistory ars_APIVersion ars_encodeStatusHistory
 ars_BeginBulkEntryTransaction ars_EndBulkEntryTransaction
 );
 
-$ARS::VERSION   = '1.90';
+$ARS::VERSION   = '1.91';
 $ARS::DEBUGGING = 0;
 
 $ARS::logging_file_ptr = 0;

@@ -63,7 +63,7 @@ EXTERN int rev_<@ $class @>( ARControlStruct *ctrl, HV *h, char *k, <@ $class @>
 @> }
 
 void copyIntArray( int size, int *dst, SV* src );
-void copyUIntArray( int size, unsigned int *dst, SV* src );
+void copyUIntArray( int size, ARInternalId *dst, SV* src );
 
 #endif /* __supportrev_generated_h_ */
 
@@ -382,7 +382,7 @@ void copyIntArray( int size, int *dst, SV* src ){
 	}
 }
 
-void copyUIntArray( int size, unsigned int *dst, SV* src ){
+void copyUIntArray( int size, ARInternalId *dst, SV* src ){
 	AV *ar = (AV*) SvRV((SV*) src);
 	int len = av_len(ar);
 	int i;

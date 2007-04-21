@@ -44,6 +44,7 @@ foreach my $form ( @forms ){
 	copyForm( $ctrl, $form, $formNew );
 }
 
+my $formType;
 
 sub copyForm {
 	my( $ctrl, $form, $formNew ) = @_;
@@ -52,6 +53,7 @@ sub copyForm {
 	my $formObj = ars_GetSchema( $ctrl, $form );
 	die "ars_GetSchema( $form ): $ars_errstr\n" if $ars_errstr;
 	my $formType = $formObj->{schema}{schemaType};
+	$formObj->{name} = $formNew;
 	$formObj->{changeDiary} = "Init";
 
 	my( $aGetListFields, $aIndexList, $aSortList, $hArchiveInfo, $hAuditInfo );
@@ -67,8 +69,10 @@ sub copyForm {
 	}
 
 	my( $ret, $rv ) = ( 1, 0 );
+
+
 	print "CREATE SCHEMA $formNew\n";
-	$ret = ars_CreateSchema( $ctrl, $formNew, $formObj );
+	$ret = ars_CreateSchema( $ctrl, $formObj );
 	if( $ars_errstr ){
 		my $errTxt = $ars_errstr;
 #		$errTxt =~ s/\[WARNING\].*?\(ARERR #50\)/  (admin only)/;
@@ -81,6 +85,8 @@ sub copyForm {
 			print $errTxt;
 		}
 	}
+
+
 	print "\n";
 	printStatus( $ret, 2, 'create schema' );
 	sleep 5;
@@ -88,12 +94,12 @@ sub copyForm {
 #	ars_DeleteVUI( $ctrl, $formNew, 536870912 );
 #	die "ars_DeleteVUI( $formNew, 536870912 ): $ars_errstr\n" if $ars_errstr;
 
+
 	my @views = ars_GetListVUI( $ctrl, $form, 0 );
 	die "ars_GetListVUI( $form ): $ars_errstr\n" if $ars_errstr;
 
 	my( $vuiId_New ) = ars_GetListVUI( $ctrl, $formNew, 0 );
 	die "ars_GetListVUI( $formNew ): $ars_errstr\n" if $ars_errstr;
-
 
 
 	my $vuiSt = ars_GetVUI( $ctrl, $formNew, $vuiId_New );
@@ -103,7 +109,7 @@ sub copyForm {
 	}
 	$vuiSt->{vuiName} .= " $vuiId_New";
 	print "SET VUI $vuiId_New\n";
-	$ret = ars_SetVUI( $ctrl, $formNew, $vuiSt );
+	$ret = ars_SetVUI( $ctrl, $formNew, $vuiId_New, $vuiSt );
 	die "ars_SetVUI( $formNew, $vuiId_New ): $ars_errstr\n" if $ars_errstr;
 	printStatus( $ret, 3, 'set vui' );
 
@@ -116,7 +122,7 @@ sub copyForm {
 
 		if( $vuiId == $vuiId_New ){ 
 			print "SET VUI $vuiId\n";
-			$rv = ars_SetVUI( $ctrl, $formNew, $vuiSt );
+			$rv = ars_SetVUI( $ctrl, $formNew, $vuiId, $vuiSt );
 			die "ars_SetVUI( $formNew, $vuiId ): $ars_errstr\n" if $ars_errstr;
 		}else{
 			print "CREATE VUI $vuiId\n";
@@ -127,7 +133,8 @@ sub copyForm {
 	}
 	printStatus( $ret, 4, 'create vui' );
 
-	my @fieldIds = sort {$a <=> $b} ars_GetListField( $ctrl, $form, 0,  0b00010000 );  # page_holder
+	my @fieldIds;
+	push @fieldIds, sort {$a <=> $b} ars_GetListField( $ctrl, $form, 0,  0b00010000 );  # page_holder
 	die "ars_GetListField( $form ): $ars_errstr\n" if $ars_errstr;
 	push @fieldIds, sort {$a <=> $b} ars_GetListField( $ctrl, $form, 0, 0b00001000 );  # page
 	die "ars_GetListField( $form ): $ars_errstr\n" if $ars_errstr;

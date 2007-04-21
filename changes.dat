@@ -1,4 +1,18 @@
 
+TS  fixed memory leak in ars_Get... functions (added "sv_2mortal( (SV*) RETVAL )")
+TS  bugfix in dup_Value (support.c) for API version <= 5.0.1
+TS  changed enum limits processing in perl_ARFieldLimitStruct for API version <= 5.0.1
+TS  updated MANIFEST file
+TS  replaced strdup() by arsperl_strdup() form win32 to fix problems with VisualStudio8
+TS  changed type of "owner" attribute: ARNameType -> ARAccessNameType
+TS  corrected function signature for ars_SetVUI, ars_CreateSchema
+TS  fixed memory leak in sv_to_ARValue (support.c)
+TS  fixed memory leak in ars_GetMultipleEntries, ars_GetListEntryWithFields
+      XPUSHs(newRV_noinc(...)) -> XPUSHs(sv_2mortal(newRV_noinc(...)))
+TS  added "name" value to schemaHash returned by ars_GetSchema
+TS  fixed rev_ARArchiveInfo Struct, moved function from supportrev_generated.c to supportrev.c
+TS  changed $ARS_LIBS variable for 7.0 Unix API in Makefile.pl (-licuuc -> -licuucbmc)
+
 released=03/12/2007 version=1.90
 TS  added missing ARError_reset() to ars_GetListVUI
 TS  added ars_CreateCharMenu, ars_SetCharMenu

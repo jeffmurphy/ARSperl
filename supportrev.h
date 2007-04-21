@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.15 2007/03/06 01:54:26 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.16 2007/04/21 22:22:06 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -106,6 +106,10 @@ EXTERN int strcasecmp(char *s1, char *s2);
 
 EXTERN int strncasecmp(char *s1, char *s2, size_t n);
 
+EXTERN char* arsperl_strdup( char *s1 );
+
+#define strdup arsperl_strdup
+
 #endif /* def _WIN32 */
 
 
@@ -124,6 +128,10 @@ EXTERN int rev_ARCharMenuItemStruct( ARControlStruct *ctrl, HV *h, char *k, ARCh
 EXTERN int
 rev_ARMessageStruct(ARControlStruct * ctrl, 
                     HV * h, char *k, ARMessageStruct * m);
+#endif
+
+#if AR_EXPORT_VERSION >= 8L
+EXTERN int rev_ARArchiveInfoStruct( ARControlStruct *ctrl, HV *h, char *k, ARArchiveInfoStruct *p );
 #endif
 
 

@@ -21,9 +21,6 @@
 #include <limits.h>
 
 
-#if AR_EXPORT_VERSION >= 8L
-EXTERN int rev_ARArchiveInfoStruct( ARControlStruct *ctrl, HV *h, char *k, ARArchiveInfoStruct *p );
-#endif
 
 EXTERN int rev_ARArithOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARArithOpStruct *p );
 
@@ -336,7 +333,7 @@ EXTERN int rev_ARXMLEntryReturn( ARControlStruct *ctrl, HV *h, char *k, ARXMLEnt
 #endif
 
 void copyIntArray( int size, int *dst, SV* src );
-void copyUIntArray( int size, unsigned int *dst, SV* src );
+void copyUIntArray( int size, ARInternalId *dst, SV* src );
 
 #endif /* __supportrev_generated_h_ */
 

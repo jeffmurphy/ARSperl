@@ -843,96 +843,6 @@ ARBoolean => {
 	_typedef => 'unsigned char',
 },
 
-ARArchiveInfoStruct => {
-	_min_version => '6.0.0',
-	_switch  => 'p->archiveType',
-#	_default =>	'AR_FIELD_REGULAR',
-	_map => [ 'archiveType', {
-		AR_ARCHIVE_NONE     => 0,
-		AR_ARCHIVE_FORM     => 1,
-		AR_ARCHIVE_DELETE   => 2,
-		'AR_ARCHIVE_FORM | AR_ARCHIVE_DELETE' => 3,
-		AR_ARCHIVE_FILE_XML => 4,
-		AR_ARCHIVE_FILE_ARX => 8,
-	} ],
-	_case    => {
-		AR_ARCHIVE_NONE => {
-			_default => 1,
-		},
-		AR_ARCHIVE_FORM => {
-			formName => {
-				_type => 'ARNameType',
-				_data => 'p->u.formName',
-			},
-		},
-		AR_ARCHIVE_DELETE => {
-			formName => {
-				_type => 'ARNameType',
-				_data => 'p->u.formName',
-			},
-		},
-		'AR_ARCHIVE_FORM | AR_ARCHIVE_DELETE' => {
-			formName => {
-				_type => 'ARNameType',
-				_data => 'p->u.formName',
-			},
-		},
-		AR_ARCHIVE_FILE_XML => {
-			dirPath => {
-				_type => 'char*',
-				_data => 'p->u.dirPath',
-			},
-		},
-		AR_ARCHIVE_FILE_ARX => {
-			dirPath => {
-				_type => 'char*',
-				_data => 'p->u.dirPath',
-			},
-		},
-	},
-	archiveType => {
-		_type => 'unsigned int',
-		_data => 'p->archiveType',
-	},
-	enable => {
-		_type => 'unsigned int',
-		_data => 'p->enable',
-		_map => {
-			FALSE => 'false',
-			TRUE  => 'true',
-		},
-	},
-#	archiveTime => {
-#		_type => 'ARDayStruct',
-#		_data => 'p->archiveTime',
-#	},
-
-	TmMonthDayMask => {
-		_type => 'long',
-		_data => 'p->archiveTime.monthday',
-	},
-	TmWeekDayMask => {
-		_type => 'long',
-		_data => 'p->archiveTime.weekday',
-	},
-	TmHourMask => {
-		_type => 'long',
-		_data => 'p->archiveTime.hourmask',
-	},
-	TmMinute => {
-		_type => 'unsigned int',
-		_data => 'p->archiveTime.minute',
-	},
-
-	query => {
-		_type => 'ARQualifierStruct',
-		_data => 'p->query',
-	},
-	archiveFrom => {
-		_type => 'ARNameType',
-		_data => 'p->archiveFrom',
-	},
-},
 ARDayStruct => {
 	monthday => {
 		_type => 'long',
@@ -1901,6 +1811,96 @@ ARQualifierList => {
 	_type => 'ARQualifierStruct',
 },
 
+#ARArchiveInfoStruct => {
+#	_min_version => '6.0.0',
+#	_switch  => 'p->archiveType',
+##	_default =>	'AR_FIELD_REGULAR',
+#	_map => [ 'archiveType', {
+#		AR_ARCHIVE_NONE     => 0,
+#		AR_ARCHIVE_FORM     => 1,
+#		AR_ARCHIVE_DELETE   => 2,
+#		'AR_ARCHIVE_FORM | AR_ARCHIVE_DELETE' => 3,
+#		AR_ARCHIVE_FILE_XML => 4,
+#		AR_ARCHIVE_FILE_ARX => 8,
+#	} ],
+#	_case    => {
+#		AR_ARCHIVE_NONE => {
+#			_default => 1,
+#		},
+#		AR_ARCHIVE_FORM => {
+#			formName => {
+#				_type => 'ARNameType',
+#				_data => 'p->u.formName',
+#			},
+#		},
+#		AR_ARCHIVE_DELETE => {
+#			formName => {
+#				_type => 'ARNameType',
+#				_data => 'p->u.formName',
+#			},
+#		},
+#		'AR_ARCHIVE_FORM | AR_ARCHIVE_DELETE' => {
+#			formName => {
+#				_type => 'ARNameType',
+#				_data => 'p->u.formName',
+#			},
+#		},
+#		AR_ARCHIVE_FILE_XML => {
+#			dirPath => {
+#				_type => 'char*',
+#				_data => 'p->u.dirPath',
+#			},
+#		},
+#		AR_ARCHIVE_FILE_ARX => {
+#			dirPath => {
+#				_type => 'char*',
+#				_data => 'p->u.dirPath',
+#			},
+#		},
+#	},
+#	archiveType => {
+#		_type => 'unsigned int',
+#		_data => 'p->archiveType',
+#	},
+#	enable => {
+#		_type => 'unsigned int',
+#		_data => 'p->enable',
+#		_map => {
+#			FALSE => 'false',
+#			TRUE  => 'true',
+#		},
+#	},
+##	archiveTime => {
+##		_type => 'ARDayStruct',
+##		_data => 'p->archiveTime',
+##	},
+#
+#	TmMonthDayMask => {
+#		_type => 'long',
+#		_data => 'p->archiveTime.monthday',
+#	},
+#	TmWeekDayMask => {
+#		_type => 'long',
+#		_data => 'p->archiveTime.weekday',
+#	},
+#	TmHourMask => {
+#		_type => 'long',
+#		_data => 'p->archiveTime.hourmask',
+#	},
+#	TmMinute => {
+#		_type => 'unsigned int',
+#		_data => 'p->archiveTime.minute',
+#	},
+#
+#	query => {
+#		_type => 'ARQualifierStruct',
+#		_data => 'p->query',
+#	},
+#	archiveFrom => {
+#		_type => 'ARNameType',
+#		_data => 'p->archiveFrom',
+#	},
+#},
 #ARCharMenuItemStruct => {
 #	menuLabel => {
 #		_type => 'ARNameType',

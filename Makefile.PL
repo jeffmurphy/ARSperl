@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.76 2007/02/03 02:33:10 tstapff Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.77 2007/04/21 22:22:06 tstapff Exp $
 #
 # ARSperl Makefile
 #
@@ -111,7 +111,7 @@ if ($ARSVERSION >= 7.0) {
 	if ($WINDOWS) {
 		$ARS_LIBS = join(' ', map { '-l' . $_ } @{$ra_arlibs});
 	} else {
-		$ARS_LIBS .= " -lpthread -licuuc -licui18n";
+		$ARS_LIBS .= " -lpthread -licuucbmc -licui18nbmc";
 	}
 	$AUTODEFINES .= " -DARS32 ";
 	$AUTODEFINES .= " -DARS452 " if($ARSVERSION >= 4.52);

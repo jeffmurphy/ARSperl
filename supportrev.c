@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.28 2007/03/06 01:54:26 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.29 2007/04/21 22:22:06 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -2612,6 +2612,16 @@ strncasecmp(char *s1, char *s2, size_t n)
 	return (i == n)? 0 : *p1 - *p2;
 }
 
+char*
+arsperl_strdup( char *s1 ){
+	char *p1;
+	int len = strlen( s1 );
+	p1 = MALLOCNN( len + 1 );
+	strncpy( p1, s1, len );
+	/* p1[len] = '\0'; */
+	return p1;
+}
+
 #endif
 
 
@@ -3152,4 +3162,303 @@ rev_ARCharMenuItemStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuItemS
 	return 0;
 }
 
+
+
+#if AR_EXPORT_VERSION >= 8L
+int
+rev_ARArchiveInfoStruct( ARControlStruct *ctrl, HV *h, char *k, ARArchiveInfoStruct *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARArchiveInfoStruct: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARArchiveInfoStruct: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+				
+					{
+						char *pcase = NULL;
+						char errText[512];
+				
+						HV *h;
+						SV **hval = NULL;
+						char *k   = NULL;
+						if( SvTYPE(SvRV(*val)) != SVt_PVHV ){
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARArchiveInfoStruct: not a hash value" );
+							return -1;
+						}
+						h = (HV* ) SvRV((SV*) *val);
+				
+						hval = hv_fetch( h, "archiveType", 11, 0 );
+				
+
+							if( hval && *hval ){
+								p->archiveType = SvIV(*hval);                 
+							}else{
+								ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARArchiveInfoStruct: hv_fetch (hval) returned null");
+								return -2;
+							}
+				
+				
+							if( (p->archiveType & AR_ARCHIVE_FILE_ARX) != 0 ){
+								{
+								
+								
+									if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+										int i = 0, num = 0;
+										HV *h = (HV* ) SvRV((SV*) *val);
+										char k[256];
+										k[255] = '\0';
+								
+								
+									{
+										SV **val;
+										strncpy( k, "dirPath", 255 );
+										val = hv_fetch( h, "dirPath", 7, 0 );
+										if( val	&& *val ){
+											{
+												p->u.dirPath = strdup( SvPV_nolen(*val) );
+											}
+										}else{
+											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"dirPath\"" );
+											return -1;
+										}
+									}
+								
+								
+									}else{
+										ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARArchiveInfoStruct: hash value is not a hash reference" );
+										return -1;
+									}
+								
+								
+								}
+
+							}else if( (p->archiveType & AR_ARCHIVE_FILE_XML) != 0 ){
+								{
+								
+								
+									if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+										int i = 0, num = 0;
+										HV *h = (HV* ) SvRV((SV*) *val);
+										char k[256];
+										k[255] = '\0';
+								
+								
+									{
+										SV **val;
+										strncpy( k, "dirPath", 255 );
+										val = hv_fetch( h, "dirPath", 7, 0 );
+										if( val	&& *val ){
+											{
+												p->u.dirPath = strdup( SvPV_nolen(*val) );
+											}
+										}else{
+											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"dirPath\"" );
+											return -1;
+										}
+									}
+								
+								
+									}else{
+										ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARArchiveInfoStruct: hash value is not a hash reference" );
+										return -1;
+									}
+								
+								
+								}
+
+							}else if( (p->archiveType & (AR_ARCHIVE_FORM | AR_ARCHIVE_DELETE)) != 0 ){
+								{
+								
+								
+									if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+										int i = 0, num = 0;
+										HV *h = (HV* ) SvRV((SV*) *val);
+										char k[256];
+										k[255] = '\0';
+								
+								
+									{
+										SV **val;
+										strncpy( k, "formName", 255 );
+										val = hv_fetch( h, "formName", 8, 0 );
+										if( val	&& *val ){
+											{
+												strncpy( p->u.formName, SvPV_nolen(*val), sizeof(p->u.formName) );
+											}
+										}else{
+											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"formName\"" );
+											return -1;
+										}
+									}
+								
+								
+									}else{
+										ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARArchiveInfoStruct: hash value is not a hash reference" );
+										return -1;
+									}
+								
+								
+								}
+							}else if( p->archiveType == AR_ARCHIVE_NONE ){				
+								/* do nothing */
+							}else{
+								sprintf( errText, "rev_ARArchiveInfoStruct: invalid switch value %d", p->archiveType );
+								ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, errText );
+							}
+				
+					}
+				
+				
+				
+					if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+						int i = 0, num = 0;
+						HV *h = (HV* ) SvRV((SV*) *val);
+						char k[256];
+						k[255] = '\0';
+				
+				
+					{
+						SV **val;
+						strncpy( k, "archiveFrom", 255 );
+						val = hv_fetch( h, "archiveFrom", 11, 0 );
+						if( val	&& *val && SvOK(*val) ){
+							strncpy( p->archiveFrom, SvPV_nolen(*val), sizeof(p->archiveFrom) );
+						}else{
+							strcpy( p->archiveFrom, "" );
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "query", 255 );
+						val = hv_fetch( h, "query", 5, 0 );
+						if( val	&& *val && SvOK(*val) ){
+							rev_ARQualifierStruct( ctrl, h, k, &(p->query) );
+						}else{
+							p->query.operation = AR_COND_OP_NONE;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "enable", 255 );
+						val = hv_fetch( h, "enable", 6, 0 );
+						if( val	&& *val ){
+							{
+								int flag = 0;
+								if( !strcmp(SvPV_nolen(*val),"true") ){
+									p->enable = TRUE;
+									flag = 1;
+								}
+								if( !strcmp(SvPV_nolen(*val),"false") ){
+									p->enable = FALSE;
+									flag = 1;
+								}
+								if( flag == 0 ){
+									ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,  "rev_ARArchiveInfoStruct: invalid key value" );
+									ARError_add( AR_RETURN_ERROR, AP_ERR_CONTINUE, SvPV_nolen(*val) );
+								}
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"enable\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "TmHourMask", 255 );
+						val = hv_fetch( h, "TmHourMask", 10, 0 );
+						if( val	&& *val ){
+							{
+								p->archiveTime.hourmask = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"TmHourMask\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "TmWeekDayMask", 255 );
+						val = hv_fetch( h, "TmWeekDayMask", 13, 0 );
+						if( val	&& *val ){
+							{
+								p->archiveTime.weekday = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"TmWeekDayMask\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "TmMinute", 255 );
+						val = hv_fetch( h, "TmMinute", 8, 0 );
+						if( val	&& *val ){
+							{
+								p->archiveTime.minute = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"TmMinute\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "TmMonthDayMask", 255 );
+						val = hv_fetch( h, "TmMonthDayMask", 14, 0 );
+						if( val	&& *val ){
+							{
+								p->archiveTime.monthday = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"TmMonthDayMask\"" );
+							return -1;
+						}
+					}
+				
+				
+					}else{
+						ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARArchiveInfoStruct: hash value is not a hash reference" );
+						return -1;
+					}
+				
+				
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARArchiveInfoStruct: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARArchiveInfoStruct: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARArchiveInfoStruct: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+#endif
 
