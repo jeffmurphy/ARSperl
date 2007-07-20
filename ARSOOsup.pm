@@ -12,10 +12,10 @@
 #    itself) for a full description.
 #
 #    Official Home Page: 
-#    http://arsinfo.cit.buffalo.edu/perl
+#    http://www.arsperl.org
 #
 #    Mailing List (must be subscribed to post):
-#    arsperl@arsinfo.cit.buffalo.edu
+#    See URL above.
 #
 
 # Object Oriented Hoopla

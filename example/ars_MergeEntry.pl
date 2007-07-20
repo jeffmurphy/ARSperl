@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/ars_MergeEntry.pl,v 1.1 1998/02/09 17:57:04 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/ars_MergeEntry.pl,v 1.2 2007/07/20 19:57:59 jeffmurphy Exp $
 #
 # NAME
 #   ars_MergeEntry.pl [server] [user] [password] [schema] [diaryfieldname] 
@@ -15,6 +15,9 @@
 #   jeff murphy
 #
 # $Log: ars_MergeEntry.pl,v $
+# Revision 1.2  2007/07/20 19:57:59  jeffmurphy
+# minor doc edits
+#
 # Revision 1.1  1998/02/09 17:57:04  jcmurphy
 # Initial revision
 #
@@ -61,7 +64,7 @@ print "Constructing encoded diary.\n";
 print "Merging entry back into database.\n";
 
 # see html doc page for explanation of numeric flags.
-# http://arsinfo.cit.buffalo.edu/perl/manual/ars_MergeEntry.html
+# http://www.arsperl.org/manual/ars_MergeEntry.html
 
 #        ... mergeType=4, eid-fid, entryid, diary-fid, encoded-diary
 ($eid = ars_MergeEntry($c, $SC, 4, 1, $EID, $fid, $encodedDiary)) ||

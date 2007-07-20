@@ -1,4 +1,4 @@
-$Header: /cvsroot/arsperl/ARSperl/INSTALLATION,v 1.8 2003/03/28 05:51:56 jcmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/INSTALLATION,v 1.9 2007/07/20 19:57:56 jeffmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -49,10 +49,6 @@ OS versions:
 Users of other OS's might encounted problems with compiling. We'd be 
 interested in hearing about your experiences and if you got it working
 under a new OS. 
-
-* Must be built statically under HP-UX. See the FAQ pages at
-  http://arsinfo.cit.buffalo.edu/perl/FAQs/index.html
-  for details.
 
 BUILDING
 
