@@ -12,6 +12,39 @@ previous versions of arsperl and may require altering of some arsperl
 scripts.
 
 
+Released: xx/xx/xxx Version: 1.91
+
+
+(JCM)   buffer overflow in perl_BuildEntryList
+
+(JCM)   malloc-on-windows patch by John Unsworth
+
+ (TS)   fixed memory leak in ars_Get... functions (added "sv_2mortal( (SV*) RETVAL )")
+
+ (TS)   bugfix in dup_Value (support.c) for API version <= 5.0.1
+
+ (TS)   changed enum limits processing in perl_ARFieldLimitStruct for API version <= 5.0.1
+
+ (TS)   updated MANIFEST file
+
+ (TS)   replaced strdup() by arsperl_strdup() form win32 to fix problems with VisualStudio8
+
+ (TS)   changed type of "owner" attribute: ARNameType -> ARAccessNameType
+
+ (TS)   corrected function signature for ars_SetVUI, ars_CreateSchema
+
+ (TS)   fixed memory leak in sv_to_ARValue (support.c)
+
+ (TS)   fixed memory leak in ars_GetMultipleEntries, ars_GetListEntryWithFields
+        XPUSHs(newRV_noinc(...)) -> XPUSHs(sv_2mortal(newRV_noinc(...)))
+
+ (TS)   added "name" value to schemaHash returned by ars_GetSchema
+
+ (TS)   fixed rev_ARArchiveInfo Struct, moved function from supportrev_generated.c to supportrev.c
+
+ (TS)   changed $ARS_LIBS variable for 7.0 Unix API in Makefile.pl (-licuuc -> -licuucbmc)
+
+
 Released: 03/12/2007 Version: 1.90
 
 
@@ -828,5 +861,5 @@ Released: 01/12/96 Version: 1.0beta
 
 arsperl@arsperl.org
 
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.61 2007/03/13 13:20:29 jeffmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.62 2007/07/20 19:44:34 jeffmurphy Exp $
 

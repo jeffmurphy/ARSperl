@@ -1,4 +1,6 @@
-
+released=xx/xx/xxx version=1.91
+JCM buffer overflow in perl_BuildEntryList
+JCM malloc-on-windows patch by John Unsworth
 TS  fixed memory leak in ars_Get... functions (added "sv_2mortal( (SV*) RETVAL )")
 TS  bugfix in dup_Value (support.c) for API version <= 5.0.1
 TS  changed enum limits processing in perl_ARFieldLimitStruct for API version <= 5.0.1

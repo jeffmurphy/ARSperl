@@ -68,6 +68,9 @@ copymem(MEMCAST * m1, MEMCAST * m2, int size)
 void           *
 mallocnn(int s)
 {
+#if defined(malloc) && defined(_WIN32)
+#undef malloc
+#endif
 	void           *m = malloc(s ? s : 1);
 
 	if (!m)
@@ -2625,7 +2628,8 @@ perl_BuildEntryList(ARControlStruct * ctrl, AREntryIdList * entryList, char *ent
 		} else {	/* "normal" entry-id */
 			entryList->numItems = 1;
 			entryList->entryIdList = MALLOCNN(sizeof(AREntryIdType) * 1);
-			strcpy(entryList->entryIdList[0], entry_id);
+			strncpy(entryList->entryIdList[0], entry_id, sizeof(AREntryIdType));
+			*(entryList->entryIdList[0] + AR_MAX_ENTRYID_SIZE) = 0;
 
 			return 0;
 		}

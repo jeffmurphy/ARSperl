@@ -28,6 +28,52 @@
 	    BGCOLOR='lightblue'>
 	    <tr><td colspan='2'>
   <table width='100%' border='0'><tr>
+	      <td width='50%'>Released: <B>xx/xx/xxx</B></td>
+              <td width='50%'>Version: <B>1.91</B></td>
+  </tr></table></td>
+            </tr><tr bgcolor='#eeeeee'><td width='10%'>(JCM)</td><td width='90%'><font color='black'>buffer overflow in perl_BuildEntryList 
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(JCM)</td><td width='90%'><font color='black'>malloc-on-windows patch by John Unsworth 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>fixed memory leak in ars_Get... functions (added "sv_2mortal( (SV*) RETVAL )") 
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>bugfix in dup_Value (support.c) for API version <= 5.0.1 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>changed enum limits processing in perl_ARFieldLimitStruct for API version <= 5.0.1 
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>updated MANIFEST file 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>replaced strdup() by arsperl_strdup() form win32 to fix problems with VisualStudio8 
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>changed type of "owner" attribute: ARNameType -> ARAccessNameType 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>corrected function signature for ars_SetVUI, ars_CreateSchema 
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>fixed memory leak in sv_to_ARValue (support.c) 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>fixed memory leak in ars_GetMultipleEntries, ars_GetListEntryWithFields 
+XPUSHs(newRV_noinc(...)) -> XPUSHs(sv_2mortal(newRV_noinc(...))) </font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>added "name" value to schemaHash returned by ars_GetSchema 
+</font></td></tr>
+<tr bgcolor='#eeeeee'><td width='10%'>(TS)</td><td width='90%'><font color='black'>fixed rev_ARArchiveInfo Struct, moved function from supportrev_generated.c to supportrev.c 
+</font></td></tr>
+<tr bgcolor='#dddddd'><td width='10%'>(TS)</td><td width='90%'><font color='black'>changed $ARS_LIBS variable for 7.0 Unix API in Makefile.pl (-licuuc -> -licuucbmc) 
+</table></td></tr></table>
+
+<P>
+
+
+    <TABLE CELLSPACING='0'
+      CELLPADDING='2'
+      WIDTH='100%'
+      BORDER='0' 
+      BGCOLOR='black'>
+      <TR>
+	<TD width='100%'>
+	  <TABLE CELLSPACING='0' CELLPADDING='3' WIDTH='100%' BORDER='0'
+	    BGCOLOR='lightblue'>
+	    <tr><td colspan='2'>
+  <table width='100%' border='0'><tr>
 	      <td width='50%'>Released: <B>03/12/2007</B></td>
               <td width='50%'>Version: <B>1.90</B></td>
   </tr></table></td>
@@ -1350,4 +1396,4 @@ Removed -lars from makefile (internal C library that wasn't released), not neede
 
 
 <P>
-<PRE>$Header: /cvsroot/arsperl/ARSperl/html/changes.html,v 1.30 2007/03/13 13:20:33 jeffmurphy Exp $</PRE></body></html>
+<PRE>$Header: /cvsroot/arsperl/ARSperl/html/changes.html,v 1.31 2007/07/20 19:44:34 jeffmurphy Exp $</PRE></body></html>
