@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.113 2007/04/21 22:22:06 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.114 2007/07/24 20:48:27 mbeijen Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -153,7 +153,7 @@ int
 ars_APIVersion()
 	CODE:
 	{
-		RETVAL = AR_EXPORT_VERSION;
+		RETVAL = AR_CURRENT_API_VERSION;
 	}
 	OUTPUT:
 	RETVAL
@@ -6846,7 +6846,7 @@ ars_SetImpersonatedUser( ctrl, impersonatedUser )
 			XPUSHs(sv_2mortal(newSViv(1))); /* OK */
 		}
 	/* SetSessionConfiguration_fail:; */
-#else /* < 5.0 */
+#else /* < 7.0 */
 	  XPUSHs(sv_2mortal(newSViv(0))); /* ERR */
 	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
 			"SetImpersonatedUser() is only available in ARSystem >= 7.0");
