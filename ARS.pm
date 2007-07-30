@@ -1,7 +1,7 @@
 #
-#    ARSperl - An ARS v2-v5 / Perl5 Integration Kit
+#    ARSperl - An ARS v5-v7 / Perl5 Integration Kit
 #
-#    Copyright (C) 1995-2003 Joel Murphy, jmurphy@acsu.buffalo.edu
+#    Copyright (C) 1995-2007 Joel Murphy, jmurphy@acsu.buffalo.edu
 #                            Jeff Murphy, jcmurphy@acsu.buffalo.edu
 # 
 #    This program is free software; you can redistribute it and/or modify
@@ -85,10 +85,7 @@ ars_GetListCharMenu ars_GetListAdminExtension ars_padEntryid
 ars_GetFilter ars_SetFilter
 ars_GetListEntryWithFields ars_GetMultipleEntries
 ars_GetProfileInfo ars_Import ars_GetCharMenu ars_GetServerStatistics 
-ars_NTDeregisterServer ars_NTGetListServer ars_NTInitializationServer 
-ars_NTNotificationServer ars_NTTerminationServer ars_NTDeregisterClient 
-ars_NTInitializationClient ars_NTRegisterClient ars_NTTerminationClient 
-ars_NTRegisterServer ars_GetCurrentServer ars_EncodeDiary 
+ars_GetCurrentServer ars_EncodeDiary 
 ars_CreateEntry ars_MergeEntry ars_DeleteFilter
 ars_DeleteMultipleFields ars_DeleteActiveLink
 ars_DeleteAdminExtension ars_DeleteCharMenu
@@ -109,6 +106,8 @@ ars_SetActiveLink ars_CreateFilter ars_CreateEscalation ars_SetEscalation
 $ars_errstr %ARServerStats %ars_errhash
 ars_decodeStatusHistory ars_APIVersion ars_encodeStatusHistory
 ars_BeginBulkEntryTransaction ars_EndBulkEntryTransaction
+ars_GetAlertCount ars_RegisterForAlerts ars_DeregisterForAlerts ars_GetListAlertUser
+ars_DecodeAlertMessage ars_CreateAlertEvent
 );
 
 $ARS::VERSION   = '1.91';
