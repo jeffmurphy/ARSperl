@@ -1,239 +1,438 @@
-<HTML>
-<HEAD>
-<TITLE>ARSperl Manual</TITLE>
-</HEAD>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
 
-<BODY BGCOLOR="#FFFFFF">
-<CENTER>
-<H1>ARSperl Programmer's Manual</H1>
+  <title>ARSperl Manual</title>
+</head>
 
-<H2>Table of Contents</H2>
-</CENTER>
-<DL>
+<body bgcolor="#ffffff">
 
-<DT><A HREF="loading.html">Loading the extension</A>
-<DD>
-<P>    
+<center>
+<h1>ARSperl Programmer's Manual</h1>
 
-<DT><B>Reserved variables</B>
-<DD>    
-<P>
-<UL>
-<LI><A HREF="variables.html#ars_errstr">ars_errstr</A>
-<LI><A HREF="variables.html#ars_errhash">ars_errhash</A>
-</UL>
-<P>
 
-<DT><B>ARSperl OO Layer</B>
-<DD>
-<P>
-<UL>
-<LI><A HREF="OO/index.html">Feature Overview</A>
-<LI><A HREF="OO/connection.html">Connection Object</A>
-<UL>
-  <LI><A HREF="OO/connection.html#new">constructor</A>
-  <LI><A HREF="OO/connection.html#DESTROY">destructor</A>
-  <LI><A HREF="OO/connection.html#ctrl">ctrl()</A>
-  <LI><A HREF="OO/connection.html#print">print()</A>
-  <LI><A HREF="OO/connection.html#availableSchemas">availableSchemas()</A>
-  <LI><A HREF="OO/connection.html#openForm">openForm()</A>
-</UL>
-<LI><A HREF="OO/form.html">Form Object</A>
-<UL>
-  <LI><A HREF="OO/form.html#new">constructor</A>
-  <LI><A HREF="OO/form.html#DESTROY">destructor</A>
-  <LI><A HREF="OO/form.html#query">query()</A>
-  <LI><A HREF="OO/form.html#getEnumValues">getEnumValues()</A>
-  <LI><A HREF="OO/form.html#getFieldID">getFieldID()</A>
-  <LI><A HREF="OO/form.html#getFieldName">getFieldName()</A>
-  <LI><A HREF="OO/form.html#getFieldType">getFieldType()</A>
-  <LI><A HREF="OO/form.html#create">create()</A>
-  <LI><A HREF="OO/form.html#delete">delete()</A>
-  <LI><A HREF="OO/form.html#set">set()</A>
-  <LI><A HREF="OO/form.html#get">get()</A>
-  <LI><A HREF="OO/form.html#getAsHash">getAsHash()</A>
-  <LI><A HREF="OO/form.html#getAttachment">getAttachment()</A>
-  <LI><A HREF="OO/form.html#value2internal">value2internal()</A>
-  <LI><A HREF="OO/form.html#internal2value">internal2value()</A>
-  <LI><A HREF="OO/form.html#setSort">setSort()</A>
-</UL>
-</UL>
-<P>
-<DT><B>Perl Functions</B>
-<DD>
-<P>
-<UL>
-<LI><A HREF="ars_BeginBulkEntryTransaction.html">ars_BeginBulkEntryTransaction</A>
-<LI><A HREF="ars_CreateActiveLink.html">ars_CreateActiveLink</A>
-<LI><A HREF="ars_CreateAdminExtension.html">ars_CreateAdminExtension</A> <B>(2.x/3.0)</B>
-<LI><A HREF="ars_CreateAlertEvent.html">ars_CreateAlertEvent</A>
-<LI><A HREF="ars_CreateCharMenu.html">ars_CreateCharMenu</A>
-<LI><A HREF="ars_CreateContainer.html">ars_CreateContainer</A>
-<LI><A HREF="ars_CreateEntry.html">ars_CreateEntry</A>
-<LI><A HREF="ars_CreateEscalation.html">ars_CreateEscalation</A>
-<LI><A HREF="ars_CreateField.html">ars_CreateField</A>
-<LI><A HREF="ars_CreateFilter.html">ars_CreateFilter</A>
-<LI><A HREF="ars_CreateSchema.html">ars_CreateSchema</A>
-<LI><A HREF="ars_CreateVUI.html">ars_CreateVUI</A>
-<LI><A HREF="ars_DecodeAlertMessage.html">ars_DecodeAlertMessage</A>
-<LI><A HREF="ars_DeleteActiveLink.html">ars_DeleteActiveLink</A>
-<LI><A HREF="ars_DeleteAdminExtension.html">ars_DeleteAdminExtension</A>
-<LI><A HREF="ars_DeleteCharMenu.html">ars_DeleteCharMenu</A>
-<LI><A HREF="ars_DeleteContainer.html">ars_DeleteContainer</A>
-<LI><A HREF="ars_DeleteEntry.html">ars_DeleteEntry</A>
-<LI><A HREF="ars_DeleteEscalation.html">ars_DeleteEscalation</A>
-<LI><A HREF="ars_DeleteField.html">ars_DeleteField</A>
-<LI><A HREF="ars_DeleteFilter.html">ars_DeleteFilter</A>
-<LI><A HREF="ars_DeleteMultipleFields.html">ars_DeleteMultipleFields</A>
-<LI><A HREF="ars_DeleteSchema.html">ars_DeleteSchema</A>
-<LI><A HREF="ars_DeleteVUI.html">ars_DeleteVUI</A>
-<LI><A HREF="ars_DeregisterForAlerts.html">ars_DeregisterForAlerts</A>
-<LI><A HREF="ars_EndBulkEntryTransaction.html">ars_EndBulkEntryTransaction</A>
-<LI><A HREF="ars_ExecuteAdminExtension.html">ars_ExecuteAdminExtension</A>
-<LI><A HREF="ars_ExecuteProcess.html">ars_ExecuteProcess</A>
-<LI><A HREF="ars_Export.html">ars_Export</A>
-<LI><A HREF="ars_GetActiveLink.html">ars_GetActiveLink</A>
-<LI><A HREF="ars_GetAdminExtension.html">ars_GetAdminExtension</A> <B>(2.x/3.0)</B>
-<LI><A HREF="ars_GetAlertCount.html">ars_GetAlertCount</A>
-<LI><A HREF="ars_GetCharMenu.html">ars_GetCharMenu</A>
-<LI><A HREF="ars_GetContainer.html">ars_GetContainer</A>
-<LI><A HREF="ars_GetCharMenuItems.html">ars_GetCharMenuItems</A>
-<LI><A HREF="ars_GetEntry.html">ars_GetEntry</A>
-<LI><A HREF="ars_GetEntryBLOB.html">ars_GetEntryBLOB</A>
-<LI><A HREF="ars_GetEscalation.html">ars_GetEscalation</A>
-<LI><A HREF="ars_GetField.html">ars_GetField</A>
-<LI><A HREF="ars_GetFieldByName.html">ars_GetFieldByName</A>
-<LI><A HREF="ars_GetFieldTable.html">ars_GetFieldTable</A>
-<LI><A HREF="ars_GetFilter.html">ars_GetFilter</A>
-<LI><A HREF="ars_GetFullTextInfo.html">ars_GetFullTextInfo</A>
-<LI><A HREF="ars_GetListActiveLink.html">ars_GetListActiveLink</A>
-<LI><A HREF="ars_GetListAdminExtension.html">ars_GetListAdminExtension</A>
-<LI><A HREF="ars_GetListAlertUser.html">ars_GetListAlertUser</A>
-<LI><A HREF="ars_GetListCharMenu.html">ars_GetListCharMenu</A>
-<LI><A HREF="ars_GetListContainer.html">ars_GetListContainer</A>
-<LI><A HREF="ars_GetListEntry.html">ars_GetListEntry</A>
-<LI><A HREF="ars_GetListEntryWithFields.html">ars_GetListEntryWithFields</A>
-<LI><A HREF="ars_GetListEscalation.html">ars_GetListEscalation</A>
-<LI><A HREF="ars_GetListField.html">ars_GetListField</A>
-<LI><A HREF="ars_GetListFilter.html">ars_GetListFilter</A>
-<LI><A HREF="ars_GetListGroup.html">ars_GetListGroup</A>
-<LI><A HREF="ars_GetListSchema.html">ars_GetListSchema</A>
-<LI><A HREF="ars_GetListServer.html">ars_GetListServer</A>
-<LI><A HREF="ars_GetListSQL.html">ars_GetListSQL</A>
-<LI><A HREF="ars_GetListUser.html">ars_GetListUser</A>
-<LI><A HREF="ars_GetListVUI.html">ars_GetListVUI</A>
-<LI><A HREF="ars_GetMultipleEntries.html">ars_GetMultipleEntries</A>
-<LI><A HREF="ars_GetSchema.html">ars_GetSchema</A>
-<LI><A HREF="ars_GetServerInfo.html">ars_GetServerInfo</A>
-<LI><A HREF="ars_GetServerStatistics.html">ars_GetServerStatistics</A>
-<LI><A HREF="ars_GetVUI.html">ars_GetVUI</A>
-<LI><A HREF="ars_Import.html">ars_Import</A>
-<LI><A HREF="ars_LoadQualifier.html">ars_LoadQualifier</A>
-<LI><A HREF="ars_Login.html">ars_Login</A>
-<LI><A HREF="ars_Logoff.html">ars_Logoff</A>
-<LI><A HREF="ars_MergeEntry.html">ars_MergeEntry</A>
-<LI><A HREF="ars_NTCheckRegisteredClient.html">ars_NTCheckRegisteredClient</A> <B>(2.x)</B>
-<LI><A HREF="ars_NTDeregisterClient.html">ars_NTDeregisterClient</A> <B>(2.x)</B>
-<LI><A HREF="ars_NTDeregisterServer.html">ars_NTDeregisterServer</A> <B>(3.x)</B>
-<LI><A HREF="ars_NTGetListServer.html">ars_NTGetListServer</A> <B>(2.x / 3.x)</B>
-<LI><A HREF="ars_NTInitializationClient.html">ars_NTInitializationClient</A> <B>(2.x)</B>
-<LI><A HREF="ars_NTInitializationServer.html">ars_NTInitializationServer</A> <B>(3.x)</B>
-<LI><A HREF="ars_NTNotificationClient.html">ars_NTNotificationClient</A><B>(2.x)</B>
-<LI><A HREF="ars_NTNotificationServer.html">ars_NTNotificationServer</A><B>(3.x)</B>
-<LI><A HREF="ars_NTRegisterClient.html">ars_NTRegisterClient</A> <B>(2.x)</B>
-<LI><A HREF="ars_NTRegisterServer.html">ars_NTRegisterServer</A> <B>(3.x)</B>
-<LI><A HREF="ars_NTTerminationClient.html">ars_NTTerminationClient</A> <B>(2.x)</B>
-<LI><A HREF="ars_NTTerminationServer.html">ars_NTTerminationServer</A> <B>(3.x)</B>
-<LI><A HREF="ars_RegisterForAlerts.html">ars_RegisterForAlerts</A>
-<LI><A HREF="ars_SetActiveLink.html">ars_SetActiveLink</A>
-<LI><A HREF="ars_SetCharMenu.html">ars_SetCharMenu</A>
-<LI><A HREF="ars_SetContainer.html">ars_SetContainer</A>
-<LI><A HREF="ars_SetEntry.html">ars_SetEntry</A>
-<LI><A HREF="ars_SetEscalation.html">ars_SetEscalation</A>
-<LI><A HREF="ars_SetField.html">ars_SetField</A>
-<LI><A HREF="ars_SetFilter.html">ars_SetFilter</A>
-<LI><A HREF="ars_SetImpersonatedUser.html">ars_SetImpersonatedUser</A>
-<LI><A HREF="ars_SetLogging.html">ars_SetLogging</A>
-<LI><A HREF="ars_SetSchema.html">ars_SetSchema</A>
-<LI><A HREF="ars_SetServerInfo.html">ars_SetServerInfo</A>
-<LI><A HREF="ars_SetSessionConfiguration.html">ars_SetSessionConfiguration</A>
-<LI><A HREF="ars_SetVUI.html">ars_SetVUI</A>
-</UL>
-<P>    
+<h2>Table of Contents</h2>
 
-<DT><B>Perl helper functions</B>
-<DD>  
-<p>
+</center>
+
+<dl>
+
+
+  <dt><a href="loading.html">Loading the extension</a>
+  </dt>
+  <dd>
+    <p>    
+
+    </p>
+  </dd>
+  <dt><b>Reserved variables</b>
+  </dt>
+  <dd>    
+    <p>
+    </p>
+    <ul>
+
+      <li><a href="variables.html#ars_errstr">ars_errstr</a>
+      </li>
+      <li><a href="variables.html#ars_errhash">ars_errhash</a>
+      </li>
+    </ul>
+
+    <p>
+
+    </p>
+  </dd>
+  <dt><b>ARSperl OO Layer</b>
+  </dt>
+  <dd>
+    <p>
+    </p>
+    <ul>
+
+      <li><a href="OO/index.html">Feature Overview</a>
+      </li>
+      <li><a href="OO/connection.html">Connection Object</a>
+        <ul>
+
+  <li><a href="OO/connection.html#new">constructor</a>
+  </li>
+          <li><a href="OO/connection.html#DESTROY">destructor</a>
+  </li>
+          <li><a href="OO/connection.html#ctrl">ctrl()</a>
+  </li>
+          <li><a href="OO/connection.html#print">print()</a>
+  </li>
+          <li><a href="OO/connection.html#availableSchemas">availableSchemas()</a>
+  </li>
+          <li><a href="OO/connection.html#openForm">openForm()</a>
+          </li>
+        </ul>
+
+      </li>
+      <li><a href="OO/form.html">Form Object</a>
+        <ul>
+
+  <li><a href="OO/form.html#new">constructor</a>
+  </li>
+          <li><a href="OO/form.html#DESTROY">destructor</a>
+  </li>
+          <li><a href="OO/form.html#query">query()</a>
+  </li>
+          <li><a href="OO/form.html#getEnumValues">getEnumValues()</a>
+  </li>
+          <li><a href="OO/form.html#getFieldID">getFieldID()</a>
+  </li>
+          <li><a href="OO/form.html#getFieldName">getFieldName()</a>
+  </li>
+          <li><a href="OO/form.html#getFieldType">getFieldType()</a>
+  </li>
+          <li><a href="OO/form.html#create">create()</a>
+  </li>
+          <li><a href="OO/form.html#delete">delete()</a>
+  </li>
+          <li><a href="OO/form.html#set">set()</a>
+  </li>
+          <li><a href="OO/form.html#get">get()</a>
+  </li>
+          <li><a href="OO/form.html#getAsHash">getAsHash()</a>
+  </li>
+          <li><a href="OO/form.html#getAttachment">getAttachment()</a>
+  </li>
+          <li><a href="OO/form.html#value2internal">value2internal()</a>
+  </li>
+          <li><a href="OO/form.html#internal2value">internal2value()</a>
+  </li>
+          <li><a href="OO/form.html#setSort">setSort()</a>
+          </li>
+        </ul>
+
+      </li>
+    </ul>
+
+    <p>
+    </p>
+  </dd>
+  <dt><b>Perl Functions</b>
+  </dt>
+  <dd>
+    <p>
+    </p>
+    <ul>
+
+      <li><a href="ars_BeginBulkEntryTransaction.html">ars_BeginBulkEntryTransaction</a>
+      </li>
+      <li><a href="ars_CreateActiveLink.html">ars_CreateActiveLink</a>
+      </li>
+      <li><a href="ars_CreateAdminExtension.html">ars_CreateAdminExtension</a> <b>(2.x/3.0)</b>
+      </li>
+      <li><a href="ars_CreateAlertEvent.html">ars_CreateAlertEvent</a>
+      </li>
+      <li><a href="ars_CreateCharMenu.html">ars_CreateCharMenu</a>
+      </li>
+      <li><a href="ars_CreateContainer.html">ars_CreateContainer</a>
+      </li>
+      <li><a href="ars_CreateEntry.html">ars_CreateEntry</a>
+      </li>
+      <li><a href="ars_CreateEscalation.html">ars_CreateEscalation</a>
+      </li>
+      <li><a href="ars_CreateField.html">ars_CreateField</a>
+      </li>
+      <li><a href="ars_CreateFilter.html">ars_CreateFilter</a>
+      </li>
+      <li><a href="ars_CreateSchema.html">ars_CreateSchema</a>
+      </li>
+      <li><a href="ars_CreateVUI.html">ars_CreateVUI</a>
+      </li>
+      <li><a href="ars_DecodeAlertMessage.html">ars_DecodeAlertMessage</a>
+      </li>
+      <li><a href="ars_DeleteActiveLink.html">ars_DeleteActiveLink</a>
+      </li>
+      <li><a href="ars_DeleteAdminExtension.html">ars_DeleteAdminExtension</a>
+      </li>
+      <li><a href="ars_DeleteCharMenu.html">ars_DeleteCharMenu</a>
+      </li>
+      <li><a href="ars_DeleteContainer.html">ars_DeleteContainer</a>
+      </li>
+      <li><a href="ars_DeleteEntry.html">ars_DeleteEntry</a>
+      </li>
+      <li><a href="ars_DeleteEscalation.html">ars_DeleteEscalation</a>
+      </li>
+      <li><a href="ars_DeleteField.html">ars_DeleteField</a>
+      </li>
+      <li><a href="ars_DeleteFilter.html">ars_DeleteFilter</a>
+      </li>
+      <li><a href="ars_DeleteMultipleFields.html">ars_DeleteMultipleFields</a>
+      </li>
+      <li><a href="ars_DeleteSchema.html">ars_DeleteSchema</a>
+      </li>
+      <li><a href="ars_DeleteVUI.html">ars_DeleteVUI</a>
+      </li>
+      <li><a href="ars_DeregisterForAlerts.html">ars_DeregisterForAlerts</a>
+      </li>
+      <li><a href="ars_EndBulkEntryTransaction.html">ars_EndBulkEntryTransaction</a>
+      </li>
+      <li><a href="ars_ExecuteAdminExtension.html">ars_ExecuteAdminExtension</a>
+      </li>
+      <li><a href="ars_ExecuteProcess.html">ars_ExecuteProcess</a>
+      </li>
+      <li><a href="ars_Export.html">ars_Export</a>
+      </li>
+      <li><a href="ars_GetActiveLink.html">ars_GetActiveLink</a>
+      </li>
+      <li><a href="ars_GetAdminExtension.html">ars_GetAdminExtension</a> <b>(2.x/3.0)</b>
+      </li>
+      <li><a href="ars_GetAlertCount.html">ars_GetAlertCount</a>
+      </li>
+      <li><a href="ars_GetCharMenu.html">ars_GetCharMenu</a>
+      </li>
+      <li><a href="ars_GetContainer.html">ars_GetContainer</a>
+      </li>
+      <li><a href="ars_GetCharMenuItems.html">ars_GetCharMenuItems</a>
+      </li>
+      <li><a href="ars_GetEntry.html">ars_GetEntry</a>
+      </li>
+      <li><a href="ars_GetEntryBLOB.html">ars_GetEntryBLOB</a>
+      </li>
+      <li><a href="ars_GetEscalation.html">ars_GetEscalation</a>
+      </li>
+      <li><a href="ars_GetField.html">ars_GetField</a>
+      </li>
+      <li><a href="ars_GetFieldByName.html">ars_GetFieldByName</a>
+      </li>
+      <li><a href="ars_GetFieldTable.html">ars_GetFieldTable</a>
+      </li>
+      <li><a href="ars_GetFilter.html">ars_GetFilter</a>
+      </li>
+      <li><a href="ars_GetFullTextInfo.html">ars_GetFullTextInfo</a>
+      </li>
+      <li><a href="ars_GetListActiveLink.html">ars_GetListActiveLink</a>
+      </li>
+      <li><a href="ars_GetListAdminExtension.html">ars_GetListAdminExtension</a>
+      </li>
+      <li><a href="ars_GetListAlertUser.html">ars_GetListAlertUser</a>
+      </li>
+      <li><a href="ars_GetListCharMenu.html">ars_GetListCharMenu</a>
+      </li>
+      <li><a href="ars_GetListContainer.html">ars_GetListContainer</a>
+      </li>
+      <li><a href="ars_GetListEntry.html">ars_GetListEntry</a>
+      </li>
+      <li><a href="ars_GetListEntryWithFields.html">ars_GetListEntryWithFields</a>
+      </li>
+      <li><a href="ars_GetListEscalation.html">ars_GetListEscalation</a>
+      </li>
+      <li><a href="ars_GetListField.html">ars_GetListField</a>
+      </li>
+      <li><a href="ars_GetListFilter.html">ars_GetListFilter</a>
+      </li>
+      <li><a href="ars_GetListGroup.html">ars_GetListGroup</a>
+      </li>
+      <li><a href="ars_GetListSchema.html">ars_GetListSchema</a>
+      </li>
+      <li><a href="ars_GetListServer.html">ars_GetListServer</a>
+      </li>
+      <li><a href="ars_GetListSQL.html">ars_GetListSQL</a>
+      </li>
+      <li><a href="ars_GetListUser.html">ars_GetListUser</a>
+      </li>
+      <li><a href="ars_GetListVUI.html">ars_GetListVUI</a>
+      </li>
+      <li><a href="ars_GetMultipleEntries.html">ars_GetMultipleEntries</a>
+      </li>
+      <li><a href="ars_GetSchema.html">ars_GetSchema</a>
+      </li>
+      <li><a href="ars_GetServerInfo.html">ars_GetServerInfo</a>
+      </li>
+      <li><a href="ars_GetServerStatistics.html">ars_GetServerStatistics</a>
+      </li>
+      <li><a href="ars_GetVUI.html">ars_GetVUI</a>
+      </li>
+      <li><a href="ars_Import.html">ars_Import</a>
+      </li>
+      <li><a href="ars_LoadQualifier.html">ars_LoadQualifier</a>
+      </li>
+      <li><a href="ars_Login.html">ars_Login</a>
+      </li>
+      <li><a href="ars_Logoff.html">ars_Logoff</a>
+      </li>
+      <li><a href="ars_MergeEntry.html">ars_MergeEntry</a>
+      </li>
+      <li><a href="ars_RegisterForAlerts.html">ars_RegisterForAlerts</a>
+      </li>
+      <li><a href="ars_SetActiveLink.html">ars_SetActiveLink</a>
+      </li>
+      <li><a href="ars_SetCharMenu.html">ars_SetCharMenu</a>
+      </li>
+      <li><a href="ars_SetContainer.html">ars_SetContainer</a>
+      </li>
+      <li><a href="ars_SetEntry.html">ars_SetEntry</a>
+      </li>
+      <li><a href="ars_SetEscalation.html">ars_SetEscalation</a>
+      </li>
+      <li><a href="ars_SetField.html">ars_SetField</a>
+      </li>
+      <li><a href="ars_SetFilter.html">ars_SetFilter</a>
+      </li>
+      <li><a href="ars_SetImpersonatedUser.html">ars_SetImpersonatedUser</a>
+      </li>
+      <li><a href="ars_SetLogging.html">ars_SetLogging</a>
+      </li>
+      <li><a href="ars_SetSchema.html">ars_SetSchema</a>
+      </li>
+      <li><a href="ars_SetServerInfo.html">ars_SetServerInfo</a>
+      </li>
+      <li><a href="ars_SetSessionConfiguration.html">ars_SetSessionConfiguration</a>
+      </li>
+      <li><a href="ars_SetVUI.html">ars_SetVUI</a>
+      </li>
+    </ul>
+
+    <p>    
+
+    </p>
+  </dd>
+  <dt><b>Perl helper functions</b>
+  </dt>
+  <dd>  
+    <p>
 These functions are not part of the ARS API.
 They are part of the ARS Perl Extension that
 were written as an extension of the API. 
 They are intended to make life a little easier in some cases.
-<P>
-<UL>
-<LI><A HREF="ars_APIVersion.html">ars_APIVersion</A>
-<LI><A HREF="ars_decodeStatusHistory.html">ars_decodeStatusHistory</A>
-<LI><A HREF="ars_encodeStatusHistory.html">ars_decodeStatusHistory</A>
-<LI><A HREF="ars_EncodeDiary.html">ars_EncodeDiary</A>
-<LI><A HREF="ars_GetControlStructFields.html">ars_GetControlStructFields</A>
-<LI><A HREF="ars_GetCurrentServer.html">ars_GetCurrentServer</A>
-<LI><A HREF="ars_GetProfileInfo.html">ars_GetProfileInfo</A>
-<LI><A HREF="ars_padEntryid.html">ars_padEntryid</A>
-<LI><A HREF="ars_perl_qualifier.html">ars_perl_qualifier</A>
-<LI><A HREF="ars_simpleMenu.html">ars_simpleMenu</A>
-</UL>
-<P>
-    
-<DT><B>Data structures</B>
-<DD>
-<P>
-<UL>
-<LI><A HREF="ds_al.html">    Active Link Attributes Structure</A>
-  <ul>
-  <LI><A HREF="ds_alas.html">  Active Link Action Structure</A>
-  <LI><A HREF="ds_alms.html">  Active Link Macro Structure</A>
-  </ul>
-<LI><A HREF="ds_as.html">    Assign Structure</A>
-  <ul>
-  <LI><A HREF="ds_aoas.html">  Arith Op Assign Structure</A>
-  <LI><A HREF="ds_afs.html">   Assign Field Structure</A>
-  <LI><A HREF="ds_fncas.html"> Function Assign Structure</A>
-  <LI><A HREF="ds_vs.html">    Value Structure</A>
-  </ul>
-<LI><A HREF="ds_getadminext_hash.html"> Admin Extension Attributes Structure</a>
-<LI><A HREF="ds_getcharmenu_hash.html"> Character Menu Structure</a>
-  <UL>
-  <LI><A HREF="ds_charmenu_query_hash.html">Query Hash</A>
-  <LI><A HREF="ds_charmenu_sql_hash.html">SQL Hash</A>
-  <LI><A HREF="ds_charmenu_file_hash.html">File Hash</A>
-  </UL>
-<LI><A HREF="ds_container.html"> Container Attributes Structure</A>
-<LI><A HREF="ds_container_info.html"> Container Info Structure</A>
-<LI><A HREF="ds_diaryentry_hash.html">    Diary Entry Structure</A>
-<LI><A HREF="ds_ds.html">    Display Structure</A>
-<LI><A HREF="ds_getescalation_hash.html"> Escalation Attributes Structure</a>
-<LI><A HREF="ds_fas.html">   Field Assign Structure</A>
-<LI><A HREF="ds_fc.html">    Field Characteristics</A>
-<LI><A HREF="ds_fls.html">   Field Limit Structure</A>
-<LI><A HREF="ds_getfulltextinfo_hash.html"> Full Text Info Structure</a>
-<LI><A HREF="ds_is.html">    Index Structure</A>
-<LI><A HREF="ds_getlistgroup_hash.html"> List Group Structure</a>
-<LI><A HREF="ds_getlistsql_hash.html"> List SQL Structure</a>
-<LI><A HREF="ds_getlistuser_hash.html"> List User Structure</a>
-<LI><A HREF="ds_mps.html">   Macro Parm Structure</A>
-<LI><A HREF="ds_schema.html">Schema Attributes Structure</A>
-  <UL>
-  <LI><A HREF="ds_elfs.html">  Entry List Field Structure</A>
-  </UL>
-<LI><A HREF="ds_shv.html">   Status History Value</A>
-<LI><A HREF="ds_getvui_hash.html"> VUI Attributes Structure</a>
-</UL>
-</DL>
+    </p>
+    <p>
+    </p>
+    <ul>
 
-<HR>
-<ADDRESS>
-<A href="../index.html">ARSPerl</a><br>
-Last changes to this page 05th Sep 2005 by Thilo Stapff<BR>
-&#169; J.C.Murphy, J.W.Murphy 1997 <I>arsperl@arsperl.org</I>
-</ADDRESS>
-</BODY>
-</HTML>
+      <li><a href="ars_APIVersion.html">ars_APIVersion</a>
+      </li>
+      <li><a href="ars_decodeStatusHistory.html">ars_decodeStatusHistory</a>
+      </li>
+      <li><a href="ars_encodeStatusHistory.html">ars_decodeStatusHistory</a>
+      </li>
+      <li><a href="ars_EncodeDiary.html">ars_EncodeDiary</a>
+      </li>
+      <li><a href="ars_GetControlStructFields.html">ars_GetControlStructFields</a>
+      </li>
+      <li><a href="ars_GetCurrentServer.html">ars_GetCurrentServer</a>
+      </li>
+      <li><a href="ars_GetProfileInfo.html">ars_GetProfileInfo</a>
+      </li>
+      <li><a href="ars_padEntryid.html">ars_padEntryid</a>
+      </li>
+      <li><a href="ars_perl_qualifier.html">ars_perl_qualifier</a>
+      </li>
+      <li><a href="ars_simpleMenu.html">ars_simpleMenu</a>
+      </li>
+    </ul>
+
+    <p>
+    
+    </p>
+  </dd>
+  <dt><b>Data structures</b>
+  </dt>
+  <dd>
+    <p>
+    </p>
+    <ul>
+
+      <li><a href="ds_al.html">    Active Link Attributes Structure</a>
+  
+        <ul>
+
+  <li><a href="ds_alas.html">  Active Link Action Structure</a>
+  </li>
+          <li><a href="ds_alms.html">  Active Link Macro Structure</a>
+  </li>
+        </ul>
+
+      </li>
+      <li><a href="ds_as.html">    Assign Structure</a>
+  
+        <ul>
+
+  <li><a href="ds_aoas.html">  Arith Op Assign Structure</a>
+  </li>
+          <li><a href="ds_afs.html">   Assign Field Structure</a>
+  </li>
+          <li><a href="ds_fncas.html"> Function Assign Structure</a>
+  </li>
+          <li><a href="ds_vs.html">    Value Structure</a>
+  </li>
+        </ul>
+
+      </li>
+      <li><a href="ds_getadminext_hash.html"> Admin Extension Attributes Structure</a>
+      </li>
+      <li><a href="ds_getcharmenu_hash.html"> Character Menu Structure</a>
+  
+        <ul>
+
+  <li><a href="ds_charmenu_query_hash.html">Query Hash</a>
+  </li>
+          <li><a href="ds_charmenu_sql_hash.html">SQL Hash</a>
+  </li>
+          <li><a href="ds_charmenu_file_hash.html">File Hash</a>
+  </li>
+        </ul>
+
+      </li>
+      <li><a href="ds_container.html"> Container Attributes Structure</a>
+      </li>
+      <li><a href="ds_container_info.html"> Container Info Structure</a>
+      </li>
+      <li><a href="ds_diaryentry_hash.html">    Diary Entry Structure</a>
+      </li>
+      <li><a href="ds_ds.html">    Display Structure</a>
+      </li>
+      <li><a href="ds_getescalation_hash.html"> Escalation Attributes Structure</a>
+      </li>
+      <li><a href="ds_fas.html">   Field Assign Structure</a>
+      </li>
+      <li><a href="ds_fc.html">    Field Characteristics</a>
+      </li>
+      <li><a href="ds_fls.html">   Field Limit Structure</a>
+      </li>
+      <li><a href="ds_getfulltextinfo_hash.html"> Full Text Info Structure</a>
+      </li>
+      <li><a href="ds_is.html">    Index Structure</a>
+      </li>
+      <li><a href="ds_getlistgroup_hash.html"> List Group Structure</a>
+      </li>
+      <li><a href="ds_getlistsql_hash.html"> List SQL Structure</a>
+      </li>
+      <li><a href="ds_getlistuser_hash.html"> List User Structure</a>
+      </li>
+      <li><a href="ds_mps.html">   Macro Parm Structure</a>
+      </li>
+      <li><a href="ds_schema.html">Schema Attributes Structure</a>
+  
+        <ul>
+
+  <li><a href="ds_elfs.html">  Entry List Field Structure</a>
+  </li>
+        </ul>
+
+      </li>
+      <li><a href="ds_shv.html">   Status History Value</a>
+      </li>
+      <li><a href="ds_getvui_hash.html"> VUI Attributes Structure</a>
+      </li>
+    </ul>
+
+  </dd>
+</dl>
+
+
+<hr>
+<address>
+<a href="../index.html">ARSPerl</a><br>
+
+Last changes to this page 30th Jul 2007 by Michiel Beijen<br>
+
+&copy; J.C.Murphy, J.W.Murphy 1997 <i>arsperl@arsperl.org</i>
+</address>
+
+</body>
+</html>
