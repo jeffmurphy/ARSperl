@@ -1,103 +1,136 @@
-<HTML>
- <HEAD>
-  <TITLE>ARSperl: ARS v2-v4 / Perl5 Integration Kit</TITLE>
- </HEAD>
- <BODY BGCOLOR="#FFFFFF">
- <IMG ALT="ARSPerl" SRC="arsperl-logo.gif">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>ARSperl: BMC Remedy v2-v7 / Perl5 Integration Kit</title>
 
- <H2> Overview </H2>
 
- <B>ARSperl</B> is an integration kit for 
- <A HREF="http://www.perl.com/perl">Perl5</A> and 
- <A HREF="http://www.remedy.com">Remedy ARS</A> version 2 - version 7 API. It 
- provides a large subset of the functionality found in the ARS C API. The source
- code to the integration kit and example scripts is made available under the 
- <A HREF="artistic.txt">licensing terms of Perl itself</A>. <P>
+</head>
 
- We hope that other ARS fans find the kit useful.
+ <body style="background-color: rgb(255, 255, 255);">
 
- <H2> Version </H2>
+<img alt="ARSPerl" src="arsperl-logo.gif">
+<h2> Overview </h2>
 
-The current release is Version 1.90 and has support for the AR 5.0 through 7.0
-API. 
+<b>ARSperl</b> is an integration kit for <a href="http://www.perl.com/perl">Perl5</a> and <a href="http://www.remedy.com">Remedy ARS</a> version 2
+- version 7 API. It provides a large subset of the functionality found
+in the ARS C API. The source code to the integration kit and example
+scripts is made available under the <a href="artistic.txt">licensing
+terms of Perl itself</a>.
+<p> We hope that other ARS fans find the kit useful. </p>
 
- <P>
+<h2> Version </h2>
 
- <H2> <A HREF="changes.html">Release Notes</a> </H2>
+The current release is version 1.91 and has support for the AR 5.0
+through 7.01
+API.
+<p> </p>
 
- <H2> Support OS's </H2>
+<h2> <a href="changes.html">Release Notes</a>
+</h2>
 
- The perl extension has been tested on the following OS's:
+<h2> Support OS's </h2>
 
- <UL>
-     <LI> Solaris 2.x
-     <LI> SunOS 4.x
-     <LI> Irix
-     <LI> HP-UX
-     <LI> AIX
-     <LI> Windows NT
-     <LI> NCR Unix
- </UL>
+The perl extension has been tested on the following OS's:
+<ul>
 
- <H2> Bug Reports </H2>
+  <li> Solaris 2.x </li>
 
- Having problems? 
- <a href="http://sourceforge.net/tracker/?atid=673428&group_id=116013&func=browse">Log a report</a> or 
- send a message to the <A href="#mailinglist">mailing list</a>. Note that
- you <I>must</I> be a subscriber in order to post to the list. <P>
-  
- Be sure to include the following information in your message: <P>
- <OL>  
-  <LI> OS (operating system) version (example: Solaris 2.5)
-  <LI> Perl version (example: 5.003)
-  <LI> ARSystem version you are connecting to (example: 2.1)
-  <LI> API version you compiled against (example: 2.1.3)
-  <LI> ARSperl version (example: 1.42)
-  <LI> A <I>thorough</I> description of the problem.
- </OL>
+  <li> SunOS 4.x </li>
 
- <A NAME="mailinglist">
- <H2> Mailing List </H2>
- </A>
+  <li> Irix </li>
 
- A mailing list is available for discussions of this perl extension.
- <A HREF="http://sourceforge.net/mailarchive/forum.php?forum_id=42323">Archives of the mailing list are also available.</A>
+  <li> HP-UX </li>
 
- <UL> 
-   <B><a href="http://lists.sourceforge.net/lists/listinfo/arsperl-users">Subscribe here!</a> </B><P>
- </UL>
+  <li> AIX </li>
 
- <H3> <A HREF="install.html">Installation</A> </H3>
+  <li> Windows NT </li>
 
- <H3> Utilities </H3>
+  <li> NCR Unix </li>
 
- Utilities that we've written with ARSperl that are handy to have. These
- can be found in the <I>examples</I> directory of the distribution.
+</ul>
 
- <BLOCKQUOTE> 
-   <DL>
-   <DT><A HREF="WhoUsesIt.html">WhoUsesIt.pl</A><DD>
-       A script to help you track down filters, schemas etc. Good
-       for when you try to document your system layout.
-   <DT><A HREF="DumpSetup.html">DumpSetup.pl</A><DD>
-       A utility for maintaining backup copies of server definitions
-       (when run nightly as a cron job).
-   <DT><A HREF="AddUsersToGroup.html">AddUsersToGroup.pl</A><DD>
-       Add multiple users to a group.
-   <DT><A HREF="DelUsersFromGroup.html">DelUsersFromGroup.pl</A><DD>
-       Remove multiple users from a group.
-   </DL>
- </BLOCKQUOTE>
+<h2> Bug Reports </h2>
 
- <H3> Programmer's Guide </H3>
+Having problems? <a href="http://sourceforge.net/tracker/?atid=673428&amp;group_id=116013&amp;func=browse">Log
+a report</a> or send a message to the <a href="#mailinglist">mailing
+list</a>. Note that you <i>must</i> be a subscriber
+in order to post to the list.
+<p> Be sure to include the following information in your message:
+</p>
 
- <A HREF="manual/toc.html">An online guide</A> is available to help use the
- functions that this kit adds to the standard perl distribution.
+<p> </p>
 
- <HR>
- Last Updated: 18 Sep 2004<BR>
- <P>
- The Remedy Logo is a trademark of 
- <A HREF="http://www.remedy.com/">Remedy Corporation</A>.
- </BODY>
-</HTML>
+<ol>
+
+  <li> OS (operating system) version (example: RHEL 4) </li>
+
+  <li> Perl version (output from perl -v) </li>
+
+  <li> ARSystem version you are connecting to (example: 6.3) </li>
+
+  <li> API version you compiled against (example: 7.0) </li>
+
+  <li> ARSperl version (example: 1.91) </li>
+
+  <li> A <i>thorough</i> description of the problem.
+  </li>
+
+</ol>
+
+<a name="mailinglist">
+<h2> Mailing List </h2>
+
+</a> A mailing list is available for discussions of this perl
+extension. <a href="http://sourceforge.net/mailarchive/forum.php?forum_id=42323">Archives
+of the mailing list are also available.</a>
+<ul>
+
+  <b><a href="http://lists.sourceforge.net/lists/listinfo/arsperl-users">Subscribe
+here!</a> </b>
+  <p> </p>
+
+</ul>
+
+<h3> <a href="install.html">Installation</a> </h3>
+
+<h3> Utilities </h3>
+
+Utilities that we've written with ARSperl that are handy to have. These
+can be found in the <i>examples</i> directory of the
+distribution.
+<blockquote>
+  <dl>
+
+    <dt><a href="WhoUsesIt.html">WhoUsesIt.pl</a></dt>
+
+    <dd> A script to help you track down filters, schemas etc.
+Good for when you try to document your system layout. </dd>
+
+    <dt><a href="DumpSetup.html">DumpSetup.pl</a></dt>
+
+    <dd> A utility for maintaining backup copies of server
+definitions (when run nightly as a cron job). </dd>
+
+    <dt><a href="AddUsersToGroup.html">AddUsersToGroup.pl</a></dt>
+
+    <dd> Add multiple users to a group. </dd>
+
+    <dt><a href="DelUsersFromGroup.html">DelUsersFromGroup.pl</a></dt>
+
+    <dd> Remove multiple users from a group. </dd>
+
+  </dl>
+
+</blockquote>
+
+<h3> Programmer's Guide </h3>
+
+<a href="manual/toc.html">An online guide</a> is
+available to help use the functions that this kit adds to the standard
+perl distribution.
+<hr> Last Updated: 27 Jul 2007<br>
+
+<p> The Remedy Logo is a trademark of <a href="http://www.remedy.com/">Remedy Corporation</a>. </p>
+
+</body>
+</html>
