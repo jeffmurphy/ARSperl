@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.115 2007/07/30 20:25:23 mbeijen Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.116 2007/08/02 14:25:04 mbeijen Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -1340,27 +1340,15 @@ ars_GetActiveLink(ctrl,name)
 	{
 	  int              ret = 0;
 	  unsigned int     order = 0;
-#if AR_EXPORT_VERSION < 5
-	  ARNameType       schema;
-#endif
 	  ARInternalIdList groupList;
 	  unsigned int     executeMask  = 0;
-#if AR_EXPORT_VERSION >= 3
 	  ARInternalId     controlField;
 	  ARInternalId     focusField;
-#else	  
-	  ARInternalId     field;
-	  ARDisplayList    displayList;
-#endif
 	  unsigned int     enable = 0;
 	  ARActiveLinkActionList actionList;
-#if  AR_EXPORT_VERSION >= 3
 	  ARActiveLinkActionList elseList;
-#endif
-#if  AR_EXPORT_VERSION >= 5
 	  ARWorkflowConnectStruct  schemaList;
 	  ARPropList       objPropList;
-#endif
 	  char            *helpText = CPNULL;
 	  ARTimestamp      timestamp;
 	  ARAccessNameType    owner;
@@ -1379,7 +1367,6 @@ ars_GetActiveLink(ctrl,name)
 	  Zero(lastChanged, 1, ARAccessNameType);
 	  Zero(&diaryList, 1, ARDiaryList);
 	  Zero(&status, 1, ARStatusList);
-#if AR_EXPORT_VERSION >= 5 
 	  ret = ARGetActiveLink(ctrl, name, &order, 
 				&schemaList,  /* new in 4.5 */
 				&groupList,
@@ -1388,49 +1375,28 @@ ars_GetActiveLink(ctrl,name)
 				&timestamp, owner, lastChanged, &changeDiary, 
 				&objPropList, /* new in 4.5 */
 				&status);
-#elif  AR_EXPORT_VERSION >= 3 
-	  ret = ARGetActiveLink(ctrl,name,&order,schema,&groupList,
-				&executeMask,&controlField,&focusField,&enable,
-				query,&actionList,&elseList,&helpText,&timestamp,
-				owner,lastChanged,&changeDiary,&status);
-#else
-	  ret = ARGetActiveLink(ctrl,name,&order,schema,&groupList,&executeMask,&field,&displayList,&enable,query,&actionList,&helpText,&timestamp,owner,lastChanged,&changeDiary,&status);
-#endif
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
 #endif
 	  RETVAL = newHV();
 	  sv_2mortal( (SV*) RETVAL );
 	  if (!ARError( ret,status)) {
-		/* store name of active link */
+	  	  
 		hv_store(RETVAL,  "name", strlen("name") , newSVpv(name, 0), 0);
 		hv_store(RETVAL,  "order", strlen("order") , newSViv(order),0);
-#if AR_EXPORT_VERSION >= 5
 		hv_store(RETVAL,  "schemaList", strlen("schemaList") , /* WorkflowConnectStruct */
 			perl_ARNameList(ctrl, schemaList.u.schemaList), 0);
 		hv_store(RETVAL,  "objPropList", strlen("objPropList") ,
 			perl_ARPropList(ctrl, &objPropList), 0);
-#else
-		hv_store(RETVAL,  "schema", strlen("schema") , newSVpv(schema,0),0);
-#endif
 		hv_store(RETVAL,  "groupList", strlen("groupList") ,
 		     perl_ARList( ctrl, 
 				 (ARList *)&groupList,
 				 (ARS_fn)perl_ARInternalId,
 				 sizeof(ARInternalId)), 0);
 		hv_store(RETVAL,  "executeMask", strlen("executeMask") , newSViv(executeMask),0);
-#if  AR_EXPORT_VERSION >= 3
 		hv_store(RETVAL,  "focusField", strlen("focusField") , newSViv(focusField), 0);
 		hv_store(RETVAL,  "controlField", strlen("controlField") , 
 			newSViv(controlField), 0);
-#else
-		hv_store(RETVAL,  "field", strlen("field") , newSViv(field), 0);
-		hv_store(RETVAL,  "displayList", strlen("displayList") , 
-		     perl_ARList( ctrl, 
-				 (ARList *)&displayList,
-				 (ARS_fn)perl_ARDisplayStruct,
-				 sizeof(ARDisplayStruct)), 0);
-#endif
 		hv_store(RETVAL,  "enable", strlen("enable") , newSViv(enable), 0);
 		/* a bit of a hack -- makes blessed reference to qualifier */
 		ref = newSViv(0);
@@ -1441,24 +1407,18 @@ ars_GetActiveLink(ctrl,name)
 				 (ARList *)&actionList,
 				 (ARS_fn)perl_ARActiveLinkActionStruct,
 				 sizeof(ARActiveLinkActionStruct)), 0);
-#if  AR_EXPORT_VERSION >= 3
 		hv_store(RETVAL,  "elseList", strlen("elseList") ,
 		     perl_ARList(ctrl, 
 				 (ARList *)&elseList,
 				 (ARS_fn)perl_ARActiveLinkActionStruct,
 				 sizeof(ARActiveLinkActionStruct)), 0);
-#endif
 		if (helpText)
 			hv_store(RETVAL,  "helpText", strlen("helpText") , newSVpv(helpText,0), 0);
 		hv_store(RETVAL,  "timestamp", strlen("timestamp") ,  newSViv(timestamp), 0);
 		hv_store(RETVAL,  "owner", strlen("owner") , newSVpv(owner,0), 0);
 		hv_store(RETVAL,  "lastChanged", strlen("lastChanged") , newSVpv(lastChanged,0), 0);
 		if (changeDiary) {
-#if AR_EXPORT_VERSION >= 4
 			ret = ARDecodeDiary(ctrl, changeDiary, &diaryList, &status);
-#else
-			ret = ARDecodeDiary(changeDiary, &diaryList, &status);
-#endif
 			if (!ARError(ret, status)) {
 				hv_store(RETVAL,  "changeDiary", strlen("changeDiary") ,
 					perl_ARList(ctrl, (ARList *)&diaryList,
@@ -1468,17 +1428,10 @@ ars_GetActiveLink(ctrl,name)
 			}
 	    }
 	    FreeARInternalIdList(&groupList,FALSE);
-#if  AR_EXPORT_VERSION < 3
-	    FreeARDisplayList(&displayList,FALSE);
-#endif
 	    FreeARActiveLinkActionList(&actionList,FALSE);
-#if  AR_EXPORT_VERSION >= 3
 	    FreeARActiveLinkActionList(&elseList,FALSE);
-#endif
-#if  AR_EXPORT_VERSION >= 5
 	    FreeARWorkflowConnectStruct(&schemaList, FALSE);
 	    FreeARPropList(&objPropList, FALSE);
-#endif
 	    if(helpText) AP_FREE(helpText);
 	    if(changeDiary) AP_FREE(changeDiary);
 	  }
@@ -2636,34 +2589,6 @@ ars_GetListCharMenu(control,changedsince=0)
 	}
 
 
-void
-ars_GetListAdminExtension(control,changedsince=0)
-	ARControlStruct *	control
-	unsigned long		changedsince
-	PPCODE:
-	{
-#if !defined(ARS32) && (AR_EXPORT_VERSION < 4)
-	  ARNameList   nameList;
-	  ARStatusList status;
-	  int          ret = 0, i = 0;
-
-	  (void) ARError_reset();
-	  Zero(&nameList, 1, ARNameList);
-	  Zero(&status,1, ARStatusList);
-	  ret = ARGetListAdminExtension(control,changedsince,&nameList,&status);
-#ifdef PROFILE
-	  ((ars_ctrl *)control)->queries++;
-#endif
-	  if (!ARError( ret,status)) {
-	    for (i=0; i<nameList.numItems; i++)
-	      XPUSHs(sv_2mortal(newSVpv(nameList.nameList[i], 0)));
-	    FreeARNameList(&nameList,FALSE);
-	  }
-#else /* ARS32 or later */
-	(void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, "ars_GetListAdminExtension() is not available in ARS3.2 or later.");
-#endif /* ARS32 or later */
-	}
-
 int
 ars_DeleteActiveLink(ctrl, name)
 	ARControlStruct *	ctrl
@@ -2727,37 +2652,6 @@ ars_DeleteVUI(ctrl, schema, vuiId)
 	OUTPUT:
 	RETVAL
 
-int
-ars_DeleteAdminExtension(ctrl, name)
-	ARControlStruct *	ctrl
-	char *			name
-	CODE:
-	{
-#if !defined(ARS32) && (AR_EXPORT_VERSION < 4)
-	  ARStatusList status;
-	  int          ret = 0;
-
-	  (void) ARError_reset();
-	  Zero(&status, 1,ARStatusList);
-	  RETVAL = 0;
-	  if(ctrl && name && *name) {
-		ret = ARDeleteAdminExtension(ctrl, name, &status);
-#ifdef PROFILE
-	        ((ars_ctrl *)ctrl)->queries++;
-#endif
-	        if(!ARError( ret, status)) {
-			RETVAL = 1;
-		}
-	  } else {
-		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
-	  }
-#else /* ARS32 or later */
-	RETVAL = 0;
-	(void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, "ars_DeleteAdminExtension() is not available in ARS3.2 or later.");
-#endif /* ARS32 */
-	}
-	OUTPUT:
-	RETVAL
 
 int
 ars_DeleteCharMenu(ctrl, name)
@@ -2978,33 +2872,6 @@ ars_DeleteMultipleFields(ctrl, schema, deleteOption, ...)
 	OUTPUT:
 	RETVAL
 
-int
-ars_ExecuteAdminExtension(ctrl, name)
-	ARControlStruct *	ctrl
-	char *			name
-	CODE:
-	{
-#if !defined(ARS32) && (AR_EXPORT_VERSION < 4)
-	 ARStatusList status;
-	 int          ret = 0;
-
-	 RETVAL = 0;
-	 Zero(&status, 1,ARStatusList);
-	 (void) ARError_reset();
-	 if(ctrl && CVLD(name))
-		ret = ARExecuteAdminExtension(ctrl, name, &status);
-#ifdef PROFILE
-	 ((ars_ctrl *)ctrl)->queries++;
-#endif
-	 if(!ARError( ret, status))
-		RETVAL = 1;
-#else /* ARS32 or later */
-	RETVAL = 0;
-	(void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, "ars_ExecuteAdminExtension() is not available in ARS3.2 or later.");
-#endif /* ARS32 */
-	}
-	OUTPUT:
-	RETVAL
 
 void
 ars_ExecuteProcess(ctrl, command, runOption=0)
@@ -3050,78 +2917,6 @@ ars_ExecuteProcess(ctrl, command, runOption=0)
 #endif
 	}
 
-HV *
-ars_GetAdminExtension(ctrl, name)
-	ARControlStruct *	ctrl
-	char *			name
-	CODE:
-	{
-#if !defined(ARS32) && (AR_EXPORT_VERSION < 4)
-	 ARStatusList  status;
-	 ARInternalIdList groupList;
-	 char          command[AR_MAX_COMMAND_SIZE];
-	 char         *helpText = CPNULL;
-	 ARTimestamp   timestamp;
-	 ARNameType    owner;
-	 ARNameType    lastChanged;
-	 char         *changeDiary = CPNULL;
-	 int           ret = 0;
-	 ARDiaryList      diaryList;
-
-	 (void) ARError_reset();
-	 Zero(&status, 1,ARStatusList);
-	 Zero(&groupList, 1, ARInternalIdList);
-	 Zero(&timestamp, 1, ARTimestamp);
-	 Zero(&owner, 1, ARNameType);
-	 Zero(&lastChanged, 1, ARNameType);
-	 Zero(&diaryList, 1, ARDiaryList);
-	 RETVAL = newHV();
-	 ret = ARGetAdminExtension(ctrl, name, &groupList, command, &helpText, &timestamp, owner, lastChanged, &changeDiary, &status);
-#ifdef PROFILE
-	 ((ars_ctrl *)ctrl)->queries++;
-#endif
-	 if(!ARError( ret, status)) {
-	  	hv_store(RETVAL,  "name", strlen("name") , newSVpv(name, 0), 0);
-		hv_store(RETVAL,  "groupList", strlen("groupList") ,
-			perl_ARList(ctrl,
-				    (ARList *)&groupList, 
-				    (ARS_fn)perl_ARInternalId,
-				    sizeof(ARInternalId)), 0);
-		hv_store(RETVAL,  "command", strlen("command")   , newSVpv(command, 0), 0);
-		hv_store(RETVAL,  "timestamp", strlen("timestamp") , newSViv(timestamp), 0);
-		hv_store(RETVAL,  "owner", strlen("owner")     , newSVpv(owner, 0), 0);
-		hv_store(RETVAL,  "lastChanged", strlen("lastChanged") , newSVpv(lastChanged, 0), 0);
-	        if(helpText)
-		   hv_store(RETVAL,  "helpText", strlen("helpText")  , newSVpv(helpText, 0), 0);
-	        if (changeDiary) {
-#if AR_EXPORT_VERSION >= 4
-			ret = ARDecodeDiary(ctrl, changeDiary, &diaryList, &status);
-#else
-			ret = ARDecodeDiary(changeDiary, &diaryList, &status);
-#endif
-			if (!ARError(ret, status)) {
-				hv_store(RETVAL,  "changeDiary", strlen("changeDiary") ,
-					perl_ARList(ctrl, (ARList *)&diaryList,
-					(ARS_fn)perl_diary,
-					sizeof(ARDiaryStruct)), 0);
-				FreeARDiaryList(&diaryList, FALSE);
-			}
-	        }
-		FreeARInternalIdList(&groupList, FALSE);
-		if(helpText) {
-		  	AP_FREE(helpText);
-		}
-		if(changeDiary) {
-		  	AP_FREE(changeDiary);
-		}
-	 }
-#else /* ARS32 or later */
-	 RETVAL = 0;
-	 (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, "ars_GetAdminExtension() is not available in ARS3.2 or later.");
-#endif /* ARS32 */
-	}
-	OUTPUT:
-	RETVAL
 
 HV *
 ars_GetEscalation(ctrl, name)
@@ -4057,80 +3852,6 @@ ars_SetCharMenu( ctrl, name, menuDefRef, removeFlag=TRUE )
 	}
 	OUTPUT:
 	RETVAL
-
-
-
-
-
-
-int 
-ars_CreateAdminExtension(ctrl, aeDefRef)
-	ARControlStruct *	ctrl
-	SV *			aeDefRef
-	CODE:
-	{
-#if !defined(ARS32) && (AR_EXPORT_VERSION < 4)
-	  int               rv = 0, ret = 0;
-	  ARNameType        name, owner;
-	  ARInternalIdList  groupList;
-	  char             *command     = CPNULL, 
-			   *helpText    = CPNULL, 
-			   *changeDiary = CPNULL;
-	  ARStatusList      status;
-
-	  (void) ARError_reset();
-	  Zero(&status, 1, ARStatusList);
-	  Zero(&groupList, 1, ARInternalIdList);
-	  Zero(name, 1, ARNameType);
-	  Zero(owner, 1, ARNameType);
-	  RETVAL = 0;
-
-	  if(SvTYPE((SV *)SvRV(aeDefRef)) != SVt_PVHV) {
-		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_EXPECT_PVHV);
-	  } else {
-		HV *aeDef = (HV *)SvRV(aeDefRef);
-		if(hv_exists(aeDef,  "name", strlen("name") ) &&
-		   hv_exists(aeDef,  "groupList", strlen("groupList") ) &&
-		   hv_exists(aeDef,  "command", strlen("command") )) {
-
-		   rv += strcpyHVal( aeDef, "name", name, sizeof(ARNameType));
-		   rv += strmakHVal( aeDef, "command", &command);
-		   if(hv_exists(aeDef,  "helpText", strlen("helpText") )) 
-			rv += strmakHVal( aeDef, "helpText", &helpText);
-		   if(hv_exists(aeDef,  "changeDiary", strlen("changeDiary") )) 
-			rv += strmakHVal( aeDef, "changeDiary", &changeDiary);
-		   if(hv_exists(aeDef,  "owner", strlen("owner") )) 
-			rv += strcpyHVal( aeDef, "owner", owner, 
-					sizeof(ARNameType));
-		   else
-			strncpy(owner, ctrl->user, sizeof(ARNameType));
-
-		   rv += rev_ARInternalIdList(ctrl, aeDef, "groupList", &groupList);
-
-		   if(rv == 0) {
-			ret = ARCreateAdminExtension(ctrl, name, &groupList,
-					command, helpText, owner, changeDiary,
-					&status);
-			if(!ARError( ret, status)) RETVAL = 1;
-		   } else
-			ARError_add( AR_RETURN_ERROR, AP_ERR_PREREVFAIL);
-		} else {
-		   ARError_add( AR_RETURN_ERROR, AP_ERR_NEEDKEYS);
-		   ARError_add( AR_RETURN_ERROR, AP_ERR_NEEDKEYSKEYS,
-			"name, groupList, command");
-		}
-	  }
-#else /* ARS32 or later */
-	  RETVAL = 0;
-	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, "ars_CreateAdminExtension() is not available in ARS3.2 or later.");
-#endif /* ARS32 */
-
-	}
-	OUTPUT:
-	RETVAL
-
-
-
 
 
 #define STR_TEMP_SIZE  30
@@ -6928,9 +6649,7 @@ ars_EndBulkEntryTransaction( ctrl, actionType )
 
 
 ###################################################
-# ALERT ROUTINES. as of 5.x, these replace the 
-# Notifier routines found below.
-#
+# ALERT ROUTINES
 
 int
 ars_RegisterForAlerts(ctrl, clientPort, registrationFlags=0)
