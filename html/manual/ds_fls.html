@@ -1,67 +1,67 @@
-<HTML>
-<HEAD>
-<TITLE>ARSperl Manual - Field Limit Structure</TITLE>
-</HEAD>
-<BODY BGCOLOR="#FFFFFF">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
 
-<H2>Field Limit Structure</H2>
+  <title>ARSperl Manual - Field Limit Structure</title>
+</head>
 
-<PRE>
-<B>; integer</B>
+<body bgcolor="#ffffff">
+
+
+<h2>Field Limit Structure</h2>
+
+
+<pre><b>; integer</b>
 {
  "min"             =&gt; integer,
  "max"             =&gt; integer
 }
 
-      <I>or</I>
+      <i>or</i>
 
-<B>; real</B>
+<b>; real</b>
 {
  "min"             =&gt; float,
  "max"             =&gt; float,
  "precision"       =&gt; integer
 }
 
-       <I>or</I>
+       <i>or</i>
 
-<B>; char</B>
+<b>; char</b>
 {
  "maxLength"       =&gt; integer,
- "menuStyle"       =&gt; "append" <I>or</I> "overwrite",
- "match"           =&gt; "anywhere" <I>or</I> "leading" <I>or</I> "equal",
- "charMenu"        =&gt; string,
- "pattern"         =&gt; string,
- "fullTextOptions" =&gt; "none" <I>or</I> "indexed"}
+ "menuStyle"       =&gt; "append" <i>or</i> "overwrite",<br> "match"           =&gt; "anywhere" <i>or</i> "leading" <i>or</i> "equal",<br> "charMenu"        =&gt; string,<br> "pattern"         =&gt; string,<br> "fullTextOptions" =&gt; "none" <i>or</i> "indexed"}<br><br>        <i>or</i>
 
-        <I>or</I>
-
-<B>; diary</B>
+<b>; diary</b>
 {
- "fullTextOptions" =&gt; "none" <I>or</I> "indexed"}
-        <I>or</I>
-<B>; enum and bitmask</B>
+ "fullTextOptions" =&gt; "none" <i>or</i> "indexed"}<br>        <i>or</i>
+<b>; enum and bitmask</b>
 array of strings
 
-        <I>or</I>
+        <i>or</i>
 
-<b>; enum</B>
+<b>; enum</b>
 {
- list of strings (arrayref) (<I><B>2.x-4.x only</B></I>)
- "enumLimits"      =&gt; hashref to <a href="ds_enumlimstruct.html">enumLimits hash</a> (<I><B>5.x only</B></I>)
-}
-        <I>or</I>
+ "enumLimits"      =&gt; hashref to <a href="ds_enumlimstruct.html">enumLimits hash</a> <br>}<br>        <i>or</i>
 
 undef
-</PRE>
+</pre>
 
-<P>
-<HR WIDTH="30%">
-<P>
-<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Table of Contents </A>
+
 <p>
+</p>
+<hr width="30%">
+<p>
+<a href="toc.html"><img alt="&lt;--" src="arrow.gif" align="middle"> Table of Contents </a>
+</p>
+<p>
+</p>
 <address>
 Last changes to this page 27th June 1997 by d.j.adams@soton.ac.uk<br>
-&#169; J.C.Murphy, J.W.Murphy 1997 arsperl@arsperl.org
+
+&copy; J.C.Murphy, J.W.Murphy 1997 arsperl@arsperl.org
 </address>
-</BODY>
-</HTML>
+
+</body>
+</html>

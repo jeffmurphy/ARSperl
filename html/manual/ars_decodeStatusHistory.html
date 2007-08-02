@@ -1,10 +1,16 @@
-<HTML>
-<HEAD>
-<TITLE>ARSperl Manual - ars_decodeStatusHistory</TITLE>
-</HEAD>
-<BODY BGCOLOR="#FFFFFF">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
 
-   <H2><CODE>ars_decodeStatusHistory($field_value)</CODE></H2>
+  <title>ARSperl Manual - ars_decodeStatusHistory</title>
+</head>
+
+<body bgcolor="#ffffff">
+
+
+   
+<h2><code>ars_decodeStatusHistory($field_value)</code></h2>
+
 
 	Use this to decode the field value of the status history 
 	field. It will decode it into an array of hash references.
@@ -14,34 +20,40 @@
 	that the status field was last in a particular enumerated 
 	state. You can use 
         <a href="ars_GetField.html">ars_GetField()</a> to map from labels (open,
-	held, closed, etc) to enumerations (0, 1, 2, etc)
+	held, closed, etc) to enumerations (0, 1, 2, etc).<br>
+The Status History field is a core field. That means it is present on all Regular forms. It has field ID 15.
 
-      <DL>
-         <DT><B>On success</B><DD>
+      
+<dl>
+
+         <dt><b>On success</b></dt>
+  <dd>
 		Returns an array of hash references.
-         <DT><B>On failure</B><DD>
+         </dd>
+  <dt><b>On failure</b></dt>
+  <dd>
                 Returns undef.
-      </DL>
+      </dd>
+</dl>
 
-      <P>Example:
 
-      <PRE>
-	$d = ars_decodeStatusHistory($fieldvalue);
-	# OPEN = 0;
-	print $d[0]->{USER}."\n";
-	print $d[0]->{TIME}."\n";
-      </PRE>
+      
+<p>Example:
 
-<I>ars_decodeStatusHistory was introduced in version 1.52 of ARSperl</I>
-
-<P>
-<HR WIDTH="30%">
-<P>
-<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Table of Contents </A>
+      </p>
+<pre>	%entry = ars_GetEntry($ctrl, $form, $entry, 15)<br><br>	@status_hist_values = ars_decodeStatusHistory($entry{15});<br><br>	# print the status history for the first status (0)<br>	print $status_hist_values[0]-&gt;{USER}."\n";<br>	print localtime($status_hist_values[0]-&gt;{TIME})."\n";	<br><br>For a more detailed example, refer to the ars_decodeStatusHistory.pl file in the <span style="font-style: italic;">examples</span> directory.<br></pre>
+<i>ars_decodeStatusHistory was introduced in version 1.52 of ARSperl. </i><br>
+<hr width="30%">
 <p>
+<a href="toc.html"><img alt="&lt;--" src="arrow.gif" align="middle"> Table of Contents </a>
+</p>
+<p>
+</p>
 <address>
-Last changes to this page 11 September 1998 by jcmurphy@arsperl.org<BR>
-&#169; J.C.Murphy, J.W.Murphy 1997 arsperl@arsperl.org
+Last changes to this page 2 aug 2007 by Michiel Beijen<br>
+
+&copy; J.C.Murphy, J.W.Murphy 1997 arsperl@arsperl.org
 </address>
-</BODY>
-</HTML>
+
+</body>
+</html>

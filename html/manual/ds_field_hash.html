@@ -1,65 +1,29 @@
-<HTML>
-<HEAD>
-<TITLE>ARSperl Manual - Field Properties</TITLE>
-</HEAD>
-<BODY BGCOLOR="#FFFFFF">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
 
-<H2>Field Properties Structure</H2>
+  <title>ARSperl Manual - Field Properties</title>
+</head>
+
+<body bgcolor="#ffffff">
+
+
+<h2>Field Properties Structure</h2>
+
 
 The routine 
-<A href="ars_GetField.html"><CODE>ars_GetField</code></a>
+<a href="ars_GetField.html"><code>ars_GetField</code></a>
 returns a reference to the field properties structure.
+<pre>{<br> "changeDiary"   =&gt; <i>list</i> of references to <a href="ds_diaryentry_hash.html">Diary Entry Structures</a>,<br> "createMode"    =&gt; open <i>or</i> protected,<br> "dataType"      =&gt; string,<br> "defaultVal"    =&gt; string,<br> "displayInstanceList"   =&gt; reference to <a href="ds_disl_hash.html">displayInstancelist structure</a>,<br> "fieldId"       =&gt; integer,<br> "fieldMap"      =&gt; reference to a HASH,<br> "fieldName"     =&gt; string,<br>["helpText"      =&gt; string,]<br> "lastChanged"   =&gt; string,<br> "limit"         =&gt; reference to <a href="ds_fls.html">Field Limit Structure</a>,<br> "option"        =&gt; enumerator,<br> "owner"         =&gt; string,<br> "permissions"   =&gt; reference to a HASH,<br> "timestamp"     =&gt; integer<br>}<br></pre>
+<hr width="30%">
 <p>
-The structure returned depends on the version of the ARS server.
+<a href="toc.html"><img alt="&lt;--" src="arrow.gif" align="middle"> Table of Contents </a>
+</p>
 <p>
-For <b>ARS 3.0</b> the structure is:
-<PRE>
-{
- "changeDiary"   =&gt; <i>list</I> of references to <a href="ds_diaryentry_hash.html">Diary Entry Structures</a>,
- "createMode"    =&gt; open <i>or</i> protected,
- "dataType"      =&gt; string,
- "defaultVal"    =&gt; string,
- "displayInstanceList"   =&gt; reference to <A href="ds_disl_hash.html">displayInstancelist structure</a>,
- "fieldId"       =&gt; integer,
- "fieldMap"      =&gt; reference to a HASH,
- "fieldName"     =&gt; string,
-["helpText"      =&gt; string,]
- "lastChanged"   =&gt; string,
- "limit"         =&gt; reference to <A href="ds_fls.html">Field Limit Structure</a>,
- "option"        =&gt; enumerator,
- "owner"         =&gt; string,
- "permissions"   =&gt; reference to a HASH,
- "timestamp"     =&gt; integer
-}
-</PRE>
-
-For <b>ARS 2.1</b> or earlier the structure is:
-
-<PRE>
-{
- "changeDiary"   =&gt; <i>list</I> of references to <a href="ds_diaryentry_hash.html">Diary Entry Structures</a>,
- "createMode"   =&gt; open <i>or</i> protected,
- "dataType"     =&gt; string,
- "defaultVal"   =&gt; string,
- "displayList"  =&gt; reference to <A HREF="ds_ds.html">Display Structure</A>,
- "fieldId"      =&gt; integer,
-["helpText"     =&gt; string,]
- "lastChanged"  =&gt; string,
- "limit"        =&gt; reference to <A href="ds_fls.html">Field Limit Structure</a>,
- "option"       =&gt; enumerator,
- "owner"        =&gt; string,
- "permissions"  =&gt; reference to a HASH,
- "timestamp"    =&gt; integer
-}
-</PRE>
-
-<P>
-<HR WIDTH="30%">
-<P>
-<A HREF="toc.html"><IMG ALT="&lt;--" SRC="arrow.gif" ALIGN=CENTER> Table of Contents </A>
-<p>
+</p>
 <address>
-Last changes to this page 16 Sep 1998 by jeff murphy
+Last changes to this page 2 Aug 2007 by Michiel Beijen
 </address>
-</BODY>
-</HTML>
+
+</body>
+</html>
