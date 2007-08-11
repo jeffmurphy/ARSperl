@@ -1,3 +1,9 @@
+MB  removed legacy ars_NT Notifier and ars_AdminExtension calls
+!MB  added ars_VerifyUser implementation by Thilo Stapff
+!MB  changed ars_APIVersion to use AR_CURRENT_API_VERSION rather than AR_EXPORT_VERSION
+MB fixed ars_GetActiveLink, ars_GetFilter, ars_GetEscalation, ars_GetField so they 
+     return undef on failure.
+
 released=xx/xx/xxx version=1.91
 JCM buffer overflow in perl_BuildEntryList
 JCM malloc-on-windows patch by John Unsworth
