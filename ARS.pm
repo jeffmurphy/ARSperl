@@ -107,7 +107,7 @@ $ars_errstr %ARServerStats %ars_errhash
 ars_decodeStatusHistory ars_APIVersion ars_encodeStatusHistory
 ars_BeginBulkEntryTransaction ars_EndBulkEntryTransaction
 ars_GetAlertCount ars_RegisterForAlerts ars_DeregisterForAlerts ars_GetListAlertUser
-ars_DecodeAlertMessage ars_CreateAlertEvent
+ars_DecodeAlertMessage ars_CreateAlertEvent ars_VerifyUser
 );
 
 $ARS::VERSION   = '1.91';

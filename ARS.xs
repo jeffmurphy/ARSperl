@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.116 2007/08/02 14:25:04 mbeijen Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.117 2007/08/11 20:22:00 mbeijen Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -348,32 +348,39 @@ ars_Login(server, username, password, lang=NULL, authString=NULL, tcpport=0, rpc
 	OUTPUT:
 	RETVAL
 
-int
+HV*
 ars_VerifyUser(ctrl)
-	ARControlStruct *	ctrl
-	CODE:
-	{
-		int ret = 0;
-		ARBoolean	adminFlag    = 0,
-				subAdminFlag = 0,
-				customFlag   = 0; 
-		ARStatusList status;
+       ARControlStruct *       ctrl
+       CODE:
+       {
+               int ret = 0;
+               ARBoolean       adminFlag  = 0,
+                               subAdminFlag = 0,
+                               customFlag   = 0;
+               ARStatusList status;
 
-		(void) ARError_reset();
-		Zero(&status, 1, ARStatusList);
-		RETVAL = 0;
+               (void) ARError_reset();
+               Zero(&status, 1, ARStatusList);
 
-		ret = ARVerifyUser(ctrl, &adminFlag, 
-					 &subAdminFlag, 
-					 &customFlag, 
-				   &status);
+               ret = ARVerifyUser( ctrl, &adminFlag, &subAdminFlag, &customFlag,
+&status );
 
-		if(! ARError(ret, status)) {
-			RETVAL = 1;
-		}
-	}
-	OUTPUT:
-	RETVAL
+               if(! ARError(ret, status)) {
+                   RETVAL = newHV();
+                   sv_2mortal( (SV*) RETVAL );
+
+                       hv_store( RETVAL, "adminFlag",    strlen("adminFlag"),
+newSViv(adminFlag),    0);
+                       hv_store( RETVAL, "subAdminFlag", strlen("subAdminFlag"),
+newSViv(subAdminFlag), 0);
+                       hv_store( RETVAL, "customFlag",   strlen("customFlag"),
+newSViv(customFlag),   0);
+               }else{
+                       XSRETURN_UNDEF;
+               }
+       }
+       OUTPUT:
+       RETVAL
 
 void
 ars_GetControlStructFields(ctrl)
@@ -1378,10 +1385,10 @@ ars_GetActiveLink(ctrl,name)
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
 #endif
-	  RETVAL = newHV();
-	  sv_2mortal( (SV*) RETVAL );
+
 	  if (!ARError( ret,status)) {
-	  	  
+	  RETVAL = newHV();
+	  sv_2mortal( (SV*) RETVAL );	  	  
 		hv_store(RETVAL,  "name", strlen("name") , newSVpv(name, 0), 0);
 		hv_store(RETVAL,  "order", strlen("order") , newSViv(order),0);
 		hv_store(RETVAL,  "schemaList", strlen("schemaList") , /* WorkflowConnectStruct */
@@ -1434,6 +1441,9 @@ ars_GetActiveLink(ctrl,name)
 	    FreeARPropList(&objPropList, FALSE);
 	    if(helpText) AP_FREE(helpText);
 	    if(changeDiary) AP_FREE(changeDiary);
+	  
+	    }else{
+      XSRETURN_UNDEF;
 	  }
 	}
 	OUTPUT:
@@ -1450,16 +1460,11 @@ ars_GetFilter(ctrl,name)
 	  int          ret;
 	  unsigned int order;
 	  unsigned int opSet;
-#if AR_EXPORT_VERSION < 5
-	  ARNameType       schema;
-#endif
 	  unsigned int enable;
 	  char        *helpText = CPNULL;
 	  char        *changeDiary = CPNULL;
 	  ARFilterActionList actionList;
-#if  AR_EXPORT_VERSION >= 3
 	  ARFilterActionList elseList;
-#endif
 	  ARTimestamp timestamp;
 	  ARAccessNameType  owner;
 	  ARAccessNameType  lastChanged;
@@ -1467,10 +1472,8 @@ ars_GetFilter(ctrl,name)
 	  SV         *ref;
 	  ARQualifierStruct *query;
 	  ARDiaryList      diaryList;
-#if  AR_EXPORT_VERSION >= 5
 	  ARWorkflowConnectStruct  schemaList;
 	  ARPropList       objPropList;
-#endif
 
 	  AMALLOCNN(query,1,ARQualifierStruct);
 
@@ -1482,7 +1485,6 @@ ars_GetFilter(ctrl,name)
 	  Zero(lastChanged, 1, ARAccessNameType);
 	  Zero(&diaryList, 1, ARDiaryList);
 	  Zero(&status, 1,ARStatusList);
-#if AR_EXPORT_VERSION >= 5
 	  ret = ARGetFilter(ctrl, name, &order, 
 			    &schemaList,
 			    &opSet, &enable, 
@@ -1490,32 +1492,18 @@ ars_GetFilter(ctrl,name)
 			    &timestamp, owner, lastChanged, &changeDiary,
 			    &objPropList,
 			    &status);
-#elif AR_EXPORT_VERSION >= 3
-	  ret = ARGetFilter(ctrl, name, &order, schema, &opSet, &enable, 
-			    query, &actionList, &elseList, &helpText,
-			    &timestamp, owner, lastChanged, &changeDiary,
-			    &status);
-#else
-	  ret = ARGetFilter(ctrl, name, &order, schema, &opSet, &enable, 
-			    query, &actionList, &helpText, &timestamp, 
-			    owner, lastChanged, &changeDiary, &status);
-#endif
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
 #endif
+	  if (!ARError( ret,status)) {
 	  RETVAL = newHV();
 	  sv_2mortal( (SV*) RETVAL );
-	  if (!ARError( ret,status)) {
 	    hv_store(RETVAL,  "name", strlen("name") , newSVpv(name, 0), 0);
 	    hv_store(RETVAL,  "order", strlen("order") , newSViv(order), 0);
-#if AR_EXPORT_VERSION >= 5
 		hv_store(RETVAL,  "schemaList", strlen("schemaList") , /* WorkflowConnectStruct */
 			perl_ARNameList(ctrl, schemaList.u.schemaList), 0);
 		hv_store(RETVAL,  "objPropList", strlen("objPropList") ,
 			perl_ARPropList(ctrl, &objPropList), 0);
-#else
-	    hv_store(RETVAL,  "schema", strlen("schema") , newSVpv(schema, 0), 0);
-#endif
 	    hv_store(RETVAL,  "opSet", strlen("opSet") , newSViv(opSet), 0);
 	    hv_store(RETVAL,  "enable", strlen("enable") , newSViv(enable), 0);
 	    /* a bit of a hack -- makes blessed reference to qualifier */
@@ -1527,24 +1515,18 @@ ars_GetFilter(ctrl,name)
 				 (ARList *)&actionList,
 				 (ARS_fn)perl_ARFilterActionStruct,
 				 sizeof(ARFilterActionStruct)), 0);
-#if AR_EXPORT_VERSION >= 3
 	    hv_store(RETVAL,  "elseList", strlen("elseList") ,
 		     perl_ARList(ctrl, 
 				 (ARList *)&elseList,
 				 (ARS_fn)perl_ARFilterActionStruct,
 				 sizeof(ARFilterActionStruct)), 0);
-#endif
 	    if(helpText)
 		hv_store(RETVAL,  "helpText", strlen("helpText") , newSVpv(helpText, 0), 0);
 	    hv_store(RETVAL,  "timestamp", strlen("timestamp") , newSViv(timestamp), 0);
 	    hv_store(RETVAL,  "owner", strlen("owner") , newSVpv(owner, 0), 0);
 	    hv_store(RETVAL,  "lastChanged", strlen("lastChanged") , newSVpv(lastChanged, 0), 0);
 	    if (changeDiary) {
-#if AR_EXPORT_VERSION >= 4
 		ret = ARDecodeDiary(ctrl, changeDiary, &diaryList, &status);
-#else
-		ret = ARDecodeDiary(changeDiary, &diaryList, &status);
-#endif
 		if (!ARError(ret, status)) {
 			hv_store(RETVAL,  "changeDiary", strlen("changeDiary") ,
 				perl_ARList(ctrl, (ARList *)&diaryList,
@@ -1554,19 +1536,17 @@ ars_GetFilter(ctrl,name)
 		}
 	    }
 	    FreeARFilterActionList(&actionList,FALSE);
-#if AR_EXPORT_VERSION >= 3
 	    FreeARFilterActionList(&elseList,FALSE);
-#endif
-#if AR_EXPORT_VERSION >= 5
 	    FreeARWorkflowConnectStruct(&schemaList, FALSE);
 	    FreeARPropList(&objPropList, FALSE);
-#endif
 	    if(helpText) {
 	      	AP_FREE(helpText);
 	    }
 	    if(changeDiary) {
 	      	AP_FREE(changeDiary);
 	    }
+	  }else{
+	  XSRETURN_UNDEF;
 	  }
 	}
 	OUTPUT:
@@ -1647,15 +1627,11 @@ ars_GetCharMenu(ctrl,name)
 	  HV		    *menuDef = newHV();
 	  /* SV		    *ref; */
 	  ARDiaryList        diaryList;
-#if AR_EXPORT_VERSION >= 5
 	  ARPropList         objPropList;
-#endif
 
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
-#if AR_EXPORT_VERSION >= 5
 	  Zero(&objPropList, 1, ARPropList);
-#endif
 	  Zero(&menuDefn, 1, ARCharMenuStruct);
 	  Zero(&timestamp, 1, ARTimestamp);
 	  Zero(owner, 1, ARAccessNameType);
@@ -1665,9 +1641,7 @@ ars_GetCharMenu(ctrl,name)
 	  sv_2mortal( (SV*) RETVAL );
 	  ret = ARGetCharMenu(ctrl, name, &refreshCode, &menuDefn, &helpText, 
 			      &timestamp, owner, lastChanged, &changeDiary, 
-#if AR_EXPORT_VERSION >= 5
 			      &objPropList,
-#endif
 			      &status);
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
@@ -1680,11 +1654,7 @@ ars_GetCharMenu(ctrl,name)
 		hv_store(RETVAL,  "owner", strlen("owner") , newSVpv(owner, 0), 0);
 		hv_store(RETVAL,  "lastChanged", strlen("lastChanged") , newSVpv(lastChanged, 0), 0);
 	        if (changeDiary) {
-#if AR_EXPORT_VERSION >= 4
 			ret = ARDecodeDiary(ctrl, changeDiary, &diaryList, &status);
-#else
-			ret = ARDecodeDiary(changeDiary, &diaryList, &status);
-#endif
 			if (!ARError(ret, status)) {
 				hv_store(RETVAL,  "changeDiary", strlen("changeDiary") ,
 					perl_ARList(ctrl, (ARList *)&diaryList,
@@ -1828,9 +1798,7 @@ ars_GetCharMenu(ctrl,name)
 # endif
 #endif
 		}
-#if AR_EXPORT_VERSION >= 5
 		FreeARPropList(&objPropList, FALSE);
-#endif
 		FreeARCharMenuStruct(&menuDefn, FALSE);
 		if (helpText) {
 		  	AP_FREE(helpText);
@@ -1838,6 +1806,8 @@ ars_GetCharMenu(ctrl,name)
 		if (changeDiary) {
 		  	AP_FREE(changeDiary);
 		}
+	  }else{
+	  XSRETURN_UNDEF;
 	  }
 	}
 	OUTPUT:
@@ -2109,13 +2079,9 @@ ars_GetField(ctrl,schema,id)
 	  ARValueStruct         defaultVal;
 	  ARPermissionList      permissions;
 	  ARFieldLimitStruct    limit;
-#if AR_EXPORT_VERSION >= 3
 	  ARNameType            fieldName;
 	  ARFieldMappingStruct  fieldMap;
 	  ARDisplayInstanceList displayList;
-#else
-	  ARDisplayList         displayList;
-#endif
 	  char                 *helpText = CPNULL;
 	  ARTimestamp           timestamp;
 	  ARAccessNameType            owner;
@@ -2137,19 +2103,13 @@ ars_GetField(ctrl,schema,id)
 	  Zero(owner,        1, ARAccessNameType);
 	  Zero(lastChanged,  1, ARAccessNameType);
 	  Zero(&diaryList,   1, ARDiaryList);
-	  RETVAL = newHV();
-	  sv_2mortal( (SV*) RETVAL );
-#if AR_EXPORT_VERSION >= 9
 	  ret = ARGetFieldCached(ctrl, schema, id, fieldName, &fieldMap, &dataType, &option, &createMode, &fieldOption, &defaultVal, NULL /* &permissions */, &limit, &displayList, &helpText, &timestamp, owner, lastChanged, &changeDiary, &Status);
-#elif AR_EXPORT_VERSION >= 3
-	  ret = ARGetFieldCached(ctrl, schema, id, fieldName, &fieldMap, &dataType, &option, &createMode, &defaultVal, NULL /* &permissions */, &limit, &displayList, &helpText, &timestamp, owner, lastChanged, &changeDiary, &Status);
-#else
-	  ret = ARGetFieldCached(ctrl, schema, id, &dataType, &option, &createMode, &defaultVal, NULL /* &permissions */, &limit, &displayList, &helpText, &timestamp, owner, lastChanged, &changeDiary, &Status);
-#endif
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
 #endif
 	  if (! ARError( ret, Status)) {
+	  RETVAL = newHV();
+	  sv_2mortal( (SV*) RETVAL );
 	    /* store field id for convenience */
 	    hv_store(RETVAL,  "fieldId", strlen("fieldId") , newSViv(id), 0);
 	    if (createMode == AR_FIELD_OPEN_AT_CREATE)
@@ -2168,20 +2128,12 @@ ars_GetField(ctrl,schema,id)
 	    /* permissions below */
 	    hv_store(RETVAL,  "limit", strlen("limit") , 
 		     perl_ARFieldLimitStruct(ctrl, &limit), 0);
-#if AR_EXPORT_VERSION >= 3
 	    hv_store(RETVAL,  "fieldName", strlen("fieldName") , 
 		     newSVpv(fieldName, 0), 0);
 	    hv_store(RETVAL,  "fieldMap", strlen("fieldMap") ,
 		     perl_ARFieldMappingStruct(ctrl, &fieldMap), 0);
 	    hv_store(RETVAL,  "displayInstanceList", strlen("displayInstanceList") ,
 		     perl_ARDisplayInstanceList(ctrl, &displayList), 0);
-#else
-	    hv_store(RETVAL,  "displayList", strlen("displayList") , 
-		     perl_ARList(ctrl, 
-				 (ARList *)&displayList,
-				 (ARS_fn)perl_ARDisplayStruct,
-				 sizeof(ARDisplayStruct)), 0);
-#endif
 	    if (helpText)
 	      hv_store(RETVAL,  "helpText", strlen("helpText") ,
 		       newSVpv(helpText, 0), 0);
@@ -2192,11 +2144,7 @@ ars_GetField(ctrl,schema,id)
 	    hv_store(RETVAL,  "lastChanged", strlen("lastChanged") ,
 		     newSVpv(lastChanged, 0), 0);
 	    if (changeDiary) {
-#if AR_EXPORT_VERSION >= 4
 		ret = ARDecodeDiary(ctrl, changeDiary, &diaryList, &Status);
-#else
-		ret = ARDecodeDiary(changeDiary, &diaryList, &Status);
-#endif
 		if (!ARError(ret, Status)) {
 			hv_store(RETVAL,  "changeDiary", strlen("changeDiary") ,
 				perl_ARList(ctrl, (ARList *)&diaryList,
@@ -2206,24 +2154,14 @@ ars_GetField(ctrl,schema,id)
 		}
 	    }
 	    FreeARFieldLimitStruct(&limit,FALSE);
-#if AR_EXPORT_VERSION >= 3
 	    FreeARDisplayInstanceList(&displayList,FALSE);
-#else
-	    FreeARDisplayList(&displayList,FALSE);
-#endif
 	    if(helpText) {
 	      	/* AP_FREE(helpText);   */ /* TS 20060207 disabled bc of memory errors with 5.8.8 */
 	    }
 	    if(changeDiary) {
 	      	AP_FREE(changeDiary);
 	    }
-#if AR_EXPORT_VERSION >= 9L
 	    ret = ARGetField(ctrl, schema, id, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &permissions, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &Status);
-#elif AR_EXPORT_VERSION >= 3
-	    ret = ARGetField(ctrl, schema, id, NULL, NULL, NULL, NULL, NULL, NULL, &permissions, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &Status);
-#else
-	    ret = ARGetField(ctrl, schema, id, NULL, NULL, NULL, NULL, &permissions, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &Status);
-#endif
 #ifdef PROFILE
 	    ((ars_ctrl *)ctrl)->queries++;
 #endif
@@ -2234,6 +2172,8 @@ ars_GetField(ctrl,schema,id)
             } else {
 	      FreeARStatusList(&Status, FALSE);
             } 
+	  }else{
+	   XSRETURN_UNDEF;
 	  }
 	}
 	OUTPUT:
@@ -2926,14 +2866,9 @@ ars_GetEscalation(ctrl, name)
 	{
 	  ARStatusList         status;
 	  AREscalationTmStruct escalationTm;
-#if AR_EXPORT_VERSION < 5
-	  ARNameType           schema;
-#endif
 	  unsigned int         enable =  0;
 	  ARFilterActionList   actionList;
-#if AR_EXPORT_VERSION >= 3
 	  ARFilterActionList   elseList;
-#endif
 	  char                *helpText = CPNULL;
 	  ARTimestamp          timestamp;
 	  ARAccessNameType     owner;
@@ -2943,13 +2878,10 @@ ars_GetEscalation(ctrl, name)
 	  int                  ret;
 	  ARQualifierStruct   *query = MALLOCNN(sizeof(ARQualifierStruct));
 	  ARDiaryList          diaryList;
-#if AR_EXPORT_VERSION >= 5
 	  ARWorkflowConnectStruct schemaList;
 	  ARPropList              objPropList;
-#endif
 
-	  RETVAL = newHV();
-	  sv_2mortal( (SV*) RETVAL );
+
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
 	  Zero(&escalationTm, 1, AREscalationTmStruct);
@@ -2958,35 +2890,22 @@ ars_GetEscalation(ctrl, name)
 	  Zero(owner, 1, ARAccessNameType);
 	  Zero(lastChanged, 1, ARAccessNameType);
 	  Zero(&diaryList, 1, ARDiaryList);
-#if AR_EXPORT_VERSION >= 5
 	  Zero(&elseList, 1,ARFilterActionList);
 	  Zero(&schemaList, 1, ARWorkflowConnectStruct);
 	  ret = ARGetEscalation(ctrl, name, &escalationTm, &schemaList, &enable,
 			query, &actionList, &elseList, &helpText, &timestamp,
 			owner, lastChanged, &changeDiary, &objPropList, &status);
-#elif AR_EXPORT_VERSION >= 3
-	  Zero(&elseList, 1,ARFilterActionList);
-	  ret = ARGetEscalation(ctrl, name, &escalationTm, schema, &enable,
-			query, &actionList, &elseList, &helpText, &timestamp,
-			owner, lastChanged, &changeDiary, &status);
-#else
-	  ret = ARGetEscalation(ctrl, name, &escalationTm, schema, &enable,
-			query, &actionList,            &helpText, &timestamp,
-			owner, lastChanged, &changeDiary, &status);
-#endif
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
 #endif
 	  if(!ARError( ret, status)) {
+	  	  RETVAL = newHV();
+	  sv_2mortal( (SV*) RETVAL );
 	     hv_store(RETVAL,  "name", strlen("name") , newSVpv(name, 0), 0);
-#if AR_EXPORT_VERSION >= 5
 		hv_store(RETVAL,  "schemaList", strlen("schemaList") , /* WorkflowConnectStruct */
 			perl_ARNameList(ctrl, schemaList.u.schemaList), 0);
 		hv_store(RETVAL,  "objPropList", strlen("objPropList") ,
 			perl_ARPropList(ctrl, &objPropList), 0);
-#else
-	     hv_store(RETVAL,  "schema", strlen("schema") , newSVpv(schema, 0), 0);
-#endif
 	     hv_store(RETVAL,  "enable", strlen("enable") , newSViv(enable), 0);
 	     hv_store(RETVAL,  "timestamp", strlen("timestamp") , newSViv(timestamp), 0);
 	     if(helpText)
@@ -2994,11 +2913,7 @@ ars_GetEscalation(ctrl, name)
 	     hv_store(RETVAL,  "owner", strlen("owner") , newSVpv(owner, 0), 0);
 	     hv_store(RETVAL,  "lastChanged", strlen("lastChanged") , newSVpv(lastChanged, 0), 0);
 	     if (changeDiary) {
-#if AR_EXPORT_VERSION >= 4
 		ret = ARDecodeDiary(ctrl, changeDiary, &diaryList, &status);
-#else
-		ret = ARDecodeDiary(changeDiary, &diaryList, &status);
-#endif
 		if (!ARError(ret, status)) {
 			hv_store(RETVAL,  "changeDiary", strlen("changeDiary") ,
 				perl_ARList(ctrl, 
@@ -3016,13 +2931,11 @@ ars_GetEscalation(ctrl, name)
 				(ARList *)&actionList,
 				(ARS_fn)perl_ARFilterActionStruct,
 				sizeof(ARFilterActionStruct)), 0);
-#if AR_EXPORT_VERSION >= 3
 	     hv_store(RETVAL,  "elseList", strlen("elseList") , 
 			perl_ARList( ctrl,
 				(ARList *)&elseList,
 				(ARS_fn)perl_ARFilterActionStruct,
 				sizeof(ARFilterActionStruct)), 0);
-#endif
 	     hv_store(RETVAL,  "TmType", strlen("TmType") , 
 			newSViv(escalationTm.escalationTmType), 0);
 	     switch(escalationTm.escalationTmType) {
@@ -3042,19 +2955,17 @@ ars_GetEscalation(ctrl, name)
 		break;
 	     }
 	     FreeARFilterActionList(&actionList, FALSE);
-#if AR_EXPORT_VERSION >= 3
 	     FreeARFilterActionList(&elseList, FALSE);
-#endif
-#if AR_EXPORT_VERSION >= 5
 	     FreeARWorkflowConnectStruct(&schemaList, FALSE);
 	     FreeARPropList(&objPropList, FALSE);
-#endif
 	     if(helpText) {
 	       	AP_FREE(helpText);
 	     }
 	     if(changeDiary) {
 	       	AP_FREE(changeDiary);
 	     }
+	  }else{
+	   XSRETURN_UNDEF;
 	  }
 	}
 	OUTPUT:
