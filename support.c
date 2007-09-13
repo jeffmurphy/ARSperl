@@ -35,6 +35,15 @@ $header: /u1/project/ARSperl/ARSperl/RCS/support.c,v 1.25 1999/01/04 21:04:27 jc
 #include "support.h"
 #include "supportrev.h"
 
+
+/* #if defined(malloc) && defined(_WIN32)
+ #undef malloc
+ #undef calloc
+ #undef realloc
+ #undef free
+#endif */
+
+
 int
 compmem(MEMCAST * m1, MEMCAST * m2, int size)
 {
@@ -68,9 +77,9 @@ copymem(MEMCAST * m1, MEMCAST * m2, int size)
 void           *
 mallocnn(int s)
 {
-#if defined(malloc) && defined(_WIN32)
+/* #if defined(malloc) && defined(_WIN32)
 #undef malloc
-#endif
+#endif */
 	void           *m = malloc(s ? s : 1);
 
 	if (!m)

@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.78 2007/07/20 19:44:34 jeffmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.79 2007/09/13 22:50:25 tstapff Exp $
 #
 # ARSperl Makefile
 #
@@ -30,7 +30,7 @@ $ARSAPI     = "/usr/ar/api";
 #$ARSAPI     = "/u1/project/ARSperl/api/linux/4.5";
 #$ARSAPI     = "/u1/project/ARSperl/api/linux/4.0";
 #$ARSAPI     = "/u1/project/ARSperl/api/sol2/api6.3";
-$ARSAPI     = "/u1/project/ARSperl/api/linux/7.0.1p1";
+#$ARSAPI     = "/u1/project/ARSperl/api/linux/7.0.1p1";
 #$ARSAPI     = "/u1/project/ARSperl/api/sol2/api5.1.1";
 # $ARSAPI     = "/home/jcmurphy/arsperl/api/5.1";
 # $ARSAPI     = q{\\\\ess7\devkits\ars\4.5\drops\drop4.5FCS\winnt};
@@ -49,7 +49,7 @@ $ARSAPI     = "/u1/project/ARSperl/api/linux/7.0.1p1";
 
 # STEP 2 -> Choose your version of ARS FROM THE FOLLOWING LIST
 #
-#                  2.0 2.1 3.0 3.1 3.2 4.0 4.52 5.0 6.0 6.01 6.3 7.0
+#                  2.0 2.1 3.0 3.1 3.2 4.0 4.52 5.0 6.0 6.01 6.3 7.0 7.1
 #
 #           notes
 #            - if there is a maintenace number (e.g. 4.5.2)
@@ -60,7 +60,7 @@ $ARSAPI     = "/u1/project/ARSperl/api/linux/7.0.1p1";
 #              your version (e.g. for 4.5 you would specify 4.0, NOT
 #	       4.52)
 #
-$ARSVERSION = 7.0;
+$ARSVERSION = 7.1;
 
 # STEP 3 -> Choose whether or not to enable encryption
 #

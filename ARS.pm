@@ -264,15 +264,19 @@ sub ars_simpleMenu {
 #   undef on error
 
 sub ars_padEntryid {
-    my($c) = shift;
-    my($schema) = shift;
-    my($entry_id) = shift;
-    my($field);
+	my($c) = shift;
+	my($schema) = shift;
+	my($entry_id) = shift;
+	my($field);
 
-    # entry id field is field id #1
-    ($field = ars_GetField($c, $schema, 1)) ||
+	# entry id field is field id #1
+	($field = ars_GetField($c, $schema, 1)) ||
 	return undef;
-    return ("0"x($field->{limit}{maxLength}-length($entry_id))).$entry_id;
+	if( $field->{defaultVal} ){
+		return $field->{defaultVal}.("0"x($field->{limit}{maxLength}-length($field->{defaultVal})-length($entry_id))).$entry_id;
+	}else{
+		return ("0"x($field->{limit}{maxLength}-length($entry_id))).$entry_id;
+	}	
 }
 
 # ROUTINE

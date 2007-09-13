@@ -7,6 +7,14 @@
 #include "support.h"
 
 
+/* #if defined(malloc) && defined(_WIN32)
+ #undef malloc
+ #undef calloc
+ #undef realloc
+ #undef free
+#endif */
+
+
 
 
 

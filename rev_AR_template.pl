@@ -77,6 +77,14 @@ void copyUIntArray( int size, ARInternalId *dst, SV* src );
 #include "support.h"
 
 
+/* #if defined(malloc) && defined(_WIN32)
+ #undef malloc
+ #undef calloc
+ #undef realloc
+ #undef free
+#endif */
+
+
 @> foreach my $class ( @classes_C ){
 @>     my $obj = $CONVERT{$class};
 @>

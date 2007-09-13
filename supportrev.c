@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.29 2007/04/21 22:22:06 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.30 2007/09/13 22:50:25 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -39,6 +39,15 @@ $Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.29 2007/04/21 22:22:06 tstapf
 #include "support.h"
 #include "supportrev.h"
 #include "supportrev_generated.h"
+
+
+/* #if defined(malloc) && defined(_WIN32)
+ #undef malloc
+ #undef calloc
+ #undef realloc
+ #undef free
+#endif */
+
 
 /*
  * forward declarations

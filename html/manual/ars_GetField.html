@@ -51,14 +51,26 @@ and <a href="ars_GetFieldTable.html"><code>ars_GetFieldTable</code></a>
 Example:
 </p>
 
-<pre>         ($field = ars_GetField($c, "User", 8)) || die $ars_errstr;<br>         print $field-&gt;{"helpText"};<br></pre>
+<pre>
+         ($field = ars_GetField($c, "User", 8)) || die $ars_errstr;
+         print $field-&gt;{"helpText"};
+</pre>
 
 
 Example of how to retrieve enumerated field labels (e.g. the Status (core field 7) field
 labels):
-<pre>	($field_info = ars_GetField($c, $s, 7})) ||<br>	    die "GetField: $ars_errstr (no Status field in this schema?)";<br><br>	@enum_vals = @{$field_info-&gt;{limit}{enumLimits}{regularList}};<br><br>	print "Status values: ".join(', ', @enum_vals)."\n";<br></pre>
+<pre>
+        ($field_info = ars_GetField($c, $s, 7})) ||
+            die "GetField: $ars_errstr (no Status field in this schema?)";
 
-
+        if( exists $field_info-&gt;{limit}{enumLimits}{regularList} ){
+            @enum_vals = @{$field_info-&gt;{limit}{enumLimits}{regularList}};
+        }else{
+            @enum_vals = @{$field_info-&gt;{limit}{enumLimits}{customList}};
+        }
+        
+        print "Status values: ".join(', ', @enum_vals)."\n";
+</pre>
 
 <hr width="30%">
 <p>

@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.117 2007/08/11 20:22:00 mbeijen Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.118 2007/09/13 22:50:25 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -30,6 +30,15 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.117 2007/08/11 20:22:00 mbeijen Exp
 #if AR_EXPORT_VERSION < 3
 #define AR_LIST_SCHEMA_ALL 1 
 #endif
+
+
+/* #if defined(malloc) && defined(_WIN32)
+ #undef malloc
+ #undef calloc
+ #undef realloc
+ #undef free
+#endif */
+
 
 MODULE = ARS		PACKAGE = ARS		PREFIX = ARS
 
@@ -350,37 +359,36 @@ ars_Login(server, username, password, lang=NULL, authString=NULL, tcpport=0, rpc
 
 HV*
 ars_VerifyUser(ctrl)
-       ARControlStruct *       ctrl
-       CODE:
-       {
-               int ret = 0;
-               ARBoolean       adminFlag  = 0,
-                               subAdminFlag = 0,
-                               customFlag   = 0;
-               ARStatusList status;
+	ARControlStruct *	ctrl
+	CODE:
+	{
+		int ret = 0;
+		ARBoolean	adminFlag  = 0,
+				subAdminFlag = 0,
+				customFlag   = 0; 
+		ARStatusList status;
 
-               (void) ARError_reset();
-               Zero(&status, 1, ARStatusList);
+		(void) ARError_reset();
+		Zero(&status, 1, ARStatusList);
 
-               ret = ARVerifyUser( ctrl, &adminFlag, &subAdminFlag, &customFlag,
-&status );
+		ret = ARVerifyUser( ctrl, &adminFlag, &subAdminFlag, &customFlag, &status );
 
-               if(! ARError(ret, status)) {
-                   RETVAL = newHV();
-                   sv_2mortal( (SV*) RETVAL );
+		/* printf( "ret = %d, adminFlag = %d, subAdminFlag = %d, customFlag = %d\n",
+			ret, adminFlag, subAdminFlag, customFlag ); */
 
-                       hv_store( RETVAL, "adminFlag",    strlen("adminFlag"),
-newSViv(adminFlag),    0);
-                       hv_store( RETVAL, "subAdminFlag", strlen("subAdminFlag"),
-newSViv(subAdminFlag), 0);
-                       hv_store( RETVAL, "customFlag",   strlen("customFlag"),
-newSViv(customFlag),   0);
-               }else{
-                       XSRETURN_UNDEF;
-               }
-       }
-       OUTPUT:
-       RETVAL
+		if(! ARError(ret, status)) {
+		    RETVAL = newHV();
+		    sv_2mortal( (SV*) RETVAL );
+
+			hv_store( RETVAL, "adminFlag",    strlen("adminFlag"),    newSViv(adminFlag),    0);
+			hv_store( RETVAL, "subAdminFlag", strlen("subAdminFlag"), newSViv(subAdminFlag), 0);
+			hv_store( RETVAL, "customFlag",   strlen("customFlag"),   newSViv(customFlag),   0);
+		}else{
+			XSRETURN_UNDEF;
+		}
+	}
+	OUTPUT:
+	RETVAL
 
 void
 ars_GetControlStructFields(ctrl)
@@ -1474,6 +1482,10 @@ ars_GetFilter(ctrl,name)
 	  ARDiaryList      diaryList;
 	  ARWorkflowConnectStruct  schemaList;
 	  ARPropList       objPropList;
+#if AR_CURRENT_API_VERSION >= 13
+	  unsigned int errorFilterOptions;
+	  ARNameType   errorFilterName;
+#endif
 
 	  AMALLOCNN(query,1,ARQualifierStruct);
 
@@ -1485,12 +1497,19 @@ ars_GetFilter(ctrl,name)
 	  Zero(lastChanged, 1, ARAccessNameType);
 	  Zero(&diaryList, 1, ARDiaryList);
 	  Zero(&status, 1,ARStatusList);
+#if AR_CURRENT_API_VERSION >= 13
+	  Zero(&errorFilterName, 1,ARNameType);
+#endif
 	  ret = ARGetFilter(ctrl, name, &order, 
 			    &schemaList,
 			    &opSet, &enable, 
 			    query, &actionList, &elseList, &helpText,
 			    &timestamp, owner, lastChanged, &changeDiary,
 			    &objPropList,
+#if AR_CURRENT_API_VERSION >= 13
+			    &errorFilterOptions,
+			    errorFilterName,
+#endif
 			    &status);
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
@@ -1535,6 +1554,10 @@ ars_GetFilter(ctrl,name)
 			FreeARDiaryList(&diaryList, FALSE);
 		}
 	    }
+#if AR_CURRENT_API_VERSION >= 13
+	    hv_store(RETVAL,  "errorFilterOptions", strlen("errorFilterOptions") , newSViv(errorFilterOptions), 0);
+	    hv_store(RETVAL,  "errorFilterName",    strlen("errorFilterName") ,    newSVpv(errorFilterName, 0), 0);
+#endif
 	    FreeARFilterActionList(&actionList,FALSE);
 	    FreeARFilterActionList(&elseList,FALSE);
 	    FreeARWorkflowConnectStruct(&schemaList, FALSE);
@@ -2103,7 +2126,11 @@ ars_GetField(ctrl,schema,id)
 	  Zero(owner,        1, ARAccessNameType);
 	  Zero(lastChanged,  1, ARAccessNameType);
 	  Zero(&diaryList,   1, ARDiaryList);
+#if AR_EXPORT_VERSION >= 9
 	  ret = ARGetFieldCached(ctrl, schema, id, fieldName, &fieldMap, &dataType, &option, &createMode, &fieldOption, &defaultVal, NULL /* &permissions */, &limit, &displayList, &helpText, &timestamp, owner, lastChanged, &changeDiary, &Status);
+#else
+	  ret = ARGetFieldCached(ctrl, schema, id, fieldName, &fieldMap, &dataType, &option, &createMode, &defaultVal, NULL /* &permissions */, &limit, &displayList, &helpText, &timestamp, owner, lastChanged, &changeDiary, &Status);
+#endif
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
 #endif
@@ -2161,7 +2188,11 @@ ars_GetField(ctrl,schema,id)
 	    if(changeDiary) {
 	      	AP_FREE(changeDiary);
 	    }
+#if AR_EXPORT_VERSION >= 9L
 	    ret = ARGetField(ctrl, schema, id, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &permissions, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &Status);
+#else
+	    ret = ARGetField(ctrl, schema, id, NULL, NULL, NULL, NULL, NULL, NULL, &permissions, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &Status);
+#endif
 #ifdef PROFILE
 	    ((ars_ctrl *)ctrl)->queries++;
 #endif
@@ -4637,7 +4668,7 @@ ars_SetVUI( ctrl, schemaName, vuiId, vuiDefRef )
 #if AR_EXPORT_VERSION >= 6L
 		int ret = 0, rv = 0;
 		ARNameType vuiName;
-		char *vuiNamePtr;
+		char *vuiNamePtr = NULL;
 		ARLocaleType locale;
 		char *localePtr = NULL;
 		unsigned int vuiType;
@@ -5454,6 +5485,10 @@ ars_CreateFilter(ctrl, objDefRef)
 	  ARNameList              schemaNameList;
 	  ARWorkflowConnectStruct schemaList;
 	  ARPropList              objPropList;
+#if AR_CURRENT_API_VERSION >= 13
+	  unsigned int           errorFilterOptions = 0;
+	  ARNameType             errorFilterName;
+#endif
 	  
 	  RETVAL = 0; /* assume error */
 	  (void) ARError_reset();
@@ -5466,6 +5501,9 @@ ars_CreateFilter(ctrl, objDefRef)
 	  Zero(&objPropList, 1, ARPropList);
 	  Zero(&schemaList, 1, ARWorkflowConnectStruct);
 	  Zero(&schemaNameList, 1, ARNameList);
+#if AR_CURRENT_API_VERSION >= 13
+	  Zero(errorFilterName, 1, ARNameType);
+#endif
 	  schemaList.type = AR_WORKFLOW_CONN_SCHEMA_LIST;
 	  schemaList.u.schemaList = &schemaNameList;
 
@@ -5522,6 +5560,13 @@ ars_CreateFilter(ctrl, objDefRef)
 		if(hv_exists(objDef,  "objPropList", strlen("objPropList") ))
 			rv += rev_ARPropList(ctrl, objDef, "objPropList",
 					     &objPropList);
+#if AR_CURRENT_API_VERSION >= 13
+		if( hv_exists(objDef, "errorFilterOptions", strlen("errorFilterOptions")) )
+			rv += uintcpyHVal( objDef, "errorFilterOptions", &errorFilterOptions );
+
+		if( hv_exists(objDef, "errorFilterName", strlen("errorFilterName")) )
+			rv += strcpyHVal( objDef, "errorFilterName", errorFilterName, sizeof(ARNameType) );
+#endif
 
 		/* at this point all datastructures (hopefully) are 
 		 * built. we can call the api routine to create the
@@ -5533,7 +5578,12 @@ ars_CreateFilter(ctrl, objDefRef)
 					    enable, query,
 					    &actionList, &elseList, 
 					    helpText, owner, changeDiary, 
-					    &objPropList, &status);
+					    &objPropList,
+#if AR_CURRENT_API_VERSION >= 13
+					    errorFilterOptions,
+					    errorFilterName,
+#endif
+					    &status);
 		   if(!ARError( ret, status))
 			   RETVAL = 1;
 		} else 
@@ -5584,12 +5634,20 @@ ars_SetFilter(ctrl, name, objDefRef)
 	  ARStatusList             status;
 	  ARWorkflowConnectStruct  *schemaList = NULL;
 	  ARPropList               *objPropList = NULL;
+#if AR_CURRENT_API_VERSION >= 13
+	  unsigned int           *errorFilterOptions = NULL;
+	  ARNameType              errorFilterName;
+	  char                   *errorFilterNamePtr = NULL;
+#endif
 	  
 	  RETVAL = 0; /* assume error */
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
 	  Zero(newName, 1, ARNameType);
 	  Zero(owner, 1, ARAccessNameType);
+#if AR_CURRENT_API_VERSION >= 13
+	  Zero(errorFilterName, 1, ARNameType);
+#endif
 
 	  if(SvTYPE((SV *)SvRV(objDefRef)) != SVt_PVHV) {
 		ARError_add( AR_RETURN_ERROR, AP_ERR_EXPECT_PVHV);
@@ -5664,6 +5722,17 @@ ars_SetFilter(ctrl, name, objDefRef)
 			elseList = (ARFilterActionList*) MALLOCNN(sizeof(ARFilterActionList));
 			rv += rev_ARFilterActionList(ctrl, objDef, "elseList", elseList);
 		}
+#if AR_CURRENT_API_VERSION >= 13
+		if( hv_exists(objDef,"errorFilterOptions",18) ){
+			errorFilterOptions = (unsigned int*) MALLOCNN(sizeof(unsigned int));
+			rv += uintcpyHVal( objDef, "errorFilterOptions", errorFilterOptions);
+		}
+
+		if(hv_exists(objDef, "errorFilterName", strlen("errorFilterName") )){
+			rv += strcpyHVal( objDef, "errorFilterName", errorFilterName, sizeof(ARNameType));
+			errorFilterNamePtr = errorFilterName;
+		}
+#endif
 
 		/* at this point all datastructures (hopefully) are 
 		 * built. we can call the api routine to modify the workflow object
@@ -5674,7 +5743,12 @@ ars_SetFilter(ctrl, name, objDefRef)
 					    enable, query,
 					    actionList, elseList, 
 					    helpText, ownerPtr, changeDiary, 
-					    objPropList, &status);
+					    objPropList, 
+#if AR_CURRENT_API_VERSION >= 13
+					    errorFilterOptions,
+					    errorFilterNamePtr,
+#endif
+					    &status);
 		   if(!ARError( ret, status))
 			   RETVAL = 1;
 		} else 
@@ -6366,7 +6440,7 @@ ars_SetLogging( ctrl, logTypeMask, ...)
 		ARStatusList     status;
 		unsigned long    whereToWriteMask = AR_WRITE_TO_STATUS_LIST;
 		int	             ret;
-		FILE             *logFilePtr;
+		FILE             *logFilePtr = NULL;
 
 		(void) ARError_reset();
 		Zero(&status, 1, ARStatusList);
@@ -6647,7 +6721,7 @@ ars_GetListAlertUser(ctrl)
 	}
 
 SV *
-ars_GetAlertCount(ctrl,qualifier)
+ars_GetAlertCount(ctrl,qualifier=NULL)
 	ARControlStruct *	ctrl
 	ARQualifierStruct *	qualifier
 	CODE:
@@ -6663,7 +6737,8 @@ ars_GetAlertCount(ctrl,qualifier)
 		ret = ARGetAlertCount(ctrl, qualifier, &count,
 				      &status);
 		if( !ARError(ret, status) ) {
-			RETVAL=sv_2mortal(newSViv(count));
+			/* RETVAL=sv_2mortal(newSViv(count)); */
+			RETVAL = newSViv(count);
 		}
 #else
 	  (void) ARError_add(AR_RETURN_ERROR, AP_ERR_DEPRECATED, 

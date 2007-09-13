@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Header: /cvsroot/arsperl/ARSperl/infra/exsi.pl,v 1.1 2003/03/27 18:00:04 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/infra/exsi.pl,v 1.2 2007/09/13 22:50:26 tstapff Exp $
 #
 # NAME
 #   exsi.pl < ar.h > server_info_type_hints.h
@@ -15,6 +15,9 @@
 #   jcmurphy@jeffmurphy.org
 #
 # $Log: exsi.pl,v $
+# Revision 1.2  2007/09/13 22:50:26  tstapff
+# arsystem 7.1 port
+#
 # Revision 1.1  2003/03/27 18:00:04  jcmurphy
 # exsi.pl
 #
@@ -57,6 +60,10 @@ while(<>) {
 # AR_SERVER_INFO_MESSAGE_CAT_SCHEMA [138] is an name
 # AR_SERVER_INFO_MAX_AUDIT_LOG_FILE_SIZE [120] is an 0
 # AR_SERVER_INFO_SVR_EVENT_LIST [141] is an list
+
+		$sit = "int" if $sin eq "AR_SERVER_INFO_DB_MAX_ATTACH_SIZE";
+		$sit = "int" if $sin eq "AR_SERVER_INFO_DB_MAX_TEXT_SIZE";
+		$sit = "char" if $sin eq "AR_SERVER_INFO_GUID_PREFIX";
 
 
 		#print "\t/*$sin [$siv] is an $sit*/\n";
