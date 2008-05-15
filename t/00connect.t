@@ -20,7 +20,7 @@ print "1..3\n";
 
 my($ctrl) = ars_Login(&CCACHE::SERVER, 
 		      &CCACHE::USERNAME, 
- 		      &CCACHE::PASSWORD);
+ 		      &CCACHE::PASSWORD, "", "", &CCACHE::TCPPORT);
 
 if(!defined($ctrl)) {
   print "not ok [1 $ars_errstr]\n";
@@ -32,7 +32,7 @@ if(!defined($ctrl)) {
 {
   my ($c2) = ars_Login (&CCACHE::SERVER, 
 			&CCACHE::USERNAME, 
-			&CCACHE::PASSWORD);
+			&CCACHE::PASSWORD, "", "", &CCACHE::TCPPORT);
 
   if (!defined($c2)) {
     print "not ok [2 $ars_errstr]\n";
@@ -53,6 +53,7 @@ if(!defined($ctrl)) {
 my $c = new ARS(-server => &CCACHE::SERVER, 
                 -username => &CCACHE::USERNAME,
 		-password => &CCACHE::PASSWORD,
+		-tcpport  => &CCACHE::TCPPORT,
 		-catch => { ARS::AR_RETURN_ERROR => undef,
 			    ARS::AR_RETURN_WARNING => undef,
 			    ARS::AR_RETURN_FATAL => undef

@@ -8,7 +8,7 @@ use Test::More tests => 9;
 
 my $c = ars_Login(&CCACHE::SERVER, 
 		  &CCACHE::USERNAME,
-                  &CCACHE::PASSWORD);
+                  &CCACHE::PASSWORD, "","", &CCACHE::TCPPORT);
 
 ok(defined($c), "login") || diag "login: $ars_errstr";
 

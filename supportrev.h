@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.16 2007/04/21 22:22:06 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.17 2008/05/15 18:30:03 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -99,7 +99,7 @@ EXTERN int rev_ARAssignSQLStruct(ARControlStruct *ctrl,
 				 HV *h, char *k, ARAssignSQLStruct *s);
 #endif
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__GNUC__)
 /* roll our own strcasecmp and strncasecmp for Win */
 
 EXTERN int strcasecmp(char *s1, char *s2);

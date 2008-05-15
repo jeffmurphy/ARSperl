@@ -86,7 +86,7 @@ sub rearrange {
   foreach my $key (keys %$param) {
     #print "validating: $key\n";
     my (@t) = grep(/^$key$/, @possibilities);
-    Carp::confess "invalid named parameter \"$key\"" if $#t == -1;
+    Carp::confess( "invalid named parameter \"$key\"" ) if $#t == -1;
   }  
 
   my(@return_array);

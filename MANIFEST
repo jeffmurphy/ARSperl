@@ -15,7 +15,6 @@ README
 RELNOTES
 StructDef.pl
 TODO
-USAGE
 changes.dat
 rev_AR_template.pl
 support-h.template
@@ -25,9 +24,6 @@ supportrev.h
 supportrev_generated.c
 supportrev_generated.h
 typemap
-example/2.x/Notifier.pl
-example/3.x/Notifier.pl
-example/3.x/SendNotification.pl
 example/00-ReadMe
 example/AddUsersToGroup.pl
 example/DelUsersFromGroup.pl
@@ -39,7 +35,6 @@ example/GetField.pl
 example/GetFilter.pl
 example/GetServerStatistics.pl
 example/Get_Diary.pl
-example/ListNTServers.pl
 example/List_Entries.pl
 example/PrintQual.pl
 example/Show_ALink.pl

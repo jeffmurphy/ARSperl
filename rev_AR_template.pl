@@ -77,12 +77,12 @@ void copyUIntArray( int size, ARInternalId *dst, SV* src );
 #include "support.h"
 
 
-/* #if defined(malloc) && defined(_WIN32)
+#if defined(ARSPERL_UNDEF_MALLOC) && defined(malloc)
  #undef malloc
  #undef calloc
  #undef realloc
  #undef free
-#endif */
+#endif
 
 
 @> foreach my $class ( @classes_C ){
@@ -384,7 +384,7 @@ void copyIntArray( int size, int *dst, SV* src ){
 		if( i <= len ){ 
 			SV** item = av_fetch( ar, i, 0 );
 			if( item != NULL && *item != NULL && i <= len ){
-				dst[i] = SvIV( *item );
+				dst[i] = (SvOK(*item))? SvIV(*item) : 0;
 			}
 		}
 	}
@@ -399,7 +399,7 @@ void copyUIntArray( int size, ARInternalId *dst, SV* src ){
 		if( i <= len ){ 
 			SV** item = av_fetch( ar, i, 0 );
 			if( item != NULL && *item != NULL && i <= len ){
-				dst[i] = SvUV( *item );
+				dst[i] = (SvOK(*item))? SvUV(*item) : 0;
 			}
 		}
 	}
@@ -589,9 +589,9 @@ sub findSubKey {
 sub versionIf {
 	my( $obj ) = @_;
 	if( $obj->{_min_version} ){
-		return '#if AR_EXPORT_VERSION >= ' . $EXPORT_VERSION{$obj->{_min_version}};
+		return '#if AR_CURRENT_API_VERSION >= ' . $CURRENT_API_VERSION{$obj->{_min_version}};
 	}elsif( $obj->{_max_version} ){
-		return '#if AR_EXPORT_VERSION <= ' . $EXPORT_VERSION{$obj->{_max_version}};
+		return '#if AR_CURRENT_API_VERSION <= ' . $CURRENT_API_VERSION{$obj->{_max_version}};
 	}else{
 		return '';
 	}

@@ -19,7 +19,7 @@ print "1..4\n";
 
 my($ctrl) = ars_Login(&CCACHE::SERVER, 
 		      &CCACHE::USERNAME, 
- 		      &CCACHE::PASSWORD);
+ 		      &CCACHE::PASSWORD, "","", &CCACHE::TCPPORT);
 
 if(!defined($ctrl)) {
   print "not ok [1]\n";

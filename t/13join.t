@@ -11,7 +11,7 @@ print "1..$NT\n";
 
 my($ctrl) = ars_Login(&CCACHE::SERVER, 
 		      &CCACHE::USERNAME, 
- 		      &CCACHE::PASSWORD);
+ 		      &CCACHE::PASSWORD, "","", &CCACHE::TCPPORT);
 
 if(!defined($ctrl)) {
 	print "not ok [", $TN++, "]\n";

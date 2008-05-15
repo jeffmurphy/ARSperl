@@ -24,8 +24,8 @@ sub new {
   my ($class, @p) = (shift, @_);
   my ($self) = {};
   my ($blessed) = bless($self, $class);
-  my ($server, $username, $password, $catch, $ctrl, $dbg) = 
-    rearrange([SERVER,USERNAME,PASSWORD,CATCH,CTRL,DEBUG],@p);
+  my ($server, $username, $password, $catch, $ctrl, $dbg, $tcpport) = 
+    rearrange([SERVER,USERNAME,PASSWORD,CATCH,CTRL,DEBUG,TCPPORT],@p);
   # should the OO layer emit debugging information?
 
   $self->{'.debug'} = 0;
@@ -71,7 +71,7 @@ sub new {
   } else {
       print "new connection object: ($server, $username, $password)\n" 
 	  if $self->{'.debug'};
-      $self->{'ctrl'} = ars_Login($server, $username, $password);
+      $self->{'ctrl'} = ars_Login($server, $username, $password, "","", $tcpport);
       $self->{'.nologoff'} = 0;
       $self->tryCatch();
   }

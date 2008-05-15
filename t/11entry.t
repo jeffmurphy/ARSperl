@@ -28,7 +28,8 @@ if( 1 ) { # BYPASS
 
 my $c = new ARS(-server => &CCACHE::SERVER, 
 		-username => &CCACHE::USERNAME,
-                -password => &CCACHE::PASSWORD,
+		-password => &CCACHE::PASSWORD,
+		-tcpport  => &CCACHE::TCPPORT,
                 -catch => { ARS::AR_RETURN_ERROR => "main::mycatch",
                             ARS::AR_RETURN_WARNING => "main::mycatch",
                             ARS::AR_RETURN_FATAL => "main::mycatch"

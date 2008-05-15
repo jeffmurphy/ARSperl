@@ -1,6 +1,12 @@
 released=xx/xx/xxx version=1.91
+TS  fixed actionList/elseList bug in ars_SetActiveLink
+TS  added AR_DATA_TYPE_VIEW handling to perl_ARValueStruct_Assign,rev_ARActiveLinkActionList
+TS  modified Makefile.PL for easier automated testing (handling of ARSPERLTEST_PARAM)
+TS  added ars_GetListRole, ars_GetListRole, ars_Signal, ars_GetTextForErrorMessage
+!TS  changed return struct of ars_GetListGroup
+TS  fixed IVLD macro in support-h.template
 TS  fixed ars_padEntryid to work correctly if entry ID prefix is defined
-TS  malloc-on-windows patch commented out because of crash with API 6.3.0
+TS  replaced malloc-on-windows patch by UNDEF_PERL_MALLOC compilation option in Makefile.PL
 TS  fixed pointer initialization error in ars_SetVUI
 TS  modified ars_Create/Get/SetFilter for API 7.1
 TS  fixed ars_GetAlertCount
@@ -15,7 +21,7 @@ TS  fixed memory leak in ars_Get... functions (added "sv_2mortal( (SV*) RETVAL )
 TS  bugfix in dup_Value (support.c) for API version <= 5.0.1
 TS  changed enum limits processing in perl_ARFieldLimitStruct for API version <= 5.0.1
 TS  updated MANIFEST file
-TS  replaced strdup() by arsperl_strdup() form win32 to fix problems with VisualStudio8
+TS  replaced strdup() by arsperl_strdup() for win32 to fix problems with VisualStudio8
 TS  changed type of "owner" attribute: ARNameType -> ARAccessNameType
 TS  corrected function signature for ars_SetVUI, ars_CreateSchema
 TS  fixed memory leak in sv_to_ARValue (support.c)

@@ -3,13 +3,14 @@
 # perl -w -Iblib/lib -Iblib/arch t/40createcharmenu.t 
 
 use strict;
+use warnings;
 use ARS;
 require './t/config.cache';
 
 print "1..2\n";
 
 
-my $ctrl = ars_Login( &CCACHE::SERVER, &CCACHE::USERNAME, &CCACHE::PASSWORD );
+my $ctrl = ars_Login( &CCACHE::SERVER, &CCACHE::USERNAME, &CCACHE::PASSWORD, "","", &CCACHE::TCPPORT );
 if (defined($ctrl)) {
 	print "ok [1] (login)\n";
 } else {

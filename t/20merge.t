@@ -8,7 +8,7 @@ print "1..$maxtest\n";
 
 my $c = ars_Login(&CCACHE::SERVER, 
 		  &CCACHE::USERNAME, 
-		  &CCACHE::PASSWORD);
+		  &CCACHE::PASSWORD, "","", &CCACHE::TCPPORT);
 
 if(!defined($c)) {
 	for(my $i = 1 ; $i <= $maxtest ; $i++) {

@@ -5,7 +5,7 @@ require './t/config.cache';
 
 print "1..9\n";
 
-my($ctrl) = ars_Login(&CCACHE::SERVER, &CCACHE::USERNAME, &CCACHE::PASSWORD);
+my($ctrl) = ars_Login(&CCACHE::SERVER, &CCACHE::USERNAME, &CCACHE::PASSWORD, "", "", &CCACHE::TCPPORT);
 if(!defined($ctrl)) {
   print "not ok (login $ars_errstr)\n";
   exit 0;
@@ -19,7 +19,8 @@ if(ars_APIVersion() >= 4) {
 my $def = "";
 my $c = 1;
 
-my @objects =  ("schema", "ARSperl Test",
+my @objects =  (
+		"schema", "ARSperl Test",
 		"schema", "ARSperl Test2",
 		"schema", "ARSperl Test-join",
 		"filter", "ARSperl Test-Filter1",
@@ -38,7 +39,6 @@ if (defined($junk)) {
 $c++;
 
 for (my $i = 0 ; $i < $#objects ; $i += 2) {
-
   my $d2 = ars_Export($ctrl, "", 0, $objects[$i], $objects[$i+1]);
   if (!defined($d2)) {
     print "not ok [$c] ($ars_errstr)\n";

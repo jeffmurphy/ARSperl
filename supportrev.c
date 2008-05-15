@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.30 2007/09/13 22:50:25 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.31 2008/05/15 18:30:03 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -41,12 +41,12 @@ $Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.30 2007/09/13 22:50:25 tstapf
 #include "supportrev_generated.h"
 
 
-/* #if defined(malloc) && defined(_WIN32)
+#if defined(ARSPERL_UNDEF_MALLOC) && defined(malloc)
  #undef malloc
  #undef calloc
  #undef realloc
  #undef free
-#endif */
+#endif
 
 
 /*
@@ -436,6 +436,8 @@ ulongcpyHVal(HV * h, char *k, unsigned long *b)
 				} else
 					ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
 						    "ulongcpyHVal: hash value is not an integer");
+					ARError_add(AR_RETURN_WARNING, AP_ERR_CONTINUE,
+							k ? k : "n/a");
 			} else {
 				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
 				    "ulongcpyHVal: hv_fetch returned null");
@@ -938,6 +940,13 @@ rev_ARActiveLinkActionList_helper(ARControlStruct * ctrl, HV * h, ARActiveLinkAc
 		rv += rev_ARAutomationStruct(ctrl, h, "automation",
 				  &(al->actionList[idx].u.automation));
 
+#if AR_CURRENT_API_VERSION >= 13
+	} else if (hv_exists(h,  "service", strlen("service") )) {
+		al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_SERVICE;
+		rv += rev_ARActiveLinkSvcActionStruct(ctrl, h, "service",
+				  &(al->actionList[idx].u.service));
+#endif
+
 	} else if (hv_exists(h,  "none", strlen("none") )) {
 		al->actionList[idx].action = AR_ACTIVE_LINK_ACTION_NONE;
 	} else {
@@ -1234,19 +1243,23 @@ rev_ARValueStruct(ARControlStruct * ctrl, HV * h, char *k, char *t, ARValueStruc
 
 	val = hv_fetch(h,  k, strlen(k) , 0);
 	type = hv_fetch(h,  t, strlen(t) , 0);
+
+
 	if (val && *val && type && *type && SvPOK(*type)) {
-		char           *tp = SvPV(*type, PL_na), 
-		               *vp = SvPV(*val,  PL_na);
-
-
+		char *tp, *vp;
 		int len;
 		char *str;
-		str = SvPV( *val, len );
-		if( len > 0 && str[0] == '\0' ){
-			m->dataType = AR_DATA_TYPE_KEYWORD;
-			if (rev_ARValueStructKW2KN(ctrl, str, &(m->u.keyNum)) == -1) return -1;
-			return 0;
+
+		if( SvOK(*val) ){
+			str = SvPV( *val, len );
+			if( len > 0 && str[0] == '\0' ){
+				m->dataType = AR_DATA_TYPE_KEYWORD;
+				if (rev_ARValueStructKW2KN(ctrl, str, &(m->u.keyNum)) == -1) return -1;
+				return 0;
+			}
 		}
+
+		tp = SvPV(*type, PL_na);
 
 		(void) rev_ARValueStructStr2Type(ctrl, tp, &(m->dataType));
 		switch (m->dataType) {
@@ -1254,6 +1267,7 @@ rev_ARValueStruct(ARControlStruct * ctrl, HV * h, char *k, char *t, ARValueStruc
 			m->u.intVal = 0;
 			break;
 		case AR_DATA_TYPE_KEYWORD:
+			vp = SvPV(*val,  PL_na);
 			if (rev_ARValueStructKW2KN(ctrl, vp, &(m->u.keyNum)) == -1)
 				return -1;
 			break;
@@ -1322,6 +1336,7 @@ rev_ARValueStruct(ARControlStruct * ctrl, HV * h, char *k, char *t, ARValueStruc
 			if( sv_to_ARCurrencyStruct(ctrl,*val,m->u.currencyVal) == -1 )
 				return -1;
 			break;
+		case AR_DATA_TYPE_VIEW:
 		case AR_DATA_TYPE_DISPLAY:
 			if (strmakHVal(h, k, &(m->u.charVal)) == -1)
 				return -1;
@@ -2574,7 +2589,7 @@ rev_ARMacroParmList(ARControlStruct * ctrl, HV * h, char *k, ARMacroParmList * m
 	return -1;
 }
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__GNUC__)
 /* roll our own strcasecmp and strncasecmp for Win */
 
 int 

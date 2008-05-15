@@ -1,19 +1,19 @@
 
 
-%EXPORT_VERSION = (
-	'4.0.3' => '4L',
-	'4.5.1' => '5L',
-	'4.5.2' => '5L',
-	'5.0.0' => '6L',
-	'5.0.1' => '6L',
-	'5.1.0' => '7L',
-	'5.1.1' => '7L',
-	'5.1.2' => '7L',
-	'6.0.0' => '8L',
-	'6.0.1' => '8L',
-	'6.3.0' => '8L',
-	'7.0.0' => '9L',
-	'7.0.1' => '9L',
+%CURRENT_API_VERSION = (
+	'4.5.1' => '7',
+	'4.5.2' => '7',
+	'5.0.0' => '8',
+	'5.0.1' => '8',
+	'5.1.0' => '9',
+	'5.1.1' => '9',
+	'5.1.2' => '9',
+	'6.0.0' => '10',
+	'6.0.1' => '10',
+	'6.3.0' => '11',
+	'7.0.0' => '12',
+	'7.0.1' => '12',
+	'7.1.0' => '13',
 );
 
 $CTRL_PREFIX = '_';
@@ -1584,13 +1584,13 @@ ARAuditInfoStruct => {
 
 
 ARBulkEntryReturnList => {
-	_min_version => '7.0.0',
+	_min_version => '6.3.0',
 	_num  => 'p->numItems',
 	_list => 'p->entryReturnList',
 	_type => 'ARBulkEntryReturn',
 },
 ARBulkEntryReturn => {
-	_min_version => '7.0.0',
+	_min_version => '6.3.0',
 	_switch => 'p->entryCallType',
 	_case => {
 		AR_BULK_ENTRY_CREATE => {
@@ -1638,7 +1638,7 @@ ARBulkEntryReturn => {
 	},
 },
 AREntryReturn => {
-	_min_version => '7.0.0',
+	_min_version => '6.3.0',
 	entryId => {
 		_type => 'AREntryIdType',
 		_data => 'p->entryId',
@@ -1649,7 +1649,7 @@ AREntryReturn => {
 	},
 },
 ARXMLEntryReturn => {
-	_min_version => '7.0.0',
+	_min_version => '6.3.0',
 	outputDoc => {
 		_type => 'char *',
 		_data => 'p->outputDoc',
@@ -1810,6 +1810,71 @@ ARQualifierList => {
 	_list => 'p->qualifierList',
 	_type => 'ARQualifierStruct',
 },
+ARActiveLinkSvcActionStruct => {
+	_min_version => '7.1.0',
+	serverName => {
+		_type => 'ARServerNameType',
+		_data => 'p->serverName',
+	},
+	serviceSchema => {
+		_type => 'ARNameType',
+		_data => 'p->serviceSchema',
+	},
+	requestIdMap => {
+		_type => 'ARInternalId',
+		_data => 'p->requestIdMap',
+	},
+	inputFieldMapping => {
+		_type => 'ARFieldAssignList',
+		_data => 'p->inputFieldMapping',
+	},
+	outputFieldMapping => {
+		_type => 'ARFieldAssignList',
+		_data => 'p->outputFieldMapping',
+	},
+	sampleServer => {
+		_type => 'ARServerNameType',
+		_data => 'p->sampleServer',
+	},
+	sampleSchema => {
+		_type => 'ARNameType',
+		_data => 'p->sampleSchema',
+	},
+},
+ARLicenseDateStruct => {
+	month => {
+		_type => 'int',
+		_data => 'p->month',
+	},
+	day => {
+		_type => 'int',
+		_data => 'p->day',
+	},
+	year => {
+		_type => 'int',
+		_data => 'p->year',
+	},
+},
+ARLicenseValidStruct => {
+	numLicenses => {
+		_type => 'int',
+		_data => 'p->numLicenses',
+	},
+	isDemo => {
+		_type => 'ARBoolean',
+		_data => 'p->isDemo',
+	},
+	expireDate => {
+		_type => 'ARLicenseDateStruct',
+		_data => 'p->expireDate',
+	},
+	tokenList => {
+		_type => 'char *',
+		_data => 'p->tokenList',
+	},
+},
+
+
 
 #ARArchiveInfoStruct => {
 #	_min_version => '6.0.0',
@@ -2050,7 +2115,6 @@ ARQualifierList => {
 
 
 );
-
 
 
 

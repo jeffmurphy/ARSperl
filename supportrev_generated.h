@@ -21,13 +21,16 @@
 #include <limits.h>
 
 
+#if AR_CURRENT_API_VERSION >= 13
+EXTERN int rev_ARActiveLinkSvcActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARActiveLinkSvcActionStruct *p );
+#endif
 
 EXTERN int rev_ARArithOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARArithOpStruct *p );
 
 
 EXTERN int rev_ARAttachLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARAttachLimitsStruct *p );
 
-#if AR_EXPORT_VERSION >= 9L
+#if AR_CURRENT_API_VERSION >= 12
 EXTERN int rev_ARAuditInfoStruct( ARControlStruct *ctrl, HV *h, char *k, ARAuditInfoStruct *p );
 #endif
 
@@ -35,10 +38,10 @@ EXTERN int rev_ARAutomationStruct( ARControlStruct *ctrl, HV *h, char *k, ARAuto
 
 
 
-#if AR_EXPORT_VERSION >= 9L
+#if AR_CURRENT_API_VERSION >= 11
 EXTERN int rev_ARBulkEntryReturn( ARControlStruct *ctrl, HV *h, char *k, ARBulkEntryReturn *p );
 #endif
-#if AR_EXPORT_VERSION >= 9L
+#if AR_CURRENT_API_VERSION >= 11
 EXTERN int rev_ARBulkEntryReturnList( ARControlStruct *ctrl, HV *h, char *k, ARBulkEntryReturnList *p );
 #endif
 
@@ -107,24 +110,24 @@ EXTERN int rev_ARContainerOwnerObj( ARControlStruct *ctrl, HV *h, char *k, ARCon
 
 EXTERN int rev_ARContainerOwnerObjList( ARControlStruct *ctrl, HV *h, char *k, ARContainerOwnerObjList *p );
 
-#if AR_EXPORT_VERSION >= 7L
+#if AR_CURRENT_API_VERSION >= 9
 #endif
-#if AR_EXPORT_VERSION >= 7L
+#if AR_CURRENT_API_VERSION >= 9
 EXTERN int rev_ARCurrencyDetailList( ARControlStruct *ctrl, HV *h, char *k, ARCurrencyDetailList *p );
 #endif
-#if AR_EXPORT_VERSION >= 7L
+#if AR_CURRENT_API_VERSION >= 9
 EXTERN int rev_ARCurrencyDetailStruct( ARControlStruct *ctrl, HV *h, char *k, ARCurrencyDetailStruct *p );
 #endif
-#if AR_EXPORT_VERSION >= 7L
+#if AR_CURRENT_API_VERSION >= 9
 EXTERN int rev_ARCurrencyLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARCurrencyLimitsStruct *p );
 #endif
-#if AR_EXPORT_VERSION >= 7L
+#if AR_CURRENT_API_VERSION >= 9
 EXTERN int rev_ARCurrencyPartStruct( ARControlStruct *ctrl, HV *h, char *k, ARCurrencyPartStruct *p );
 #endif
 
 EXTERN int rev_ARDDEStruct( ARControlStruct *ctrl, HV *h, char *k, ARDDEStruct *p );
 
-#if AR_EXPORT_VERSION >= 7L
+#if AR_CURRENT_API_VERSION >= 9
 EXTERN int rev_ARDateLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARDateLimitsStruct *p );
 #endif
 
@@ -136,7 +139,7 @@ EXTERN int rev_ARDecimalLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARD
 
 EXTERN int rev_ARDiaryLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARDiaryLimitsStruct *p );
 
-#if AR_EXPORT_VERSION >= 6L
+#if AR_CURRENT_API_VERSION >= 8
 EXTERN int rev_ARDisplayLimits( ARControlStruct *ctrl, HV *h, char *k, ARDisplayLimits *p );
 #endif
 
@@ -156,19 +159,19 @@ EXTERN int rev_AREntryListFieldValueList( ARControlStruct *ctrl, HV *h, char *k,
 
 EXTERN int rev_AREntryListFieldValueStruct( ARControlStruct *ctrl, HV *h, char *k, AREntryListFieldValueStruct *p );
 
-#if AR_EXPORT_VERSION >= 9L
+#if AR_CURRENT_API_VERSION >= 11
 EXTERN int rev_AREntryReturn( ARControlStruct *ctrl, HV *h, char *k, AREntryReturn *p );
 #endif
-#if AR_EXPORT_VERSION >= 6L
+#if AR_CURRENT_API_VERSION >= 8
 EXTERN int rev_AREnumItemList( ARControlStruct *ctrl, HV *h, char *k, AREnumItemList *p );
 #endif
-#if AR_EXPORT_VERSION >= 6L
+#if AR_CURRENT_API_VERSION >= 8
 EXTERN int rev_AREnumItemStruct( ARControlStruct *ctrl, HV *h, char *k, AREnumItemStruct *p );
 #endif
-#if AR_EXPORT_VERSION >= 6L
+#if AR_CURRENT_API_VERSION >= 8
 EXTERN int rev_AREnumLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, AREnumLimitsStruct *p );
 #endif
-#if AR_EXPORT_VERSION >= 6L
+#if AR_CURRENT_API_VERSION >= 8
 EXTERN int rev_AREnumQueryStruct( ARControlStruct *ctrl, HV *h, char *k, AREnumQueryStruct *p );
 #endif
 
@@ -204,7 +207,7 @@ EXTERN int rev_ARFilterActionList( ARControlStruct *ctrl, HV *h, char *k, ARFilt
 
 EXTERN int rev_ARFilterActionNotify( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionNotify *p );
 
-#if AR_EXPORT_VERSION >= 7L
+#if AR_CURRENT_API_VERSION >= 9
 EXTERN int rev_ARFilterActionNotifyAdvanced( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionNotifyAdvanced *p );
 #endif
 
@@ -222,7 +225,7 @@ EXTERN int rev_ARIndexList( ARControlStruct *ctrl, HV *h, char *k, ARIndexList *
 
 EXTERN int rev_ARIndexStruct( ARControlStruct *ctrl, HV *h, char *k, ARIndexStruct *p );
 
-#if AR_EXPORT_VERSION >= 8L
+#if AR_CURRENT_API_VERSION >= 10
 EXTERN int rev_ARInheritanceMappingStruct( ARControlStruct *ctrl, HV *h, char *k, ARInheritanceMappingStruct *p );
 #endif
 
@@ -237,6 +240,12 @@ EXTERN int rev_ARJoinMappingStruct( ARControlStruct *ctrl, HV *h, char *k, ARJoi
 EXTERN int rev_ARJoinSchema( ARControlStruct *ctrl, HV *h, char *k, ARJoinSchema *p );
 
 
+EXTERN int rev_ARLicenseDateStruct( ARControlStruct *ctrl, HV *h, char *k, ARLicenseDateStruct *p );
+
+
+EXTERN int rev_ARLicenseValidStruct( ARControlStruct *ctrl, HV *h, char *k, ARLicenseValidStruct *p );
+
+
 
 
 EXTERN int rev_ARNameList( ARControlStruct *ctrl, HV *h, char *k, ARNameList *p );
@@ -246,7 +255,7 @@ EXTERN int rev_ARNameList( ARControlStruct *ctrl, HV *h, char *k, ARNameList *p 
 
 EXTERN int rev_AROpenDlgStruct( ARControlStruct *ctrl, HV *h, char *k, AROpenDlgStruct *p );
 
-#if AR_EXPORT_VERSION >= 8L
+#if AR_CURRENT_API_VERSION >= 10
 EXTERN int rev_ARPushFieldsActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARPushFieldsActionStruct *p );
 #endif
 
@@ -281,7 +290,7 @@ EXTERN int rev_ARSQLStruct( ARControlStruct *ctrl, HV *h, char *k, ARSQLStruct *
 
 
 
-#if AR_EXPORT_VERSION >= 8L
+#if AR_CURRENT_API_VERSION >= 10
 EXTERN int rev_ARSetFieldsActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARSetFieldsActionStruct *p );
 #endif
 
@@ -310,13 +319,13 @@ EXTERN int rev_ARValueList( ARControlStruct *ctrl, HV *h, char *k, ARValueList *
 
 EXTERN int rev_ARValueStruct( ARControlStruct *ctrl, HV *h, char *k, char *t, ARValueStruct *p );
 
-#if AR_EXPORT_VERSION >= 6L
+#if AR_CURRENT_API_VERSION >= 8
 EXTERN int rev_ARVendorMappingStruct( ARControlStruct *ctrl, HV *h, char *k, ARVendorMappingStruct *p );
 #endif
-#if AR_EXPORT_VERSION >= 6L
+#if AR_CURRENT_API_VERSION >= 8
 EXTERN int rev_ARVendorSchema( ARControlStruct *ctrl, HV *h, char *k, ARVendorSchema *p );
 #endif
-#if AR_EXPORT_VERSION >= 6L
+#if AR_CURRENT_API_VERSION >= 8
 EXTERN int rev_ARViewLimits( ARControlStruct *ctrl, HV *h, char *k, ARViewLimits *p );
 #endif
 
@@ -328,7 +337,7 @@ EXTERN int rev_ARViewSchema( ARControlStruct *ctrl, HV *h, char *k, ARViewSchema
 
 EXTERN int rev_ARWaitStruct( ARControlStruct *ctrl, HV *h, char *k, ARWaitStruct *p );
 
-#if AR_EXPORT_VERSION >= 9L
+#if AR_CURRENT_API_VERSION >= 11
 EXTERN int rev_ARXMLEntryReturn( ARControlStruct *ctrl, HV *h, char *k, ARXMLEntryReturn *p );
 #endif
 

@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.33 2007/04/21 22:22:06 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.34 2008/05/15 18:30:02 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -335,6 +335,15 @@ static struct {
   { TYPEMAP_LAST, NULL }
 };
 
+static struct {
+  unsigned int number;
+  char *name;
+} SignalTypeMap[] = {
+  { 0, NULL },
+/*SIGNALTYPEMAP*/
+  { TYPEMAP_LAST, NULL }
+};
+
 /*SERVERINFOTYPEHINTS*/
 #include "serverTypeInfoHints.h"
 
@@ -539,8 +548,10 @@ EXTERN SV *perl_ARCurrencyDetailList(ARControlStruct * ctrl,
 #if AR_EXPORT_VERSION >= 8L
 EXTERN SV *perl_ARArchiveInfoStruct(ARControlStruct *ctrl,  ARArchiveInfoStruct *);
 #endif
-#if AR_EXPORT_VERSION >= 9L
+#if AR_CURRENT_API_VERSION >= 12
 EXTERN SV *perl_ARAuditInfoStruct( ARControlStruct *ctrl, ARAuditInfoStruct *);
+#endif
+#if AR_CURRENT_API_VERSION >= 11
 EXTERN SV *perl_ARBulkEntryReturn( ARControlStruct *ctrl, ARBulkEntryReturn *);
 EXTERN SV *perl_AREntryReturn( ARControlStruct *ctrl, AREntryReturn *);
 EXTERN SV *perl_ARXMLEntryReturn( ARControlStruct *ctrl, ARXMLEntryReturn *);
@@ -555,6 +566,13 @@ EXTERN SV *perl_ARFieldValueStruct( ARControlStruct *ctrl, ARFieldValueStruct *p
 EXTERN SV *perl_ARCharMenuList( ARControlStruct *ctrl, ARCharMenuList *p );
 EXTERN SV *perl_ARCharMenuItemStruct( ARControlStruct *ctrl, ARCharMenuItemStruct *p );
 EXTERN SV *perl_ARCharMenuStruct( ARControlStruct *ctrl, ARCharMenuStruct *p );
+
+#if AR_CURRENT_API_VERSION >= 13
+EXTERN SV *perl_ARActiveLinkSvcActionStruct( ARControlStruct *ctrl, ARActiveLinkSvcActionStruct *p );
+#endif
+
+EXTERN SV *perl_ARLicenseDateStruct( ARControlStruct *ctrl, ARLicenseDateStruct *p );
+EXTERN SV *perl_ARLicenseValidStruct( ARControlStruct *ctrl, ARLicenseValidStruct *p );
 
 
 #ifndef BSD
@@ -593,7 +611,7 @@ int  copymem(MEMCAST *m1, MEMCAST *m2, int size);
  */
 
 #define CVLD(X) (X && *X)
-#define IVLD(X, L, H) ((X <= H) && (L >= X))
+#define IVLD(X, L, H) ((L <= X) && (X <= H))
 
 #define VNAME(X) X, strlen(X)
 
@@ -636,5 +654,8 @@ int  copymem(MEMCAST *m1, MEMCAST *m2, int size);
 #define AP_ERR_INV_ARITH    80027 /*, "Unknown arith operation in ARArithOpStruct" */
 #define AP_ERR_ENUM_LISTSTYLE 80028, "Unknown EnumLimits listStyle"
 #define AP_ERR_CURRENCY_STRUCT 80029, "Bad currency struct hash (missing a key or a key had an unexpected value)"
+#define AP_ERR_TYPEMAP      80030, "Cannot resolve typemap value"
+#define AP_ERR_INV_RETURN   80031, "Invalid return data"
+#define AP_ERR_DATATYPE     80032, "Unsupported data type"
 
 #endif /* __support_h_ */

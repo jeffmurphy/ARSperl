@@ -8,7 +8,7 @@ print "1..2\n";
 
 my $c = ars_Login(&CCACHE::SERVER, 
 		  &CCACHE::USERNAME,
-                  &CCACHE::PASSWORD);
+                  &CCACHE::PASSWORD, "","", &CCACHE::TCPPORT);
 
 if (defined($c)) {
 	print "ok [1] (login)\n";

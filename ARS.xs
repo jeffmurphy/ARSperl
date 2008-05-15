@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.118 2007/09/13 22:50:25 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.119 2008/05/15 18:30:00 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -32,12 +32,12 @@ $Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.118 2007/09/13 22:50:25 tstapff Exp
 #endif
 
 
-/* #if defined(malloc) && defined(_WIN32)
+#if defined(ARSPERL_UNDEF_MALLOC) && defined(malloc)
  #undef malloc
  #undef calloc
  #undef realloc
  #undef free
-#endif */
+#endif
 
 
 MODULE = ARS		PACKAGE = ARS		PREFIX = ARS
@@ -753,7 +753,7 @@ ars_GetEntryBLOB(ctrl,schema,entry_id,field_id,locType,locFile=NULL)
 				goto get_entryblob_end;
 			}
 			loc.locType    = AR_LOC_FILENAME;
-			loc.u.filename = locFile; /* strdup(locFile) ? i'm not completely sure
+			loc.u.filename = strdup(locFile); /* strdup(locFile) ? i'm not completely sure
 							which to use. will FreeARLocStruct call
 							free(loc.locType)? i'm assuming it will.
 							Purify doesnt complain, so i'm going 
@@ -2350,10 +2350,12 @@ ars_Export(ctrl,displayTag,vuiType,...)
 					ok = 0;
 				} else {
 					structItems.structItemList[i].type = et;
+					/* printf( "structItems.structItemList[i].type <%d>\n", structItems.structItemList[i].type ); */ /* _DEBUG_ */
 					strncpy(structItems.structItemList[i].name,
 						SvPV(ST(a+1), PL_na), 
 						sizeof(ARNameType) );
 					structItems.structItemList[i].name[sizeof(ARNameType)-1] = '\0';
+					/* printf( "structItems.structItemList[i].name <%s>\n", structItems.structItemList[i].name ); */ /* _DEBUG_ */
 				}
 			}
 		}
@@ -2378,7 +2380,7 @@ ars_Export(ctrl,displayTag,vuiType,...)
 				RETVAL = newSVpv(buf, 0);
 			}
 		} 
-		if(buf) free(buf);
+		if(buf) AP_FREE(buf);
 		FreeARStructItemList(&structItems, FALSE);
 	}
 	OUTPUT:
@@ -2460,9 +2462,11 @@ ars_GetListFilter(control,schema=NULL,changedsince=0)
 	{
 	  ARNameList   nameList;
 	  ARStatusList status;
+#if AR_EXPORT_VERSION >= 8L
 	  ARPropList   propList;
+#endif
 	  int          ret = 0;
-          unsigned int i = 0;
+	  unsigned int i = 0;
 
 	  (void) ARError_reset();
 #if AR_EXPORT_VERSION >= 8L
@@ -2496,7 +2500,7 @@ ars_GetListEscalation(control,schema=NULL,changedsince=0)
 	  ARStatusList status;
 	  ARPropList   propList;
 	  int          ret = 0;
-          unsigned int i = 0;
+	  unsigned int i = 0;
 
 	  (void) ARError_reset();
 #if AR_EXPORT_VERSION >= 8L
@@ -3070,6 +3074,10 @@ ars_GetFullTextInfo(ctrl)
 	OUTPUT:
 	RETVAL
 
+
+
+#ifdef GETLISTGROUP_OLD_STYLE
+
 HV *
 ars_GetListGroup(ctrl, userName=NULL,password=NULL)
 	ARControlStruct *	ctrl
@@ -3118,6 +3126,150 @@ ars_GetListGroup(ctrl, userName=NULL,password=NULL)
 	}
 	OUTPUT:
 	RETVAL
+
+#else
+
+void
+ars_GetListGroup(ctrl, userName=NULL,password=NULL)
+	ARControlStruct  *	ctrl
+	char *			       userName
+	char *			       password
+	PPCODE:
+	{
+	  ARStatusList    status;
+	  ARGroupInfoList groupList;
+	  int             ret = 0;
+
+	  (void) ARError_reset();
+	  Zero(&status, 1,ARStatusList);
+	  Zero(&groupList, 1, ARGroupInfoList);
+
+	  ret = ARGetListGroup(ctrl, userName, 
+#if AR_EXPORT_VERSION >= 6
+			       password,
+#endif
+			       &groupList, &status);
+#ifdef PROFILE
+	  ((ars_ctrl *)ctrl)->queries++;
+#endif
+      if(!ARError( ret, status)) {
+        unsigned int i;
+	    for(i = 0; i < groupList.numItems; i++) {
+          unsigned int v;
+        	 HV *groupInfo = newHV();
+          AV *gnameList = newAV();
+
+          for(v = 0; v < groupList.groupList[i].groupName.numItems ; v++) {
+             av_push(gnameList, newSVpv(groupList.groupList[i].groupName.nameList[v], 0));
+          }
+          hv_store(groupInfo, "groupId",   7, newSViv(groupList.groupList[i].groupId), 0);
+          hv_store(groupInfo, "groupType", 9, newSViv(groupList.groupList[i].groupType), 0);
+          hv_store(groupInfo, "groupName", 9, newRV_noinc((SV *)gnameList), 0);
+#if AR_CURRENT_API_VERSION >= 10
+          hv_store(groupInfo, "groupCategory", 13, newSViv(groupList.groupList[i].groupCategory), 0);
+#endif     
+
+          XPUSHs(sv_2mortal(newRV_noinc((SV *)groupInfo)));
+        }
+	  }
+
+      FreeARGroupInfoList(&groupList, FALSE);
+	}
+
+#endif
+
+
+void
+ars_GetListRole(ctrl, applicationName, userName=NULL,password=NULL)
+    ARControlStruct * ctrl
+    ARNameType        applicationName
+    char *            userName
+    char *            password
+    PPCODE:
+    {
+#if AR_EXPORT_VERSION >= 8L
+      ARStatusList    status;
+      ARRoleInfoList  roleList;
+      int             ret = 0;
+
+      (void) ARError_reset();
+      Zero(&status, 1,ARStatusList);
+      Zero(&roleList, 1, ARRoleInfoList);
+
+      ret = ARGetListRole(ctrl,
+                   applicationName, 
+                   userName, 
+                   password,
+                   &roleList, &status);
+
+      if(!ARError( ret, status)) {
+        unsigned int i;
+	    for(i = 0; i < roleList.numItems; i++) {
+          HV *roleInfo = newHV();
+
+          hv_store(roleInfo, "roleId",   6, newSViv(roleList.roleList[i].roleId), 0);
+          hv_store(roleInfo, "roleType", 8, newSViv(roleList.roleList[i].roleType), 0);
+          hv_store(roleInfo, "roleName", 8, newSVpv(roleList.roleList[i].roleName,0), 0);
+     
+          XPUSHs(sv_2mortal(newRV_noinc((SV *)roleInfo)));
+        }     
+      }
+      FreeARRoleInfoList(&roleList, FALSE);
+#else /* < 6.0 */
+      XPUSHs(sv_2mortal(newSViv(0))); /* ERR */
+      (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+            "ars_GetListRole() is only available in ARS >= 6.0");
+#endif
+    }
+
+
+void
+ars_GetListLicense(ctrl, licenseType=NULL)
+    ARControlStruct *  ctrl
+    char *             licenseType
+    PPCODE:
+    {
+#if AR_EXPORT_VERSION >= 6L
+      ARStatusList       status;
+      ARLicenseInfoList  licList;
+      int                ret = 0;
+
+      (void) ARError_reset();
+      Zero(&status, 1,ARStatusList);
+      Zero(&licList, 1, ARLicenseInfoList);
+
+      ret = ARGetListLicense(ctrl,
+                   licenseType, 
+                   &licList, &status);
+
+      if(!ARError( ret, status)) {
+        unsigned int i;
+	    for(i = 0; i < licList.numItems; i++) {
+          HV *licInfo = newHV();
+
+          hv_store(licInfo, "licKey",  6, newSVpv(licList.licenseInfoList[i].licKey,0), 0);
+          hv_store(licInfo, "licType", 8, newSVpv(licList.licenseInfoList[i].licType,0), 0);
+          hv_store(licInfo, "licSubtype", 10, newSVpv(licList.licenseInfoList[i].licSubtype,0), 0);
+          hv_store(licInfo, "issuedDate", 10, 
+            perl_ARLicenseDateStruct(ctrl, &(licList.licenseInfoList[i].issuedDate)), 0);
+          hv_store(licInfo, "expireDate", 10,
+            perl_ARLicenseDateStruct(ctrl, &(licList.licenseInfoList[i].expireDate)), 0);
+          hv_store(licInfo, "hostId", 6, newSVpv(licList.licenseInfoList[i].hostId,0), 0);
+          hv_store(licInfo, "numLicenses", 11, newSViv(licList.licenseInfoList[i].numLicenses), 0);
+          hv_store(licInfo, "tokenList", 9, newSVpv(licList.licenseInfoList[i].tokenList,0), 0);
+          hv_store(licInfo, "comment", 7, newSVpv(licList.licenseInfoList[i].comment,0), 0);
+     
+          XPUSHs(sv_2mortal(newRV_noinc((SV *)licInfo)));
+        }     
+      }
+      FreeARLicenseInfoList(&licList, FALSE);
+#else /* < 6.0 */
+      XPUSHs(sv_2mortal(newSViv(0))); /* ERR */
+      (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+            "ars_GetListLicense() is only available in ARS >= 5.0");
+#endif
+    }
+
 
 HV *
 ars_GetListSQL(ctrl, sqlCommand, maxRetrieve=AR_NO_MAX_LIST_RETRIEVE)
@@ -3521,7 +3673,7 @@ ars_CreateCharMenu( ctrl, menuDefRef, removeFlag=TRUE )
 			ARError_add(AR_RETURN_WARNING, AP_ERR_CONTINUE,
 					refreshCodeStr ? refreshCodeStr : "[key null]" );
 		}
-		if( refreshCodeStr != NULL ){  free(refreshCodeStr);  }
+		if( refreshCodeStr != NULL ){  AP_FREE(refreshCodeStr);  }
 
 		rv += strmakHVal( menuDef, "menuType", &menuTypeStr );
 		arMenuDef.menuType = revTypeName( (TypeMapStruct*)CharMenuTypeMap, menuTypeStr );
@@ -3531,7 +3683,7 @@ ars_CreateCharMenu( ctrl, menuDefRef, removeFlag=TRUE )
 			ARError_add(AR_RETURN_WARNING, AP_ERR_CONTINUE,
 					menuTypeStr ? menuTypeStr : "[key null]" );
 		}
-		if( menuTypeStr != NULL ){  free(menuTypeStr);  }
+		if( menuTypeStr != NULL ){  AP_FREE(menuTypeStr);  }
 
 		switch( arMenuDef.menuType ){
 		case AR_CHAR_MENU_LIST:
@@ -3607,10 +3759,10 @@ ars_CreateCharMenu( ctrl, menuDefRef, removeFlag=TRUE )
 		}
 
 	    if( helpText != NULL ){
-			free( helpText );
+			AP_FREE( helpText );
 		}
 	    if( changeDiary != NULL ){
-			free( changeDiary );
+			AP_FREE( changeDiary );
 		}
 		FreeARCharMenuStruct( &arMenuDef, FALSE );
 		FreeARPropList( &objPropList, FALSE );
@@ -3680,7 +3832,7 @@ ars_SetCharMenu( ctrl, name, menuDefRef, removeFlag=TRUE )
 				ARError_add(AR_RETURN_WARNING, AP_ERR_CONTINUE,
 						refreshCodeStr ? refreshCodeStr : "[key null]" );
 			}
-			if( refreshCodeStr != NULL ){  free(refreshCodeStr);  }
+			if( refreshCodeStr != NULL ){  AP_FREE(refreshCodeStr);  }
 
 			refreshCodePtr = &refreshCode;
 		}
@@ -3697,7 +3849,7 @@ ars_SetCharMenu( ctrl, name, menuDefRef, removeFlag=TRUE )
 				ARError_add(AR_RETURN_WARNING, AP_ERR_CONTINUE,
 						menuTypeStr ? menuTypeStr : "[key null]" );
 			}
-			if( menuTypeStr != NULL ){  free(menuTypeStr);  }
+			if( menuTypeStr != NULL ){  AP_FREE(menuTypeStr);  }
 
 			switch( arMenuDef->menuType ){
 			case AR_CHAR_MENU_LIST:
@@ -3774,10 +3926,10 @@ ars_SetCharMenu( ctrl, name, menuDefRef, removeFlag=TRUE )
 		}
 
 	    if( helpText != NULL ){
-			free( helpText );
+			AP_FREE( helpText );
 		}
 	    if( changeDiary != NULL ){
-			free( changeDiary );
+			AP_FREE( changeDiary );
 		}
 		if( arMenuDef != NULL ){
 			FreeARCharMenuStruct( arMenuDef, TRUE );
@@ -3814,7 +3966,7 @@ ars_CreateField( ctrl, schema, fieldDefRef, reservedIdOK=0 )
 		ARFieldMappingStruct fieldMap;
 		unsigned int dataType;
 		unsigned int option;
-		unsigned int createMode;
+		unsigned int createMode = AR_FIELD_PROTECTED_AT_CREATE;
 #if AR_EXPORT_VERSION >= 9L
 		unsigned int fieldOption;
 #endif
@@ -3929,10 +4081,10 @@ ars_CreateField( ctrl, schema, fieldDefRef, reservedIdOK=0 )
 		}
 
 	    if( helpText != NULL ){
-			free( helpText );
+			AP_FREE( helpText );
 		}
 	    if( changeDiary != NULL ){
-			free( changeDiary );
+			AP_FREE( changeDiary );
 		}
 		if( defaultVal != NULL ){
 			FreeARValueStruct( defaultVal, TRUE );
@@ -4119,16 +4271,16 @@ ars_SetField( ctrl, schema, fieldId, fieldDefRef )
 		}
 		
 	    if( createMode != NULL ){
-			free( createMode );
+			AP_FREE( createMode );
 		}
 	    if( option != NULL ){
-			free( option );
+			AP_FREE( option );
 		}
 	    if( helpText != NULL ){
-			free( helpText );
+			AP_FREE( helpText );
 		}
 	    if( changeDiary != NULL ){
-			free( changeDiary );
+			AP_FREE( changeDiary );
 		}
 		if( defaultVal != NULL ){
 			FreeARValueStruct( defaultVal, TRUE );
@@ -4315,10 +4467,10 @@ ars_CreateSchema( ctrl, schemaDefRef )
 		}
 
 	    if( helpText != NULL ){
-			free( helpText );
+			AP_FREE( helpText );
 		}
 	    if( changeDiary != NULL ){
-			free( changeDiary );
+			AP_FREE( changeDiary );
 		}
 		FreeARCompoundSchema( &compoundSchema, FALSE );
 		FreeARPermissionList( &groupList, FALSE );
@@ -4510,10 +4662,10 @@ ars_SetSchema( ctrl, name, schemaDefRef )
 		}
 
 	    if( helpText != NULL ){
-			free( helpText );
+			AP_FREE( helpText );
 		}
 	    if( changeDiary != NULL ){
-			free( changeDiary );
+			AP_FREE( changeDiary );
 		}
 		if( compoundSchema != NULL ){
 			FreeARCompoundSchema( compoundSchema, TRUE );
@@ -4638,10 +4790,10 @@ ars_CreateVUI( ctrl, schemaName, vuiDefRef )
 		}
 
 	    if( helpText != NULL ){
-			free( helpText );
+			AP_FREE( helpText );
 		}
 	    if( changeDiary != NULL ){
-			free( changeDiary );
+			AP_FREE( changeDiary );
 		}
 		FreeARPropList( &dPropList, FALSE );
 #else /* < 5.0 */
@@ -4759,10 +4911,10 @@ ars_SetVUI( ctrl, schemaName, vuiId, vuiDefRef )
 		}
 
 	    if( helpText != NULL ){
-			free( helpText );
+			AP_FREE( helpText );
 		}
 	    if( changeDiary != NULL ){
-			free( changeDiary );
+			AP_FREE( changeDiary );
 		}
 		FreeARPropList( dPropList, TRUE );
 #else /* < 5.0 */
@@ -4834,7 +4986,7 @@ ars_CreateContainer( ctrl, containerDefRef, removeFlag=TRUE )
 			ARError_add(AR_RETURN_WARNING, AP_ERR_CONTINUE,
 					typeStr ? typeStr : "[key null]" );
 		}
-		if( typeStr != NULL ){  free(typeStr);  }
+		if( typeStr != NULL ){  AP_FREE(typeStr);  }
 
 		groupList.numItems = 0;
 		groupList.permissionList = NULL;
@@ -4911,16 +5063,16 @@ ars_CreateContainer( ctrl, containerDefRef, removeFlag=TRUE )
 		}
 
 	    if( label != NULL ){
-			free( label );
+			AP_FREE( label );
 		}
 	    if( description != NULL ){
-			free( description );
+			AP_FREE( description );
 		}
 	    if( helpText != NULL ){
-			free( helpText );
+			AP_FREE( helpText );
 		}
 	    if( changeDiary != NULL ){
-			free( changeDiary );
+			AP_FREE( changeDiary );
 		}
 		FreeARPermissionList( &groupList, FALSE );
 		FreeARInternalIdList( &admingrpList, FALSE );
@@ -4999,7 +5151,7 @@ ars_SetContainer( ctrl, name, containerDefRef, removeFlag=TRUE )
 				ARError_add(AR_RETURN_WARNING, AP_ERR_CONTINUE,
 						typeStr ? typeStr : "[key null]" );
 			}
-			if( typeStr != NULL ){  free(typeStr);  }
+			if( typeStr != NULL ){  AP_FREE(typeStr);  }
 
 			typePtr = &type;
 		}
@@ -5075,16 +5227,16 @@ ars_SetContainer( ctrl, name, containerDefRef, removeFlag=TRUE )
 		}
 
 	    if( label != NULL ){
-			free( label );
+			AP_FREE( label );
 		}
 	    if( description != NULL ){
-			free( description );
+			AP_FREE( description );
 		}
 	    if( helpText != NULL ){
-			free( helpText );
+			AP_FREE( helpText );
 		}
 	    if( changeDiary != NULL ){
-			free( changeDiary );
+			AP_FREE( changeDiary );
 		}
 		if( groupList != NULL ){
 			FreeARPermissionList( groupList, TRUE );
@@ -5217,11 +5369,6 @@ ars_CreateActiveLink(ctrl, alDefRef)
 
 		rv += rev_ARActiveLinkActionList(ctrl, alDef, "actionList", 
 						&actionList);
-#if AR_EXPORT_VERSION >= 5
-		if(hv_exists(alDef,  "objPropList", strlen("objPropList") ))
-			rv += rev_ARPropList(ctrl, alDef, "objPropList",
-					     &objPropList);
-#endif
 #if AR_EXPORT_VERSION >= 3
 		rv += rev_ARActiveLinkActionList(ctrl, alDef, "elseList", 
 						&elseList);
@@ -5244,6 +5391,11 @@ ars_CreateActiveLink(ctrl, alDefRef)
 		if(executeMask & AR_EXECUTE_ON_BUTTON)
 			rv += rev_ARDisplayList(ctrl,  alDef, "displayList", 
 					&displayList);
+#endif
+#if AR_EXPORT_VERSION >= 5
+		if(hv_exists(alDef,  "objPropList", strlen("objPropList") ))
+			rv += rev_ARPropList(ctrl, alDef, "objPropList",
+					     &objPropList);
 #endif
 		/* at this point all datastructures (hopefully) are 
 		 * built. we can call the api routine to create the
@@ -5396,14 +5548,14 @@ ars_SetActiveLink(ctrl, name, objDefRef)
 			rv += rev_ARActiveLinkActionList(ctrl, objDef, "actionList", actionList);
 		}
 
+		if(hv_exists(objDef,  "elseList", strlen("elseList") )){
+			elseList = (ARActiveLinkActionList*) MALLOCNN(sizeof(ARActiveLinkActionList));
+			rv += rev_ARActiveLinkActionList(ctrl, objDef, "elseList", elseList);
+		}
+
 		if(hv_exists(objDef,  "objPropList", strlen("objPropList") )){
 			objPropList = (ARPropList*) MALLOCNN(sizeof(ARPropList));
 			rv += rev_ARPropList(ctrl, objDef, "objPropList", objPropList);
-		}
-
-		if(hv_exists(objDef,  "actionList", strlen("actionList") )){
-			elseList = (ARActiveLinkActionList*) MALLOCNN(sizeof(ARActiveLinkActionList));
-			rv += rev_ARActiveLinkActionList(ctrl, objDef, "elseList", elseList);
 		}
 
 		if( executeMask != NULL ){
@@ -5713,14 +5865,14 @@ ars_SetFilter(ctrl, name, objDefRef)
 			rv += rev_ARFilterActionList(ctrl, objDef, "actionList", actionList);
 		}
 
-		if(hv_exists(objDef,  "objPropList", strlen("objPropList") )){
-			objPropList = (ARPropList*) MALLOCNN(sizeof(ARPropList));
-			rv += rev_ARPropList(ctrl, objDef, "objPropList", objPropList);
-		}
-
 		if(hv_exists(objDef,  "elseList", strlen("elseList") )){
 			elseList = (ARFilterActionList*) MALLOCNN(sizeof(ARFilterActionList));
 			rv += rev_ARFilterActionList(ctrl, objDef, "elseList", elseList);
+		}
+
+		if(hv_exists(objDef,  "objPropList", strlen("objPropList") )){
+			objPropList = (ARPropList*) MALLOCNN(sizeof(ARPropList));
+			rv += rev_ARPropList(ctrl, objDef, "objPropList", objPropList);
 		}
 #if AR_CURRENT_API_VERSION >= 13
 		if( hv_exists(objDef,"errorFilterOptions",18) ){
@@ -6022,14 +6174,14 @@ ars_SetEscalation(ctrl, name, objDefRef)
 			rv += rev_ARFilterActionList(ctrl, objDef, "actionList", actionList);
 		}
 
-		if(hv_exists(objDef,  "objPropList", strlen("objPropList") )){
-			objPropList = (ARPropList*) MALLOCNN(sizeof(ARPropList));
-			rv += rev_ARPropList(ctrl, objDef, "objPropList", objPropList);
-		}
-
 		if(hv_exists(objDef,  "elseList", strlen("elseList") )){
 			elseList = (ARFilterActionList*) MALLOCNN(sizeof(ARFilterActionList));
 			rv += rev_ARFilterActionList(ctrl, objDef, "elseList", elseList);
+		}
+
+		if(hv_exists(objDef,  "objPropList", strlen("objPropList") )){
+			objPropList = (ARPropList*) MALLOCNN(sizeof(ARPropList));
+			rv += rev_ARPropList(ctrl, objDef, "objPropList", objPropList);
 		}
 
 		/* at this point all datastructures (hopefully) are 
@@ -6433,7 +6585,7 @@ ars_GetListEntryWithFields(ctrl,schema,qualifier,maxRetrieve=0,firstRetrieve=0,.
 void
 ars_SetLogging( ctrl, logTypeMask, ...)
 	ARControlStruct *	ctrl
-	unsigned long           logTypeMask
+	unsigned long     logTypeMask
 	PPCODE:
 	{
 #if AR_EXPORT_VERSION >= 5
@@ -6469,7 +6621,7 @@ ars_SetLogging( ctrl, logTypeMask, ...)
 				goto SetLogging_fail;
 			}
 			set_logging_file_ptr( logFilePtr );
-			/* printf( "GET logging_file_ptr = %p\n", logFilePtr ); */
+			/* printf( "SET logging_file_ptr = %p\n", logFilePtr ); */
 		}
 
 		ret = ARSetLogging( ctrl, logTypeMask, whereToWriteMask, logFilePtr, &status );
@@ -6518,7 +6670,6 @@ ars_SetSessionConfiguration( ctrl, variableId, value )
 		} else {
 			XPUSHs(sv_2mortal(newSViv(1))); /* OK */
 		}
-	/* SetSessionConfiguration_fail:; */
 #else /* < 5.0 */
 	  XPUSHs(sv_2mortal(newSViv(0))); /* ERR */
 	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
@@ -6551,11 +6702,10 @@ ars_SetImpersonatedUser( ctrl, impersonatedUser )
 		} else {
 			XPUSHs(sv_2mortal(newSViv(1))); /* OK */
 		}
-	/* SetSessionConfiguration_fail:; */
 #else /* < 7.0 */
-	  XPUSHs(sv_2mortal(newSViv(0))); /* ERR */
-	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
-			"SetImpersonatedUser() is only available in ARSystem >= 7.0");
+		XPUSHs(sv_2mortal(newSViv(0))); /* ERR */
+		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			  "SetImpersonatedUser() is only available in ARSystem >= 7.0");
 #endif
 	}
 
@@ -6568,7 +6718,7 @@ ars_BeginBulkEntryTransaction( ctrl )
 	ARControlStruct *	ctrl
 	PPCODE:
 	{
-#if AR_EXPORT_VERSION >= 9
+#if AR_CURRENT_API_VERSION >= 11
 		ARStatusList     status;
 		int	             ret;
 
@@ -6582,12 +6732,10 @@ ars_BeginBulkEntryTransaction( ctrl )
 		}else{
 			XPUSHs(sv_2mortal(newSViv(1))); /* OK */
 		}
-#else /* < 7.0 */
-	  XPUSHs(sv_2mortal(newSViv(0))); /* ERR */
-	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
-			"BeginBulkEntryTransaction() is only available in ARSystem >= 7.0");
-      /* Not quite correct, the function exists since 6.3, but all 6.x versions have
-         AR_EXPORT_VERSION = 8 */
+#else /* < 6.3 */
+		XPUSHs(sv_2mortal(newSViv(0))); /* ERR */
+		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"BeginBulkEntryTransaction() is only available in ARSystem >= 6.3");
 #endif
 	}
 
@@ -6599,7 +6747,7 @@ ars_EndBulkEntryTransaction( ctrl, actionType )
 	unsigned int      actionType
 	PPCODE:
 	{
-#if AR_EXPORT_VERSION >= 9
+#if AR_CURRENT_API_VERSION >= 11
 		int	             ret;
 		ARStatusList     status;
 		ARBulkEntryReturnList returnList;
@@ -6614,22 +6762,237 @@ ars_EndBulkEntryTransaction( ctrl, actionType )
 		ARError( ret, status );
 
 		for( i = 0; i < returnList.numItems; i++ ){
-	        /* XPUSHs( sv_2mortal(newRV_noinc( perl_ARBulkEntryReturn(ctrl,&(returnList.entryReturnList[i])) )) ); */
-	        XPUSHs( sv_2mortal( perl_ARBulkEntryReturn(ctrl,&(returnList.entryReturnList[i])) ) );
+			XPUSHs( sv_2mortal( perl_ARBulkEntryReturn(ctrl,&(returnList.entryReturnList[i])) ) );
 		}
 
 		FreeARBulkEntryReturnList(&returnList, FALSE);
-#else /* < 7.0 */
-	  XPUSHs(sv_2mortal(newSViv(0))); /* ERR */
-	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
-			"BeginBulkEntryTransaction() is only available in ARSystem >= 7.0");
-      /* Not quite correct, the function exists since 6.3, but all 6.x versions have
-         AR_EXPORT_VERSION = 8 */
+#else /* < 6.3 */
+		XPUSHs(sv_2mortal(newSViv(0))); /* ERR */
+		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"BeginBulkEntryTransaction() is only available in ARSystem >= 6.3");
 #endif
 	}
 
 
+void
+ars_Signal( ctrl, ...)
+	ARControlStruct *	ctrl
+	PPCODE:
+	{
+#if AR_CURRENT_API_VERSION >= 9
+		int	             ret;
+		ARSignalList     signalList;
+		ARStatusList     status;
+		unsigned int     c = (items - 1) / 2, i = 0, a = 0, ok = 1;
 
+		(void) ARError_reset();
+		Zero(&signalList, 1, ARSignalList);
+		Zero(&status, 1, ARStatusList);
+
+		if( ((items - 1) % 2) || c < 1 ){
+			(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
+		}else{
+			signalList.numItems = c;
+			AMALLOCNN(signalList.signalList,c,ARSignalStruct);
+			for( i = 0; i < c; ++i ){
+				int st;
+				a = i * 2 + 1;
+
+				st = caseLookUpTypeNumber((TypeMapStruct *) 
+					SignalTypeMap,
+					SvPV(ST(a), PL_na) 
+				);
+				if( st == TYPEMAP_LAST ){
+					(void) ARError_add(AR_RETURN_ERROR, AP_ERR_TYPEMAP);
+					(void) ARError_add(AR_RETURN_ERROR, AP_ERR_CONTINUE,
+						SvPV(ST(a), PL_na) );
+					ok = 0;
+				}else{
+					signalList.signalList[i].signalType = st;
+					signalList.signalList[i].sigArgument = SvPV(ST(a),PL_na);
+				}
+			}
+		}
+
+		if( ok ){
+			ret = ARSignal( ctrl, &signalList, &status );
+		}
+
+		if( !ok || ARError(ret, status) ){
+			XPUSHs(sv_2mortal(newSViv(0))); /* ERR */
+		}else{
+			XPUSHs(sv_2mortal(newSViv(1))); /* OK */
+		}
+
+		FreeARSignalList(&signalList, FALSE);
+#else /* < 5.1 */
+		XPUSHs(sv_2mortal(newSViv(0))); /* ERR */
+		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"ars_Signal() is only supported for ARSystem >= 5.1");
+#endif
+	}
+
+
+SV *
+ars_GetTextForErrorMessage(msgId)
+	int  msgId
+	CODE:
+	{
+		char *msgTxt = NULL;
+		(void) ARError_reset();
+
+		msgTxt = ARGetTextForErrorMessage( msgId );
+		if( msgTxt != NULL ){
+			RETVAL = newSVpv( msgTxt, 0 );
+			free( msgTxt );
+		}else{
+			XSRETURN_UNDEF;
+		}
+	}
+	OUTPUT:
+	RETVAL
+
+
+void
+ars_ValidateMultipleLicenses(ctrl, ...)
+	ARControlStruct *	ctrl
+	PPCODE:
+	{
+		ARStatusList            status;
+		ARLicenseNameList       licNameList;
+		ARLicenseValidList      licValidList;
+		int                     ret = 0;
+		unsigned int            ui = 0, count = 0;
+		unsigned int            c = items - 1, i = 0, a = 0, ok = 1;
+
+		(void) ARError_reset();
+		Zero(&status, 1,ARStatusList);
+		Zero(&licNameList, 1, ARLicenseNameList);
+		Zero(&licValidList, 1, ARLicenseValidList);
+		if( items > 1){
+			licNameList.numItems = c;
+			AMALLOCNN(licNameList.nameList,c,ARLicenseNameType);
+			for( i = 0; i < c; ++i ){
+				a = i + 1;
+				strncpy( licNameList.nameList[i], SvPV(ST(a),PL_na), AR_MAX_LICENSE_NAME_SIZE );
+			}
+		}else{
+			ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
+			ok = 0;
+		}
+
+		if( ok  ){
+			ret = ARValidateMultipleLicenses(ctrl, &licNameList, &licValidList, &status);
+
+			if( !ARError(ret,status) ){
+				if( licNameList.numItems != licValidList.numItems ){
+					(void) ARError_add(AR_RETURN_ERROR, AP_ERR_INV_RETURN);
+					(void) ARError_add(AR_RETURN_ERROR, AP_ERR_CONTINUE, "licNameList.numItems != licValidList.numItems");
+				}
+
+				for( ui = 0; ui < licValidList.numItems; ++ui ){
+					XPUSHs( sv_2mortal( newSVpv(licNameList.nameList[ui],0) ) );
+					XPUSHs( sv_2mortal( perl_ARLicenseValidStruct(ctrl,&(licValidList.licenseValidateInfoList[ui])) ) );
+				}
+			}
+		}
+		FreeARLicenseNameList(&licNameList, FALSE);
+		FreeARLicenseValidList(&licValidList, FALSE);
+	}
+
+
+int
+ars_DateToJulianDate(ctrl, year, month, day)
+	ARControlStruct *	ctrl
+	int         year;
+	int         month;
+	int         day;
+	CODE:
+	{
+#if AR_CURRENT_API_VERSION >= 9
+		int     ret = 0;
+		int     jd  = 0;
+		ARDateStruct  date;
+		ARStatusList  status;
+
+		(void) ARError_reset();
+		Zero(&date, 1, ARDateStruct);
+		Zero(&status, 1, ARStatusList);
+
+		date.year  = year;
+		date.month = month;
+		date.day   = day;
+
+		ret = ARDateToJulianDate(ctrl, &date, &jd, &status);
+		if (! ARError( ret, status)) {
+			RETVAL = jd;
+		}else{
+			XSRETURN_UNDEF;
+		}
+#else /* < 5.1 */
+		RETVAL = NULL; /* ERR */
+		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"ars_DateToJulianDate() is only supported for ARSystem >= 5.1");
+#endif
+	}
+	OUTPUT:
+	RETVAL
+
+
+SV *
+ars_GetServerCharSet( ctrl )
+	ARControlStruct *	ctrl
+	CODE:
+	{
+#if AR_CURRENT_API_VERSION >= 12
+		char          charSet[AR_MAX_LANG_SIZE+1];
+		ARStatusList  status;
+		int           ret = 0;
+
+		(void) ARError_reset();
+		Zero(&status, 1, ARStatusList);
+		RETVAL = NULL;
+
+		ret = ARGetServerCharSet( ctrl, charSet, &status );
+		if( ! ARError(ret,status) ){
+			RETVAL = newSVpv( charSet, 0 );
+		}
+#else /* < 7.0 */
+		RETVAL = NULL; /* ERR */
+		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"ars_GetServerCharSet() is only available in ARSystem >= 7.0");
+#endif
+	}
+	OUTPUT:
+	RETVAL
+
+
+SV *
+ars_GetClientCharSet( ctrl )
+	ARControlStruct *	ctrl
+	CODE:
+	{
+#if AR_CURRENT_API_VERSION >= 12
+		char          charSet[AR_MAX_LANG_SIZE+1];
+		ARStatusList  status;
+		int           ret = 0;
+
+		(void) ARError_reset();
+		Zero(&status, 1, ARStatusList);
+		RETVAL = NULL;
+
+		ret = ARGetClientCharSet( ctrl, charSet, &status );
+		if( ! ARError(ret,status) ){
+			RETVAL = newSVpv( charSet, 0 );
+		}
+#else /* < 7.0 */
+		RETVAL = NULL; /* ERR */
+		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"ars_GetClientCharSet() is only available in ARSystem >= 7.0");
+#endif
+	}
+	OUTPUT:
+	RETVAL
 
 
 
@@ -6887,7 +7250,7 @@ DESTROY(ctrl)
 # endif /* AR_EXPORT_VERSION */
 		(void) ARError(rv, status);
 #ifdef PROFILE
-		free(ctrl);
+		AP_FREE(ctrl);
 #else
 		safefree(ctrl);
 #endif

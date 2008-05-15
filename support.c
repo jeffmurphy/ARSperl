@@ -36,12 +36,12 @@ $header: /u1/project/ARSperl/ARSperl/RCS/support.c,v 1.25 1999/01/04 21:04:27 jc
 #include "supportrev.h"
 
 
-/* #if defined(malloc) && defined(_WIN32)
+#if defined(ARSPERL_UNDEF_MALLOC) && defined(malloc)
  #undef malloc
  #undef calloc
  #undef realloc
  #undef free
-#endif */
+#endif
 
 
 int
@@ -77,9 +77,6 @@ copymem(MEMCAST * m1, MEMCAST * m2, int size)
 void           *
 mallocnn(int s)
 {
-/* #if defined(malloc) && defined(_WIN32)
-#undef malloc
-#endif */
 	void           *m = malloc(s ? s : 1);
 
 	if (!m)
@@ -903,6 +900,7 @@ perl_ARValueStruct_Assign(ARControlStruct * ctrl, ARValueStruct * in)
 		return newSViv(in->u.dateVal);
 	case AR_DATA_TYPE_CURRENCY:
 		return perl_ARCurrencyStruct(ctrl, in->u.currencyVal);
+	case AR_DATA_TYPE_VIEW:
 	case AR_DATA_TYPE_DISPLAY:
 		return newSVpv(in->u.charVal, 0);
 #endif
@@ -913,7 +911,14 @@ perl_ARValueStruct_Assign(ARControlStruct * ctrl, ARValueStruct * in)
                 return newSVpv(in->u.decimalVal, 0);
 #endif
 	case AR_DATA_TYPE_NULL:
+		return newSVsv(&PL_sv_undef);
 	default:
+		{
+			char dt[128];
+			sprintf(dt, "%u (in function perl_ARValueStruct_Assign)", in->dataType);
+			ARError_add(AR_RETURN_WARNING, AP_ERR_DATATYPE);
+			ARError_add(AR_RETURN_WARNING, AP_ERR_CONTINUE, dt);
+		}
 		return newSVsv(&PL_sv_undef);	/* FIX */
 	}
 }
@@ -1692,6 +1697,12 @@ perl_ARActiveLinkActionStruct(ARControlStruct * ctrl, ARActiveLinkActionStruct *
 		hv_store(hash,  "gotoAction", strlen("gotoAction") ,
 			 perl_ARGotoActionStruct(ctrl, &in->u.gotoAction), 0);
                 break;
+#endif
+#if AR_CURRENT_API_VERSION >= 13
+        case AR_ACTIVE_LINK_ACTION_SERVICE:
+		hv_store(hash,  "service", strlen("service") ,
+			 perl_ARActiveLinkSvcActionStruct(ctrl, &in->u.service), 0);
+        break;
 #endif
         case AR_ACTIVE_LINK_ACTION_NONE:
 		hv_store(hash,  "none", strlen("none") , &PL_sv_undef, 0);
@@ -4224,7 +4235,7 @@ perl_ARFieldValueStruct( ARControlStruct *ctrl, ARFieldValueStruct *p ){
 }
 
 
-#if AR_EXPORT_VERSION >= 9L
+#if AR_CURRENT_API_VERSION >= 12
 SV *
 perl_ARAuditInfoStruct( ARControlStruct *ctrl, ARAuditInfoStruct *p ){
 	SV *ret;
@@ -4265,8 +4276,9 @@ perl_ARAuditInfoStruct( ARControlStruct *ctrl, ARAuditInfoStruct *p ){
 	}
 	return ret;
 }
+#endif
 
-
+#if AR_CURRENT_API_VERSION >= 11
 SV *
 perl_ARBulkEntryReturn( ARControlStruct *ctrl, ARBulkEntryReturn *p ){
 	SV *ret;
@@ -4381,6 +4393,7 @@ perl_ARBulkEntryReturn( ARControlStruct *ctrl, ARBulkEntryReturn *p ){
 			break;
 		default:
 			ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, ": Invalid case" );
+			ret = &PL_sv_undef;
 			break;
 		}
 	
@@ -4532,11 +4545,160 @@ perl_ARCharMenuStruct( ARControlStruct *ctrl, ARCharMenuStruct *p ){
 		case AR_CHAR_MENU_DATA_DICTIONARY:
 		case AR_CHAR_MENU_QUERY:
 			ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, ": Unsupported case" );
+			ret = &PL_sv_undef;
 			break;
 		default:
 			ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, ": Invalid case" );
+			ret = &PL_sv_undef;
 			break;
 		}
+	}
+	return ret;
+}
+
+#if AR_CURRENT_API_VERSION >= 13
+SV *
+perl_ARActiveLinkSvcActionStruct( ARControlStruct *ctrl, ARActiveLinkSvcActionStruct *p ){
+	SV *ret;
+	{
+		HV *hash;
+		hash = newHV();
+	
+		{
+			SV *val;
+			val = newSVpv( p->sampleSchema, 0 );
+			ret = val;
+		}
+		hv_store( hash, "sampleSchema", 12, ret, 0 );
+	
+		{
+			SV *val;
+			/* val = perl_ARFieldAssignList( ctrl, &(p->inputFieldMapping) ); */
+			val = perl_ARList(ctrl,
+					(ARList *)& p->inputFieldMapping,
+					(ARS_fn) perl_ARFieldAssignStruct,
+					sizeof(ARFieldAssignStruct));
+			ret = val;
+
+
+		}
+		hv_store( hash, "inputFieldMapping", 17, ret, 0 );
+	
+		{
+			SV *val;
+			val = newSVpv( p->sampleServer, 0 );
+			ret = val;
+		}
+		hv_store( hash, "sampleServer", 12, ret, 0 );
+	
+		{
+			SV *val;
+			val = newSViv( p->requestIdMap );
+			ret = val;
+		}
+		hv_store( hash, "requestIdMap", 12, ret, 0 );
+	
+		{
+			SV *val;
+			val = newSVpv( p->serviceSchema, 0 );
+			ret = val;
+		}
+		hv_store( hash, "serviceSchema", 13, ret, 0 );
+	
+		{
+			SV *val;
+			/* val = perl_ARFieldAssignList( ctrl, &(p->outputFieldMapping) ); */
+			val = perl_ARList(ctrl,
+					(ARList *)& p->outputFieldMapping,
+					(ARS_fn) perl_ARFieldAssignStruct,
+					sizeof(ARFieldAssignStruct));
+			ret = val;
+		}
+		hv_store( hash, "outputFieldMapping", 18, ret, 0 );
+	
+		{
+			SV *val;
+			val = newSVpv( p->serverName, 0 );
+			ret = val;
+		}
+		hv_store( hash, "serverName", 10, ret, 0 );
+	
+		ret = newRV_noinc((SV *) hash);
+	}
+	return ret;
+}
+#endif
+
+SV *
+perl_ARLicenseDateStruct( ARControlStruct *ctrl, ARLicenseDateStruct *p ){
+	SV *ret;
+	{
+		HV *hash;
+		hash = newHV();
+	
+		{
+			SV *val;
+			val = newSViv( p->month );
+			ret = val;
+		}
+		hv_store( hash, "month", 5, ret, 0 );
+	
+		{
+			SV *val;
+			val = newSViv( p->day );
+			ret = val;
+		}
+		hv_store( hash, "day", 3, ret, 0 );
+	
+		{
+			SV *val;
+			val = newSViv( p->year );
+			ret = val;
+		}
+		hv_store( hash, "year", 4, ret, 0 );
+	
+		ret = newRV_noinc((SV *) hash);
+	}
+	return ret;
+}
+
+
+SV *
+perl_ARLicenseValidStruct( ARControlStruct *ctrl, ARLicenseValidStruct *p ){
+	SV *ret;
+	{
+		HV *hash;
+		hash = newHV();
+	
+		{
+			SV *val;
+			val = newSVpv( p->tokenList, 0 );
+			ret = val;
+		}
+		hv_store( hash, "tokenList", 9, ret, 0 );
+	
+		{
+			SV *val;
+			val = perl_ARLicenseDateStruct( ctrl, &(p->expireDate) );
+			ret = val;
+		}
+		hv_store( hash, "expireDate", 10, ret, 0 );
+	
+		{
+			SV *val;
+			val = newSViv( p->numLicenses );
+			ret = val;
+		}
+		hv_store( hash, "numLicenses", 11, ret, 0 );
+	
+		{
+			SV *val;
+			val = newSViv( p->isDemo ? 1 : 0 );
+			ret = val;
+		}
+		hv_store( hash, "isDemo", 6, ret, 0 );
+	
+		ret = newRV_noinc((SV *) hash);
 	}
 	return ret;
 }

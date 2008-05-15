@@ -92,7 +92,7 @@ ars_DeleteCharMenu
 ars_DeleteEscalation ars_DeleteField ars_DeleteSchema
 ars_DeleteVUI ars_ExecuteProcess
 ars_GetEscalation ars_GetFullTextInfo
-ars_GetListGroup ars_GetListSQL ars_GetListUser
+ars_GetListGroup ars_GetListSQL ars_GetListUser ars_GetListRole
 ars_GetListVUI 
 ars_GetServerInfo ars_SetServerInfo
 ars_GetEntryBLOB
@@ -106,11 +106,14 @@ ars_SetActiveLink ars_CreateFilter ars_CreateEscalation ars_SetEscalation
 $ars_errstr %ARServerStats %ars_errhash
 ars_decodeStatusHistory ars_APIVersion ars_encodeStatusHistory
 ars_BeginBulkEntryTransaction ars_EndBulkEntryTransaction
+ars_Signal ars_GetTextForErrorMessage ars_DateToJulianDate
+ars_GetListLicense ars_ValidateMultipleLicenses
+ars_GetServerCharSet ars_GetClientCharSet
 ars_GetAlertCount ars_RegisterForAlerts ars_DeregisterForAlerts ars_GetListAlertUser
 ars_DecodeAlertMessage ars_CreateAlertEvent ars_VerifyUser
 );
 
-$ARS::VERSION   = '1.91';
+$ARS::VERSION   = '1.92';
 $ARS::DEBUGGING = 0;
 
 $ARS::logging_file_ptr = 0;

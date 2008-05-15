@@ -9,7 +9,7 @@ require './t/config.cache';
 
 print "1..1\n";
 
-my($ctrl) = ars_Login(&CCACHE::SERVER, &CCACHE::USERNAME, &CCACHE::PASSWORD);
+my($ctrl) = ars_Login(&CCACHE::SERVER, &CCACHE::USERNAME, &CCACHE::PASSWORD, "", "", &CCACHE::TCPPORT);
 if(!defined($ctrl)) {
   print "not ok (login $ars_errstr)\n";
   exit 0;

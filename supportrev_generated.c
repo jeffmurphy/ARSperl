@@ -7,14 +7,172 @@
 #include "support.h"
 
 
-/* #if defined(malloc) && defined(_WIN32)
+#if defined(ARSPERL_UNDEF_MALLOC) && defined(malloc)
  #undef malloc
  #undef calloc
  #undef realloc
  #undef free
-#endif */
+#endif
 
 
+
+
+#if AR_CURRENT_API_VERSION >= 13
+int
+rev_ARActiveLinkSvcActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARActiveLinkSvcActionStruct *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARActiveLinkSvcActionStruct: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARActiveLinkSvcActionStruct: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+				
+				
+					if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+						int i = 0, num = 0;
+						HV *h = (HV* ) SvRV((SV*) *val);
+						char k[256];
+						k[255] = '\0';
+				
+				
+					{
+						SV **val;
+						strncpy( k, "sampleSchema", 255 );
+						val = hv_fetch( h, "sampleSchema", 12, 0 );
+						if( val	&& *val ){
+							{
+								strncpy( p->sampleSchema, SvPV_nolen(*val), sizeof(p->sampleSchema) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"sampleSchema\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "inputFieldMapping", 255 );
+						val = hv_fetch( h, "inputFieldMapping", 17, 0 );
+						if( val	&& *val ){
+							{
+								rev_ARFieldAssignList( ctrl, h, k, &(p->inputFieldMapping) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"inputFieldMapping\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "sampleServer", 255 );
+						val = hv_fetch( h, "sampleServer", 12, 0 );
+						if( val	&& *val ){
+							{
+								strncpy( p->sampleServer, SvPV_nolen(*val), sizeof(p->sampleServer) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"sampleServer\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "requestIdMap", 255 );
+						val = hv_fetch( h, "requestIdMap", 12, 0 );
+						if( val	&& *val ){
+							{
+								p->requestIdMap = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"requestIdMap\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "serviceSchema", 255 );
+						val = hv_fetch( h, "serviceSchema", 13, 0 );
+						if( val	&& *val ){
+							{
+								strncpy( p->serviceSchema, SvPV_nolen(*val), sizeof(p->serviceSchema) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"serviceSchema\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "outputFieldMapping", 255 );
+						val = hv_fetch( h, "outputFieldMapping", 18, 0 );
+						if( val	&& *val ){
+							{
+								rev_ARFieldAssignList( ctrl, h, k, &(p->outputFieldMapping) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"outputFieldMapping\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "serverName", 255 );
+						val = hv_fetch( h, "serverName", 10, 0 );
+						if( val	&& *val ){
+							{
+								strncpy( p->serverName, SvPV_nolen(*val), sizeof(p->serverName) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"serverName\"" );
+							return -1;
+						}
+					}
+				
+				
+					}else{
+						ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARActiveLinkSvcActionStruct: hash value is not a hash reference" );
+						return -1;
+					}
+				
+				
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARActiveLinkSvcActionStruct: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARActiveLinkSvcActionStruct: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARActiveLinkSvcActionStruct: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+#endif
 
 
 
@@ -226,7 +384,7 @@ rev_ARAttachLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARAttachLimitsS
 
 
 
-#if AR_EXPORT_VERSION >= 9L
+#if AR_CURRENT_API_VERSION >= 12
 int
 rev_ARAuditInfoStruct( ARControlStruct *ctrl, HV *h, char *k, ARAuditInfoStruct *p ){
 	SV  **val;
@@ -479,7 +637,7 @@ rev_ARAutomationStruct( ARControlStruct *ctrl, HV *h, char *k, ARAutomationStruc
 
 
 
-#if AR_EXPORT_VERSION >= 9L
+#if AR_CURRENT_API_VERSION >= 11
 int
 rev_ARBulkEntryReturn( ARControlStruct *ctrl, HV *h, char *k, ARBulkEntryReturn *p ){
 	SV  **val;
@@ -832,7 +990,7 @@ rev_ARBulkEntryReturn( ARControlStruct *ctrl, HV *h, char *k, ARBulkEntryReturn 
 #endif
 
 
-#if AR_EXPORT_VERSION >= 9L
+#if AR_CURRENT_API_VERSION >= 11
 int
 rev_ARBulkEntryReturnList( ARControlStruct *ctrl, HV *h, char *k, ARBulkEntryReturnList *p ){
 	SV  **val;
@@ -1521,7 +1679,7 @@ rev_ARCallGuideStruct( ARControlStruct *ctrl, HV *h, char *k, ARCallGuideStruct 
 						char k[256];
 						k[255] = '\0';
 				
-				#if AR_EXPORT_VERSION >= 8L
+				#if AR_CURRENT_API_VERSION >= 10
 					{
 						SV **val;
 						strncpy( k, "inputValueFieldPairs", 255 );
@@ -1551,7 +1709,7 @@ rev_ARCallGuideStruct( ARControlStruct *ctrl, HV *h, char *k, ARCallGuideStruct 
 						}
 					}
 				
-				#if AR_EXPORT_VERSION >= 8L
+				#if AR_CURRENT_API_VERSION >= 10
 					{
 						SV **val;
 						strncpy( k, "sampleGuide", 255 );
@@ -1566,7 +1724,7 @@ rev_ARCallGuideStruct( ARControlStruct *ctrl, HV *h, char *k, ARCallGuideStruct 
 						}
 					}
 				#endif
-				#if AR_EXPORT_VERSION >= 8L
+				#if AR_CURRENT_API_VERSION >= 10
 					{
 						SV **val;
 						strncpy( k, "sampleServer", 255 );
@@ -1626,7 +1784,7 @@ rev_ARCallGuideStruct( ARControlStruct *ctrl, HV *h, char *k, ARCallGuideStruct 
 						}
 					}
 				
-				#if AR_EXPORT_VERSION >= 8L
+				#if AR_CURRENT_API_VERSION >= 10
 					{
 						SV **val;
 						strncpy( k, "outputValueFieldPairs", 255 );
@@ -3043,7 +3201,7 @@ rev_ARCompoundSchema( ARControlStruct *ctrl, HV *h, char *k, ARCompoundSchema *p
 								}else if( !strcmp(pcase,"regular") ){
 									p->schemaType = AR_SCHEMA_REGULAR;                 
 				
-				#if AR_EXPORT_VERSION >= 6L
+				#if AR_CURRENT_API_VERSION >= 8
 								}else if( !strcmp(pcase,"vendor") ){
 									p->schemaType = AR_SCHEMA_VENDOR;                 
 				#endif
@@ -3063,7 +3221,7 @@ rev_ARCompoundSchema( ARControlStruct *ctrl, HV *h, char *k, ARCompoundSchema *p
 				
 				
 							switch( p->schemaType ){
-				#if AR_EXPORT_VERSION >= 6L
+				#if AR_CURRENT_API_VERSION >= 8
 							case AR_SCHEMA_VENDOR:
 								{
 								
@@ -3451,7 +3609,7 @@ rev_ARContainerOwnerObjList( ARControlStruct *ctrl, HV *h, char *k, ARContainerO
 
 
 
-#if AR_EXPORT_VERSION >= 7L
+#if AR_CURRENT_API_VERSION >= 9
 int
 rev_ARCurrencyDetailList( ARControlStruct *ctrl, HV *h, char *k, ARCurrencyDetailList *p ){
 	SV  **val;
@@ -3526,7 +3684,7 @@ rev_ARCurrencyDetailList( ARControlStruct *ctrl, HV *h, char *k, ARCurrencyDetai
 #endif
 
 
-#if AR_EXPORT_VERSION >= 7L
+#if AR_CURRENT_API_VERSION >= 9
 int
 rev_ARCurrencyDetailStruct( ARControlStruct *ctrl, HV *h, char *k, ARCurrencyDetailStruct *p ){
 	SV  **val;
@@ -3609,7 +3767,7 @@ rev_ARCurrencyDetailStruct( ARControlStruct *ctrl, HV *h, char *k, ARCurrencyDet
 #endif
 
 
-#if AR_EXPORT_VERSION >= 7L
+#if AR_CURRENT_API_VERSION >= 9
 int
 rev_ARCurrencyLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARCurrencyLimitsStruct *p ){
 	SV  **val;
@@ -3737,7 +3895,7 @@ rev_ARCurrencyLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARCurrencyLim
 #endif
 
 
-#if AR_EXPORT_VERSION >= 7L
+#if AR_CURRENT_API_VERSION >= 9
 int
 rev_ARCurrencyPartStruct( ARControlStruct *ctrl, HV *h, char *k, ARCurrencyPartStruct *p ){
 	SV  **val;
@@ -3978,7 +4136,7 @@ rev_ARDDEStruct( ARControlStruct *ctrl, HV *h, char *k, ARDDEStruct *p ){
 
 
 
-#if AR_EXPORT_VERSION >= 7L
+#if AR_CURRENT_API_VERSION >= 9
 int
 rev_ARDateLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARDateLimitsStruct *p ){
 	SV  **val;
@@ -4340,7 +4498,7 @@ rev_ARDiaryLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARDiaryLimitsStr
 
 
 
-#if AR_EXPORT_VERSION >= 6L
+#if AR_CURRENT_API_VERSION >= 8
 int
 rev_ARDisplayLimits( ARControlStruct *ctrl, HV *h, char *k, ARDisplayLimits *p ){
 	SV  **val;
@@ -4814,7 +4972,7 @@ rev_AREntryListFieldValueStruct( ARControlStruct *ctrl, HV *h, char *k, AREntryL
 
 
 
-#if AR_EXPORT_VERSION >= 9L
+#if AR_CURRENT_API_VERSION >= 11
 int
 rev_AREntryReturn( ARControlStruct *ctrl, HV *h, char *k, AREntryReturn *p ){
 	SV  **val;
@@ -4897,7 +5055,7 @@ rev_AREntryReturn( ARControlStruct *ctrl, HV *h, char *k, AREntryReturn *p ){
 #endif
 
 
-#if AR_EXPORT_VERSION >= 6L
+#if AR_CURRENT_API_VERSION >= 8
 int
 rev_AREnumItemList( ARControlStruct *ctrl, HV *h, char *k, AREnumItemList *p ){
 	SV  **val;
@@ -4972,7 +5130,7 @@ rev_AREnumItemList( ARControlStruct *ctrl, HV *h, char *k, AREnumItemList *p ){
 #endif
 
 
-#if AR_EXPORT_VERSION >= 6L
+#if AR_CURRENT_API_VERSION >= 8
 int
 rev_AREnumItemStruct( ARControlStruct *ctrl, HV *h, char *k, AREnumItemStruct *p ){
 	SV  **val;
@@ -5055,7 +5213,7 @@ rev_AREnumItemStruct( ARControlStruct *ctrl, HV *h, char *k, AREnumItemStruct *p
 #endif
 
 
-#if AR_EXPORT_VERSION >= 6L
+#if AR_CURRENT_API_VERSION >= 8
 int
 rev_AREnumLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, AREnumLimitsStruct *p ){
 	SV  **val;
@@ -5273,7 +5431,7 @@ rev_AREnumLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, AREnumLimitsStruc
 #endif
 
 
-#if AR_EXPORT_VERSION >= 6L
+#if AR_CURRENT_API_VERSION >= 8
 int
 rev_AREnumQueryStruct( ARControlStruct *ctrl, HV *h, char *k, AREnumQueryStruct *p ){
 	SV  **val;
@@ -5742,7 +5900,7 @@ rev_ARFieldLimitStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldLimitStruc
 								}
 								break;
 				
-				#if AR_EXPORT_VERSION >= 6L
+				#if AR_CURRENT_API_VERSION >= 8
 							case AR_DATA_TYPE_VIEW:
 								{
 									rev_ARViewLimits( ctrl, h, k, &(p->u.viewLimits) );
@@ -5763,21 +5921,21 @@ rev_ARFieldLimitStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldLimitStruc
 								}
 								break;
 				
-				#if AR_EXPORT_VERSION >= 7L
+				#if AR_CURRENT_API_VERSION >= 9
 							case AR_DATA_TYPE_DATE:
 								{
 									rev_ARDateLimitsStruct( ctrl, h, k, &(p->u.dateLimits) );
 								}
 								break;
 				#endif
-				#if AR_EXPORT_VERSION >= 6L
+				#if AR_CURRENT_API_VERSION >= 8
 							case AR_DATA_TYPE_ENUM:
 								{
 									rev_AREnumLimitsStruct( ctrl, h, k, &(p->u.enumLimits) );
 								}
 								break;
 				#endif
-				#if AR_EXPORT_VERSION >= 7L
+				#if AR_CURRENT_API_VERSION >= 9
 							case AR_DATA_TYPE_CURRENCY:
 								{
 									rev_ARCurrencyLimitsStruct( ctrl, h, k, &(p->u.currencyLimits) );
@@ -5798,7 +5956,7 @@ rev_ARFieldLimitStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldLimitStruc
 								}
 								break;
 				
-				#if AR_EXPORT_VERSION >= 6L
+				#if AR_CURRENT_API_VERSION >= 8
 							case AR_DATA_TYPE_DISPLAY:
 								{
 									rev_ARDisplayLimits( ctrl, h, k, &(p->u.displayLimits) );
@@ -5965,7 +6123,7 @@ rev_ARFieldMappingStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldMappingS
 							if( hval && *hval ){
 								pcase = SvPV_nolen(*hval);
 								if( 0 ){
-				#if AR_EXPORT_VERSION >= 8L
+				#if AR_CURRENT_API_VERSION >= 10
 								}else if( SvIV(*hval) == 5 ){
 									p->fieldType = AR_FIELD_INHERITANCE;                 
 				#endif
@@ -5981,7 +6139,7 @@ rev_ARFieldMappingStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldMappingS
 								}else if( SvIV(*hval) == 1 ){
 									p->fieldType = AR_FIELD_REGULAR;                 
 				
-				#if AR_EXPORT_VERSION >= 6L
+				#if AR_CURRENT_API_VERSION >= 8
 								}else if( SvIV(*hval) == 4 ){
 									p->fieldType = AR_FIELD_VENDOR;                 
 				#endif
@@ -6001,7 +6159,7 @@ rev_ARFieldMappingStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldMappingS
 				
 				
 							switch( p->fieldType ){
-				#if AR_EXPORT_VERSION >= 6L
+				#if AR_CURRENT_API_VERSION >= 8
 							case AR_FIELD_VENDOR:
 								{
 								
@@ -6037,7 +6195,7 @@ rev_ARFieldMappingStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldMappingS
 								}
 								break;
 				#endif
-				#if AR_EXPORT_VERSION >= 8L
+				#if AR_CURRENT_API_VERSION >= 10
 							case AR_FIELD_INHERITANCE:
 								{
 								
@@ -6284,7 +6442,7 @@ rev_ARFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldVal
 						h = (HV* ) SvRV((SV*) *val);
 				
 							if( 0 ){
-				#if AR_EXPORT_VERSION >= 7L
+				#if AR_CURRENT_API_VERSION >= 9
 							}else if( hv_exists(h,"currencyField",13) ){
 								p->tag = AR_CURRENCY_FLD;
 								k = "currencyField";
@@ -6345,7 +6503,7 @@ rev_ARFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldVal
 				
 				
 							switch( p->tag ){
-				#if AR_EXPORT_VERSION >= 7L
+				#if AR_CURRENT_API_VERSION >= 9
 							case AR_CURRENCY_FLD:
 								{
 								
@@ -6952,7 +7110,7 @@ rev_ARFilterActionNotify( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionN
 						char k[256];
 						k[255] = '\0';
 				
-				#if AR_EXPORT_VERSION >= 7L
+				#if AR_CURRENT_API_VERSION >= 9
 					{
 						SV **val;
 						strncpy( k, "notifyAdvanced", 255 );
@@ -7011,7 +7169,7 @@ rev_ARFilterActionNotify( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionN
 						}
 					}
 				
-				#if AR_EXPORT_VERSION >= 7L
+				#if AR_CURRENT_API_VERSION >= 9
 					{
 						SV **val;
 						strncpy( k, "notifyBehavior", 255 );
@@ -7041,7 +7199,7 @@ rev_ARFilterActionNotify( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionN
 						}
 					}
 				
-				#if AR_EXPORT_VERSION >= 7L
+				#if AR_CURRENT_API_VERSION >= 9
 					{
 						SV **val;
 						strncpy( k, "notifyPermission", 255 );
@@ -7143,7 +7301,7 @@ rev_ARFilterActionNotify( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionN
 
 
 
-#if AR_EXPORT_VERSION >= 7L
+#if AR_CURRENT_API_VERSION >= 9
 int
 rev_ARFilterActionNotifyAdvanced( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionNotifyAdvanced *p ){
 	SV  **val;
@@ -7379,7 +7537,7 @@ rev_ARFilterActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionS
 								p->action = AR_FILTER_ACTION_NOTIFY;
 								k = "notify";
 				
-				#if AR_EXPORT_VERSION <= 7L
+				#if AR_CURRENT_API_VERSION <= 9
 							}else if( hv_exists(h,"assign_fields",13) ){
 								p->action = AR_FILTER_ACTION_FIELDS;
 								k = "assign_fields";
@@ -7394,7 +7552,7 @@ rev_ARFilterActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionS
 								p->action = AR_FILTER_ACTION_MESSAGE;
 								k = "message";
 				
-				#if AR_EXPORT_VERSION >= 8L
+				#if AR_CURRENT_API_VERSION >= 10
 							}else if( hv_exists(h,"fieldp",6) ){
 								p->action = AR_FILTER_ACTION_FIELDP;
 								k = "fieldp";
@@ -7414,7 +7572,7 @@ rev_ARFilterActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionS
 								p->action = AR_FILTER_ACTION_CALLGUIDE;
 								k = "callGuide";
 				
-				#if AR_EXPORT_VERSION >= 8L
+				#if AR_CURRENT_API_VERSION >= 10
 							}else if( hv_exists(h,"assign_fields",13) ){
 								p->action = AR_FILTER_ACTION_FIELDS;
 								k = "assign_fields";
@@ -7424,7 +7582,7 @@ rev_ARFilterActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionS
 								p->action = AR_FILTER_ACTION_SQL;
 								k = "sqlCommand";
 				
-				#if AR_EXPORT_VERSION <= 7L
+				#if AR_CURRENT_API_VERSION <= 9
 							}else if( hv_exists(h,"fieldp",6) ){
 								p->action = AR_FILTER_ACTION_FIELDP;
 								k = "fieldp";
@@ -7545,7 +7703,7 @@ rev_ARFilterActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionS
 								}
 								break;
 				
-				#if AR_EXPORT_VERSION <= 7L
+				#if AR_CURRENT_API_VERSION <= 9
 							case AR_FILTER_ACTION_FIELDS:
 								{
 								
@@ -7653,7 +7811,7 @@ rev_ARFilterActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionS
 								}
 								break;
 				
-				#if AR_EXPORT_VERSION >= 8L
+				#if AR_CURRENT_API_VERSION >= 10
 							case AR_FILTER_ACTION_FIELDP:
 								{
 								
@@ -7797,7 +7955,7 @@ rev_ARFilterActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionS
 								}
 								break;
 				
-				#if AR_EXPORT_VERSION >= 8L
+				#if AR_CURRENT_API_VERSION >= 10
 							case AR_FILTER_ACTION_FIELDS:
 								{
 								
@@ -7869,7 +8027,7 @@ rev_ARFilterActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionS
 								}
 								break;
 				
-				#if AR_EXPORT_VERSION <= 7L
+				#if AR_CURRENT_API_VERSION <= 9
 							case AR_FILTER_ACTION_FIELDP:
 								{
 								
@@ -8273,7 +8431,7 @@ rev_ARIndexStruct( ARControlStruct *ctrl, HV *h, char *k, ARIndexStruct *p ){
 
 
 
-#if AR_EXPORT_VERSION >= 8L
+#if AR_CURRENT_API_VERSION >= 10
 int
 rev_ARInheritanceMappingStruct( ARControlStruct *ctrl, HV *h, char *k, ARInheritanceMappingStruct *p ){
 	SV  **val;
@@ -8652,6 +8810,217 @@ rev_ARJoinSchema( ARControlStruct *ctrl, HV *h, char *k, ARJoinSchema *p ){
 
 
 int
+rev_ARLicenseDateStruct( ARControlStruct *ctrl, HV *h, char *k, ARLicenseDateStruct *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARLicenseDateStruct: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARLicenseDateStruct: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+				
+				
+					if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+						int i = 0, num = 0;
+						HV *h = (HV* ) SvRV((SV*) *val);
+						char k[256];
+						k[255] = '\0';
+				
+				
+					{
+						SV **val;
+						strncpy( k, "month", 255 );
+						val = hv_fetch( h, "month", 5, 0 );
+						if( val	&& *val ){
+							{
+								p->month = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"month\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "day", 255 );
+						val = hv_fetch( h, "day", 3, 0 );
+						if( val	&& *val ){
+							{
+								p->day = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"day\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "year", 255 );
+						val = hv_fetch( h, "year", 4, 0 );
+						if( val	&& *val ){
+							{
+								p->year = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"year\"" );
+							return -1;
+						}
+					}
+				
+				
+					}else{
+						ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARLicenseDateStruct: hash value is not a hash reference" );
+						return -1;
+					}
+				
+				
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARLicenseDateStruct: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARLicenseDateStruct: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARLicenseDateStruct: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+
+
+
+
+int
+rev_ARLicenseValidStruct( ARControlStruct *ctrl, HV *h, char *k, ARLicenseValidStruct *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARLicenseValidStruct: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARLicenseValidStruct: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+				
+				
+					if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+						int i = 0, num = 0;
+						HV *h = (HV* ) SvRV((SV*) *val);
+						char k[256];
+						k[255] = '\0';
+				
+				
+					{
+						SV **val;
+						strncpy( k, "tokenList", 255 );
+						val = hv_fetch( h, "tokenList", 9, 0 );
+						if( val	&& *val ){
+							{
+								p->tokenList = strdup( SvPV_nolen(*val) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"tokenList\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "expireDate", 255 );
+						val = hv_fetch( h, "expireDate", 10, 0 );
+						if( val	&& *val ){
+							{
+								rev_ARLicenseDateStruct( ctrl, h, k, &(p->expireDate) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"expireDate\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "numLicenses", 255 );
+						val = hv_fetch( h, "numLicenses", 11, 0 );
+						if( val	&& *val ){
+							{
+								p->numLicenses = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"numLicenses\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "isDemo", 255 );
+						val = hv_fetch( h, "isDemo", 6, 0 );
+						if( val	&& *val ){
+							{
+								p->isDemo = (char) SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"isDemo\"" );
+							return -1;
+						}
+					}
+				
+				
+					}else{
+						ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARLicenseValidStruct: hash value is not a hash reference" );
+						return -1;
+					}
+				
+				
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARLicenseValidStruct: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARLicenseValidStruct: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARLicenseValidStruct: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+
+
+
+
+int
 rev_ARNameList( ARControlStruct *ctrl, HV *h, char *k, ARNameList *p ){
 	SV  **val;
 	int i = 0;
@@ -8751,7 +9120,7 @@ rev_AROpenDlgStruct( ARControlStruct *ctrl, HV *h, char *k, AROpenDlgStruct *p )
 						char k[256];
 						k[255] = '\0';
 				
-				#if AR_EXPORT_VERSION <= 7L
+				#if AR_CURRENT_API_VERSION <= 9
 					{
 						SV **val;
 						strncpy( k, "windowMode", 255 );
@@ -8897,7 +9266,7 @@ rev_AROpenDlgStruct( ARControlStruct *ctrl, HV *h, char *k, AROpenDlgStruct *p )
 						}
 					}
 				
-				#if AR_EXPORT_VERSION >= 8L
+				#if AR_CURRENT_API_VERSION >= 10
 					{
 						SV **val;
 						strncpy( k, "windowMode", 255 );
@@ -9150,7 +9519,7 @@ rev_AROpenDlgStruct( ARControlStruct *ctrl, HV *h, char *k, AROpenDlgStruct *p )
 
 
 
-#if AR_EXPORT_VERSION >= 8L
+#if AR_CURRENT_API_VERSION >= 10
 int
 rev_ARPushFieldsActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARPushFieldsActionStruct *p ){
 	SV  **val;
@@ -10323,7 +10692,7 @@ rev_ARSQLStruct( ARControlStruct *ctrl, HV *h, char *k, ARSQLStruct *p ){
 
 
 
-#if AR_EXPORT_VERSION >= 8L
+#if AR_CURRENT_API_VERSION >= 10
 int
 rev_ARSetFieldsActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARSetFieldsActionStruct *p ){
 	SV  **val;
@@ -10680,7 +11049,7 @@ rev_ARTableLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARTableLimitsStr
 						char k[256];
 						k[255] = '\0';
 				
-				#if AR_EXPORT_VERSION >= 8L
+				#if AR_CURRENT_API_VERSION >= 10
 					{
 						SV **val;
 						strncpy( k, "sampleSchema", 255 );
@@ -10740,7 +11109,7 @@ rev_ARTableLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARTableLimitsStr
 						}
 					}
 				
-				#if AR_EXPORT_VERSION >= 8L
+				#if AR_CURRENT_API_VERSION >= 10
 					{
 						SV **val;
 						strncpy( k, "sampleServer", 255 );
@@ -10962,7 +11331,7 @@ rev_ARValueList( ARControlStruct *ctrl, HV *h, char *k, ARValueList *p ){
 
 
 
-#if AR_EXPORT_VERSION >= 6L
+#if AR_CURRENT_API_VERSION >= 8
 int
 rev_ARVendorMappingStruct( ARControlStruct *ctrl, HV *h, char *k, ARVendorMappingStruct *p ){
 	SV  **val;
@@ -11030,7 +11399,7 @@ rev_ARVendorMappingStruct( ARControlStruct *ctrl, HV *h, char *k, ARVendorMappin
 #endif
 
 
-#if AR_EXPORT_VERSION >= 6L
+#if AR_CURRENT_API_VERSION >= 8
 int
 rev_ARVendorSchema( ARControlStruct *ctrl, HV *h, char *k, ARVendorSchema *p ){
 	SV  **val;
@@ -11113,7 +11482,7 @@ rev_ARVendorSchema( ARControlStruct *ctrl, HV *h, char *k, ARVendorSchema *p ){
 #endif
 
 
-#if AR_EXPORT_VERSION >= 6L
+#if AR_CURRENT_API_VERSION >= 8
 int
 rev_ARViewLimits( ARControlStruct *ctrl, HV *h, char *k, ARViewLimits *p ){
 	SV  **val;
@@ -11400,7 +11769,7 @@ rev_ARWaitStruct( ARControlStruct *ctrl, HV *h, char *k, ARWaitStruct *p ){
 
 
 
-#if AR_EXPORT_VERSION >= 9L
+#if AR_CURRENT_API_VERSION >= 11
 int
 rev_ARXMLEntryReturn( ARControlStruct *ctrl, HV *h, char *k, ARXMLEntryReturn *p ){
 	SV  **val;
@@ -11495,7 +11864,7 @@ void copyIntArray( int size, int *dst, SV* src ){
 		if( i <= len ){ 
 			SV** item = av_fetch( ar, i, 0 );
 			if( item != NULL && *item != NULL && i <= len ){
-				dst[i] = SvIV( *item );
+				dst[i] = (SvOK(*item))? SvIV(*item) : 0;
 			}
 		}
 	}
@@ -11510,7 +11879,7 @@ void copyUIntArray( int size, ARInternalId *dst, SV* src ){
 		if( i <= len ){ 
 			SV** item = av_fetch( ar, i, 0 );
 			if( item != NULL && *item != NULL && i <= len ){
-				dst[i] = SvUV( *item );
+				dst[i] = (SvOK(*item))? SvUV(*item) : 0;
 			}
 		}
 	}

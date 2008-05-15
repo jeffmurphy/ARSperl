@@ -9,10 +9,9 @@ my $c = 1;
 
 
 print "1..$maxtest\n";
-#print "ok [1]\nok [2]\nok [3]\nok [4]\nok [5]\nok [6]\nok [7]\n"; exit;
 
 
-my $ctrl = ars_Login( &CCACHE::SERVER, &CCACHE::USERNAME, &CCACHE::PASSWORD );
+my $ctrl = ars_Login( &CCACHE::SERVER, &CCACHE::USERNAME, &CCACHE::PASSWORD, "","", &CCACHE::TCPPORT );
 
 if(!defined($ctrl)) {
 	for(my $i = $c ; $i <= $maxtest ; $i++) {
