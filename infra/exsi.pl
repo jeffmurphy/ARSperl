@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Header: /cvsroot/arsperl/ARSperl/infra/exsi.pl,v 1.2 2007/09/13 22:50:26 tstapff Exp $
+# $Header: /cvsroot/arsperl/ARSperl/infra/exsi.pl,v 1.3 2008/09/24 13:03:14 tstapff Exp $
 #
 # NAME
 #   exsi.pl < ar.h > server_info_type_hints.h
@@ -15,6 +15,9 @@
 #   jcmurphy@jeffmurphy.org
 #
 # $Log: exsi.pl,v $
+# Revision 1.3  2008/09/24 13:03:14  tstapff
+# bugfix for serverTypeInfoHints.h
+#
 # Revision 1.2  2007/09/13 22:50:26  tstapff
 # arsystem 7.1 port
 #
@@ -27,15 +30,31 @@ use strict;
 
 header();
 
+
+my $ct = 0;  # counter for completeness check
+
 while(<>) {
 #	print;
 	chomp;
 	
 	# jump thru hoops
 
-	if(/\#define\s+(AR_SERVER_INFO_\S+)\s+(\d+)\s*\/\*\s+(\S+)\s+(\S+)\s/) {
-		my ($sin, $siv, $sit, $sit2) = ($1, $2, $3, $4);
-		# name value type type2
+	my ($sin, $siv, $sit, $sit2);
+	# name value type type2
+
+	if(/\#define\s+(AR_SERVER_INFO_\S+)\s+(\d+)\s*\/\*\s*(\S+)\s+(\S+)?/) {
+		($sin, $siv, $sit, $sit2) = ($1, $2, $3, $4);
+	}elsif(/\#define\s+(AR_SERVER_INFO_\S+)\s+(\d+)\s*$/){
+		($sin, $siv) = ($1, $2);
+		$_ = <>;
+		if( /^\s*\/\*\s+(\S+)\s+(\S+)?/) {
+			($sit, $sit2) = ($1, $2);
+		}
+	}
+
+	if( $sin && $siv && $sit ){
+		++$ct;
+		die "!!! ERROR: Cannot determine type for AR_SERVER_INFO constant $ct !!!" if $siv != $ct;
 
 		# jump thru some more hoops
 

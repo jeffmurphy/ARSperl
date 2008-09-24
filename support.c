@@ -3364,7 +3364,7 @@ perl_ARFieldValueOrArithStruct(ARControlStruct * ctrl, ARFieldValueOrArithStruct
 #else
 	if( in->tag >= AR_FIELD_OFFSET && in->tag <= AR_FIELD_OFFSET + AR_DATA_TYPE_ATTACH ){
 #endif
-		int dt = in->tag - AR_FIELD_OFFSET;
+		unsigned int dt = in->tag - AR_FIELD_OFFSET;
 		hv_store( hash, "fieldId",  strlen("fieldId"),  newSViv(in->u.fieldId), 0 );
 		hv_store( hash, "dataType", strlen("dataType"), perl_dataType_names(ctrl,&dt), 0 );
 		/* hv_store( hash, "dataType", strlen("dataType"), newSViv(in->u.dataType), 0); */

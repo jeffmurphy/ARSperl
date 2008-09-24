@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.31 2008/05/15 18:30:03 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.32 2008/09/24 13:03:12 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -1247,7 +1247,7 @@ rev_ARValueStruct(ARControlStruct * ctrl, HV * h, char *k, char *t, ARValueStruc
 
 	if (val && *val && type && *type && SvPOK(*type)) {
 		char *tp, *vp;
-		int len;
+		STRLEN len;
 		char *str;
 
 		if( SvOK(*val) ){

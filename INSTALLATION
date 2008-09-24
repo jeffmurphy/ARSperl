@@ -1,8 +1,8 @@
-$Header: /cvsroot/arsperl/ARSperl/INSTALLATION,v 1.9 2007/07/20 19:57:56 jeffmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/INSTALLATION,v 1.10 2008/09/24 13:03:06 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
-    Copyright (C) 1995-2003
+    Copyright (C) 1995-2008
 	Joel Murphy, jmurphy@acsu.buffalo.edu
         Jeff Murphy, jcmurphy@acsu.buffalo.edu
 
@@ -32,7 +32,7 @@ PREPARATION
 
 You will need to have these already installed: 
 
-   o  ARS 2.x, 3.x, 4.x or 5.x API libraries and includes (header files).
+   o  ARS 5.x, 6.x or 7.x API libraries and includes (header files).
    o  Perl 5.x with the dynamic loading option compiled in.
 
 TESTED OS'S
@@ -43,7 +43,7 @@ OS versions:
    o  Solaris 2.4 - 8
    o  Irix 6.2
    o  HPUX*
-   o  WindowsNT, 2000  (But NOT win95)
+   o  WindowsNT, 2000, XP (But NOT win95)
    o  Linux (RH 7.3, 8.0)
 
 Users of other OS's might encounted problems with compiling. We'd be 
@@ -65,7 +65,6 @@ Under WindowsNT you will need to insert the appropriate libraries
 (arapi.lib and nts.lib) from the API kit included with NT Server, 
 and the path to the include files, into Makefile.pl (or the resulting
 Makfile).  
-For ARS2.0, you will need to add -DARS20 to the DEFINEs line.
 
 then execute the following comands:
 

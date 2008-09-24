@@ -1,10 +1,16 @@
-released=xx/xx/xxx version=1.91
+released=xx/xx/xxx version=1.92
+TS  fixed AR_SERVER_INFO type identification in infra/exsi.pl
+TS  updated version numbers in INSTALLATION
+TS  added ars_DateToJulianDate, ars_GetListLicense, ars_ValidateMultipleLicenses,
+    ars_GetServerCharSet, ars_GetClientCharSet
 TS  fixed actionList/elseList bug in ars_SetActiveLink
 TS  added AR_DATA_TYPE_VIEW handling to perl_ARValueStruct_Assign,rev_ARActiveLinkActionList
 TS  modified Makefile.PL for easier automated testing (handling of ARSPERLTEST_PARAM)
-TS  added ars_GetListRole, ars_GetListRole, ars_Signal, ars_GetTextForErrorMessage
+TS  added ars_GetListRole, ars_Signal, ars_GetTextForErrorMessage
 !TS  changed return struct of ars_GetListGroup
 TS  fixed IVLD macro in support-h.template
+
+released=05/06/2008 version=1.91
 TS  fixed ars_padEntryid to work correctly if entry ID prefix is defined
 TS  replaced malloc-on-windows patch by UNDEF_PERL_MALLOC compilation option in Makefile.PL
 TS  fixed pointer initialization error in ars_SetVUI
