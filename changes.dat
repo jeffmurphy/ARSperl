@@ -1,4 +1,8 @@
 released=xx/xx/xxx version=1.92
+TS  fixed return value of ars_Import
+TS  fixed memory violation in ars_GetListContainer
+TS  implemented ars_qualifier_ptr function (inverse of ars_perl_qualifier)
+TS  added ownerObjList parameter to ars_GetListContainer
 TS  fixed AR_SERVER_INFO type identification in infra/exsi.pl
 TS  updated version numbers in INSTALLATION
 TS  added ars_DateToJulianDate, ars_GetListLicense, ars_ValidateMultipleLicenses,

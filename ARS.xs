@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.119 2008/05/15 18:30:00 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.120 2008/11/03 17:08:18 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -87,6 +87,50 @@ ars_perl_qualifier(ctrl, in)
 	}
 	OUTPUT:
 	RETVAL
+
+ARQualifierStruct *
+ars_qualifier_ptr(ctrl, in)
+	ARControlStruct *	ctrl
+	SV * in
+	CODE:
+	{
+	  ARQualifierStruct *qual;
+	  HV *h_dummy;
+	  HV *h;
+	  int rv = 0;	  
+
+	  AMALLOCNN(qual, 1, ARQualifierStruct);
+	  (void) ARError_reset();
+
+	  if( SvTYPE(SvRV(in)) != SVt_PVHV ){
+		  ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARQualifierStruct: not a hash value" );
+		  RETVAL = NULL;
+		  goto ars_qualifier_ptr_end;
+	  }
+	  h = (HV* ) SvRV((SV*) in);
+	  if( ! SvTRUE(hv_scalar(h)) ){
+		  RETVAL = qual;
+		  goto ars_qualifier_ptr_end;
+	  }
+
+	  h_dummy = newHV();
+	  SvREFCNT_inc( in );
+	  hv_store( h_dummy, "_", 1, in, 0 );
+	  rv += rev_ARQualifierStruct( ctrl, h_dummy, "_", qual );
+	  hv_undef( h_dummy );
+
+	  if( rv == 0 ){
+		  RETVAL = qual;
+	  }else{
+		  ARError_add( AR_RETURN_ERROR, AP_ERR_PREREVFAIL );
+		  RETVAL = NULL;
+		  FreeARQualifierStruct(qual, TRUE);
+	  }
+	  ars_qualifier_ptr_end:;
+	}
+	OUTPUT:
+	RETVAL
+
 
 ARQualifierStruct *
 ars_LoadQualifier(ctrl,schema,qualstring,displayTag=NULL)
@@ -1092,44 +1136,60 @@ ars_GetListContainer(ctrl,changedSince=0,attributes=0,...)
 	PPCODE:
 	{
 	  ARStatusList 		status;
-	  int          		i, ret;
+	  int          		i, ret, rv = 0;
 
 	  (void) ARError_reset();	  
 	  Zero(&status, 1, ARStatusList);
 #if AR_EXPORT_VERSION >= 4
-	  if(items < 4)
+	  if(items < 1 || items > 200){  /* don't overflow clist[] */
 		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
-	  else {
+	  }else{
 	  	ARContainerTypeList	containerTypes;
 		int			count;
 # if AR_EXPORT_VERSION <= 4L
 		unsigned
 # endif
-		int clist[ARCON_LAST_RESERVED];
+		int clist[256];
 # if AR_EXPORT_VERSION >= 6
 		ARContainerOwnerObjList ownerObjList;
-# else
-		ARContainerOwnerObj 	ownerObj;
 # endif
 # if AR_EXPORT_VERSION >= 8L
 		ARPropList		propList;
 # endif
 		ARContainerInfoList	conList;
 
-		count = 0;
-		for(i = 3 ; i < items ; i++) {
-			clist[count++] = SvIV(ST(i));
-		}
-		containerTypes.numItems = count;
-		containerTypes.type = clist; 
+		Zero(&containerTypes, 1, ARContainerTypeList);
 # if AR_EXPORT_VERSION >= 6
-		ownerObjList.numItems = 0;
-		ownerObjList.ownerObjList = NULL;
+		Zero(&ownerObjList, 1, ARContainerOwnerObjList);
 # endif
 # if AR_EXPORT_VERSION >= 8L
 		Zero(&propList, 1, ARPropList);
 # endif
-		ret = ARGetListContainer(ctrl, changedSince,
+		Zero(&conList, 1, ARContainerInfoList);
+
+		count = 0;
+
+		if( items >= 4 ){
+			SV* st3 = ST(3);
+			if( SvROK(st3) && SvTYPE(SvRV(st3)) == SVt_PVAV ){
+				HV *h_dummy = newHV();
+				SvREFCNT_inc( st3 );
+				hv_store( h_dummy, "_", 1, st3, 0 );
+				rv += rev_ARContainerOwnerObjList( ctrl, h_dummy, "_", &ownerObjList );
+				hv_undef( h_dummy );
+			}else{
+				clist[count++] = SvIV(st3);
+			}
+		}
+
+		for(i = 4 ; i < items ; ++i){
+			clist[count++] = SvIV(ST(i));
+		}
+		containerTypes.numItems = count;
+		containerTypes.type = clist; 
+
+		if( rv == 0 ){
+			ret = ARGetListContainer(ctrl, changedSince,
 					&containerTypes,
 					attributes,
 # if AR_EXPORT_VERSION >= 6
@@ -1142,7 +1202,11 @@ ars_GetListContainer(ctrl,changedSince=0,attributes=0,...)
 # endif
 
 					&conList, &status);
-		if(!ARError(ret, status)) {
+		}else{
+			ARError_add( AR_RETURN_ERROR, AP_ERR_PREREVFAIL);
+		}
+
+		if( rv == 0 && !ARError(ret, status)) {
 			unsigned int i;
 		    for(i = 0 ; i < conList.numItems ; i++) {
 	        	HV 			*conInfo = newHV();
@@ -1168,7 +1232,8 @@ ars_GetListContainer(ctrl,changedSince=0,attributes=0,...)
 		    }
 		}
 # if AR_EXPORT_VERSION >= 5L
-		FreeARContainerTypeList(&containerTypes, FALSE);
+        /* Don't try to FreeAR this, because clist[] is a stack variable */ 
+		/* FreeARContainerTypeList(&containerTypes, FALSE); */
 # endif
 		FreeARContainerInfoList(&conList, FALSE);
 # if AR_EXPORT_VERSION >= 6
@@ -2393,7 +2458,7 @@ ars_Import(ctrl,importOption=AR_IMPORT_OPT_CREATE,importBuf,...)
 	unsigned int            importOption
 	CODE:
 	{
-		int               ret = 1, i = 0, a = 0, c = (items - 2) / 2, ok =1;
+		int               ret = 1, i = 0, a = 0, c = (items - 2) / 2, ok = 1;
 		ARStructItemList *structItems = NULL;
 		ARStatusList      status;
 
@@ -2402,6 +2467,7 @@ ars_Import(ctrl,importOption=AR_IMPORT_OPT_CREATE,importBuf,...)
 		RETVAL = 0;
 		if ((items-3) % 2) {
 			(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
+			ok = 0;
 		} else {
 			if (c > 0) {
 				AMALLOCNN(structItems, c, ARStructItemList);
@@ -2446,7 +2512,7 @@ ars_Import(ctrl,importOption=AR_IMPORT_OPT_CREATE,importBuf,...)
 				RETVAL = 1;
 			}
 		} else {
-			RETVAL = 1;
+			RETVAL = 0;
 		}
 		FreeARStructItemList(structItems, TRUE);
 	}

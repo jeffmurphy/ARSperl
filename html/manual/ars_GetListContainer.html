@@ -4,7 +4,12 @@
 </HEAD>
 <BODY BGCOLOR="#FFFFFF">
 
-<H2><CODE>ars_GetListContainer(ctrl, changedSince=0, attributes, containerTypes=0)</CODE></H2>
+<PRE>
+<H2><CODE>ars_GetListContainer(
+         ctrl, changedSince=0, attributes=0,      # standard
+         [ ownerObjList ],                        # OPTIONAL
+         containerType1,containerType2,...)       # OPTIONAL</CODE></H2>
+</PRE>
 
 <P>
 Retrieves a list of containers on the specified server. You can retrieve all
@@ -15,6 +20,12 @@ or containers modified after a specified time.</P>
 <A HREF="ds_getlistcontainer_hash.html">GetListContainer Hash Values</A>.</P>
 
 <DL>
+<DT><CODE>[ ownerObjList ]</CODE></DT>
+<DD> is an optional array reference; the list is a list of HASH references. These hash
+references must contain a <i>type</i> and an <i>ownerName</i> parameter. The <i>type</i>
+must be "none", "all" or "schema". If <i>type</i> is "schema", the <i>ownerName</i> contains
+the name of the owning schema; otherwise the <i>ownerName</i> should be an empty string
+(see example below).</DD>
 <DT>attributes</DT>
 <DD>Specify &amp;ARS::AR_HIDDEN_INCREMENT for this parameter to retrieve both
 visible and hidden containers. Specify NULL for this parameter to retrieve only
@@ -29,6 +40,7 @@ Values are:
   <tr><td>2</td><td>Retrieve all application containers (ARCON_APP).</td></tr>
   <tr><td>3</td><td>Retrieve all packing list containers (ARCON_PACK).</td></tr>
   <tr><td>4</td><td>Retrieve all filter guide containers (ARCON_FILTER_GUIDE).</td></tr>
+  <tr><td>5</td><td>Retrieve all web service containers (ARCON_WEBSERVICE).</td></tr>
   </table></ul></DD>
 </DL>
 <DL>
@@ -38,11 +50,21 @@ Values are:
 <DD>Returns undef.</DD>
 </DL>
 
-<P>Example:</P>
+<P>Example 1 (retrieve all active link guides):</P>
 
       <PRE>
-	(@a = ars_GetListContainer($ctrl, 0, &amp;ARS::AR_HIDDEN_INCREMENT, ARCON_GUIDE)) || 
-		die "$ars_errstr";
+	@list = ars_GetListContainer($ctrl, 0, &amp;ARS::AR_HIDDEN_INCREMENT, &ARS::ARCON_GUIDE);
+	die "$ars_errstr" if $ars_errstr;
+      </PRE>
+
+<P>Example 2 (retrieve all globally owned containers plus all containers of a specific schema):</P>
+
+      <PRE>
+	@list = ars_GetListContainer($ctrl, 0, &amp;ARS::AR_HIDDEN_INCREMENT, [
+			{type => 'all',    ownerName => ''},
+			{type => 'schema', ownerName => 'Sample:Schema'},
+		] );
+	die "$ars_errstr" if $ars_errstr;
       </PRE>
 
 <P>

@@ -80,7 +80,7 @@ ars_DeleteEntry ars_GetEntry ars_GetListEntry ars_GetListSchema
 ars_GetListServer ars_GetActiveLink ars_GetCharMenuItems ars_GetSchema 
 ars_ExpandCharMenu
 ars_GetField ars_simpleMenu ars_GetListActiveLink ars_SetEntry 
-ars_perl_qualifier ars_Export ars_GetListFilter ars_GetListEscalation 
+ars_perl_qualifier ars_qualifier_ptr ars_Export ars_GetListFilter ars_GetListEscalation 
 ars_GetListCharMenu ars_padEntryid 
 ars_GetFilter ars_SetFilter
 ars_GetListEntryWithFields ars_GetMultipleEntries
