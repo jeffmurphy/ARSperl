@@ -1,4 +1,5 @@
 released=xx/xx/xxx version=1.92
+!CL  enhanced ARS OO interface to handle custom enum fields
 TS  fixed return value of ars_Import
 TS  fixed memory violation in ars_GetListContainer
 TS  implemented ars_qualifier_ptr function (inverse of ars_perl_qualifier)

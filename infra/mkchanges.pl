@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/infra/mkchanges.pl,v 1.8 2007/03/13 13:20:33 jeffmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/infra/mkchanges.pl,v 1.9 2008/11/24 15:40:23 jeffmurphy Exp $
 #
 # mkchanges.pl [-t] -f changes.dat
 #
@@ -186,6 +186,7 @@ sub headerHTML {
  <tr><td>JCM</td><td>=</td><td>Jeff Murphy {jeffmurphy at sourceforge.net}</td></tr>
  <tr><td>JWM</td><td>=</td><td>Joel Murphy {jmurphy at buffalo.edu}</td></tr>
  <tr><td>TS</td><td>=</td><td>Thilo Stapff {tstapff at sourceforge.net}</td></tr>
+ <tr><td>CL</td><td>=</td><td>Chris Leach {Chris.Leach at kaz-group.com}</td></tr>
  </table>
  <P>
  The following lists the changes that have been made
@@ -210,7 +211,9 @@ Revision history for ARSperl.
 BM  = Bill Middleton <wjm at metronet.com>
 GDF = G. David Frye  <gdf at uiuc.edu>
 JCM = Jeff Murphy    <jcmurphy at buffalo.edu>
-JWM = Joel Murphy    <jmurphy at acsu.buffalo.edu>
+JWM = Joel Murphy    <jmurphy at buffalo.edu>
+TS  = Thilo Stapff   <tstapff at sourceforge.net>
+CL  = Chris Leach    <Chris.Leach at kaz-group.com>
 
 Note: items preceeded by a '!' denoted changes that are incompatible with
 previous versions of arsperl and may require altering of some arsperl

@@ -121,7 +121,7 @@ sub availableSchemas {
 
   return ars_GetListSchema($this->{'ctrl'},
 			   $changedSince,
-			   $schemaType,
+			   $schemaType, undef,
 			   $name);
 }
 

@@ -63,15 +63,14 @@ sub new {
 
 		if ($fv->{'dataType'} eq "enum") {
 			if (ref($fv->{'limit'}->{'enumLimits'}) eq "ARRAY") {
-                                $enums{$_} = [@{$fv->{'limit'}->{'enumLimits'}}];
+                                my $i = 0;
+                                $enums{$_} = { map { $i++, $_ } @{$fv->{'limit'}->{'enumLimits'}} };
                         }
 			elsif (exists $fv->{'limit'}->{'enumLimits'}->{'regularList'}) {
-				$enums{$_} = [@{$fv->{'limit'}->{'enumLimits'}->{'regularList'}}];
+                                my $i = 0;
+                                $enums{$_} = { map { $i++, $_ } @{$fv->{'limit'}->{'enumLimits'}->{'regularList'}} };
 			} else {
-				print "Sorry. I'm not sure what to do with non-regularLists of enums.\n";
-				print "(this enum is type \"", keys %{$fv->{'limit'}->{'enumLimits'}}, "\")\n";
-				print "listStyle = ", $fv->{'limit'}->{'enumLimits'}->{'listStyle'}, "\n";
-				die;
+                                $enums{$_} = { map { $_->{itemNumber}, $_->{itemName} } @{$fv->{'limit'}->{'enumLimits'}->{customList}} };
 			}
 		}
 	}
@@ -379,8 +378,8 @@ sub value2internal {
 					       81004,
 					       "[1] unable to translate enumeration value for field '$f'");
 	}
-	for($i = 0 ; $i <= $#{$this->{'fieldEnumValues'}->{$f}} ; $i++) {
-	    return $i if $this->{'fieldEnumValues'}->{$f}->[$i] eq $v;
+	foreach (keys %{$this->{'fieldEnumValues'}->{$f}}) {
+	    return $_ if $this->{'fieldEnumValues'}->{$f}->{$_} eq $v;
 	}
 	$this->{'connection'}->pushMessage(&ARS::AR_RETURN_ERROR,
 					   81004,
@@ -419,14 +418,14 @@ sub internal2value {
 	
 	return undef unless defined $v;
 	if(!defined($this->{'fieldEnumValues'}->{$f}) || 
-	   ($#{$this->{'fieldEnumValues'}->{$f}} < $v) ) {
+	   (!exists($this->{'fieldEnumValues'}->{$f}->{$v})) ) {
 	    $this->{'connection'}->pushMessage(&ARS::AR_RETURN_ERROR,
 					       81004,
 					       "[1] unable to translate enumeration value for field '$f'"
 					       );
 	}
 	
-	return $this->{'fieldEnumValues'}->{$f}->[$v]
+	return $this->{'fieldEnumValues'}->{$f}->{$v}
 	}
     
     # we don't need translation..
