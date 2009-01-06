@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.120 2008/11/03 17:08:18 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.121 2009/01/06 19:21:46 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -552,109 +552,64 @@ ars_GetFieldByName(control,schema,field_name)
 	  unsigned int     loop = 0;
 	  ARInternalIdList idList;
 	  ARStatusList     status;
-#if AR_EXPORT_VERSION >= 3
 	  ARNameType       fieldName;
-#else
-	  ARDisplayList    displayList;
-#endif
 	  (void) ARError_reset();
 	  Zero(&idList, 1, ARInternalIdList);
 	  Zero(&status, 1, ARStatusList);
-#if AR_EXPORT_VERSION >= 3
 	  ret = ARGetListField(control, schema, AR_FIELD_TYPE_ALL, (ARTimestamp)0, &idList, &status);
-#else
-	  ret = ARGetListField(control, schema, (ARTimestamp)0, &idList, &status);
-#endif
 #ifdef PROFILE
 	  ((ars_ctrl *)control)->queries++;
 #endif
 	  if (! ARError( ret, status)) {
 	    for (loop=0; loop<idList.numItems; loop++) {
-#if AR_EXPORT_VERSION >= 9
+#if AR_CURRENT_API_VERSION >= 12
 	      ret = ARGetFieldCached(control, schema, idList.internalIdList[loop], fieldName, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &status);
-#elif AR_EXPORT_VERSION >= 3
-	      ret = ARGetFieldCached(control, schema, idList.internalIdList[loop], fieldName, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &status);
 #else
-	      ret = ARGetFieldCached(control, schema, idList.internalIdList[loop], NULL, NULL, NULL, NULL, NULL, NULL, &displayList, NULL, NULL, NULL, NULL, NULL, &status);
+	      ret = ARGetFieldCached(control, schema, idList.internalIdList[loop], fieldName, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &status);
 #endif
 	      if (ARError( ret, status))
 	        break;
-#if AR_EXPORT_VERSION >= 3
-	      if (strcmp(field_name, fieldName) == 0)
-#else 
-	      if (displayList.numItems < 1) {
-		(void) ARError_add( ARSPERL_TRACEBACK, 1, "No fields were returned in display list");
-		break;
+	      if (strcmp(field_name, fieldName) == 0){
+		    XPUSHs(sv_2mortal(newSViv(idList.internalIdList[loop])));
+		    break;
 	      }
-	      if (strcmp(field_name,displayList.displayList[0].label)==0)
-#endif
-	      {
-		XPUSHs(sv_2mortal(newSViv(idList.internalIdList[loop])));
-#if AR_EXPORT_VERSION < 3
-		FreeARDisplayList(&displayList, FALSE);
-#endif
-		break;
-	      }
-#if AR_EXPORT_VERSION < 3
-	      FreeARDisplayList(&displayList, FALSE);
-#endif
 	    }
 	    FreeARInternalIdList(&idList, FALSE);
 	  }
 	}
 
 void
-ars_GetFieldTable(control,schema)
-	ARControlStruct *	control
+ars_GetFieldTable(ctrl,schema)
+	ARControlStruct *	ctrl
 	char *			schema
 	PPCODE:
 	{
 	  int              ret = 0;
 	  unsigned int     loop = 0;
-	  ARInternalIdList idList;
-	  ARStatusList     status;
-#if AR_EXPORT_VERSION >= 3
-	  ARNameType       fieldName;
-#else
-	  ARDisplayList    displayList;
-#endif
+	  HV   *fields, *h;
+	  char *hkey;
+	  SV   *hval, **hvalName;
+	  I32  klen;
+
 	  (void) ARError_reset();
-	  Zero(&idList, 1, ARInternalIdList);
-	  Zero(&status, 1,ARStatusList);
-#if AR_EXPORT_VERSION >= 3
-	  ret = ARGetListField(control, schema, AR_FIELD_TYPE_ALL, (ARTimestamp)0, &idList, &status);
-#else
-	  ret = ARGetListField(control, schema, (ARTimestamp)0, &idList, &status);
-#endif
-#ifdef PROFILE
-	  ((ars_ctrl *)control)->queries++;
-#endif
-	  if (! ARError( ret, status)) {
-	    for (loop=0; loop<idList.numItems; loop++) {
-#if AR_EXPORT_VERSION >= 9
-	      ret = ARGetFieldCached(control, schema, idList.internalIdList[loop], fieldName, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &status);
-#elif AR_EXPORT_VERSION >= 3
-	      ret = ARGetFieldCached(control, schema, idList.internalIdList[loop], fieldName, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &status);
-#else
-	      ret = ARGetFieldCached(control, schema, idList.internalIdList[loop], NULL, NULL, NULL, NULL, NULL, NULL, &displayList, NULL, NULL, NULL, NULL, NULL, &status);
-#endif
-	      if (ARError( ret, status))
-	        break;
-#if AR_EXPORT_VERSION >= 3
-	      XPUSHs(sv_2mortal(newSVpv(fieldName, 0)));
-#else
-	      if (displayList.numItems < 1) {
-		(void) ARError_add( ARSPERL_TRACEBACK, 1, "No fields were returned in display list");
-		continue;
-	      }
-	      XPUSHs(sv_2mortal(newSVpv(displayList.displayList[0].label, strlen(displayList.displayList[0].label))));
-#endif
-	      XPUSHs(sv_2mortal(newSViv(idList.internalIdList[loop])));
-#if AR_EXPORT_VERSION < 3
-	      FreeARDisplayList(&displayList, FALSE);
-#endif
-	    }
-	    FreeARInternalIdList(&idList, FALSE);
+
+	  fields = fieldcache_get_schema_fields( ctrl, schema, TRUE );
+	  if( ! fields ){
+		goto get_fieldtable_end;
+	  }
+
+	  hv_iterinit( fields );
+	  while( (hval = hv_iternextsv(fields,&hkey,&klen)) ){
+		if( strcmp(hkey,"0") == 0 )  continue;
+		h = (HV* ) SvRV(hval);
+		hvalName = hv_fetch( h, "name", 4, 0 );
+		XPUSHs( sv_2mortal(newSVsv(*hvalName)) );
+		XPUSHs( sv_2mortal(newSVpv(hkey,0)) );
+	  }
+
+	  get_fieldtable_end:;
+	  if( ! fields ){
+	    XSRETURN_UNDEF;
 	  }
 	}
 
@@ -665,48 +620,90 @@ ars_CreateEntry(ctrl,schema,...)
 	CODE:
 	{
 	  int               a = 0, 
-			    i = 0, 
+			    i = 0,
 			    c = (items - 2) / 2;
 	  AREntryIdType     entryId;
 	  ARFieldValueList  fieldList;
+	  ARInternalIdList  getFieldIds; 
 	  ARStatusList      status;
 	  int               ret = 0, rv = 0;
-	  unsigned int      dataType = 0;
+	  unsigned int      dataType = 0, j = 0;
+	  HV               *cacheFields;
 	  
 	  RETVAL=NULL;
 	  (void) ARError_reset();
 	  Zero(&entryId, 1, AREntryIdType);
 	  Zero(&fieldList, 1, ARFieldValueList);
+	  Zero(&getFieldIds, 1, ARInternalIdList);
 	  Zero(&status, 1, ARStatusList);
 	  if (((items - 2) % 2) || c < 1) {
 	    (void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
 	  } else {
+
+	    cacheFields = fieldcache_get_schema_fields( ctrl, schema, FALSE );
+	    if( ! cacheFields ){
+	      goto create_entry_end;
+	    }
+
 	    fieldList.numItems = c;
 	    AMALLOCNN(fieldList.fieldValueList,c,ARFieldValueStruct);
-	    for (i=0; i<c; i++) {
+
+	    getFieldIds.numItems = 0;
+	    getFieldIds.internalIdList = NULL;
+
+	    /* try to get data type from field cache, collect fieldIds which are not cached */
+	    for (i=0; i<c; ++i) {
+	      ARInternalId fieldId;
 	      a = i*2+2;
-	      fieldList.fieldValueList[i].fieldId = SvIV(ST(a));
-#if AR_EXPORT_VERSION >= 9
-	      ret = ARGetFieldCached(ctrl, schema, fieldList.fieldValueList[i].fieldId,	
-			NULL, NULL, &dataType, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-			NULL, NULL, NULL, NULL, &status);
-#elif AR_EXPORT_VERSION >= 3
-	      ret = ARGetFieldCached(ctrl, schema, fieldList.fieldValueList[i].fieldId,	
-			NULL, NULL, &dataType, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-			NULL, NULL, NULL, NULL, &status);
-#else
-	      ret = ARGetFieldCached(ctrl, schema, fieldList.fieldValueList[i].fieldId, 
-			&dataType, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 
-			NULL, NULL, &status);
-#endif
-	      if (ARError( ret, status)) {
-		goto create_entry_end;
-	      }
-	      if (sv_to_ARValue(ctrl, ST(a+1), dataType, 
-		  	        &fieldList.fieldValueList[i].value) < 0) {
-		goto create_entry_end;
+	      fieldId = fieldList.fieldValueList[i].fieldId = SvIV(ST(a));
+
+	      dataType = fieldcache_get_data_type( cacheFields, fieldId );
+	      if (dataType <= AR_DATA_TYPE_MAX_TYPE) {
+	        /* printf( "%s [%d] found in cache\n", schema, fieldId ); fflush(stdout); */ /* _DEBUG_ */
+	        if (sv_to_ARValue(ctrl, ST(a+1), dataType, &fieldList.fieldValueList[i].value) < 0) {
+	          goto create_entry_end;
+	        }
+		  }else{
+		    if( getFieldIds.numItems == 0 ){
+	          AMALLOCNN(getFieldIds.internalIdList,c,ARInternalId);
+	        }
+	        /* printf( "%s [%d] collect for loading\n", schema, fieldId ); fflush(stdout); */ /* _DEBUG_ */
+            getFieldIds.internalIdList[getFieldIds.numItems] = fieldId;
+		  	++getFieldIds.numItems;
+		  }
+	    }
+
+	    /* load missing fields into cache */
+	    if( getFieldIds.numItems > 0 ){
+	      /* printf( "--- load missing fields ---\n" ); fflush(stdout); */ /* _DEBUG_ */
+	      if( fieldcache_load_schema(ctrl,schema,&getFieldIds,NULL) != AR_RETURN_OK ){
+	        goto create_entry_end;
 	      }
 	    }
+
+	    /* now get data type from the freshly cached fields */
+	    i = 0;
+	    for (j=0; j<getFieldIds.numItems; ++j) {
+	      ARInternalId fieldId = getFieldIds.internalIdList[j];
+	      while(fieldId != fieldList.fieldValueList[i].fieldId) ++i;
+	      a = i*2+2;
+
+	      dataType = fieldcache_get_data_type( cacheFields, fieldId );
+	      if (dataType <= AR_DATA_TYPE_MAX_TYPE) {
+	        /* printf( "%s [%d] freshly loaded\n", schema, fieldId ); fflush(stdout); */ /* _DEBUG_ */
+	        if (sv_to_ARValue(ctrl, ST(a+1), dataType, &fieldList.fieldValueList[i].value) < 0) {
+	          goto create_entry_end;
+	        }
+		  }else{
+		    char errTxt[256];
+	        sprintf( errTxt, "Failed to fetch field %d from hash", fieldId );
+	        ARError_add(AR_RETURN_ERROR, AP_ERR_FIELD_TYPE);
+	        ARError_add(AR_RETURN_ERROR, AP_ERR_CONTINUE, errTxt );
+	        goto create_entry_end;
+		  }
+	    }
+	    /* printf( "--------------------\n" ); fflush(stdout); */ /* _DEBUG_ */
+
 	    ret = ARCreateEntry(ctrl, schema, &fieldList, entryId, &status);
 #ifdef PROFILE
 	    ((ars_ctrl *)ctrl)->queries++;
@@ -714,11 +711,12 @@ ars_CreateEntry(ctrl,schema,...)
 	    if (! ARError( ret, status)) rv = 1;
 	  create_entry_end:;
 	    if(rv == 0) {
-		RETVAL = newSVsv(&PL_sv_undef);
+	      RETVAL = newSVsv(&PL_sv_undef);
 	    } else {
-		RETVAL = newSVpv( entryId, strlen(entryId) );
+	      RETVAL = newSVpv( entryId, strlen(entryId) );
 	    }
-	  FreeARFieldValueList(&fieldList, FALSE);
+	    FreeARFieldValueList(&fieldList, FALSE);
+	    if( getFieldIds.internalIdList != NULL ) FreeARInternalIdList(&getFieldIds,FALSE);
 	  }
 	}
 	OUTPUT:
@@ -2192,9 +2190,9 @@ ars_GetField(ctrl,schema,id)
 	  Zero(lastChanged,  1, ARAccessNameType);
 	  Zero(&diaryList,   1, ARDiaryList);
 #if AR_EXPORT_VERSION >= 9
-	  ret = ARGetFieldCached(ctrl, schema, id, fieldName, &fieldMap, &dataType, &option, &createMode, &fieldOption, &defaultVal, NULL /* &permissions */, &limit, &displayList, &helpText, &timestamp, owner, lastChanged, &changeDiary, &Status);
+	  ret = ARGetFieldCached(ctrl, schema, id, fieldName, &fieldMap, &dataType, &option, &createMode, &fieldOption, &defaultVal, &permissions, &limit, &displayList, &helpText, &timestamp, owner, lastChanged, &changeDiary, &Status);
 #else
-	  ret = ARGetFieldCached(ctrl, schema, id, fieldName, &fieldMap, &dataType, &option, &createMode, &defaultVal, NULL /* &permissions */, &limit, &displayList, &helpText, &timestamp, owner, lastChanged, &changeDiary, &Status);
+	  ret = ARGetFieldCached(ctrl, schema, id, fieldName, &fieldMap, &dataType, &option, &createMode, &defaultVal, &permissions, &limit, &displayList, &helpText, &timestamp, owner, lastChanged, &changeDiary, &Status);
 #endif
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
@@ -2217,7 +2215,10 @@ ars_GetField(ctrl,schema,id)
 		     perl_dataType_names(ctrl, &dataType), 0);
 	    hv_store(RETVAL,  "defaultVal", strlen("defaultVal") ,
 		     perl_ARValueStruct(ctrl, &defaultVal), 0);
-	    /* permissions below */
+
+	    hv_store(RETVAL,  "permissions", strlen("permissions") , 
+		     perl_ARPermissionList(ctrl, &permissions, PERMTYPE_FIELD), 0);
+
 	    hv_store(RETVAL,  "limit", strlen("limit") , 
 		     perl_ARFieldLimitStruct(ctrl, &limit), 0);
 	    hv_store(RETVAL,  "fieldName", strlen("fieldName") , 
@@ -2253,21 +2254,6 @@ ars_GetField(ctrl,schema,id)
 	    if(changeDiary) {
 	      	AP_FREE(changeDiary);
 	    }
-#if AR_EXPORT_VERSION >= 9L
-	    ret = ARGetField(ctrl, schema, id, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &permissions, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &Status);
-#else
-	    ret = ARGetField(ctrl, schema, id, NULL, NULL, NULL, NULL, NULL, NULL, &permissions, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &Status);
-#endif
-#ifdef PROFILE
-	    ((ars_ctrl *)ctrl)->queries++;
-#endif
-	    if (ret == 0) {
-	      hv_store(RETVAL,  "permissions", strlen("permissions") , 
-		       perl_ARPermissionList(ctrl, &permissions, PERMTYPE_FIELD), 0);
-	      FreeARPermissionList(&permissions,FALSE);
-            } else {
-	      FreeARStatusList(&Status, FALSE);
-            } 
 	  }else{
 	   XSRETURN_UNDEF;
 	  }
@@ -2286,16 +2272,18 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	  int              a = 0, i = 0, c = (items - 4) / 2;
 	  int              offset = 4;
 	  ARFieldValueList fieldList;
+	  ARInternalIdList getFieldIds;
 	  ARStatusList     status;
 	  int              ret = 0;
-	  unsigned int     dataType = 0;
-#if AR_EXPORT_VERSION >= 3
+	  unsigned int     dataType = 0, j = 0;
 	  unsigned int     option = AR_JOIN_SETOPTION_NONE;
-	  AREntryIdList   entryList;
+	  AREntryIdList    entryList;
+	  HV              *cacheFields;
 
 	  (void) ARError_reset();
 	  Zero(&status, 1,ARStatusList);
 	  Zero(&fieldList, 1, ARFieldValueList);
+	  Zero(&getFieldIds, 1, ARInternalIdList);
 	  Zero(&entryList, 1,AREntryIdList);
 	  RETVAL = 0; /* assume error */
 	  if ((items - 4) % 2) {
@@ -2306,68 +2294,91 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	    (void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
 	    goto set_entry_exit;
 	  }
-#else
-	  (void) ARError_reset();
-	  RETVAL = 0; /* assume error */
-	  if (((items - 4) % 2) || c < 1) {
-	    (void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
+
+	  cacheFields = fieldcache_get_schema_fields( ctrl, schema, FALSE );
+	  if( ! cacheFields ){
 	    goto set_entry_exit;
 	  }
-#endif
+
 	  fieldList.numItems = c;
 	  AMALLOCNN(fieldList.fieldValueList,c,ARFieldValueStruct);
+
+	  getFieldIds.numItems = 0;
+	  getFieldIds.internalIdList = NULL;
+
 	  for (i=0; i<c; i++) {
+	    ARInternalId fieldId;
 	    a = i*2+offset;
-	    fieldList.fieldValueList[i].fieldId = SvIV(ST(a));
+	    fieldId = fieldList.fieldValueList[i].fieldId = SvIV(ST(a));
 	    
 	    if (! SvOK(ST(a+1))) {
 	      /* pass a NULL */
 	      fieldList.fieldValueList[i].value.dataType = AR_DATA_TYPE_NULL;
-	    } else {
+	    }else{
 	      /* determine data type and pass value */
-#if AR_EXPORT_VERSION >= 9
-	      ret = ARGetFieldCached(ctrl, schema, fieldList.fieldValueList[i].fieldId, NULL, NULL, &dataType, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &status);
-#elif AR_EXPORT_VERSION >= 3
-	      ret = ARGetFieldCached(ctrl, schema, fieldList.fieldValueList[i].fieldId, NULL, NULL, &dataType, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &status);
-#else
-	      ret = ARGetFieldCached(ctrl, schema, fieldList.fieldValueList[i].fieldId, &dataType, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &status);
-#endif
-	      if (ARError( ret, status)) {
-		FreeARFieldValueList(&fieldList, FALSE);
-		goto set_entry_end;
-	      }
-	      if (sv_to_ARValue(ctrl, ST(a+1), dataType, 
-			&fieldList.fieldValueList[i].value) < 0) {
-		FreeARFieldValueList(&fieldList, FALSE);
-		goto set_entry_end;
-	      }
+	      dataType = fieldcache_get_data_type( cacheFields, fieldId );
+	      if (dataType <= AR_DATA_TYPE_MAX_TYPE) {
+	        if (sv_to_ARValue(ctrl, ST(a+1), dataType, &fieldList.fieldValueList[i].value) < 0) {
+		      goto set_entry_end;
+	        }
+	      }else{
+	    	   if( getFieldIds.numItems == 0 ){
+	          AMALLOCNN(getFieldIds.internalIdList,c,ARInternalId);
+	        }
+	        /* printf( "%s [%d] collect for loading\n", schema, fieldId ); fflush(stdout); */ /* _DEBUG_ */
+            getFieldIds.internalIdList[getFieldIds.numItems] = fieldId;
+	        ++getFieldIds.numItems;
+	    	 }
 	    }
 	  }
-#if AR_EXPORT_VERSION >= 3
+
+	  /* load missing fields into cache */
+	  if( getFieldIds.numItems > 0 ){
+	    /* printf( "--- load missing fields ---\n" ); fflush(stdout); */ /* _DEBUG_ */
+	    if( fieldcache_load_schema(ctrl,schema,&getFieldIds,NULL) != AR_RETURN_OK ){
+	      goto set_entry_end;
+	    }
+	  }
+
+	  /* now get data type from the freshly cached fields */
+	  i = 0;
+	  for (j=0; j<getFieldIds.numItems; ++j) {
+	    ARInternalId fieldId = getFieldIds.internalIdList[j];
+	    while(fieldId != fieldList.fieldValueList[i].fieldId) ++i;
+	    a = i*2+offset;
+
+	    dataType = fieldcache_get_data_type( cacheFields, fieldId );
+	    if (dataType <= AR_DATA_TYPE_MAX_TYPE) {
+	      /* printf( "%s [%d] freshly loaded\n", schema, fieldId ); fflush(stdout); */ /* _DEBUG_ */
+	      if (sv_to_ARValue(ctrl, ST(a+1), dataType, &fieldList.fieldValueList[i].value) < 0) {
+	        goto set_entry_end;
+	      }
+		}else{
+		  char errTxt[256];
+	      sprintf( errTxt, "Failed to fetch field %d from hash", fieldId );
+	      ARError_add(AR_RETURN_ERROR, AP_ERR_FIELD_TYPE);
+	      ARError_add(AR_RETURN_ERROR, AP_ERR_CONTINUE, errTxt );
+	      goto set_entry_end;
+		}
+	  }
+	  /* printf( "--------------------\n" ); fflush(stdout); */ /* _DEBUG_ */
+
+
 	  /* build entryList */
 	  if(perl_BuildEntryList(ctrl, &entryList, entry_id) != 0){
-		FreeARFieldValueList(&fieldList, FALSE);
 		goto set_entry_end;
 	  }
 
 	  ret = ARSetEntry(ctrl, schema, &entryList, &fieldList, getTime, option, &status);
 	  FreeAREntryIdList(&entryList, FALSE);
-#else /* ARS2.x */
-	  if(!entry_id || !*entry_id) {
-		ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_EID);
-		FreeARFieldValueList(&fieldList, FALSE);
-		goto set_entry_end;
-	  }
-	  ret = ARSetEntry(ctrl, schema, entry_id, &fieldList, getTime, &status);
-#endif
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
 #endif
 	  if (! ARError( ret, status)) {
 	    RETVAL = 1;
 	  }
-	  FreeARFieldValueList(&fieldList, FALSE);
 	set_entry_end:;
+	  FreeARFieldValueList(&fieldList, FALSE);
 	set_entry_exit:;
 	}
 	OUTPUT:
@@ -3493,31 +3504,29 @@ ars_SetServerInfo(ctrl, ...)
 			(void) ARError_add(AR_RETURN_ERROR, 
 					   AP_ERR_BAD_ARGS);
 		} else {
-			unsigned int infoType;
-			char         buf[64];
+			unsigned int infoType, j = 0;
+			char         buf[256];
 
 			serverInfo.numItems = (items - 1) / 2;
 			serverInfo.serverInfoList = MALLOCNN(serverInfo.numItems * sizeof(ARServerInfoStruct));
-			Zero(serverInfo.serverInfoList, 1, ARServerInfoStruct);
+			/* Zero(serverInfo.serverInfoList, 1, ARServerInfoStruct); # happens already in MALLOCNN */
 
-			for(i = 1 ; i < items ; i += 2) {
-				/*printf("[%d] ", i);
-				printf("k=%d v=%s\n",
-					SvIV(ST(i)),
-					SvPV(ST(i+1), PL_na)
-				);*/
+			for(j = 0 ; j < serverInfo.numItems ; ++j) {
+				i = 2 * j + 1;
+
 				infoType = lookUpServerInfoTypeHint(SvIV(ST(i)));
-				serverInfo.serverInfoList[i-1].operation = SvIV(ST(i));
-				serverInfo.serverInfoList[i-1].value.dataType = infoType;
+				serverInfo.serverInfoList[j].operation = SvIV(ST(i));
+				serverInfo.serverInfoList[j].value.dataType = infoType;
 
 				switch(infoType) {
 				case AR_DATA_TYPE_CHAR:
-					serverInfo.serverInfoList[i-1].value.u.charVal = strdup(SvPV(ST(i+1), PL_na));
+					serverInfo.serverInfoList[j].value.u.charVal = strdup(SvPV(ST(i+1), PL_na));
 					break;
 				case AR_DATA_TYPE_INTEGER:
-					serverInfo.serverInfoList[i-1].value.u.intVal = SvIV(ST(i+1));
+					serverInfo.serverInfoList[j].value.u.intVal = SvIV(ST(i+1));
 					break;
 				default:
+					sprintf( buf, "(%d) type = %d", serverInfo.serverInfoList[j].operation, serverInfo.serverInfoList[j].value.dataType );
 					(void) ARError_add(AR_RETURN_ERROR, AP_ERR_INV_ARGS, 
 						buf);
 					FreeARServerInfoList(&serverInfo, FALSE);

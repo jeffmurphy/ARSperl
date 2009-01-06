@@ -3474,38 +3474,27 @@ dup_DisplayList(ARControlStruct * ctrl, ARDisplayList * disp)
 
 int
 ARGetFieldCached(ARControlStruct * ctrl, ARNameType schema, ARInternalId id,
-#if AR_EXPORT_VERSION >= 3
 		 ARNameType fieldName, ARFieldMappingStruct * fieldMap,
-#endif
 		 unsigned int *dataType, unsigned int *option,
 		 unsigned int *createMode, 
-#if AR_EXPORT_VERSION >= 9
+#if AR_CURRENT_API_VERSION >= 12
 		 unsigned int *fieldOption,
 #endif
 		 ARValueStruct * defaultVal,
 		 ARPermissionList * perm, ARFieldLimitStruct * limit,
-#if AR_EXPORT_VERSION >= 3
 		 ARDisplayInstanceList * display,
-#else
-		 ARDisplayList * display,
-#endif
 		 char **help, ARTimestamp * timestamp,
 	       ARNameType owner, ARNameType lastChanged, char **changeDiary,
 		 ARStatusList * Status)
 {
 	int             ret;
-	HV             *cache, *server, *fields, *base;
-	SV            **servers, **schema_fields, **field, **val;
+	HV             *fields, *base;
+	SV            **field, **val;
 	unsigned int    my_dataType;
-#if AR_EXPORT_VERSION >= 3
 	ARNameType      my_fieldName;
-#else
-	ARDisplayList   my_display, *display_copy;
-	SV             *display_ref;
-#endif
 	char            field_string[20];
 
-#if AR_EXPORT_VERSION >= 9
+#if AR_CURRENT_API_VERSION >= 12
 	/* cache fieldName and dataType */
 	if (fieldMap || option || createMode || fieldOption || defaultVal || perm || limit ||
 	    display || help || timestamp || owner || lastChanged || changeDiary) {
@@ -3513,7 +3502,7 @@ ARGetFieldCached(ARControlStruct * ctrl, ARNameType schema, ARInternalId id,
 			 "ARGetFieldCached: uncached parameter requested.");
 		goto cache_fail;
 	}
-#elif AR_EXPORT_VERSION >= 3
+#else
 	/* cache fieldName and dataType */
 	if (fieldMap || option || createMode || defaultVal || perm || limit ||
 	    display || help || timestamp || owner || lastChanged || changeDiary) {
@@ -3521,41 +3510,11 @@ ARGetFieldCached(ARControlStruct * ctrl, ARNameType schema, ARInternalId id,
 			 "ARGetFieldCached: uncached parameter requested.");
 		goto cache_fail;
 	}
-#else
-	/* cache dataType and displayList */
-	if (option || createMode || defaultVal || perm || limit || help ||
-	    timestamp || owner || lastChanged || changeDiary) {
-		(void) ARError_add(ARSPERL_TRACEBACK, 1,
-			 "ARGetFieldCached: uncached parameter requested.");
-		goto cache_fail;
-	}
 #endif
 
-	/* try to do lookup in cache */
 
-	cache = perl_get_hv("ARS::field_cache", TRUE);
-
-	/* dereference hash with server */
-
-	servers = hv_fetch(cache,  ctrl->server, strlen(ctrl->server) , TRUE);
-
-	if (!(servers && SvROK(*servers) &&
-	      SvTYPE(server = (HV *) SvRV(*servers)) == SVt_PVHV)) {
-		(void) ARError_add(ARSPERL_TRACEBACK, 1,
-		       "GetFieldCached failed to deref hash w/server name");
-		goto cache_fail;
-	}
-	/* dereference hash with schema */
-
-	schema_fields = hv_fetch(server,  schema, strlen(schema) , TRUE);
-
-	if (!(schema_fields && SvROK(*schema_fields) &&
-	      SvTYPE(fields = (HV *) SvRV(*schema_fields)) == SVt_PVHV)) {
-		(void) ARError_add(ARSPERL_TRACEBACK, 1,
-		       "GetFieldCached failed to deref hash w/schema name");
-		goto cache_fail;
-	}
-	/* dereference with field id */
+	fields = fieldcache_get_schema_fields( ctrl, schema, FALSE );
+	if( ! fields )		goto cache_fail;
 
 	sprintf(field_string, "%i", (int) id);
 
@@ -3574,28 +3533,9 @@ ARGetFieldCached(ARControlStruct * ctrl, ARNameType schema, ARInternalId id,
 				 "GetFieldCached failed to fetch name key");
 		goto cache_fail;
 	}
-#if AR_EXPORT_VERSION >= 3
 	if (fieldName) {
 		strcpy(fieldName, SvPV((*val), PL_na));
 	}
-#else				/* ARS 2.x */
-#ifndef SKIP_SV_ISA
-	if (!sv_isa(*val, "ARDisplayListPtr")) {
-		(void) ARError_add(ARSPERL_TRACEBACK, 1,
-		     "GetFieldCached: field value isnt'a ARDisplayListPtr");
-		goto cache_fail;
-	}
-#endif				/* SKIP_SV_ISA */
-
-	if (display) {
-		display_copy = (ARDisplayList *) SvIV(SvRV(*val));
-		display->numItems = display_copy->numItems;
-		display->displayList =
-			MALLOCNN(sizeof(ARDisplayStruct) * display_copy->numItems);
-		memcpy(display->displayList, display_copy->displayList,
-		       sizeof(ARDisplayStruct) * display_copy->numItems);
-	}
-#endif
 
 	val = hv_fetch(base,  "type", strlen("type") , FALSE);
 
@@ -3616,112 +3556,221 @@ ARGetFieldCached(ARControlStruct * ctrl, ARNameType schema, ARInternalId id,
 
 cache_fail:;
 
-#if AR_EXPORT_VERSION >= 9
+#if AR_CURRENT_API_VERSION >= 12
 	ret = ARGetField(ctrl, schema, id, my_fieldName, fieldMap, &my_dataType,
 			 option, createMode, fieldOption, defaultVal, perm, limit,
 			 display, help, timestamp, owner, lastChanged,
 			 changeDiary, Status);
-#elif AR_EXPORT_VERSION >= 3
+#else
 	ret = ARGetField(ctrl, schema, id, my_fieldName, fieldMap, &my_dataType,
 			 option, createMode, defaultVal, perm, limit,
 			 display, help, timestamp, owner, lastChanged,
 			 changeDiary, Status);
-#else
-	ret = ARGetField(ctrl, schema, id, &my_dataType, option, createMode,
-		      defaultVal, perm, limit, &my_display, help, timestamp,
-			 owner, lastChanged, changeDiary, Status);
 #endif
 
 #ifdef PROFILE
 	((ars_ctrl *) ctrl)->queries++;
 #endif
 
-	if (dataType)
-		*dataType = my_dataType;
-
-#if AR_EXPORT_VERSION >= 3
-	if (fieldName)
-		strcpy(fieldName, my_fieldName);
-#else
-	if (display)
-		*display = my_display;
-#endif
+	if (dataType)  *dataType = my_dataType;
+	if (fieldName)  strcpy(fieldName, my_fieldName);
 
 	if (ret == 0) {		/* if ARGetField was successful */
 
-		/* get variable */
-
-		cache = perl_get_hv("ARS::field_cache", TRUE);
-
-		/* dereference hash with server */
-
-		servers = hv_fetch(cache,  ctrl->server, strlen(ctrl->server) , TRUE);
-
-		if (!servers) {
-			(void) ARError_add(ARSPERL_TRACEBACK, 1,
-					   "GetFieldCached (part 2) failed to fetch/create servers key");
+		fields = fieldcache_get_schema_fields( ctrl, schema, FALSE );
+		if( fields ){
+			fieldcache_store_field_info( fields, id, my_fieldName, my_dataType, NULL );
+		}else{
 			return ret;
 		}
-		if (!SvROK(*servers) || SvTYPE(SvRV(*servers)) != SVt_PVHV) {
-			sv_setsv(*servers, newRV_noinc((SV *) (server = newHV())));
-		} else {
-			server = (HV *) SvRV(*servers);
-		}
 
-		/* dereference hash with schema */
-
-		schema_fields = hv_fetch(server,  schema, strlen(schema) , TRUE);
-
-		if (!schema_fields) {
-			(void) ARError_add(ARSPERL_TRACEBACK, 1,
-					   "GetFieldCached (part 2) failed to fetch/create schema key");
-			return ret;
-		}
-		if (!SvROK(*schema_fields) || SvTYPE(SvRV(*schema_fields)) != SVt_PVHV) {
-			sv_setsv(*schema_fields, newRV_noinc((SV *) (fields = newHV())));
-		} else {
-			fields = (HV *) SvRV(*schema_fields);
-		}
-
-		/* dereference hash with field id */
-
-		sprintf(field_string, "%i", (int) id);
-
-		field = hv_fetch(fields,  field_string, strlen(field_string) , TRUE);
-
-		if (!field) {
-			(void) ARError_add(ARSPERL_TRACEBACK, 1,
-					   "GetFieldCached (part 2) failed to fetch/create field key");
-			return ret;
-		}
-		if (!SvROK(*field) || SvTYPE(SvRV(*field)) != SVt_PVHV) {
-			sv_setsv(*field, newRV_noinc((SV *) (base = newHV())));
-		} else {
-			base = (HV *) SvRV(*field);
-		}
-
-		/* store field attributes */
-
-#if AR_EXPORT_VERSION >= 3
-		hv_store(base,  "name", strlen("name") , newSVpv(my_fieldName, 0), 0);
-#else
-
-		display_ref = newSViv(0);
-
-		sv_setref_pv(display_ref, "ARDisplayListPtr",
-			     (void *) dup_DisplayList(ctrl, &my_display));
-
-		hv_store(base,  "name", strlen("name") , display_ref, 0);
-		FreeARDisplayList(&my_display, FALSE);
-#endif
-
-		hv_store(base,  "type", strlen("type") , newSViv(my_dataType), 0);
 	} else {
 		(void) ARError_add(ARSPERL_TRACEBACK, 1,
 				 "GetFieldCached: ARGetField call failed.");
 	}
 	return ret;
 }
+
+HV*
+fieldcache_get_schema_fields( ARControlStruct *ctrl, char *schema_name, int load_if_incomplete )
+{
+	HV      *cache, *server, *fields;
+	SV     **servers, **schema_fields;
+	char     server_tag[100];
+
+	/* Add pointer address of ARControlStruct to field_cache hash key to avoid collisions
+	between different server instances on the same host system. The server_tag should
+	really rather be "server:tcpport", but there seems to be no efficient way to get
+	the port number from ARControlStruct, so we'll have to live with this (quite ugly)
+	solution */
+	sprintf( server_tag, "%s:%p", ctrl->server, ctrl );
+
+	/* get variable */
+	cache = perl_get_hv("ARS::field_cache", TRUE);
+
+	/* dereference hash with server */
+	servers = hv_fetch(cache,  server_tag, strlen(server_tag) , TRUE);
+
+	if (!servers) {
+		(void) ARError_add(ARSPERL_TRACEBACK, 1,
+				   "GetFieldCached (part 2) failed to fetch/create servers key");
+		return NULL;
+	}
+	if (!SvROK(*servers) || SvTYPE(SvRV(*servers)) != SVt_PVHV) {
+		sv_setsv(*servers, newRV_noinc((SV *) (server = newHV())));
+	} else {
+		server = (HV *) SvRV(*servers);
+	}
+
+	/* dereference hash with schema */
+	schema_fields = hv_fetch(server,  schema_name, strlen(schema_name) , TRUE);
+
+	if (!schema_fields) {
+		(void) ARError_add(ARSPERL_TRACEBACK, 1,
+				   "GetFieldCached (part 2) failed to fetch/create schema key");
+		return NULL;
+	}
+	if (!SvROK(*schema_fields) || SvTYPE(SvRV(*schema_fields)) != SVt_PVHV) {
+		sv_setsv(*schema_fields, newRV_noinc((SV *) (fields = newHV())));
+	} else {
+		fields = (HV *) SvRV(*schema_fields);
+	}
+
+	if( load_if_incomplete && ! hv_exists(fields,"0",1) ){
+		fieldcache_load_schema( ctrl, schema_name, NULL, NULL );
+	}
+
+	return fields;
+}
+
+int
+fieldcache_store_field_info( HV *fields, ARInternalId fieldId, ARNameType fieldName, unsigned int dataType, char **attrs )
+{
+	int ret = 0;
+	SV **field;
+	HV *base;
+	char field_string[20];
+	
+	sprintf(field_string, "%i", (int) fieldId);
+
+	field = hv_fetch(fields,  field_string, strlen(field_string) , TRUE);
+
+	if (!field) {
+		(void) ARError_add(ARSPERL_TRACEBACK, 1,
+				   "GetFieldCached (part 2) failed to fetch/create field key");
+		return ret;
+	}
+	if (!SvROK(*field) || SvTYPE(SvRV(*field)) != SVt_PVHV) {
+		sv_setsv(*field, newRV_noinc((SV *) (base = newHV())));
+	} else {
+		base = (HV *) SvRV(*field);
+	}
+
+	/* store field attributes */
+
+	hv_store(base,  "name", strlen("name") , newSVpv(fieldName, 0), 0);
+	hv_store(base,  "type", strlen("type") , newSViv(dataType), 0);
+
+	return 0;
+}
+
+unsigned int
+fieldcache_get_data_type( HV *fields, ARInternalId fieldId )
+{
+	int dataType = AR_DATA_TYPE_MAX_TYPE + 100;
+	SV **field;
+	SV **val;
+	HV *base;
+	char field_string[20];
+	
+	sprintf(field_string, "%i", (int) fieldId);
+
+	field = hv_fetch(fields,  field_string, strlen(field_string), FALSE );
+	if( !field ){
+		/* (void) ARError_add(ARSPERL_TRACEBACK, 1,
+				   "GetFieldCached (part 2) failed to fetch/create field key"); */
+		return dataType;  /* invalid value */
+	}
+
+	base = (HV *) SvRV(*field);
+	val = hv_fetch( base, "type", 4, FALSE );
+	if( val && *val ){  /* && SvUOK(*val) ){ */
+		dataType = SvUV( (SV*) *val );
+	}else{
+		(void) ARError_add(ARSPERL_TRACEBACK, 1, "Invalid field cache data");
+		return dataType;  /* invalid value */
+	}
+
+	return dataType;
+}
+
+int
+fieldcache_load_schema( ARControlStruct *ctrl, char *schema, ARInternalIdList *getFieldIds, char **attrs )
+{
+	int              ret = 0;
+	unsigned int     loop = 0;
+	ARInternalIdList idList;
+	ARStatusList     status;
+	ARBooleanList    existList;
+	ARNameList       nameList;
+	ARUnsignedIntList dataTypeList;
+	HV   *fields;
+
+	fields = fieldcache_get_schema_fields( ctrl, schema, FALSE );
+	if( ! fields ){
+		return AR_RETURN_ERROR;
+	}
+
+	Zero(&idList, 1, ARInternalIdList);
+	Zero(&status, 1, ARStatusList);
+	Zero(&existList, 1, ARBooleanList);
+	Zero(&nameList, 1, ARNameList);
+	Zero(&dataTypeList, 1, ARUnsignedIntList);
+
+	ret = ARGetMultipleFields( ctrl, schema, 
+		getFieldIds, /* fieldIdList (input) */
+		&existList,
+		&idList,
+		&nameList,
+		NULL,        /* fieldMappingList */
+		&dataTypeList,
+		NULL,        /* option */
+		NULL,        /* createMode */
+#if AR_CURRENT_API_VERSION >= 12
+		NULL,        /* fieldOption */
+#endif
+		NULL,        /* defaultVal */
+		NULL,        /* permissions */
+		NULL,        /* limit */
+		NULL,        /* dInstanceList */
+		NULL,        /* helptext */
+		NULL,        /* timestamp */
+		NULL,        /* owner */
+		NULL,        /* lastChanged */
+		NULL,        /* changeDiary */
+		&status );
+#ifdef PROFILE
+	((ars_ctrl *)control)->queries++;
+#endif
+	if( ! ARError( ret, status) ){
+		for( loop=0; loop < idList.numItems; loop++ ){
+#ifdef ARSPERL_DEBUG
+	        printf( "-- %s [%d] -> load\n", schema, idList.internalIdList[loop] ); fflush(stdout);
+#endif
+			fieldcache_store_field_info( fields, idList.internalIdList[loop], nameList.nameList[loop], dataTypeList.intList[loop], NULL );
+		}
+	    if( getFieldIds == NULL ){
+		  fieldcache_store_field_info( fields, 0, "__COMPLETE__", 0, NULL );
+		}
+	}
+	FreeARInternalIdList(&idList, FALSE);
+	FreeARNameList(&nameList, FALSE);
+	FreeARUnsignedIntList(&dataTypeList, FALSE);
+	FreeARBooleanList(&existList, FALSE);
+
+	return ret;
+}
+
 
 int
 sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,

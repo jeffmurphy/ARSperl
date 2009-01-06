@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.34 2008/05/15 18:30:02 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.35 2009/01/06 19:21:46 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -75,7 +75,7 @@ $Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.34 2008/05/15 18:30:02 
 #endif
 
 #define SAFEPRT(X) (X && *X)? X : "[null]"
-#ifdef ARSPDEBUG
+#ifdef ARSPERL_DEBUG
 # define DBG(X) printf("[%s %d] %s : ", __FILE__, __LINE__, __FUNCTION__); printf X
 #else
 # define DBG(X)
@@ -460,24 +460,24 @@ EXTERN SV *perl_ARFieldValueOrArithStruct( ARControlStruct *ctrl,
 EXTERN SV *perl_relOp(ARControlStruct *ctrl, ARRelOpStruct *);
 EXTERN HV *perl_qualifier(ARControlStruct *ctrl,  ARQualifierStruct *);
 EXTERN int ARGetFieldCached( ARControlStruct *, ARNameType, ARInternalId,
-#if AR_EXPORT_VERSION >= 3
 		     ARNameType, ARFieldMappingStruct *,
-#endif
 		     unsigned int *, unsigned int *,
 		     unsigned int *, 
-#if AR_EXPORT_VERSION >= 9
+#if AR_CURRENT_API_VERSION >= 12
 		     unsigned int *, 
 #endif
 		     ARValueStruct *,
 		     ARPermissionList *, ARFieldLimitStruct *,
-#if AR_EXPORT_VERSION >= 3
 		     ARDisplayInstanceList *,
-#else
-		     ARDisplayList *,
-#endif
 		     char **, ARTimestamp *,
 		     ARNameType, ARNameType, char **,
 		     ARStatusList *);
+
+EXTERN HV *fieldcache_get_schema_fields( ARControlStruct *ctrl, char *form_name, int load_if_incomplete );
+EXTERN int fieldcache_store_field_info( HV *fields, ARInternalId fieldId, ARNameType fieldName, unsigned int dataType, char ** attrs );
+EXTERN int fieldcache_load_schema( ARControlStruct *ctrl, char *schema, ARInternalIdList *fieldIds, char **attrs );
+EXTERN unsigned int fieldcache_get_data_type( HV *fields, ARInternalId fieldId );
+
 EXTERN int sv_to_ARValue(ARControlStruct *ctrl, 
 			 SV *in, unsigned int dataType, ARValueStruct *out);
 #if AR_EXPORT_VERSION >= 7

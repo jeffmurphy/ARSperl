@@ -17,6 +17,17 @@ scripts.
 Released: xx/xx/xxx Version: 1.92
 
 
+ (TS)   fixed ars_SetServerInfo() memory violation in case of more than key/value pair
+
+ (TS)   ars_GetFieldTable performance improvement by using ARGetMultipleFields
+
+ (TS)   removed unnecessary second invocation of ARGetField in ars_GetField
+
+ (TS)   code cleanup (#ifdef statements) in ARGetFieldCached, ars_GetField, ars_GetFieldByName
+
+ (TS) ! appended ARControlStruct pointer address to server key in %ARS::field_cache
+        (affects only scripts which make explicit use of the internal field_cache structure)
+
  (CL) ! enhanced ARS OO interface to handle custom enum fields
 
  (TS)   fixed return value of ars_Import
@@ -45,9 +56,10 @@ Released: xx/xx/xxx Version: 1.92
  (TS) ! changed return struct of ars_GetListGroup
 
  (TS)   fixed IVLD macro in support-h.template
-        
 
-(rele   version=1.91
+
+Released: 05/06/2008 Version: 1.91
+
 
  (TS)   fixed ars_padEntryid to work correctly if entry ID prefix is defined
 
@@ -96,9 +108,10 @@ Released: xx/xx/xxx Version: 1.92
  (TS)   fixed rev_ARArchiveInfo Struct, moved function from supportrev_generated.c to supportrev.c
 
  (TS)   changed $ARS_LIBS variable for 7.0 Unix API in Makefile.pl (-licuuc -> -licuucbmc)
-        
 
-(rele   version=1.90
+
+Released: 03/12/2007 Version: 1.90
+
 
  (TS)   added missing ARError_reset() to ars_GetListVUI
 
@@ -225,9 +238,10 @@ Released: xx/xx/xxx Version: 1.92
         (assume "keyword" if first character == '\0' and length > 0)  
 
 (JCM)   minor update to example scripts Dump_User*.pl
-        
 
-(rele   version=1.85
+
+Released: 09/20/2005 Version: 1.85
+
 
  (TS)   added binmode-statements in t/10entry.t (test failed on win32)
 
@@ -256,32 +270,36 @@ Released: xx/xx/xxx Version: 1.92
         (compiles now against version 4.5.1 to 6.3.0)
 
 (JCM)   added ars_encodeStatusHistory() routine 
-        
 
-(rele   version=1.84
+
+Released: 06/24/2005 Version: 1.84
+
 
 (JCM)   fixed 'autosplit' issue in Makefile.PL
 
  (IT)   Updates by Ian Trimnell for ars_GetListContainer and ars_GetContainer
-        
 
-(rele   version=1.83
+
+Released: 03/14/2005 Version: 1.83
+
 
 (JCM)   fixed "lang" compilation error for API 6.3
 
 (JCM)   variable initialization
 
  (JG)   doc updates
-        
 
-(rele   version=1.82
+
+Released: 09/20/2004 Version: 1.82
+
 
 (QGM)   AR 6.x compatibility, AR encryption compatibility
 
 (JMc)   Makefile.PL changes, code cleanup for Windows build
-        
 
-(rele   version=1.81
+
+Released: 08/09/2003 Version: 1.81
+
 
 (JCM)   memory/multithreaded issue with errhash fixed { steve.drew  at hp.com }
 
@@ -290,9 +308,10 @@ Released: xx/xx/xxx Version: 1.92
 (JCM)   memory free'ing on win32 issues fixed { steve.drew  at hp.com }
 
 (JCM)   minor fix to OO->query (forgot the new firstretrieve param)
-        
 
-(rele   version=1.8001
+
+Released: 04/16/2003 Version: 1.8001
+
 
 (JCM)   memory leak fixed in ars_CreateEntry
 
@@ -335,18 +354,20 @@ Released: xx/xx/xxx Version: 1.92
    		
    		ars_GetCharMenu()
         
-        
 
-(rele   version=1.74
+
+Released: 11/13/2002 Version: 1.74
+
 
 (GDF)   added ars_GetMultipleEntries, ars_GetListEntryWithFields
 
 (GDF)   remove unused num_entries parameter from ARGetListEntry
 
 (JCM)   added ARTermination calls to ars_Login
-        
 
-(rele   version=1.73
+
+Released: 11/13/2001 Version: 1.73
+
 
 (JCM)   fixed windows cpp error in support.c
 
@@ -358,9 +379,10 @@ Released: xx/xx/xxx Version: 1.92
 (JCM)   minor Makefile.PL tweak
 
 (JCM)   bug fix in perl_ARStatusStruct that caused segv with api >= 4.0
-        
 
-(rele   version=1.72
+
+Released: 10/24/2001 Version: 1.72
+
 
 (JCM)   modified Makefile.PL to handle changes to _SERVER_INFO definitions
         in 4.5.x
@@ -375,21 +397,24 @@ Released: xx/xx/xxx Version: 1.92
 
 (JCM)   fixed 4.5.2 induced warning (now there's a FilterActionStruct)
         modified Makefile.PL so you can specify ARVERSION=4.52 
-        
 
-(rele   version=1.71
+
+Released: 10/30/2000 Version: 1.71
+
 
 (JCM)   modified support-h.template to compile against api3.0
-        
 
-(rele   version=1.70
+
+Released: 9/21/2000 Version: 1.70
+
 
 (JCM)   modified support-h.template to compile against api3.2
 
 (JCM)   bug fix to ars_Import()
-        
 
-(rele   version=1.69
+
+Released: 8/31/2000 Version: 1.69
+
 
 (JCM)   added ars_SetServerInfo() call
 
@@ -410,9 +435,10 @@ Released: xx/xx/xxx Version: 1.92
 (JCM)   typo fix in ARS.xs for perl5.6 compatibility
 
 (JCM)   documenation update (ars_Import)
-        
 
-(rele   version=1.68
+
+Released: 7/4/2000 Version: 1.68
+
 
 (JCM)   modifications to example/ars_GetListEntry.pl to make
         it function with different revisions of the User form.
@@ -450,30 +476,34 @@ Released: xx/xx/xxx Version: 1.92
 (JCM)   added/decoded schemaType (within GetSchema()/CompoundSchema structure)
 
 (JCM)   documentation updates
-        
 
-(rele   version=1.67
+
+Released: 2/17/00 Version: 1.67
+
 
 (JCM)   ars_SetServerPort() added
 
 (JCM)   fixed bug in ars_GetListSQL()
-        
 
-(rele   version=1.66
+
+Released: 12/3/99 Version: 1.66
+
 
 (JCM)   fixed a typo in support.c 
-        
 
-(rele   version=1.65
+
+Released: 11/23/99 Version: 1.65
+
 
 (JCM)   added better support for decoding filters/activelinks
         for arsystem 4.0 (not finished yet)
 
 (JCM)   added support for data type "decimal" when performing
         (Set|Create)Entry
-        
 
-(rele   version=1.6403 BETA
+
+Released: 04/7/99 Version: 1.6403 BETA
+
 
 (JCM)   tested/fixed compiling against pre-4.0 apis. 
 
@@ -495,9 +525,10 @@ Released: xx/xx/xxx Version: 1.92
 (JCM)   OO: fixed ARS::AR_RETURN_* bugs { erik.dorfman at intelsat.int }
 
 (JCM)   fixed bug in ars_GetListServer() for api >= 4.0
-        
 
-(rele   version=1.6400 BETA
+
+Released: 03/12/99 Version: 1.6400 BETA
+
 
 (JCM)   added new LIBS line to Makefile.PL to cover NCR Unix
         ("Hill, David K" {david.k.hill at intel.com})
@@ -520,9 +551,10 @@ Released: xx/xx/xxx Version: 1.92
 (JCM)   makefile now automatically converts C header files into
         perl files so that all constants (C 'defines') are
         available.
-        
 
-(rele   version=1.63
+
+Released: 01/04/99 Version: 1.63
+
 
 (JCM)   fixed some missing conditional compilation #if's in code
 
@@ -530,9 +562,10 @@ Released: xx/xx/xxx Version: 1.92
         at the request of activestate
 
 (JCM)   added MANIFEST file to distribution
-        
 
-(rele   version=1.62
+
+Released: 12/28/98 Version: 1.62
+
 
 (JCM)   added extra decoding code to GetFilter.pl example script
 
@@ -559,9 +592,10 @@ Released: xx/xx/xxx Version: 1.92
         active state version of perl more easily. 
 
 (JCM)   changed licensing to match that of perl itself.
-        
 
-(rele   version=1.61
+
+Released: 09/16/98 Version: 1.61
+
 
 (JCM)   new utility: example/AddUsersToGroup.pl - bulk add a bunch
         of users to a specified group 
@@ -595,17 +629,19 @@ Released: xx/xx/xxx Version: 1.92
 
 (JCM)   updated Makefile.PL to dynamically generate the support.h
         file based on the ar.h file specified.
-        
 
-(rele   version=1.6001 BETA
+
+Released: 05/04/98 Version: 1.6001 BETA
+
 
  (BM)   patch for bug in ars_CreateEntry()
 
 (JCM)   added ARS32 conditional compilation for AdminExtension 
         routines (which were removed as of ars3.2 api)
-        
 
-(rele   version=1.6000 BETA
+
+Released: 03/31/98 Version: 1.6000 BETA
+
 
  (BM)   removed most of the PPERLC and AWP stuff that was intended
         to help the port to ActiveState perl.  Use the One True Perl.
@@ -626,15 +662,17 @@ Released: xx/xx/xxx Version: 1.92
 
  (BM)   Changed the logic of CVLD in one place that was attempting to free()
         null pointers.
-        
 
-(rele   version=1.56
+
+Released: 03/31/98 Version: 1.56
+
 
 (JCM)   fixed a problem caused by some debugging code that
         was left in 1.55 accidentally.
-        
 
-(rele   version=1.55
+
+Released: 03/30/98 Version: 1.55
+
 
 (JCM)   added ars_GetListEntry.pl example to show how to use
         custom query-list fields.
@@ -656,70 +694,81 @@ Released: xx/xx/xxx Version: 1.92
 
 (JCM)   fixed dup_FieldValueOrArith to support decoding of
         query style menus. 
-        
 
-(rele   version=1.54
+
+Released: 02/09/98 Version: 1.54
+
 
 (JCM)   fixed bug in ars_EncodeDiary()
 
 (JCM)   added ars_MergeEntry.pl example script
-        
 
-(rele   version=1.53
+
+Released: 12/15/97 Version: 1.53
+
 
 (JCM)   fixed some minor errors in doc
-        
 
-(rele   version=1.5206
+
+Released: 11/19/97 Version: 1.5206
+
 
 (JCM)   added ars_GetVUI to the ARS.pm exports line.
 
 (JCM)   added refreshCode to GetCharMenu hash
 
 (JCM)   fixed bug in groupList value change in 1.5205
-        
 
-(rele   version=1.5205
+
+Released: 11/04/97 Version: 1.5205
+
 
 (JCM)   updated the groupList value returned by GetSchema()
         so that it contains the correct key words.
-        
 
-(rele   version=1.5204
+
+Released: 10/29/97 Version: 1.5204
+
 
 (JCM)   added ars_GetControlStructFields()
-        
 
-(rele   version=1.5203
+
+Released: 10/20/97 Version: 1.5203
+
 
 (JCM)   beginnings of a WinNT port (not completed yet)
 
 (JCM)   added "timestamp" to the return hash of GetEscalation()
 
 (JCM)   added some extra malloc/free debugging stuff
-        
 
-(rele   version=1.5202
+
+Released: 10/13/97 Version: 1.5202
+
 
 (JCM)   removed a superfluous debugging statement
-        
 
-(rele   version=1.5201
+
+Released: 10/09/97 Version: 1.5201
+
 
 (JCM)   fixed problem in GetEscalation     
-        
 
-(rele   version=1.52
+
+Released: 10/08/97 Version: 1.52
+
 
 (JCM)   fixed core dump problem due to uninitialized variable(s)
-        
 
-(rele   version=1.51
+
+Released: 10/07/97 Version: 1.51
+
 
 (JCM)   fixed some typos/symbol errors. added a missing routine.
-        
 
-(rele   version=1.50
+
+Released: 10/06/97 Version: 1.50
+
 
 (JCM)   removed ars_errstr from C code. replaced with ars_errhash.
         modified ARS.pm to refer to hash when $ars_errstr is 
@@ -770,27 +819,31 @@ Released: xx/xx/xxx Version: 1.92
         nothing if you matched more than the max allowed, now it returns
         the max allowable number of records and places a warning message
         into the error hash. 
-        
 
-(rele   version=1.46
+
+Released: 05/22/97 Version: 1.46
+
 
 (JWM)   bug fixes
 
 (JWM)   new function: ars_MergeEntry(), ars_EncodeDiary()
-        
 
-(rele   version=1.45
+
+Released: 04/25/97 Version: 1.45
+
 
 (JCM)   bug fix to GetListSchema routine
-        
 
-(rele   version=1.44
+
+Released: 02/20/97 Version: 1.44
+
 
 (JCM)   added some minor code to aid in decoding qualifier
         structs. added some examples of decoding them.
-        
 
-(rele   version=1.42
+
+Released: 02/18/97 Version: 1.42
+
 
 (JWM)   added destructors for the ARS package that will correctly
         call ARTermination when the package is unloaded (when your
@@ -800,36 +853,41 @@ Released: xx/xx/xxx Version: 1.92
         on HP-UX
 
 (JCM)   compiled with -Wall and cleaned up some suspicious code.
-        
 
-(rele   version=1.41
+
+Released: 02/17/97 Version: 1.41
+
 
 (JCM)   added NT routines to html doc
 
 (JCM)   fixed a few compile-time problems
-        
 
-(rele   version=1.4
+
+Released: 02/13/97 Version: 1.4
+
 
 (JCM)   re-organized documentation and web pages
 
 (JCM)   added NT (notifier) functions
 
 (JWM)   bug fixes for 1.32beta
-        
 
-(rele   version=1.32beta
+
+Released: 02/10/97 Version: 1.32beta
+
 
 (JWM)   3.0 integration
-        
 
-(rele   version=1.31
+
+Released: 11/11/96 Version: 1.31
+
 
 (JCM)   minor stuff: added an ifndef in the GetCharMenu routine
         for ars 2.0 users. 2.0 doesnt support SQL menu constructions.
-        
 
-(rele   version=1.3
+
+Released: 11/11/96 Version: 1.3
+
 
 (JWM)   undef works in setEntry now.
 
@@ -850,9 +908,10 @@ Released: xx/xx/xxx Version: 1.92
 (JCM)   Examples of new functions. 
 
 (JCM)   "WhoUsesIt.pl" utility
-        
 
-(rele   version=1.0beta
+
+Released: 01/12/96 Version: 1.0beta
+
 
 (JWM)   First release 
 
@@ -861,10 +920,11 @@ Released: xx/xx/xxx Version: 1.92
         released), not needed for arsperl.
 
 (JCM)   Added example scripts and html documentation.
-        
+
+
 
 
 arsperl@arsperl.org
 
-$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.63 2008/11/24 15:40:23 jeffmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/CHANGES,v 1.64 2009/01/06 19:21:46 tstapff Exp $
 

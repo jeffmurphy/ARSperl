@@ -1,4 +1,10 @@
 released=xx/xx/xxx version=1.92
+TS  fixed ars_SetServerInfo() memory violation in case of more than key/value pair
+TS  ars_GetFieldTable performance improvement by using ARGetMultipleFields
+TS  removed unnecessary second invocation of ARGetField in ars_GetField
+TS  code cleanup (#ifdef statements) in ARGetFieldCached, ars_GetField, ars_GetFieldByName
+!TS  appended ARControlStruct pointer address to server key in %ARS::field_cache
+    (affects only scripts which make explicit use of the internal field_cache structure)
 !CL  enhanced ARS OO interface to handle custom enum fields
 TS  fixed return value of ars_Import
 TS  fixed memory violation in ars_GetListContainer

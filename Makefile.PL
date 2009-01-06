@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.81 2008/11/03 17:08:19 tstapff Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.82 2009/01/06 19:21:46 tstapff Exp $
 #
 # ARSperl Makefile
 #
@@ -110,9 +110,6 @@ $WINDOWS = $^O eq 'MSWin32';
 $GNU_WIN = ($^O eq 'MSWin32' || $^O eq 'cygwin') && $Config{'cc'} eq "gcc";
 
 
-#        Windows NT: no "-lpthread"
-#        NCR UNIX: add "-lc -lnet"
-#                -DARSPDEBUG
 $AUTODEFINES = " -g ";
 $AUTODEFINES = " -D_WIN32 " if($WINDOWS);
 $AUTODEFINES .= "  -Wno-unused-variable -Wuninitialized " if $Config{'cc'} eq "gcc";
@@ -120,6 +117,8 @@ $AUTODEFINES .= " -D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_WARNINGS " if $WIN
 
 $AUTODEFINES .= " -DARSPERL_UNDEF_MALLOC "   if $ADVANCED_CONFIG{UNDEF_PERL_MALLOC};
 $AUTODEFINES .= " -DGETLISTGROUP_OLD_STYLE " if $ADVANCED_CONFIG{GETLISTGROUP_OLD_STYLE};
+
+$AUTODEFINES .= " -DARSPERL_DEBUG " if $debug;
 
 
 $ARS_STATIC_LIB = "";
