@@ -1,0 +1,16 @@
+--- #YAML:1.0
+name:	ARS
+version:	1.92
+abstract:	ARSperl is an integration kit for Perl 5 and the BMC Remedy ARS System
+license:	perl
+author:
+	- ARSperl Dev Group <arsperl-devel@arsperl.org>
+generated_by:	michiel.beijen@gmail.com
+distribution_type:	module
+requires:	
+resources:
+	license: http://dev.perl.org/licenses/
+	homepage:	http://arsperl.org/
+meta-spec:	
+	url:	http://module-build.sourceforge.net/META-spec-v1.3.html
+	version:	1.3
