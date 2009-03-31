@@ -625,28 +625,28 @@ ARFieldValueOrArithStruct => {
 		},
 	},
 },
-ARArithOpStruct => {
-	oper => {
-		_type => 'unsigned int',
-		_data => 'p->operation',
-		_map  => {
-			AR_ARITH_OP_ADD      => '+',
-			AR_ARITH_OP_SUBTRACT => '-',
-			AR_ARITH_OP_MULTIPLY => '*',
-			AR_ARITH_OP_DIVIDE   => '/',
-			AR_ARITH_OP_MODULO   => '%',
-			AR_ARITH_OP_NEGATE   => '-',
-		},
-	},
-	left => {
-		_type => 'ARFieldValueOrArithStruct',
-		_data => 'p->operandLeft',
-	},
-	right => {
-		_type => 'ARFieldValueOrArithStruct',
-		_data => 'p->operandRight',
-	},
-},
+#ARArithOpStruct => {
+#	oper => {
+#		_type => 'unsigned int',
+#		_data => 'p->operation',
+#		_map  => {
+#			AR_ARITH_OP_ADD      => '+',
+#			AR_ARITH_OP_SUBTRACT => '-',
+#			AR_ARITH_OP_MULTIPLY => '*',
+#			AR_ARITH_OP_DIVIDE   => '/',
+#			AR_ARITH_OP_MODULO   => '%',
+#			AR_ARITH_OP_NEGATE   => '-',
+#		},
+#	},
+#	left => {
+#		_type => 'ARFieldValueOrArithStruct',
+#		_data => 'p->operandLeft',
+#	},
+#	right => {
+#		_type => 'ARFieldValueOrArithStruct',
+#		_data => 'p->operandRight',
+#	},
+#},
 ARStatHistoryValue => {
 	_header_only => 1,
 	enumVal => {

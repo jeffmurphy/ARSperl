@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.35 2009/01/06 19:21:46 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.36 2009/03/31 17:41:17 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -497,6 +497,9 @@ EXTERN SV *perl_ARJoinSchema(ARControlStruct *ctrl,  ARJoinSchema *);
 EXTERN SV *perl_ARViewSchema(ARControlStruct *ctrl,  ARViewSchema *);
 EXTERN SV *perl_ARCompoundSchema(ARControlStruct *ctrl,  ARCompoundSchema *);
 EXTERN SV *perl_ARSortList(ARControlStruct *ctrl,  ARSortList *);
+#if AR_CURRENT_API_VERSION >= 14
+EXTERN SV *perl_ARImageDataStruct(ARControlStruct * ctrl, ARImageDataStruct * in);
+#endif
 EXTERN SV *perl_ARByteList(ARControlStruct *ctrl,  ARByteList *);
 EXTERN SV *perl_ARCoordStruct(ARControlStruct *ctrl,  ARCoordStruct *);
 EXTERN int perl_BuildEntryList(ARControlStruct *ctrl,  AREntryIdList *entryList, 

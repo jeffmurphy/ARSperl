@@ -25,9 +25,6 @@
 EXTERN int rev_ARActiveLinkSvcActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARActiveLinkSvcActionStruct *p );
 #endif
 
-EXTERN int rev_ARArithOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARArithOpStruct *p );
-
-
 EXTERN int rev_ARAttachLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARAttachLimitsStruct *p );
 
 #if AR_CURRENT_API_VERSION >= 12

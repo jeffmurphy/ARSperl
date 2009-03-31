@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.32 2008/09/24 13:03:12 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.33 2009/03/31 17:41:18 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -1460,6 +1460,44 @@ rev_ARValueStructDiary(ARControlStruct * ctrl, HV * h, char *k, char **d)
 	}
 	return -1;
 }
+
+#if AR_CURRENT_API_VERSION >= 14
+int
+rev_ARImageDataStruct(ARControlStruct * ctrl, HV * h, char *k, ARImageDataStruct * b)
+{
+	if (!h || !k || !b) {
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
+			    "rev_ARImageDataStruct: invalid (NULL) parameter");
+		return -1;
+	}
+	if (hv_exists(h,  k, strlen(k) )) {
+		SV **vv = hv_fetch(h,  k, strlen(k) , 0);
+
+		if (vv && *vv && SvPOK(*vv)) {
+			char  *byteString = SvPV(*vv, PL_na);
+			int    byteLen = SvCUR(*vv);
+
+			b->numItems = byteLen;
+			b->bytes = MALLOCNN(byteLen + 1);	/* don't want FreeAR.. to whack us */
+
+			copymem(b->bytes, byteString, byteLen);
+			return 0;
+		} else {
+			ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
+				    "rev_ARImageDataStruct: hash value is not a defined scalar for key:");
+			ARError_add(AR_RETURN_ERROR, AP_ERR_CONTINUE,
+				    k ? k : "[key null]");
+		}
+	} else {
+		ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL,
+			    "rev_ARImageDataStruct: hash key doesn't exist:");
+		ARError_add(AR_RETURN_WARNING, AP_ERR_CONTINUE,
+			    k ? k : "[key null]");
+		return -2;
+	}
+	return -1;
+}
+#endif
 
 #if AR_EXPORT_VERSION >= 3
 int
@@ -3485,4 +3523,140 @@ rev_ARArchiveInfoStruct( ARControlStruct *ctrl, HV *h, char *k, ARArchiveInfoStr
 	return 0;
 }
 #endif
+
+
+
+
+int
+rev_ARArithOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARArithOpStruct *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARArithOpStruct: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARArithOpStruct: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+				
+				
+					if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+						int i = 0, num = 0;
+						HV *h = (HV* ) SvRV((SV*) *val);
+						char k[256];
+						k[255] = '\0';
+				
+				
+					{
+						SV **val;
+						strncpy( k, "oper", 255 );
+						val = hv_fetch( h, "oper", 4, 0 );
+						if( val	&& *val ){
+							{
+								int flag = 0;
+								if( !strcmp(SvPV_nolen(*val),"/") ){
+									p->operation = AR_ARITH_OP_DIVIDE;
+									flag = 1;
+								}
+								if( !strcmp(SvPV_nolen(*val),"%") ){
+									p->operation = AR_ARITH_OP_MODULO;
+									flag = 1;
+								}
+								if( !strcmp(SvPV_nolen(*val),"+") ){
+									p->operation = AR_ARITH_OP_ADD;
+									flag = 1;
+								}
+								/*
+								if( !strcmp(SvPV_nolen(*val),"-") ){
+									p->operation = AR_ARITH_OP_NEGATE;
+									flag = 1;
+								}
+								*/
+								if( !strcmp(SvPV_nolen(*val),"*") ){
+									p->operation = AR_ARITH_OP_MULTIPLY;
+									flag = 1;
+								}
+								if( !strcmp(SvPV_nolen(*val),"-") ){
+									p->operation = AR_ARITH_OP_SUBTRACT;
+									flag = 1;
+								}
+								if( flag == 0 ){
+									ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,  "rev_ARArithOpStruct: invalid key value" );
+									ARError_add( AR_RETURN_ERROR, AP_ERR_CONTINUE, SvPV_nolen(*val) );
+								}
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"oper\"" );
+							return -1;
+						}
+					}
+
+
+					{
+						SV **val;
+						strncpy( k, "left", 255 );
+						val = hv_fetch( h, "left", 4, 0 );
+						if( val	&& *val ){
+							{
+								rev_ARFieldValueOrArithStruct( ctrl, h, k, &(p->operandLeft) );
+							}
+						}else{
+							if( p->operation == AR_ARITH_OP_SUBTRACT ){
+								p->operation = AR_ARITH_OP_NEGATE;
+							}else{
+								ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"left\"" );
+								return -1;
+							}
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "right", 255 );
+						val = hv_fetch( h, "right", 5, 0 );
+						if( val	&& *val ){
+							{
+								rev_ARFieldValueOrArithStruct( ctrl, h, k, &(p->operandRight) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"right\"" );
+							return -1;
+						}
+					}
+				
+				
+				
+				
+					}else{
+						ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARArithOpStruct: hash value is not a hash reference" );
+						return -1;
+					}
+				
+				
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARArithOpStruct: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARArithOpStruct: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARArithOpStruct: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+
+
 

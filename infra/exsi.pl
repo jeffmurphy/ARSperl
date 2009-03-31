@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Header: /cvsroot/arsperl/ARSperl/infra/exsi.pl,v 1.3 2008/09/24 13:03:14 tstapff Exp $
+# $Header: /cvsroot/arsperl/ARSperl/infra/exsi.pl,v 1.4 2009/03/31 17:41:18 tstapff Exp $
 #
 # NAME
 #   exsi.pl < ar.h > server_info_type_hints.h
@@ -15,6 +15,9 @@
 #   jcmurphy@jeffmurphy.org
 #
 # $Log: exsi.pl,v $
+# Revision 1.4  2009/03/31 17:41:18  tstapff
+# arsystem 7.5 port, AR*Image functions
+#
 # Revision 1.3  2008/09/24 13:03:14  tstapff
 # bugfix for serverTypeInfoHints.h
 #
@@ -56,6 +59,8 @@ while(<>) {
 		++$ct;
 		die "!!! ERROR: Cannot determine type for AR_SERVER_INFO constant $ct !!!" if $siv != $ct;
 
+		next if $sit eq 'deprecated';
+
 		# jump thru some more hoops
 
 		$sit .= " $sit2" if ($sit =~ /unsigned/);
@@ -84,6 +89,13 @@ while(<>) {
 		$sit = "int" if $sin eq "AR_SERVER_INFO_DB_MAX_TEXT_SIZE";
 		$sit = "char" if $sin eq "AR_SERVER_INFO_GUID_PREFIX";
 
+		$sit = "char" if $sin eq "AR_SERVER_INFO_FT_COLLECTION_DIR";     # deprecated in 7.5
+		$sit = "char" if $sin eq "AR_SERVER_INFO_FT_CONFIGURATION_DIR";  # deprecated in 7.5
+		$sit = "char" if $sin eq "AR_SERVER_INFO_FT_TEMP_DIR";           # deprecated in 7.5
+
+		$sit = "int" if $sin eq "AR_SERVER_INFO_LICENSE_USAGE";
+		$sit = "int" if $sin eq "AR_SERVER_INFO_MAX_CLIENT_MANAGED_TRANSACTIONS";
+		$sit = "int" if $sin eq "AR_SERVER_INFO_CLIENT_MANAGED_TRANSACTION_TIMEOUT";
 
 		#print "\t/*$sin [$siv] is an $sit*/\n";
 

@@ -111,6 +111,8 @@ ars_GetListLicense ars_ValidateMultipleLicenses
 ars_GetServerCharSet ars_GetClientCharSet
 ars_GetAlertCount ars_RegisterForAlerts ars_DeregisterForAlerts ars_GetListAlertUser
 ars_DecodeAlertMessage ars_CreateAlertEvent ars_VerifyUser
+ars_GetListImage ars_GetImage ars_CreateImage ars_SetImage ars_DeleteImage
+ars_GetListEntryWithMultiSchemaFields
 );
 
 $ARS::VERSION   = '1.92';

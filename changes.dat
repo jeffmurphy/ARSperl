@@ -1,4 +1,8 @@
 released=xx/xx/xxx version=1.92
+TS  additional ars_Login parameters by Conny Martin
+TS  implemented ars_GetList/Get/Create/Set/DeleteImage
+TS  fixed incorrect AR_ARITH_OP_NEGATE handling in rev_ARArithOpStruct
+TS  fixed wrong operand evaluation for AR_ARITH_OP_NEGATE in perl_ARArithOpStruct
 TS  fixed ars_SetServerInfo() memory violation in case of more than key/value pair
 TS  ars_GetFieldTable performance improvement by using ARGetMultipleFields
 TS  removed unnecessary second invocation of ARGetField in ars_GetField

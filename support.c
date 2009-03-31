@@ -2513,7 +2513,9 @@ perl_ARPermissionList(ARControlStruct * ctrl, ARPermissionList * in, int permTyp
 		tmap = (TypeMapStruct *) FieldPermissionTypeMap;
 	}
 
+	/* printf("numItems = %d\n", in->numItems); */
 	for (i = 0; i < in->numItems; i++) {
+		/* printf("[%d] %i\n", i, (int) in->permissionList[i].groupId); */
 		sprintf(groupid, "%i", (int) in->permissionList[i].groupId);
 		for (j = 0; tmap[j].number != TYPEMAP_LAST; j++) {
 			if (tmap[j].number == in->permissionList[i].permissions)
@@ -2930,6 +2932,21 @@ perl_ARAttach(ARControlStruct * ctrl, ARAttachStruct * in)
 }
 #endif
 
+#if AR_CURRENT_API_VERSION >= 14
+SV             *
+perl_ARImageDataStruct(ARControlStruct * ctrl, ARImageDataStruct * in)
+{
+	SV             *byte_list;
+
+	if( in->numItems == 0 ){
+	    return newSVsv(&PL_sv_undef);
+	}
+
+	byte_list = newSVpv((char *) in->bytes, in->numItems);
+	return byte_list;
+}
+#endif
+
 SV             *
 perl_ARByteList(ARControlStruct * ctrl, ARByteList * in)
 {
@@ -3211,8 +3228,10 @@ perl_ARArithOpStruct(ARControlStruct * ctrl, ARArithOpStruct * in)
 	}
 	hv_store(hash,  "oper", strlen("oper") , newSVpv(oper, 0), 0);
 	if (in->operation == AR_ARITH_OP_NEGATE) {
-		hv_store(hash,  "left", strlen("left") ,
-		 perl_ARFieldValueOrArithStruct(ctrl, &in->operandLeft), 0);
+		/* hv_store(hash,  "left", strlen("left") ,
+		 perl_ARFieldValueOrArithStruct(ctrl, &in->operandLeft), 0); */
+		hv_store(hash,  "right", strlen("right") ,
+		 perl_ARFieldValueOrArithStruct(ctrl, &in->operandRight), 0);
 	} else {
 		hv_store(hash,  "right", strlen("right") ,
 		perl_ARFieldValueOrArithStruct(ctrl, &in->operandRight), 0);

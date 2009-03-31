@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.17 2008/05/15 18:30:03 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.18 2009/03/31 17:41:18 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -88,6 +88,11 @@ EXTERN int rev_ARActiveLinkMacroStruct(ARControlStruct *ctrl,
 EXTERN int rev_ARMacroParmList(ARControlStruct *ctrl,
 			       HV *h, char *k, ARMacroParmList *m);
 
+#if AR_CURRENT_API_VERSION >= 14
+EXTERN int rev_ARImageDataStruct(ARControlStruct * ctrl,
+			  HV * h, char *k, ARImageDataStruct * b);
+#endif
+
 #if AR_EXPORT_VERSION >= 3
 EXTERN int rev_ARByteList(ARControlStruct *ctrl,
 			  HV *h, char *k, ARByteList *b);
@@ -134,6 +139,8 @@ rev_ARMessageStruct(ARControlStruct * ctrl,
 EXTERN int rev_ARArchiveInfoStruct( ARControlStruct *ctrl, HV *h, char *k, ARArchiveInfoStruct *p );
 #endif
 
+EXTERN int
+rev_ARArithOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARArithOpStruct *p );
 
 #endif /* __supportrev_h_ */
 
