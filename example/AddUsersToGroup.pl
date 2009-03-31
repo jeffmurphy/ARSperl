@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/AddUsersToGroup.pl,v 1.4 2007/08/04 15:20:04 mbeijen Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/AddUsersToGroup.pl,v 1.5 2009/03/31 13:34:32 mbeijen Exp $
 #
 # NAME
 #   AddUsersToGroup server user password group user1 [user2] ...
@@ -12,6 +12,10 @@
 #   jeff murphy
 #
 # $Log: AddUsersToGroup.pl,v $
+# Revision 1.5  2009/03/31 13:34:32  mbeijen
+# Verified and updated examples.
+# Removed ars_GetFullTextInfo.pl because ars_GetFullTextInfo is obsolete since ARS > 6.01
+#
 # Revision 1.4  2007/08/04 15:20:04  mbeijen
 # Adjusted the code for current ARSperl version, added use strict; and added comments.
 #
@@ -25,11 +29,12 @@
 
 use ARS;
 use strict;
+use warnings;
 
 die "usage: AddUserToGroup server username password group user1 [user2] ...\n"
   if ( $#ARGV < 4 );
 
-( my $server, my $user, my $pass, my $group, my @users ) =
+my ( $server, $user, $pass, $group, @users ) =
   ( shift, shift, shift, shift, @ARGV );
 
 #Logging in to the server

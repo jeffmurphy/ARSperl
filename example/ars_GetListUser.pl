@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/ars_GetListUser.pl,v 1.2 2001/04/11 15:10:15 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/ars_GetListUser.pl,v 1.3 2009/03/31 13:34:32 mbeijen Exp $
 #
 # NAME
 #   ars_GetListUser.pl
@@ -15,12 +15,16 @@
 # NOTES
 #   email addr and notify mech are (as far as we can tell) part of the
 #   return values from the API, but are never filled in. this is not a
-#   bug in arsperl. 
+#   bug in arsperl.
 #
 # AUTHOR
 #   jeff murphy
 #
 # $Log: ars_GetListUser.pl,v $
+# Revision 1.3  2009/03/31 13:34:32  mbeijen
+# Verified and updated examples.
+# Removed ars_GetFullTextInfo.pl because ars_GetFullTextInfo is obsolete since ARS > 6.01
+#
 # Revision 1.2  2001/04/11 15:10:15  jcmurphy
 # updates to Makefile.PL for server info map
 #
@@ -31,12 +35,20 @@
 #
 
 use ARS;
+use strict;
 
-@noteMech = ("NONE", "NOTIFIER", "EMAIL", "?");
-@licType = ("NONE", "FIXED", "FLOATING", "FIXED2");
-@licTag = ("", "WRITE", "FULL_TEXT", "RESERVED1");
+die "usage: $0 server username password \n"
+  unless ( $#ARGV >= 2 );
 
-($c = ars_Login(shift, shift, shift)) || die "login: $ars_errstr";
+my ( $server, $user, $password ) = ( shift, shift, shift );
+
+#Logging in to the server
+( my $ctrl = ars_Login( $server, $user, $password ) )
+  || die "ars_Login: $ars_errstr";
+
+my @noteMech = ( "NONE", "NOTIFIER", "EMAIL",     "?" );
+my @licType  = ( "NONE", "FIXED",    "FLOATING",  "FIXED2" );
+my @licTag   = ( "",     "WRITE",    "FULL_TEXT", "RESERVED1" );
 
 print "Calling GetListUser and asking for all connected users...\n";
 
@@ -46,28 +58,31 @@ print "Calling GetListUser and asking for all connected users...\n";
 #
 # default = 0
 
-(@h = ars_GetListUser($c, &ARS::AR_USER_LIST_REGISTERED)) || die "ERR: $ars_errstr\n";
-print "errstr=$ars_errstr\n";
+( my @h = ars_GetListUser( $ctrl, 2 ) ) || die "ERR: $ars_errstr\n";
 
 print "GetListUser returned the following:\n";
 
-foreach $userHash (@h) {
-    print "userName: $userHash->{userName}\n";
-    print "\tconnectTime: ".localtime($userHash->{connectTime})."\n";
-    print "\tlastAccess: ".localtime($userHash->{lastAccess})."\n";
-    print "\tnotify mech: $userHash->{defaultNotifyMech} (".$noteMech[$userHash->{defaultNotifyMech}].")\n";
-    print "\temail addr: $userHash->{emailAddr}\n";
+foreach (@h) {
+    print "userName: $_->{userName}\n";
+    print "\tconnectTime: " . localtime( $_->{connectTime} ) . "\n";
+    print "\tlastAccess: " . localtime( $_->{lastAccess} ) . "\n";
+    print "\tnotify mech: $_->{defaultNotifyMech} ("
+      . $noteMech[ $_->{defaultNotifyMech} ] . ")\n";
+    print "\temail addr: $_->{emailAddr}\n";
 
-    for($i = 0; $i <= $#{$userHash->{licenseTag}}; $i++) {
-	print "\tlicense \#$i info:\n";
+    for ( my $i = 0 ; $i <= $#{ $_->{licenseTag} } ; $i++ ) {
+        print "\tlicense \#$i info:\n";
 
-	print "\t\tlicenseTag: ".@{$userHash->{licenseTag}}[$i].
-	    " (".$licTag[@{$userHash->{licenseTag}}[$i]].")\n";
-	print "\t\tlicenseType: ".@{$userHash->{licenseType}}[$i].
-	    " (".$licType[@{$userHash->{licenseType}}[$i]].")\n";
-	print "\t\tcurrentLicenseType: ".@{$userHash->{currentLicenseType}}[$i].
-	    " (".$licType[@{$userHash->{currentLicenseType}}[$i]].")\n";
+        print "\t\tlicenseTag: "
+          . @{ $_->{licenseTag} }[$i] . " ("
+          . $licTag[ @{ $_->{licenseTag} }[$i] ] . ")\n";
+        print "\t\tlicenseType: "
+          . @{ $_->{licenseType} }[$i] . " ("
+          . $licType[ @{ $_->{licenseType} }[$i] ] . ")\n";
+        print "\t\tcurrentLicenseType: "
+          . @{ $_->{currentLicenseType} }[$i] . " ("
+          . $licType[ @{ $_->{currentLicenseType} }[$i] ] . ")\n";
     }
 }
 
-ars_Logoff($c);
+ars_Logoff($ctrl);

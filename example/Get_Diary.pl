@@ -1,20 +1,24 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/example/Get_Diary.pl,v 1.4 2003/07/03 19:01:14 jcmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/example/Get_Diary.pl,v 1.5 2009/03/31 13:34:32 mbeijen Exp $
 #
 # EXAMPLE
 #    Get_Diary.pl
 #
 # DESCRIPTION
-#    Log onto the server and dump all diary entries for a particular 
+#    Log onto the server and dump all diary entries for a particular
 #    qualification
-# 
+#
 # AUTHOR
 #    jeff murphy
 #
 # 03/06/96
-# 
+#
 # $Log: Get_Diary.pl,v $
+# Revision 1.5  2009/03/31 13:34:32  mbeijen
+# Verified and updated examples.
+# Removed ars_GetFullTextInfo.pl because ars_GetFullTextInfo is obsolete since ARS > 6.01
+#
 # Revision 1.4  2003/07/03 19:01:14  jcmurphy
 # 1.81rc1 mem fixes from steve drew at hp.com
 #
@@ -30,11 +34,12 @@
 #
 
 use ARS;
+use strict;
 
 # Parse command line parameters
 
-($server, $username, $password, $schema, $qualifier, $diaryfield) = @ARGV;
-if(!defined($diaryfield)) {
+my ( $server, $username, $password, $schema, $qualifier, $diaryfield ) = @ARGV;
+if ( !defined($diaryfield) ) {
     print "usage: $0 [server] [username] [password] [schema] [qualifier]\n";
     print "       [diaryfieldname]\n";
     exit 1;
@@ -46,39 +51,38 @@ print "schema=$schema
 qualifier=$qualifier
 diaryfield=$diaryfield\n";
 
-($ctrl = ars_Login($server, $username, $password)) || 
-    die "can't login to the server";
+( my $ctrl = ars_Login( $server, $username, $password ) )
+  || die "can't login to the server";
 
 # Load the qualifier structure with a dummy qualifier.
 
-($qual = ars_LoadQualifier($ctrl, $schema, $qualifier)) ||
-    die "error in ars_LoadQualifier:\n$ars_errstr";
+( my $qual = ars_LoadQualifier( $ctrl, $schema, $qualifier ) )
+  || die "error in ars_LoadQualifier:\n$ars_errstr";
 
 # Retrieve all of the entry-id's for the qualification.
 
-%entries = ars_GetListEntry($ctrl, $schema, $qual, 0, 0);
+my %entries = ars_GetListEntry( $ctrl, $schema, $qual, 0, 0 );
 
 # Retrieve the fieldid for the diary field
 
-($diaryfield_fid = ars_GetFieldByName($ctrl, $schema, $diaryfield)) ||
-    die "no such field in this schema: '$diaryfield'";
+( my $diaryfield_fid = ars_GetFieldByName( $ctrl, $schema, $diaryfield ) )
+  || die "no such field in this schema: '$diaryfield'";
 
-foreach $entry_id (sort keys %entries) {
+foreach my $entry_id ( sort keys %entries ) {
 
     print ">>>>>  Entry-id: $entry_id <<<<<\n\n";
 
     # Retrieve the (fieldid, value) pairs for this entry
 
-    %e_vals = ars_GetEntry($ctrl, $schema, $entry_id, 
-			  $diaryfield_fid);
+    my %e_vals = ars_GetEntry( $ctrl, $schema, $entry_id, $diaryfield_fid );
 
     # Print out the diary entries for this entry-id
 
-    foreach $diary_entry (@{$e_vals{$diaryfield_fid}}) {
-	print scalar localtime($diary_entry->{timestamp});
-	print " ", $diary_entry->{user}, "\n";
-	print $diary_entry->{value};
-	print "\n\n";
+    foreach my $diary_entry ( @{ $e_vals{$diaryfield_fid} } ) {
+        print scalar localtime( $diary_entry->{timestamp} );
+        print " ", $diary_entry->{user}, "\n";
+        print $diary_entry->{value};
+        print "\n\n";
     }
 }
 
