@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.123 2009/04/01 12:29:29 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.124 2009/04/01 15:04:50 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -2324,6 +2324,7 @@ ars_GetImage(ctrl,name)
 	  Zero(&status, 1, ARStatusList);
 	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED,
 	  "ars_GetImage() is only available in ARS >= 7.5");
+	  XSRETURN_UNDEF;
 #endif
 	}
 	OUTPUT:
@@ -3095,6 +3096,7 @@ ars_DeleteImage(ctrl, name, updateRef=FALSE)
 	  Zero(&status, 1, ARStatusList);
 	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED,
 	  "ars_DeleteImage() is only available in ARS >= 7.5");
+	  XSRETURN_UNDEF;
 #endif
 	}
 	OUTPUT:
@@ -6591,6 +6593,7 @@ ars_CreateImage(ctrl, objDefRef)
 	  Zero(&status, 1, ARStatusList);
 	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED,
 	  "ars_CreateImage() is only available in ARS >= 7.5");
+	  XSRETURN_UNDEF;
 #endif
 	}
 	OUTPUT:
@@ -6701,6 +6704,7 @@ ars_SetImage(ctrl, name, objDefRef)
 	  Zero(&status, 1, ARStatusList);
 	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED,
 	  "ars_SetImage() is only available in ARS >= 7.5");
+	  XSRETURN_UNDEF;
 #endif
 	}
 	OUTPUT:

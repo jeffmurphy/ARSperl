@@ -18,9 +18,11 @@
 #    See URL above.
 #
 
+
+
 # Object Oriented Hoopla
 
-sub new {
+sub newObject {
   my ($class, @p) = (shift, @_);
   my ($self) = {};
   my ($blessed) = bless($self, $class);

@@ -244,24 +244,24 @@ EXTERN int rev_ARLicenseValidStruct( ARControlStruct *ctrl, HV *h, char *k, ARLi
 
 
 
-
+#if AR_CURRENT_API_VERSION >= 14
 EXTERN int rev_ARMultiSchemaArithOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaArithOpStruct *p );
-
-
+#endif
+#if AR_CURRENT_API_VERSION >= 14
 EXTERN int rev_ARMultiSchemaCurrencyPartStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaCurrencyPartStruct *p );
-
-
+#endif
+#if AR_CURRENT_API_VERSION >= 14
 EXTERN int rev_ARMultiSchemaFieldIdList( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFieldIdList *p );
-
-
+#endif
+#if AR_CURRENT_API_VERSION >= 14
 EXTERN int rev_ARMultiSchemaFieldIdStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFieldIdStruct *p );
-
+#endif
 #if AR_CURRENT_API_VERSION >= 14
 EXTERN int rev_ARMultiSchemaFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFieldValueOrArithStruct *p );
 #endif
-
+#if AR_CURRENT_API_VERSION >= 14
 EXTERN int rev_ARMultiSchemaNestedQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaNestedQueryStruct *p );
-
+#endif
 #if AR_CURRENT_API_VERSION >= 14
 EXTERN int rev_ARMultiSchemaQualifierStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaQualifierStruct *p );
 #endif
@@ -271,18 +271,18 @@ EXTERN int rev_ARMultiSchemaQueryFromList( ARControlStruct *ctrl, HV *h, char *k
 #if AR_CURRENT_API_VERSION >= 14
 EXTERN int rev_ARMultiSchemaQueryFromStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaQueryFromStruct *p );
 #endif
-
+#if AR_CURRENT_API_VERSION >= 14
 EXTERN int rev_ARMultiSchemaRecursiveQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaRecursiveQueryStruct *p );
-
+#endif
 #if AR_CURRENT_API_VERSION >= 14
 EXTERN int rev_ARMultiSchemaRelOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaRelOpStruct *p );
 #endif
-
+#if AR_CURRENT_API_VERSION >= 14
 EXTERN int rev_ARMultiSchemaStatHistoryValue( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaStatHistoryValue *p );
-
-
+#endif
+#if AR_CURRENT_API_VERSION >= 14
 EXTERN int rev_ARMultiSchemaValueSetQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaValueSetQueryStruct *p );
-
+#endif
 
 EXTERN int rev_ARNameList( ARControlStruct *ctrl, HV *h, char *k, ARNameList *p );
 

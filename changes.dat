@@ -1,4 +1,5 @@
 released=xx/xx/xxx version=1.92
+TS  package directory reorganization/cleanup
 TS  additional ars_Login parameters by Conny Martin
 TS  implemented ars_GetList/Get/Create/Set/DeleteImage
 TS  fixed incorrect AR_ARITH_OP_NEGATE handling in rev_ARArithOpStruct

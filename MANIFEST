@@ -2,9 +2,9 @@ ARSOOform.pm
 ARS.pm
 ARS.xs
 ARS/CodeTemplate.pm
-ARSOOmsgs.pm
-ARSOOsup.pm
-ARSnparm.pm
+ARS/OOmsgs.pm
+ARS/OOsup.pm
+ARS/nparm.pm
 Artistic
 CHANGES
 INSTALLATION

@@ -64,14 +64,9 @@ require Carp unless $^S;
 use AutoLoader 'AUTOLOAD';
 use Config;
 
-require 'ARSar-h.pm';
-require 'ARSarerrno-h.pm';
-require 'ARSnt-h.pm';
-require 'ARSnterrno-h.pm';
-require 'ARSnparm.pm';
-require 'ARSOOform.pm';
-require 'ARSOOmsgs.pm';
-require 'ARSOOsup.pm';
+require 'ARS/ar-h.pm';
+require 'ARS/arerrno-h.pm';
+require 'ARS/nparm.pm';
 
 @ARS::ISA = qw(Exporter DynaLoader);
 @ARS::EXPORT = qw(isa_int isa_float isa_string ars_LoadQualifier ars_Login 
@@ -221,6 +216,14 @@ tie $ARS::ars_errstr, ARS::ERRORSTR;
  'ESCL_FIELDS_FLTAPI', 73,
  'WRITE_RESTRICTED_READ', 74
 );
+
+
+sub new {
+	require 'ARS/OOform.pm';
+	require 'ARS/OOmsgs.pm';
+	require 'ARS/OOsup.pm';
+	return newObject( @_ );
+}
 
 
 # ROUTINE

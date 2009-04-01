@@ -1921,6 +1921,7 @@ ARMultiSchemaQueryFromStruct => {
 },
 
 ARMultiSchemaNestedQueryStruct => {
+	_min_version => '7.5.0',
 	queryFromList => {
 		_type => 'ARMultiSchemaQueryFromList',
 		_data => 'p->queryFromList',
@@ -1935,6 +1936,7 @@ ARMultiSchemaNestedQueryStruct => {
 	},
 },
 ARMultiSchemaRecursiveQueryStruct => {
+	_min_version => '7.5.0',
 	recursiveSchemaAlias => {
 		_type => 'ARNameType',
 		_data => 'p->recursiveSchemaAlias',
@@ -2092,6 +2094,7 @@ ARMultiSchemaFieldValueOrArithStruct => {
 },
 
 ARMultiSchemaCurrencyPartStruct => {
+	_min_version => '7.5.0',
 	fieldId => {
 		_type => 'ARMultiSchemaFieldIdStruct',
 		_data => 'p->fieldId',
@@ -2106,6 +2109,7 @@ ARMultiSchemaCurrencyPartStruct => {
 	},
 },
 ARMultiSchemaFieldIdStruct => {
+	_min_version => '7.5.0',
 	queryFromAlias => {
 		_type => 'ARNameType',
 		_data => 'p->queryFromAlias',
@@ -2116,6 +2120,7 @@ ARMultiSchemaFieldIdStruct => {
 	},
 },
 ARMultiSchemaArithOpStruct => {
+	_min_version => '7.5.0',
 	operation => {
 		_type => 'unsigned int',
 		_data => 'p->operation',
@@ -2130,6 +2135,7 @@ ARMultiSchemaArithOpStruct => {
 	},
 },
 ARMultiSchemaValueSetQueryStruct => {
+	_min_version => '7.5.0',
 	queryFromList => {
 		_type => 'ARMultiSchemaQueryFromList',
 		_data => 'p->queryFromList',
@@ -2144,6 +2150,7 @@ ARMultiSchemaValueSetQueryStruct => {
 	},
 },
 ARMultiSchemaStatHistoryValue => {
+	_min_version => '7.5.0',
 	queryFromAlias => {
 		_type => 'ARNameType',
 		_data => 'p->queryFromAlias',
@@ -2158,6 +2165,7 @@ ARMultiSchemaStatHistoryValue => {
 	},
 },
 ARMultiSchemaFieldIdList => {
+	_min_version => '7.5.0',
 	_num  => 'p->numItems',
 	_list => 'p->listPtr',
 	_type => 'ARMultiSchemaFieldIdStruct',

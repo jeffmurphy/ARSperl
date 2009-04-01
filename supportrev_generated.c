@@ -8893,7 +8893,7 @@ rev_ARLicenseValidStruct( ARControlStruct *ctrl, HV *h, char *k, ARLicenseValidS
 
 
 
-
+#if AR_CURRENT_API_VERSION >= 14
 int
 rev_ARMultiSchemaArithOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaArithOpStruct *p ){
 	SV  **val;
@@ -8988,10 +8988,10 @@ rev_ARMultiSchemaArithOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSc
 
 	return 0;
 }
+#endif
 
 
-
-
+#if AR_CURRENT_API_VERSION >= 14
 int
 rev_ARMultiSchemaCurrencyPartStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaCurrencyPartStruct *p ){
 	SV  **val;
@@ -9086,10 +9086,10 @@ rev_ARMultiSchemaCurrencyPartStruct( ARControlStruct *ctrl, HV *h, char *k, ARMu
 
 	return 0;
 }
+#endif
 
 
-
-
+#if AR_CURRENT_API_VERSION >= 14
 int
 rev_ARMultiSchemaFieldIdList( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFieldIdList *p ){
 	SV  **val;
@@ -9161,10 +9161,10 @@ rev_ARMultiSchemaFieldIdList( ARControlStruct *ctrl, HV *h, char *k, ARMultiSche
 
 	return 0;
 }
+#endif
 
 
-
-
+#if AR_CURRENT_API_VERSION >= 14
 int
 rev_ARMultiSchemaFieldIdStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFieldIdStruct *p ){
 	SV  **val;
@@ -9244,7 +9244,7 @@ rev_ARMultiSchemaFieldIdStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSc
 
 	return 0;
 }
-
+#endif
 
 
 #if AR_CURRENT_API_VERSION >= 14
@@ -9600,7 +9600,7 @@ rev_ARMultiSchemaFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k,
 #endif
 
 
-
+#if AR_CURRENT_API_VERSION >= 14
 int
 rev_ARMultiSchemaNestedQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaNestedQueryStruct *p ){
 	SV  **val;
@@ -9695,7 +9695,7 @@ rev_ARMultiSchemaNestedQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARMul
 
 	return 0;
 }
-
+#endif
 
 
 #if AR_CURRENT_API_VERSION >= 14
@@ -10330,7 +10330,7 @@ rev_ARMultiSchemaQueryFromStruct( ARControlStruct *ctrl, HV *h, char *k, ARMulti
 #endif
 
 
-
+#if AR_CURRENT_API_VERSION >= 14
 int
 rev_ARMultiSchemaRecursiveQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaRecursiveQueryStruct *p ){
 	SV  **val;
@@ -10470,7 +10470,7 @@ rev_ARMultiSchemaRecursiveQueryStruct( ARControlStruct *ctrl, HV *h, char *k, AR
 
 	return 0;
 }
-
+#endif
 
 
 #if AR_CURRENT_API_VERSION >= 14
@@ -10607,7 +10607,7 @@ rev_ARMultiSchemaRelOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSche
 #endif
 
 
-
+#if AR_CURRENT_API_VERSION >= 14
 int
 rev_ARMultiSchemaStatHistoryValue( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaStatHistoryValue *p ){
 	SV  **val;
@@ -10702,10 +10702,10 @@ rev_ARMultiSchemaStatHistoryValue( ARControlStruct *ctrl, HV *h, char *k, ARMult
 
 	return 0;
 }
+#endif
 
 
-
-
+#if AR_CURRENT_API_VERSION >= 14
 int
 rev_ARMultiSchemaValueSetQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaValueSetQueryStruct *p ){
 	SV  **val;
@@ -10800,7 +10800,7 @@ rev_ARMultiSchemaValueSetQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARM
 
 	return 0;
 }
-
+#endif
 
 
 

@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.82 2009/01/06 19:21:46 tstapff Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.83 2009/04/01 15:04:50 tstapff Exp $
 #
 # ARSperl Makefile
 #
@@ -123,9 +123,9 @@ $AUTODEFINES .= " -DARSPERL_DEBUG " if $debug;
 
 $ARS_STATIC_LIB = "";
 
-$PM = {};
-foreach my $pm2install (qw{ARSarerrno-h.pm  ARSar-h.pm  ARSnparm.pm  ARSnterrno-h.pm  ARSnt-h.pm  ARSOOform.pm  ARSOOmsgs.pm  ARSOOsup.pm  ARS.pm}) {
-	$PM->{$pm2install} = '$(INST_LIBDIR)/'.$pm2install;
+$PM = { 'ARS.pm' => '$(INST_LIBDIR)/ARS.pm' };
+foreach my $pm2install (qw{arerrno-h.pm  ar-h.pm  nparm.pm  OOform.pm  OOmsgs.pm  OOsup.pm}) {
+	$PM->{'ARS/'.$pm2install} = '$(INST_LIBDIR)/ARS/'.$pm2install;
 }
 
 
@@ -137,7 +137,7 @@ if ($ARSVERSION >= 6.3) {
 	$ARS_LIBS = " -lar -lnsl ";
 	$ARS_LIBS = " -lar -larencrypt -lnsl " if $ENCRYPT;
 }
-$PM->{'artypes.ph'} = '$(INST_LIBDIR)/artypes.ph' if $ARSVERSION >= 6.3;
+#$PM->{'ARS/artypes.ph'} = '$(INST_LIBDIR)/ARS/artypes.ph' if $ARSVERSION >= 6.3;
 if ($GNU_WIN) {
 	$ARS_LIBS = join(' ', map { "$ARSAPI/lib/" . $_ } @{$ra_arlibs});
 } elsif ($WINDOWS) {
@@ -202,21 +202,24 @@ die "something went wrong when i ran \"$cmd\" (rv = $rv, expected 0)" unless ($r
 
 print "Converting C header files to perl modules ..\n";
 
-foreach ("ar", "arerrno", "nt", "nterrno") {
+
+
+
+foreach ("ar", "arerrno") {
 	my $headerFile = "${ARSAPI}/include/${_}.h";
 
-	# arsystem >= 5.0 doesnt have nt libs/hdrs anymore
-	if( ($ARSVERSION >= 5.0) && /^nt/ ) {
-		open(FD, "> ARS${_}-h.pm") || die "open: $!";
-		print FD "\# as of ARSystem 5.0, the NT (notifier) routines
-# are retired. so this file is just stubbed.
-1;\n";
-		close(FD);
-		open (FD, "> artypes.ph") || die "open: $!";
-		print FD "\# hackaround for artypes.h. do not remove.\n1;\n";
-		close(FD);
-		next;
-	}
+#	# arsystem >= 5.0 doesnt have nt libs/hdrs anymore
+#	if( ($ARSVERSION >= 5.0) && /^nt/ ) {
+#		open(FD, "> ARS/${_}-h.pm") || die "open: $!";
+#		print FD "\# as of ARSystem 5.0, the NT (notifier) routines
+## are retired. so this file is just stubbed.
+#1;\n";
+#		close(FD);
+#		open (FD, "> ARS/artypes.ph") || die "open: $!";
+#		print FD "\# hackaround for artypes.h. do not remove.\n1;\n";
+#		close(FD);
+#		next;
+#	}
 
 	# arsystem <= 6.0.3 doesnt have artypes.h
 
@@ -224,24 +227,24 @@ foreach ("ar", "arerrno", "nt", "nterrno") {
 
 	die "couldn't find $headerFile" if (! -e $headerFile);
 
-	# due to the endless confusion over h2ph, i'm including
-	# a known-good copy in the arsperl distribution. the 
-	# -d should make it create _h2ph_pre in the current 
-	# directory incase you never ran h2ph before (as root)
+#	# due to the endless confusion over h2ph, i'm including
+#	# a known-good copy in the arsperl distribution. the 
+#	# -d should make it create _h2ph_pre in the current 
+#	# directory incase you never ran h2ph before (as root)
 
 	if ($_ eq "artypes") {
-		$rv = system("$Config{'perlpath'} infra/h2ph -d . < $headerFile > ${_}.ph");
+		$rv = system("$Config{'perlpath'} infra/h2ph -d ./ARS < $headerFile > ARS/${_}.ph");
 	} else {
-		$rv = system("$Config{'perlpath'} infra/h2ph -d . < $headerFile > ARS${_}-h.pm");
+		$rv = system("$Config{'perlpath'} infra/h2ph -d ./ARS < $headerFile > ARS/${_}-h.pm");
 	}
 
-	unlink ('_h2ph_pre.ph');
-	open (FD, "> _h2ph_pre.ph") || die "open: $!";
+	unlink ('ARS/_h2ph_pre.ph');
+	open (FD, "> ARS/_h2ph_pre.ph") || die "open: $!";
 	print FD "1;\n";
 	close(FD);
 
-	if((! -e "ARS${_}-h.pm") || (-z "ARS${_}-h.pm")) {
-		open (FD, "> ARS${_}-h.pm") || die "open: $!";
+	if((! -e "ARS/${_}-h.pm") || (-z "ARS/${_}-h.pm")) {
+		open (FD, "> ARS/${_}-h.pm") || die "open: $!";
 		print FD "\# your perl installation was either missing the 'h2ph'
 \# utility or it was not in your path with you ran 'perl Makefile.PL'
 
@@ -255,7 +258,7 @@ printf "\tARSVERSION  = %.2f\n", $ARSVERSION;
 print "\tARSAPI      = $ARSAPI\n";
 print "\tAUTODEFINES = $AUTODEFINES\n";
 
-$PM->{'_h2ph_pre.ph'} = '$(INST_LIBDIR)/_h2ph_pre.ph';
+#$PM->{'ARS/_h2ph_pre.ph'} = '$(INST_LIBDIR)/ARS/_h2ph_pre.ph';
 
 WriteMakefile(
 	      'NAME'	=> 'ARS',
@@ -315,7 +318,7 @@ WriteMakefile(
 # don't fiddle with this
 
               'realclean' => {
-		 'FILES' => 'support.h ARSar-h.pm ARSarerrno-h.pm ARSnt-h.pm ARSnterrno-h.pm t/config.cache serverTypeInfoHints.h *~ .purify *-h.pm _h2ph_pre.ph artypes.ph ' 
+		 'FILES' => 'support.h ARS/ar-h.pm ARS/arerrno-h.pm ARS/_h2ph_pre.ph t/config.cache serverTypeInfoHints.h *~ .purify ' 
 	      } 
 );
 
