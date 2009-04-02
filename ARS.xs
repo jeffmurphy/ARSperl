@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.124 2009/04/01 15:04:50 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.125 2009/04/02 18:57:02 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -7053,142 +7053,130 @@ ars_GetListEntryWithFields(ctrl,schema,qualifier,maxRetrieve=0,firstRetrieve=0,.
 
 
 void
-ars_GetListEntryWithMultiSchemaFields(ctrl,schema,qualifier,maxRetrieve=0,firstRetrieve=0,...)
+ars_GetListEntryWithMultiSchemaFields(ctrl,schema,qualifier=NULL,maxRetrieve=0,firstRetrieve=0,fields=NULL,...)
 	ARControlStruct *    ctrl
 	SV *                 schema
 	SV *                 qualifier
 	unsigned int         firstRetrieve
 	unsigned int         maxRetrieve
+	SV *                 fields
 	PPCODE:
 	{
-	  ARStatusList     status;
+	ARStatusList     status;
 #if AR_CURRENT_API_VERSION >= 14
-	  unsigned int                     c = (items - 5) / 2, i;
-	  int                              field_off = 5;
-	  ARMultiSchemaQueryFromList       queryFromList;
-	  ARMultiSchemaQualifierStruct     qualifierStruct;
-	  ARMultiSchemaFieldIdList         getListFields;
-	  ARMultiSchemaSortList            sortList;
-	  ARMultiSchemaFieldValueListList  entryFieldValueList;
-	  int                              ret = 0, rv = 0;
-	  AV                              *getListFields_array;
-	  HV                              *hDummy;
+	ARMultiSchemaQueryFromList       queryFromList;
+	ARMultiSchemaQualifierStruct     qualifierStruct;
+	ARMultiSchemaFieldIdList         getListFields;
+	ARMultiSchemaSortList            sortList;
+	ARMultiSchemaFieldValueListList  entryFieldValueList;
+	unsigned int                     i;
+	int                              i2, field_off = 6;
+	int                              ret = 0, rv = 0;
+	HV                              *hDummy;
 
-	  printf( "\n\n!!!! ars_GetListEntryWithMultiSchemaFields(): experimental implementation, not really working yet !!!!\n\n" );
+	/* printf( "\n\n!!!! ars_GetListEntryWithMultiSchemaFields(): experimental implementation, not really working yet !!!!\n\n" ); */
 
-	  (void) ARError_reset();
-	  Zero(&queryFromList, 1, ARMultiSchemaQueryFromList);
-	  Zero(&qualifierStruct, 1, ARMultiSchemaQualifierStruct);
-	  Zero(&getListFields, 1, ARMultiSchemaFieldIdList);
-	  Zero(&sortList, 1, ARMultiSchemaSortList);
-	  Zero(&entryFieldValueList, 1, ARMultiSchemaFieldValueListList);
-	  Zero(&status, 1, ARStatusList);
+	(void) ARError_reset();
+	Zero( &queryFromList, 1, ARMultiSchemaQueryFromList );
+	Zero( &qualifierStruct, 1, ARMultiSchemaQualifierStruct );
+	Zero( &getListFields, 1, ARMultiSchemaFieldIdList );
+	Zero( &sortList, 1, ARMultiSchemaSortList );
+	Zero( &entryFieldValueList, 1, ARMultiSchemaFieldValueListList );
+	Zero( &status, 1, ARStatusList );
 
-	  hDummy = newHV();
-	  hv_store( hDummy, "queryFromList",   13, newSVsv(schema), 0 );
-	  hv_store( hDummy, "qualifierStruct", 15, newSVsv(qualifier), 0 );
-	  rv += rev_ARMultiSchemaQueryFromList( ctrl, hDummy, "queryFromList", &queryFromList );
-	  rv += rev_ARMultiSchemaQualifierStruct( ctrl, hDummy, "qualifierStruct", &qualifierStruct );
-	  hv_undef( hDummy );
+	hDummy = newHV();
 
-	  /* sortList.sortList = NULL;
-	  getListFields.fieldsList = NULL;
-	  entryFieldValueList.entryList = NULL; */
-#ifdef XXX_DUMMY_FIELDLIST
-	  if( (items - 5) % 2 ){
-	    /* odd number of arguments, so argument after maxRetrieve is
-	       optional getListFields (an array of hash refs) */
-	    if ( SvROK(ST(field_off)) &&
-	         (getListFields_array = (AV *)SvRV(ST(field_off))) &&
-	         (SvTYPE(getListFields_array) == SVt_PVAV) ) {
+	if( !( SvROK(schema) && SvTYPE(SvRV(schema)) == SVt_PVAV ) ){
+		(void) ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "QueryFromList must be an ARRAY reference" );
+		goto getlistentry_multischema_end;
+	}
+	hv_store( hDummy, "queryFromList", 13, newSVsv(schema), 0 );
+	rv += rev_ARMultiSchemaQueryFromList( ctrl, hDummy, "queryFromList", &queryFromList );
+
+	if( qualifier && SvOK(qualifier) ){
+		if( !( SvROK(qualifier) && SvTYPE(SvRV(qualifier)) == SVt_PVHV ) ){
+			(void) ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "Qualifier must be a HASH reference" );
+			goto getlistentry_multischema_end;
+		}
+		hv_store( hDummy, "qualifierStruct", 15, newSVsv(qualifier), 0 );
+		rv += rev_ARMultiSchemaQualifierStruct( ctrl, hDummy, "qualifierStruct", &qualifierStruct );
+	}
+
+	if( fields && SvOK(fields) ){
+		if( !( SvROK(fields) && SvTYPE(SvRV(fields)) == SVt_PVAV ) ){
+			(void) ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "GetListFields must be an ARRAY reference" );
+			goto getlistentry_multischema_end;
+		}
+		hv_store( hDummy, "getListFields", 13, newSVsv(fields), 0 );
+		rv += rev_ARMultiSchemaFieldIdList( ctrl, hDummy, "getListFields", &getListFields );
+	}
+
+	if( items > field_off ){
+		int arg, c = (items - field_off) / 2;
+		if( (items - field_off) % 2 ){
+			(void) ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "Odd number of SortList arguments" );
+			goto getlistentry_multischema_end;
+		}
+
+		sortList.numItems = c;
+		sortList.listPtr = MALLOCNN( sizeof(ARMultiSchemaSortStruct) * c );
+		for( i2 = 0; i2 < c; ++i2 ){
+			arg = field_off + i2 * 2;
+			hv_store( hDummy, "_", 1, newSVsv(ST(arg)), 0 );
+			rv += rev_ARMultiSchemaFieldIdStruct( ctrl, hDummy, "_", &(sortList.listPtr[i2].fieldId) );
+			sortList.listPtr[i2].sortOrder = SvUV(ST(arg+1));
+		}
+	}
 
 
-	      getList = &getListFields;
-	      getListFields.numItems = av_len(getListFields_array) + 1;
-	      DBG( ("getListFields.numItems=%d\n", getListFields.numItems) );
-	      /* Newz(777,getListFields.fieldsList, getListFields.numItems,AREntryListFieldStruct); */
-	      getListFields.fieldsList = MALLOCNN( sizeof(AREntryListFieldStruct) * getListFields.numItems );
-	      /* set query field list */
-	      for( i = 0; i<getListFields.numItems; i++ ){
-	        SV **array_entry;
-	        /* get fieldID from array */
-	        if( ! (array_entry = av_fetch(getListFields_array, i, 0)) ){
-	          (void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_LFLDS);
-	          goto getlistentry_end;
-	        }
-	        getListFields.fieldsList[i].fieldId = SvIV(*array_entry);
-	        getListFields.fieldsList[i].columnWidth = 1;
-	        strncpy(getListFields.fieldsList[i].separator, " ", 2 );
-	        DBG( ("i=%d, fieldId=%d, columnWidth=%d, separator=\"%s\"\n", i,
-	             getListFields.fieldsList[i].fieldId,
-	             getListFields.fieldsList[i].columnWidth,
-	             getListFields.fieldsList[i].separator) );
-	      }
-	    }else{
-	      (void) ARError_add( AR_RETURN_ERROR, AP_ERR_LFLDS_TYPE);
-	      goto getlistentry_end;
-	    }
-	    /* increase the offset of the first sortList field by one */
-	    field_off ++;
-	  }
-#endif
-#ifdef XXX_DUMMY_SORTLIST
-	  /* build sortList */
-	  sortList.numItems = c;
-	  /* Newz(777,sortList.sortList, c,  ARSortStruct); */
-	  sortList.sortList = MALLOCNN( sizeof(ARSortStruct) * c );
-	  for (i=0; i<c; i++) {
-	    sortList.sortList[i].fieldId = SvIV(ST(i*2+field_off));
-	    sortList.sortList[i].sortOrder = SvIV(ST(i*2+field_off+1));
-	  }
-#endif
-
-	  if( rv != 0 ){
+	if( rv != 0 ){
 		ARError_add( AR_RETURN_ERROR, AP_ERR_PREREVFAIL );
-	    goto getlistentry_multischema_end;
-	  }
+		goto getlistentry_multischema_end;
+	}
 
-	  ret = ARGetListEntryWithMultiSchemaFields( ctrl,
+	ret = ARGetListEntryWithMultiSchemaFields( ctrl,
 		&queryFromList,
 		&getListFields,
 		&qualifierStruct, 
 		&sortList, 
 		firstRetrieve,
 		maxRetrieve, 
-        FALSE,
+		FALSE,
 		&entryFieldValueList,
 		NULL,
 		&status );
 #ifdef PROFILE
-	  ((ars_ctrl *)ctrl)->queries++;
+	((ars_ctrl *)ctrl)->queries++;
 #endif
-	  if( ARError( ret, status) ){
-	    goto getlistentry_multischema_end;
-	  }
-	  for( i = 0; i < entryFieldValueList.numItems; ++i ){
-	    HV * fieldValue_hash = newHV();
-	    unsigned int field;
-	    char keyStr[AR_MAX_NAME_SIZE + 12 + 1];
+	if( ARError( ret, status) ){
+		goto getlistentry_multischema_end;
+	}
+	  
+	for( i = 0; i < entryFieldValueList.numItems; ++i ){
+		HV * fieldValue_hash = newHV();
+		unsigned int field;
+		char keyStr[AR_MAX_NAME_SIZE + 1 + 12 + 1];
 
-	    for( field = 0; field < entryFieldValueList.listPtr[i].numItems; ++field ){
-	      ARMultiSchemaFieldValueStruct *valPtr = &(entryFieldValueList.listPtr[i].listPtr[field]);
-	      sprintf( keyStr, "%s|%ld", valPtr->fieldId.queryFromAlias, valPtr->fieldId.fieldId );
-	      hv_store( fieldValue_hash,
-	          keyStr, strlen(keyStr),
-	          perl_ARValueStruct( ctrl, &(valPtr->value) ),
-	          0 );
-	    }
-	    XPUSHs( sv_2mortal( newRV_noinc((SV *)fieldValue_hash) ) );
-	  }
-	  getlistentry_multischema_end:
-	  FreeARMultiSchemaFieldIdList( &getListFields, FALSE );
-	  FreeARMultiSchemaSortList( &sortList, FALSE );
-	  FreeARMultiSchemaFieldValueListList( &entryFieldValueList, FALSE );
+		for( field = 0; field < entryFieldValueList.listPtr[i].numItems; ++field ){
+			ARMultiSchemaFieldValueStruct *valPtr = &(entryFieldValueList.listPtr[i].listPtr[field]);
+			sprintf( keyStr, "%s.%ld", valPtr->fieldId.queryFromAlias, valPtr->fieldId.fieldId );
+			hv_store( fieldValue_hash,
+				keyStr, strlen(keyStr),
+				perl_ARValueStruct(ctrl, &(valPtr->value)),
+				0 );
+		}
+		XPUSHs( sv_2mortal( newRV_noinc((SV *)fieldValue_hash) ) );
+	}
+	getlistentry_multischema_end:
+	hv_undef( hDummy );
+	FreeARMultiSchemaFieldIdList( &getListFields, FALSE );
+	FreeARMultiSchemaSortList( &sortList, FALSE );
+	FreeARMultiSchemaFieldValueListList( &entryFieldValueList, FALSE );
 #else	/* prior to ARS 7.5 */
-	  (void) ARError_reset();
-	  Zero(&status, 1, ARStatusList);
-	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED,
-	  "ars_GetListEntryWithMultiSchemaFields() is only available in ARS >= 7.5");
+	(void) ARError_reset();
+	Zero(&status, 1, ARStatusList);
+	(void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED,
+	"ars_GetListEntryWithMultiSchemaFields() is only available in ARS >= 7.5");
 #endif
 	}
 

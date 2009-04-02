@@ -48,7 +48,7 @@ rev_ARActiveLinkSvcActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARActive
 						SV **val;
 						strncpy( k, "sampleSchema", 255 );
 						val = hv_fetch( h, "sampleSchema", 12, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->sampleSchema, SvPV_nolen(*val), sizeof(p->sampleSchema) );
 							}
@@ -63,7 +63,7 @@ rev_ARActiveLinkSvcActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARActive
 						SV **val;
 						strncpy( k, "inputFieldMapping", 255 );
 						val = hv_fetch( h, "inputFieldMapping", 17, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARFieldAssignList( ctrl, h, k, &(p->inputFieldMapping) );
 							}
@@ -78,7 +78,7 @@ rev_ARActiveLinkSvcActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARActive
 						SV **val;
 						strncpy( k, "sampleServer", 255 );
 						val = hv_fetch( h, "sampleServer", 12, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->sampleServer, SvPV_nolen(*val), sizeof(p->sampleServer) );
 							}
@@ -93,7 +93,7 @@ rev_ARActiveLinkSvcActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARActive
 						SV **val;
 						strncpy( k, "requestIdMap", 255 );
 						val = hv_fetch( h, "requestIdMap", 12, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->requestIdMap = SvIV(*val);
 							}
@@ -108,7 +108,7 @@ rev_ARActiveLinkSvcActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARActive
 						SV **val;
 						strncpy( k, "serviceSchema", 255 );
 						val = hv_fetch( h, "serviceSchema", 13, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->serviceSchema, SvPV_nolen(*val), sizeof(p->serviceSchema) );
 							}
@@ -123,7 +123,7 @@ rev_ARActiveLinkSvcActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARActive
 						SV **val;
 						strncpy( k, "outputFieldMapping", 255 );
 						val = hv_fetch( h, "outputFieldMapping", 18, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARFieldAssignList( ctrl, h, k, &(p->outputFieldMapping) );
 							}
@@ -138,7 +138,7 @@ rev_ARActiveLinkSvcActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARActive
 						SV **val;
 						strncpy( k, "serverName", 255 );
 						val = hv_fetch( h, "serverName", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->serverName, SvPV_nolen(*val), sizeof(p->serverName) );
 							}
@@ -206,7 +206,7 @@ rev_ARAttachLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARAttachLimitsS
 						SV **val;
 						strncpy( k, "maxSize", 255 );
 						val = hv_fetch( h, "maxSize", 7, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->maxSize = SvIV(*val);
 							}
@@ -221,7 +221,7 @@ rev_ARAttachLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARAttachLimitsS
 						SV **val;
 						strncpy( k, "attachType", 255 );
 						val = hv_fetch( h, "attachType", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->attachType = SvIV(*val);
 							}
@@ -289,7 +289,7 @@ rev_ARAuditInfoStruct( ARControlStruct *ctrl, HV *h, char *k, ARAuditInfoStruct 
 						SV **val;
 						strncpy( k, "enable", 255 );
 						val = hv_fetch( h, "enable", 6, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->enable = SvIV(*val);
 							}
@@ -304,7 +304,7 @@ rev_ARAuditInfoStruct( ARControlStruct *ctrl, HV *h, char *k, ARAuditInfoStruct 
 						SV **val;
 						strncpy( k, "query", 255 );
 						val = hv_fetch( h, "query", 5, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARQualifierStruct( ctrl, h, k, &(p->query) );
 							}
@@ -319,7 +319,7 @@ rev_ARAuditInfoStruct( ARControlStruct *ctrl, HV *h, char *k, ARAuditInfoStruct 
 						SV **val;
 						strncpy( k, "style", 255 );
 						val = hv_fetch( h, "style", 5, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->style = SvIV(*val);
 							}
@@ -334,7 +334,7 @@ rev_ARAuditInfoStruct( ARControlStruct *ctrl, HV *h, char *k, ARAuditInfoStruct 
 						SV **val;
 						strncpy( k, "formName", 255 );
 						val = hv_fetch( h, "formName", 8, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->formName, SvPV_nolen(*val), sizeof(p->formName) );
 							}
@@ -402,7 +402,7 @@ rev_ARAutomationStruct( ARControlStruct *ctrl, HV *h, char *k, ARAutomationStruc
 						SV **val;
 						strncpy( k, "isVisible", 255 );
 						val = hv_fetch( h, "isVisible", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								int flag = 0;
 								if( !strcmp(SvPV_nolen(*val),"true") ){
@@ -429,7 +429,7 @@ rev_ARAutomationStruct( ARControlStruct *ctrl, HV *h, char *k, ARAutomationStruc
 						SV **val;
 						strncpy( k, "autoServerName", 255 );
 						val = hv_fetch( h, "autoServerName", 14, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->autoServerName = strdup( SvPV_nolen(*val) );
 							}
@@ -444,7 +444,7 @@ rev_ARAutomationStruct( ARControlStruct *ctrl, HV *h, char *k, ARAutomationStruc
 						SV **val;
 						strncpy( k, "action", 255 );
 						val = hv_fetch( h, "action", 6, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->action = strdup( SvPV_nolen(*val) );
 							}
@@ -459,7 +459,7 @@ rev_ARAutomationStruct( ARControlStruct *ctrl, HV *h, char *k, ARAutomationStruc
 						SV **val;
 						strncpy( k, "methodList", 255 );
 						val = hv_fetch( h, "methodList", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARCOMMethodList( ctrl, h, k, &(p->methodList) );
 							}
@@ -474,7 +474,7 @@ rev_ARAutomationStruct( ARControlStruct *ctrl, HV *h, char *k, ARAutomationStruc
 						SV **val;
 						strncpy( k, "clsId", 255 );
 						val = hv_fetch( h, "clsId", 5, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->clsId = strdup( SvPV_nolen(*val) );
 							}
@@ -601,7 +601,7 @@ rev_ARBulkEntryReturn( ARControlStruct *ctrl, HV *h, char *k, ARBulkEntryReturn 
 										SV **val;
 										strncpy( k, "xmlCreateEntryReturn", 255 );
 										val = hv_fetch( h, "xmlCreateEntryReturn", 20, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARXMLEntryReturn( ctrl, h, k, &(p->u.xmlCreateEntryReturn) );
 											}
@@ -637,7 +637,7 @@ rev_ARBulkEntryReturn( ARControlStruct *ctrl, HV *h, char *k, ARBulkEntryReturn 
 										SV **val;
 										strncpy( k, "setEntryReturn", 255 );
 										val = hv_fetch( h, "setEntryReturn", 14, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARStatusList( ctrl, h, k, &(p->u.setEntryReturn) );
 											}
@@ -673,7 +673,7 @@ rev_ARBulkEntryReturn( ARControlStruct *ctrl, HV *h, char *k, ARBulkEntryReturn 
 										SV **val;
 										strncpy( k, "xmlSetEntryReturn", 255 );
 										val = hv_fetch( h, "xmlSetEntryReturn", 17, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARXMLEntryReturn( ctrl, h, k, &(p->u.xmlSetEntryReturn) );
 											}
@@ -709,7 +709,7 @@ rev_ARBulkEntryReturn( ARControlStruct *ctrl, HV *h, char *k, ARBulkEntryReturn 
 										SV **val;
 										strncpy( k, "mergeEntryReturn", 255 );
 										val = hv_fetch( h, "mergeEntryReturn", 16, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_AREntryReturn( ctrl, h, k, &(p->u.mergeEntryReturn) );
 											}
@@ -745,7 +745,7 @@ rev_ARBulkEntryReturn( ARControlStruct *ctrl, HV *h, char *k, ARBulkEntryReturn 
 										SV **val;
 										strncpy( k, "xmlDeleteEntryReturn", 255 );
 										val = hv_fetch( h, "xmlDeleteEntryReturn", 20, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARStatusList( ctrl, h, k, &(p->u.xmlDeleteEntryReturn) );
 											}
@@ -781,7 +781,7 @@ rev_ARBulkEntryReturn( ARControlStruct *ctrl, HV *h, char *k, ARBulkEntryReturn 
 										SV **val;
 										strncpy( k, "deleteEntryReturn", 255 );
 										val = hv_fetch( h, "deleteEntryReturn", 17, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARStatusList( ctrl, h, k, &(p->u.deleteEntryReturn) );
 											}
@@ -817,7 +817,7 @@ rev_ARBulkEntryReturn( ARControlStruct *ctrl, HV *h, char *k, ARBulkEntryReturn 
 										SV **val;
 										strncpy( k, "createEntryReturn", 255 );
 										val = hv_fetch( h, "createEntryReturn", 17, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_AREntryReturn( ctrl, h, k, &(p->u.createEntryReturn) );
 											}
@@ -1120,7 +1120,7 @@ rev_ARCOMMethodParmStruct( ARControlStruct *ctrl, HV *h, char *k, ARCOMMethodPar
 						SV **val;
 						strncpy( k, "parmType", 255 );
 						val = hv_fetch( h, "parmType", 8, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->parmType = SvIV(*val);
 							}
@@ -1135,7 +1135,7 @@ rev_ARCOMMethodParmStruct( ARControlStruct *ctrl, HV *h, char *k, ARCOMMethodPar
 						SV **val;
 						strncpy( k, "parmValue", 255 );
 						val = hv_fetch( h, "parmValue", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARCOMValueStruct( ctrl, h, k, &(p->parmValue) );
 							}
@@ -1150,7 +1150,7 @@ rev_ARCOMMethodParmStruct( ARControlStruct *ctrl, HV *h, char *k, ARCOMMethodPar
 						SV **val;
 						strncpy( k, "parmName", 255 );
 						val = hv_fetch( h, "parmName", 8, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->parmName = strdup( SvPV_nolen(*val) );
 							}
@@ -1218,7 +1218,7 @@ rev_ARCOMMethodStruct( ARControlStruct *ctrl, HV *h, char *k, ARCOMMethodStruct 
 						SV **val;
 						strncpy( k, "methodName", 255 );
 						val = hv_fetch( h, "methodName", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->methodName = strdup( SvPV_nolen(*val) );
 							}
@@ -1233,7 +1233,7 @@ rev_ARCOMMethodStruct( ARControlStruct *ctrl, HV *h, char *k, ARCOMMethodStruct 
 						SV **val;
 						strncpy( k, "methodIId", 255 );
 						val = hv_fetch( h, "methodIId", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->methodIId = strdup( SvPV_nolen(*val) );
 							}
@@ -1248,7 +1248,7 @@ rev_ARCOMMethodStruct( ARControlStruct *ctrl, HV *h, char *k, ARCOMMethodStruct 
 						SV **val;
 						strncpy( k, "methodType", 255 );
 						val = hv_fetch( h, "methodType", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->methodType = SvIV(*val);
 							}
@@ -1263,7 +1263,7 @@ rev_ARCOMMethodStruct( ARControlStruct *ctrl, HV *h, char *k, ARCOMMethodStruct 
 						SV **val;
 						strncpy( k, "parameterList", 255 );
 						val = hv_fetch( h, "parameterList", 13, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARCOMMethodParmList( ctrl, h, k, &(p->parameterList) );
 							}
@@ -1278,7 +1278,7 @@ rev_ARCOMMethodStruct( ARControlStruct *ctrl, HV *h, char *k, ARCOMMethodStruct 
 						SV **val;
 						strncpy( k, "methodValue", 255 );
 						val = hv_fetch( h, "methodValue", 11, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARCOMValueStruct( ctrl, h, k, &(p->methodValue) );
 							}
@@ -1382,7 +1382,7 @@ rev_ARCOMValueStruct( ARControlStruct *ctrl, HV *h, char *k, ARCOMValueStruct *p
 										SV **val;
 										strncpy( k, "value", 255 );
 										val = hv_fetch( h, "value", 5, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARValueStruct( ctrl, h, k, "dataType", &(p->u.value) );
 											}
@@ -1418,7 +1418,7 @@ rev_ARCOMValueStruct( ARControlStruct *ctrl, HV *h, char *k, ARCOMValueStruct *p
 										SV **val;
 										strncpy( k, "fieldId", 255 );
 										val = hv_fetch( h, "fieldId", 7, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.fieldId = SvIV(*val);
 											}
@@ -1460,7 +1460,7 @@ rev_ARCOMValueStruct( ARControlStruct *ctrl, HV *h, char *k, ARCOMValueStruct *p
 						SV **val;
 						strncpy( k, "valueIId", 255 );
 						val = hv_fetch( h, "valueIId", 8, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->valueIId = strdup( SvPV_nolen(*val) );
 							}
@@ -1475,7 +1475,7 @@ rev_ARCOMValueStruct( ARControlStruct *ctrl, HV *h, char *k, ARCOMValueStruct *p
 						SV **val;
 						strncpy( k, "valueType", 255 );
 						val = hv_fetch( h, "valueType", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->valueType = SvIV(*val);
 							}
@@ -1490,7 +1490,7 @@ rev_ARCOMValueStruct( ARControlStruct *ctrl, HV *h, char *k, ARCOMValueStruct *p
 						SV **val;
 						strncpy( k, "transId", 255 );
 						val = hv_fetch( h, "transId", 7, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->transId = SvIV(*val);
 							}
@@ -1558,7 +1558,7 @@ rev_ARCallGuideStruct( ARControlStruct *ctrl, HV *h, char *k, ARCallGuideStruct 
 						SV **val;
 						strncpy( k, "inputValueFieldPairs", 255 );
 						val = hv_fetch( h, "inputValueFieldPairs", 20, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARFieldAssignList( ctrl, h, k, &(p->inputValueFieldPairs) );
 							}
@@ -1573,7 +1573,7 @@ rev_ARCallGuideStruct( ARControlStruct *ctrl, HV *h, char *k, ARCallGuideStruct 
 						SV **val;
 						strncpy( k, "guideName", 255 );
 						val = hv_fetch( h, "guideName", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->guideName, SvPV_nolen(*val), sizeof(p->guideName) );
 							}
@@ -1588,7 +1588,7 @@ rev_ARCallGuideStruct( ARControlStruct *ctrl, HV *h, char *k, ARCallGuideStruct 
 						SV **val;
 						strncpy( k, "sampleGuide", 255 );
 						val = hv_fetch( h, "sampleGuide", 11, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->sampleGuide, SvPV_nolen(*val), sizeof(p->sampleGuide) );
 							}
@@ -1603,7 +1603,7 @@ rev_ARCallGuideStruct( ARControlStruct *ctrl, HV *h, char *k, ARCallGuideStruct 
 						SV **val;
 						strncpy( k, "sampleServer", 255 );
 						val = hv_fetch( h, "sampleServer", 12, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->sampleServer, SvPV_nolen(*val), sizeof(p->sampleServer) );
 							}
@@ -1618,7 +1618,7 @@ rev_ARCallGuideStruct( ARControlStruct *ctrl, HV *h, char *k, ARCallGuideStruct 
 						SV **val;
 						strncpy( k, "loopTable", 255 );
 						val = hv_fetch( h, "loopTable", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->guideTableId = SvIV(*val);
 							}
@@ -1633,7 +1633,7 @@ rev_ARCallGuideStruct( ARControlStruct *ctrl, HV *h, char *k, ARCallGuideStruct 
 						SV **val;
 						strncpy( k, "guideMode", 255 );
 						val = hv_fetch( h, "guideMode", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->guideMode = SvIV(*val);
 							}
@@ -1648,7 +1648,7 @@ rev_ARCallGuideStruct( ARControlStruct *ctrl, HV *h, char *k, ARCallGuideStruct 
 						SV **val;
 						strncpy( k, "serverName", 255 );
 						val = hv_fetch( h, "serverName", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->serverName, SvPV_nolen(*val), sizeof(p->serverName) );
 							}
@@ -1663,7 +1663,7 @@ rev_ARCallGuideStruct( ARControlStruct *ctrl, HV *h, char *k, ARCallGuideStruct 
 						SV **val;
 						strncpy( k, "outputValueFieldPairs", 255 );
 						val = hv_fetch( h, "outputValueFieldPairs", 21, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARFieldAssignList( ctrl, h, k, &(p->outputValueFieldPairs) );
 							}
@@ -1731,7 +1731,7 @@ rev_ARCharLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharLimitsStruc
 						SV **val;
 						strncpy( k, "pattern", 255 );
 						val = hv_fetch( h, "pattern", 7, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->pattern = strdup( SvPV_nolen(*val) );
 							}
@@ -1746,7 +1746,7 @@ rev_ARCharLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharLimitsStruc
 						SV **val;
 						strncpy( k, "charMenu", 255 );
 						val = hv_fetch( h, "charMenu", 8, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->charMenu, SvPV_nolen(*val), sizeof(p->charMenu) );
 							}
@@ -1761,7 +1761,7 @@ rev_ARCharLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharLimitsStruc
 						SV **val;
 						strncpy( k, "maxLength", 255 );
 						val = hv_fetch( h, "maxLength", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->maxLength = SvIV(*val);
 							}
@@ -1776,7 +1776,7 @@ rev_ARCharLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharLimitsStruc
 						SV **val;
 						strncpy( k, "match", 255 );
 						val = hv_fetch( h, "match", 5, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								int flag = 0;
 								if( !strcmp(SvPV_nolen(*val),"leading") ){
@@ -1807,7 +1807,7 @@ rev_ARCharLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharLimitsStruc
 						SV **val;
 						strncpy( k, "fullTextOptions", 255 );
 						val = hv_fetch( h, "fullTextOptions", 15, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								int flag = 0;
 								if( !strcmp(SvPV_nolen(*val),"indexed") ){
@@ -1834,7 +1834,7 @@ rev_ARCharLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharLimitsStruc
 						SV **val;
 						strncpy( k, "menuStyle", 255 );
 						val = hv_fetch( h, "menuStyle", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								int flag = 0;
 								if( !strcmp(SvPV_nolen(*val),"append") ){
@@ -1914,7 +1914,7 @@ rev_ARCharMenuDDFieldStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuDD
 						SV **val;
 						strncpy( k, "fieldType", 255 );
 						val = hv_fetch( h, "fieldType", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->fieldType = SvIV(*val);
 							}
@@ -1929,7 +1929,7 @@ rev_ARCharMenuDDFieldStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuDD
 						SV **val;
 						strncpy( k, "schema", 255 );
 						val = hv_fetch( h, "schema", 6, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->schema, SvPV_nolen(*val), sizeof(p->schema) );
 							}
@@ -1997,7 +1997,7 @@ rev_ARCharMenuDDFormStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuDDF
 						SV **val;
 						strncpy( k, "includeHidden", 255 );
 						val = hv_fetch( h, "includeHidden", 13, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								int flag = 0;
 								if( !strcmp(SvPV_nolen(*val),"true") ){
@@ -2024,7 +2024,7 @@ rev_ARCharMenuDDFormStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuDDF
 						SV **val;
 						strncpy( k, "schemaType", 255 );
 						val = hv_fetch( h, "schemaType", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->schemaType = SvIV(*val);
 							}
@@ -2126,7 +2126,7 @@ rev_ARCharMenuDDStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuDDStruc
 						SV **val;
 						strncpy( k, "structType", 255 );
 						val = hv_fetch( h, "structType", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->structType = SvIV(*val);
 							}
@@ -2141,7 +2141,7 @@ rev_ARCharMenuDDStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuDDStruc
 						SV **val;
 						strncpy( k, "nameType", 255 );
 						val = hv_fetch( h, "nameType", 8, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->nameType = SvIV(*val);
 							}
@@ -2156,7 +2156,7 @@ rev_ARCharMenuDDStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuDDStruc
 						SV **val;
 						strncpy( k, "valueFormat", 255 );
 						val = hv_fetch( h, "valueFormat", 11, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->valueFormat = SvIV(*val);
 							}
@@ -2171,7 +2171,7 @@ rev_ARCharMenuDDStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuDDStruc
 						SV **val;
 						strncpy( k, "server", 255 );
 						val = hv_fetch( h, "server", 6, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->server, SvPV_nolen(*val), sizeof(p->server) );
 							}
@@ -2239,7 +2239,7 @@ rev_ARCharMenuFileStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuFileS
 						SV **val;
 						strncpy( k, "filename", 255 );
 						val = hv_fetch( h, "filename", 8, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->filename = strdup( SvPV_nolen(*val) );
 							}
@@ -2254,7 +2254,7 @@ rev_ARCharMenuFileStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuFileS
 						SV **val;
 						strncpy( k, "fileLocation", 255 );
 						val = hv_fetch( h, "fileLocation", 12, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->fileLocation = SvIV(*val);
 							}
@@ -2397,7 +2397,7 @@ rev_ARCharMenuQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuQuer
 						SV **val;
 						strncpy( k, "labelField", 255 );
 						val = hv_fetch( h, "labelField", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								copyUIntArray( AR_MAX_LEVELS_DYNAMIC_MENU, p->labelField, *val );
 							}
@@ -2412,7 +2412,7 @@ rev_ARCharMenuQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuQuer
 						SV **val;
 						strncpy( k, "qualifier", 255 );
 						val = hv_fetch( h, "qualifier", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARQualifierStruct( ctrl, h, k, &(p->qualifier) );
 							}
@@ -2427,7 +2427,7 @@ rev_ARCharMenuQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuQuer
 						SV **val;
 						strncpy( k, "sortOnLabel", 255 );
 						val = hv_fetch( h, "sortOnLabel", 11, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->sortOnLabel = (char) SvIV(*val);
 							}
@@ -2442,7 +2442,7 @@ rev_ARCharMenuQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuQuer
 						SV **val;
 						strncpy( k, "server", 255 );
 						val = hv_fetch( h, "server", 6, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->server, SvPV_nolen(*val), sizeof(p->server) );
 							}
@@ -2457,7 +2457,7 @@ rev_ARCharMenuQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuQuer
 						SV **val;
 						strncpy( k, "valueField", 255 );
 						val = hv_fetch( h, "valueField", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->valueField = SvIV(*val);
 							}
@@ -2472,7 +2472,7 @@ rev_ARCharMenuQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuQuer
 						SV **val;
 						strncpy( k, "schema", 255 );
 						val = hv_fetch( h, "schema", 6, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->schema, SvPV_nolen(*val), sizeof(p->schema) );
 							}
@@ -2540,7 +2540,7 @@ rev_ARCharMenuSQLStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuSQLStr
 						SV **val;
 						strncpy( k, "labelIndex", 255 );
 						val = hv_fetch( h, "labelIndex", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								copyIntArray( AR_MAX_LEVELS_DYNAMIC_MENU, p->labelIndex, *val );
 							}
@@ -2555,7 +2555,7 @@ rev_ARCharMenuSQLStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuSQLStr
 						SV **val;
 						strncpy( k, "sqlCommand", 255 );
 						val = hv_fetch( h, "sqlCommand", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->sqlCommand = strdup( SvPV_nolen(*val) );
 							}
@@ -2570,7 +2570,7 @@ rev_ARCharMenuSQLStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuSQLStr
 						SV **val;
 						strncpy( k, "server", 255 );
 						val = hv_fetch( h, "server", 6, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->server, SvPV_nolen(*val), sizeof(p->server) );
 							}
@@ -2585,7 +2585,7 @@ rev_ARCharMenuSQLStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuSQLStr
 						SV **val;
 						strncpy( k, "valueIndex", 255 );
 						val = hv_fetch( h, "valueIndex", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->valueIndex = SvIV(*val);
 							}
@@ -2653,7 +2653,7 @@ rev_ARCharMenuSSStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuSSStruc
 						SV **val;
 						strncpy( k, "externList", 255 );
 						val = hv_fetch( h, "externList", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARQualifierList( ctrl, h, k, &(p->externList) );
 							}
@@ -2668,7 +2668,7 @@ rev_ARCharMenuSSStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuSSStruc
 						SV **val;
 						strncpy( k, "server", 255 );
 						val = hv_fetch( h, "server", 6, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->server = strdup( SvPV_nolen(*val) );
 							}
@@ -2683,7 +2683,7 @@ rev_ARCharMenuSSStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuSSStruc
 						SV **val;
 						strncpy( k, "parameterList", 255 );
 						val = hv_fetch( h, "parameterList", 13, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARFieldValueList( ctrl, h, k, &(p->parameterList) );
 							}
@@ -2698,7 +2698,7 @@ rev_ARCharMenuSSStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuSSStruc
 						SV **val;
 						strncpy( k, "schema", 255 );
 						val = hv_fetch( h, "schema", 6, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->schema = strdup( SvPV_nolen(*val) );
 							}
@@ -2713,7 +2713,7 @@ rev_ARCharMenuSSStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuSSStruc
 						SV **val;
 						strncpy( k, "menuName", 255 );
 						val = hv_fetch( h, "menuName", 8, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->menuName, SvPV_nolen(*val), sizeof(p->menuName) );
 							}
@@ -2728,7 +2728,7 @@ rev_ARCharMenuSSStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharMenuSSStruc
 						SV **val;
 						strncpy( k, "keywordList", 255 );
 						val = hv_fetch( h, "keywordList", 11, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARFieldValueList( ctrl, h, k, &(p->keywordList) );
 							}
@@ -2796,7 +2796,7 @@ rev_ARCloseWndStruct( ARControlStruct *ctrl, HV *h, char *k, ARCloseWndStruct *p
 						SV **val;
 						strncpy( k, "closeAll", 255 );
 						val = hv_fetch( h, "closeAll", 8, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								int flag = 0;
 								if( !strcmp(SvPV_nolen(*val),"true") ){
@@ -2876,7 +2876,7 @@ rev_ARColumnLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARColumnLimitsS
 						SV **val;
 						strncpy( k, "parent", 255 );
 						val = hv_fetch( h, "parent", 6, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->parent = SvIV(*val);
 							}
@@ -2891,7 +2891,7 @@ rev_ARColumnLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARColumnLimitsS
 						SV **val;
 						strncpy( k, "dataSource", 255 );
 						val = hv_fetch( h, "dataSource", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->dataSource = SvIV(*val);
 							}
@@ -2906,7 +2906,7 @@ rev_ARColumnLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARColumnLimitsS
 						SV **val;
 						strncpy( k, "colLength", 255 );
 						val = hv_fetch( h, "colLength", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->colLength = SvIV(*val);
 							}
@@ -2921,7 +2921,7 @@ rev_ARColumnLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARColumnLimitsS
 						SV **val;
 						strncpy( k, "dataField", 255 );
 						val = hv_fetch( h, "dataField", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->dataField = SvIV(*val);
 							}
@@ -2989,7 +2989,7 @@ rev_ARCommitChangesStruct( ARControlStruct *ctrl, HV *h, char *k, ARCommitChange
 						SV **val;
 						strncpy( k, "schemaName", 255 );
 						val = hv_fetch( h, "schemaName", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->schemaName, SvPV_nolen(*val), sizeof(p->schemaName) );
 							}
@@ -3111,7 +3111,7 @@ rev_ARCompoundSchema( ARControlStruct *ctrl, HV *h, char *k, ARCompoundSchema *p
 										SV **val;
 										strncpy( k, "vendor", 255 );
 										val = hv_fetch( h, "vendor", 6, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARVendorSchema( ctrl, h, k, &(p->u.vendor) );
 											}
@@ -3147,7 +3147,7 @@ rev_ARCompoundSchema( ARControlStruct *ctrl, HV *h, char *k, ARCompoundSchema *p
 										SV **val;
 										strncpy( k, "view", 255 );
 										val = hv_fetch( h, "view", 4, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARViewSchema( ctrl, h, k, &(p->u.view) );
 											}
@@ -3183,7 +3183,7 @@ rev_ARCompoundSchema( ARControlStruct *ctrl, HV *h, char *k, ARCompoundSchema *p
 										SV **val;
 										strncpy( k, "join", 255 );
 										val = hv_fetch( h, "join", 4, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARJoinSchema( ctrl, h, k, &(p->u.join) );
 											}
@@ -3340,7 +3340,7 @@ rev_ARContainerOwnerObj( ARControlStruct *ctrl, HV *h, char *k, ARContainerOwner
 						SV **val;
 						strncpy( k, "ownerName", 255 );
 						val = hv_fetch( h, "ownerName", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->ownerName, SvPV_nolen(*val), sizeof(p->ownerName) );
 							}
@@ -3355,7 +3355,7 @@ rev_ARContainerOwnerObj( ARControlStruct *ctrl, HV *h, char *k, ARContainerOwner
 						SV **val;
 						strncpy( k, "type", 255 );
 						val = hv_fetch( h, "type", 4, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								int flag = 0;
 								if( !strcmp(SvPV_nolen(*val),"schema") ){
@@ -3589,7 +3589,7 @@ rev_ARCurrencyDetailStruct( ARControlStruct *ctrl, HV *h, char *k, ARCurrencyDet
 						SV **val;
 						strncpy( k, "currencyCode", 255 );
 						val = hv_fetch( h, "currencyCode", 12, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->currencyCode, SvPV_nolen(*val), sizeof(p->currencyCode) );
 							}
@@ -3604,7 +3604,7 @@ rev_ARCurrencyDetailStruct( ARControlStruct *ctrl, HV *h, char *k, ARCurrencyDet
 						SV **val;
 						strncpy( k, "precision", 255 );
 						val = hv_fetch( h, "precision", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->precision = SvIV(*val);
 							}
@@ -3672,7 +3672,7 @@ rev_ARCurrencyLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARCurrencyLim
 						SV **val;
 						strncpy( k, "rangeHigh", 255 );
 						val = hv_fetch( h, "rangeHigh", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->rangeHigh = strdup( SvPV_nolen(*val) );
 							}
@@ -3687,7 +3687,7 @@ rev_ARCurrencyLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARCurrencyLim
 						SV **val;
 						strncpy( k, "functionalCurrencies", 255 );
 						val = hv_fetch( h, "functionalCurrencies", 20, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARCurrencyDetailList( ctrl, h, k, &(p->functionalCurrencies) );
 							}
@@ -3702,7 +3702,7 @@ rev_ARCurrencyLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARCurrencyLim
 						SV **val;
 						strncpy( k, "allowableCurrencies", 255 );
 						val = hv_fetch( h, "allowableCurrencies", 19, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARCurrencyDetailList( ctrl, h, k, &(p->allowableCurrencies) );
 							}
@@ -3717,7 +3717,7 @@ rev_ARCurrencyLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARCurrencyLim
 						SV **val;
 						strncpy( k, "precision", 255 );
 						val = hv_fetch( h, "precision", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->precision = SvIV(*val);
 							}
@@ -3732,7 +3732,7 @@ rev_ARCurrencyLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARCurrencyLim
 						SV **val;
 						strncpy( k, "rangeLow", 255 );
 						val = hv_fetch( h, "rangeLow", 8, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->rangeLow = strdup( SvPV_nolen(*val) );
 							}
@@ -3800,7 +3800,7 @@ rev_ARCurrencyPartStruct( ARControlStruct *ctrl, HV *h, char *k, ARCurrencyPartS
 						SV **val;
 						strncpy( k, "currencyCode", 255 );
 						val = hv_fetch( h, "currencyCode", 12, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->currencyCode, SvPV_nolen(*val), sizeof(p->currencyCode) );
 							}
@@ -3815,7 +3815,7 @@ rev_ARCurrencyPartStruct( ARControlStruct *ctrl, HV *h, char *k, ARCurrencyPartS
 						SV **val;
 						strncpy( k, "partTag", 255 );
 						val = hv_fetch( h, "partTag", 7, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->partTag = SvIV(*val);
 							}
@@ -3830,7 +3830,7 @@ rev_ARCurrencyPartStruct( ARControlStruct *ctrl, HV *h, char *k, ARCurrencyPartS
 						SV **val;
 						strncpy( k, "fieldId", 255 );
 						val = hv_fetch( h, "fieldId", 7, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->fieldId = SvIV(*val);
 							}
@@ -3898,7 +3898,7 @@ rev_ARDDEStruct( ARControlStruct *ctrl, HV *h, char *k, ARDDEStruct *p ){
 						SV **val;
 						strncpy( k, "topic", 255 );
 						val = hv_fetch( h, "topic", 5, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->topic = strdup( SvPV_nolen(*val) );
 							}
@@ -3913,7 +3913,7 @@ rev_ARDDEStruct( ARControlStruct *ctrl, HV *h, char *k, ARDDEStruct *p ){
 						SV **val;
 						strncpy( k, "item", 255 );
 						val = hv_fetch( h, "item", 4, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->item = strdup( SvPV_nolen(*val) );
 							}
@@ -3928,7 +3928,7 @@ rev_ARDDEStruct( ARControlStruct *ctrl, HV *h, char *k, ARDDEStruct *p ){
 						SV **val;
 						strncpy( k, "action", 255 );
 						val = hv_fetch( h, "action", 6, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->action = SvIV(*val);
 							}
@@ -3943,7 +3943,7 @@ rev_ARDDEStruct( ARControlStruct *ctrl, HV *h, char *k, ARDDEStruct *p ){
 						SV **val;
 						strncpy( k, "serviceName", 255 );
 						val = hv_fetch( h, "serviceName", 11, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->serviceName = strdup( SvPV_nolen(*val) );
 							}
@@ -3958,7 +3958,7 @@ rev_ARDDEStruct( ARControlStruct *ctrl, HV *h, char *k, ARDDEStruct *p ){
 						SV **val;
 						strncpy( k, "command", 255 );
 						val = hv_fetch( h, "command", 7, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->command = strdup( SvPV_nolen(*val) );
 							}
@@ -3973,7 +3973,7 @@ rev_ARDDEStruct( ARControlStruct *ctrl, HV *h, char *k, ARDDEStruct *p ){
 						SV **val;
 						strncpy( k, "pathToProgram", 255 );
 						val = hv_fetch( h, "pathToProgram", 13, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->pathToProgram = strdup( SvPV_nolen(*val) );
 							}
@@ -4041,7 +4041,7 @@ rev_ARDateLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARDateLimitsStruc
 						SV **val;
 						strncpy( k, "minDate", 255 );
 						val = hv_fetch( h, "minDate", 7, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->minDate = SvIV(*val);
 							}
@@ -4056,7 +4056,7 @@ rev_ARDateLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARDateLimitsStruc
 						SV **val;
 						strncpy( k, "maxDate", 255 );
 						val = hv_fetch( h, "maxDate", 7, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->maxDate = SvIV(*val);
 							}
@@ -4124,7 +4124,7 @@ rev_ARDayStruct( ARControlStruct *ctrl, HV *h, char *k, ARDayStruct *p ){
 						SV **val;
 						strncpy( k, "weekday", 255 );
 						val = hv_fetch( h, "weekday", 7, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->weekday = SvIV(*val);
 							}
@@ -4139,7 +4139,7 @@ rev_ARDayStruct( ARControlStruct *ctrl, HV *h, char *k, ARDayStruct *p ){
 						SV **val;
 						strncpy( k, "minute", 255 );
 						val = hv_fetch( h, "minute", 6, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->minute = SvIV(*val);
 							}
@@ -4154,7 +4154,7 @@ rev_ARDayStruct( ARControlStruct *ctrl, HV *h, char *k, ARDayStruct *p ){
 						SV **val;
 						strncpy( k, "hourmask", 255 );
 						val = hv_fetch( h, "hourmask", 8, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->hourmask = SvIV(*val);
 							}
@@ -4169,7 +4169,7 @@ rev_ARDayStruct( ARControlStruct *ctrl, HV *h, char *k, ARDayStruct *p ){
 						SV **val;
 						strncpy( k, "monthday", 255 );
 						val = hv_fetch( h, "monthday", 8, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->monthday = SvIV(*val);
 							}
@@ -4237,7 +4237,7 @@ rev_ARDecimalLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARDecimalLimit
 						SV **val;
 						strncpy( k, "rangeHigh", 255 );
 						val = hv_fetch( h, "rangeHigh", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->rangeHigh = strdup( SvPV_nolen(*val) );
 							}
@@ -4252,7 +4252,7 @@ rev_ARDecimalLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARDecimalLimit
 						SV **val;
 						strncpy( k, "precision", 255 );
 						val = hv_fetch( h, "precision", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->precision = SvIV(*val);
 							}
@@ -4267,7 +4267,7 @@ rev_ARDecimalLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARDecimalLimit
 						SV **val;
 						strncpy( k, "rangeLow", 255 );
 						val = hv_fetch( h, "rangeLow", 8, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->rangeLow = strdup( SvPV_nolen(*val) );
 							}
@@ -4335,7 +4335,7 @@ rev_ARDiaryLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARDiaryLimitsStr
 						SV **val;
 						strncpy( k, "fullTextOptions", 255 );
 						val = hv_fetch( h, "fullTextOptions", 15, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->fullTextOptions = SvIV(*val);
 							}
@@ -4403,7 +4403,7 @@ rev_ARDisplayLimits( ARControlStruct *ctrl, HV *h, char *k, ARDisplayLimits *p )
 						SV **val;
 						strncpy( k, "maxLength", 255 );
 						val = hv_fetch( h, "maxLength", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->maxLength = SvIV(*val);
 							}
@@ -4621,7 +4621,7 @@ rev_AREntryListFieldStruct( ARControlStruct *ctrl, HV *h, char *k, AREntryListFi
 						SV **val;
 						strncpy( k, "separator", 255 );
 						val = hv_fetch( h, "separator", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->separator, SvPV_nolen(*val), sizeof(p->separator) );
 							}
@@ -4636,7 +4636,7 @@ rev_AREntryListFieldStruct( ARControlStruct *ctrl, HV *h, char *k, AREntryListFi
 						SV **val;
 						strncpy( k, "columnWidth", 255 );
 						val = hv_fetch( h, "columnWidth", 11, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->columnWidth = SvIV(*val);
 							}
@@ -4651,7 +4651,7 @@ rev_AREntryListFieldStruct( ARControlStruct *ctrl, HV *h, char *k, AREntryListFi
 						SV **val;
 						strncpy( k, "fieldId", 255 );
 						val = hv_fetch( h, "fieldId", 7, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->fieldId = SvIV(*val);
 							}
@@ -4794,7 +4794,7 @@ rev_AREntryListFieldValueStruct( ARControlStruct *ctrl, HV *h, char *k, AREntryL
 						SV **val;
 						strncpy( k, "entryId", 255 );
 						val = hv_fetch( h, "entryId", 7, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_AREntryIdList( ctrl, h, k, &(p->entryId) );
 							}
@@ -4809,7 +4809,7 @@ rev_AREntryListFieldValueStruct( ARControlStruct *ctrl, HV *h, char *k, AREntryL
 						SV **val;
 						strncpy( k, "entryValues", 255 );
 						val = hv_fetch( h, "entryValues", 11, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->entryValues = MALLOCNN(sizeof(ARFieldValueList)); rev_ARFieldValueList( ctrl, h, k, p->entryValues );
 							}
@@ -4877,7 +4877,7 @@ rev_AREntryReturn( ARControlStruct *ctrl, HV *h, char *k, AREntryReturn *p ){
 						SV **val;
 						strncpy( k, "entryId", 255 );
 						val = hv_fetch( h, "entryId", 7, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->entryId, SvPV_nolen(*val), sizeof(p->entryId) );
 							}
@@ -4892,7 +4892,7 @@ rev_AREntryReturn( ARControlStruct *ctrl, HV *h, char *k, AREntryReturn *p ){
 						SV **val;
 						strncpy( k, "status", 255 );
 						val = hv_fetch( h, "status", 6, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARStatusList( ctrl, h, k, &(p->status) );
 							}
@@ -5035,7 +5035,7 @@ rev_AREnumItemStruct( ARControlStruct *ctrl, HV *h, char *k, AREnumItemStruct *p
 						SV **val;
 						strncpy( k, "itemNumber", 255 );
 						val = hv_fetch( h, "itemNumber", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->itemNumber = SvIV(*val);
 							}
@@ -5050,7 +5050,7 @@ rev_AREnumItemStruct( ARControlStruct *ctrl, HV *h, char *k, AREnumItemStruct *p
 						SV **val;
 						strncpy( k, "itemName", 255 );
 						val = hv_fetch( h, "itemName", 8, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->itemName, SvPV_nolen(*val), sizeof(p->itemName) );
 							}
@@ -5118,7 +5118,7 @@ rev_AREnumLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, AREnumLimitsStruc
 						SV **val;
 						strncpy( k, "enumLimits", 255 );
 						val = hv_fetch( h, "enumLimits", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 							
 								{
@@ -5172,7 +5172,7 @@ rev_AREnumLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, AREnumLimitsStruc
 													SV **val;
 													strncpy( k, "queryList", 255 );
 													val = hv_fetch( h, "queryList", 9, 0 );
-													if( val	&& *val ){
+													if( val && *val && SvOK(*val) ){
 														{
 															rev_AREnumQueryStruct( ctrl, h, k, &(p->u.queryList) );
 														}
@@ -5208,7 +5208,7 @@ rev_AREnumLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, AREnumLimitsStruc
 													SV **val;
 													strncpy( k, "customList", 255 );
 													val = hv_fetch( h, "customList", 10, 0 );
-													if( val	&& *val ){
+													if( val && *val && SvOK(*val) ){
 														{
 															rev_AREnumItemList( ctrl, h, k, &(p->u.customList) );
 														}
@@ -5244,7 +5244,7 @@ rev_AREnumLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, AREnumLimitsStruc
 													SV **val;
 													strncpy( k, "regularList", 255 );
 													val = hv_fetch( h, "regularList", 11, 0 );
-													if( val	&& *val ){
+													if( val && *val && SvOK(*val) ){
 														{
 															rev_ARNameList( ctrl, h, k, &(p->u.regularList) );
 														}
@@ -5336,7 +5336,7 @@ rev_AREnumQueryStruct( ARControlStruct *ctrl, HV *h, char *k, AREnumQueryStruct 
 						SV **val;
 						strncpy( k, "numberField", 255 );
 						val = hv_fetch( h, "numberField", 11, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->numberField = SvIV(*val);
 							}
@@ -5351,7 +5351,7 @@ rev_AREnumQueryStruct( ARControlStruct *ctrl, HV *h, char *k, AREnumQueryStruct 
 						SV **val;
 						strncpy( k, "nameField", 255 );
 						val = hv_fetch( h, "nameField", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->nameField = SvIV(*val);
 							}
@@ -5366,7 +5366,7 @@ rev_AREnumQueryStruct( ARControlStruct *ctrl, HV *h, char *k, AREnumQueryStruct 
 						SV **val;
 						strncpy( k, "qualifier", 255 );
 						val = hv_fetch( h, "qualifier", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARQualifierStruct( ctrl, h, k, &(p->qualifier) );
 							}
@@ -5381,7 +5381,7 @@ rev_AREnumQueryStruct( ARControlStruct *ctrl, HV *h, char *k, AREnumQueryStruct 
 						SV **val;
 						strncpy( k, "server", 255 );
 						val = hv_fetch( h, "server", 6, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->server, SvPV_nolen(*val), sizeof(p->server) );
 							}
@@ -5396,7 +5396,7 @@ rev_AREnumQueryStruct( ARControlStruct *ctrl, HV *h, char *k, AREnumQueryStruct 
 						SV **val;
 						strncpy( k, "schema", 255 );
 						val = hv_fetch( h, "schema", 6, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->schema, SvPV_nolen(*val), sizeof(p->schema) );
 							}
@@ -5498,7 +5498,7 @@ rev_AREscalationTmStruct( ARControlStruct *ctrl, HV *h, char *k, AREscalationTmS
 										SV **val;
 										strncpy( k, "exitGuide", 255 );
 										val = hv_fetch( h, "exitGuide", 9, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARDayStruct( ctrl, h, k, &(p->u.date) );
 											}
@@ -5534,7 +5534,7 @@ rev_AREscalationTmStruct( ARControlStruct *ctrl, HV *h, char *k, AREscalationTmS
 										SV **val;
 										strncpy( k, "exitGuide", 255 );
 										val = hv_fetch( h, "exitGuide", 9, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.interval = SvIV(*val);
 											}
@@ -5612,7 +5612,7 @@ rev_ARExitGuideStruct( ARControlStruct *ctrl, HV *h, char *k, ARExitGuideStruct 
 						SV **val;
 						strncpy( k, "closeAll", 255 );
 						val = hv_fetch( h, "closeAll", 8, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								int flag = 0;
 								if( !strcmp(SvPV_nolen(*val),"true") ){
@@ -6049,7 +6049,7 @@ rev_ARFieldMappingStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldMappingS
 										SV **val;
 										strncpy( k, "vendor", 255 );
 										val = hv_fetch( h, "vendor", 6, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARVendorMappingStruct( ctrl, h, k, &(p->u.vendor) );
 											}
@@ -6085,7 +6085,7 @@ rev_ARFieldMappingStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldMappingS
 										SV **val;
 										strncpy( k, "inheritance", 255 );
 										val = hv_fetch( h, "inheritance", 11, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARInheritanceMappingStruct( ctrl, h, k, &(p->u.inheritance) );
 											}
@@ -6121,7 +6121,7 @@ rev_ARFieldMappingStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldMappingS
 										SV **val;
 										strncpy( k, "view", 255 );
 										val = hv_fetch( h, "view", 4, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARViewMappingStruct( ctrl, h, k, &(p->u.view) );
 											}
@@ -6157,7 +6157,7 @@ rev_ARFieldMappingStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldMappingS
 										SV **val;
 										strncpy( k, "join", 255 );
 										val = hv_fetch( h, "join", 4, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARJoinMappingStruct( ctrl, h, k, &(p->u.join) );
 											}
@@ -6393,7 +6393,7 @@ rev_ARFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldVal
 										SV **val;
 										strncpy( k, "currencyField", 255 );
 										val = hv_fetch( h, "currencyField", 13, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.currencyField = MALLOCNN(sizeof(ARCurrencyPartStruct)); rev_ARCurrencyPartStruct( ctrl, h, k, p->u.currencyField );
 											}
@@ -6429,7 +6429,7 @@ rev_ARFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldVal
 										SV **val;
 										strncpy( k, "queryCurrent", 255 );
 										val = hv_fetch( h, "queryCurrent", 12, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.fieldId = SvIV(*val);
 											}
@@ -6465,7 +6465,7 @@ rev_ARFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldVal
 										SV **val;
 										strncpy( k, "value", 255 );
 										val = hv_fetch( h, "value", 5, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARValueStruct( ctrl, h, k, "dataType", &(p->u.value) );
 											}
@@ -6501,7 +6501,7 @@ rev_ARFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldVal
 										SV **val;
 										strncpy( k, "fieldId", 255 );
 										val = hv_fetch( h, "fieldId", 7, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.fieldId = SvIV(*val);
 											}
@@ -6537,7 +6537,7 @@ rev_ARFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldVal
 										SV **val;
 										strncpy( k, "TR_fieldId", 255 );
 										val = hv_fetch( h, "TR_fieldId", 10, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.fieldId = SvIV(*val);
 											}
@@ -6573,7 +6573,7 @@ rev_ARFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldVal
 										SV **val;
 										strncpy( k, "queryValue", 255 );
 										val = hv_fetch( h, "queryValue", 10, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.queryValue = MALLOCNN(sizeof(ARQueryValueStruct)); rev_ARQueryValueStruct( ctrl, h, k, p->u.queryValue );
 											}
@@ -6609,7 +6609,7 @@ rev_ARFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldVal
 										SV **val;
 										strncpy( k, "statHistory", 255 );
 										val = hv_fetch( h, "statHistory", 11, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARStatHistoryValue( ctrl, h, k, &(p->u.statHistory) );
 											}
@@ -6645,7 +6645,7 @@ rev_ARFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldVal
 										SV **val;
 										strncpy( k, "arith", 255 );
 										val = hv_fetch( h, "arith", 5, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.arithOp = MALLOCNN(sizeof(ARArithOpStruct)); rev_ARArithOpStruct( ctrl, h, k, p->u.arithOp );
 											}
@@ -6681,7 +6681,7 @@ rev_ARFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldVal
 										SV **val;
 										strncpy( k, "valueSet", 255 );
 										val = hv_fetch( h, "valueSet", 8, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARValueList( ctrl, h, k, &(p->u.valueSet) );
 											}
@@ -6717,7 +6717,7 @@ rev_ARFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldVal
 										SV **val;
 										strncpy( k, "variable", 255 );
 										val = hv_fetch( h, "variable", 8, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.variable = SvIV(*val);
 											}
@@ -6753,7 +6753,7 @@ rev_ARFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldVal
 										SV **val;
 										strncpy( k, "DB_fieldId", 255 );
 										val = hv_fetch( h, "DB_fieldId", 10, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.fieldId = SvIV(*val);
 											}
@@ -6831,7 +6831,7 @@ rev_ARFieldValueStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldValueStruc
 						SV **val;
 						strncpy( k, "value", 255 );
 						val = hv_fetch( h, "value", 5, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARValueStruct( ctrl, h, k, "dataType", &(p->value) );
 							}
@@ -6846,7 +6846,7 @@ rev_ARFieldValueStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldValueStruc
 						SV **val;
 						strncpy( k, "fieldId", 255 );
 						val = hv_fetch( h, "fieldId", 7, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->fieldId = SvIV(*val);
 							}
@@ -6989,7 +6989,7 @@ rev_ARFilterActionNotify( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionN
 						SV **val;
 						strncpy( k, "notifyAdvanced", 255 );
 						val = hv_fetch( h, "notifyAdvanced", 14, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->notifyAdvanced = MALLOCNN(sizeof(ARFilterActionNotifyAdvanced)); rev_ARFilterActionNotifyAdvanced( ctrl, h, k, p->notifyAdvanced );
 							}
@@ -7003,7 +7003,7 @@ rev_ARFilterActionNotify( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionN
 						SV **val;
 						strncpy( k, "fieldIdListType", 255 );
 						val = hv_fetch( h, "fieldIdListType", 15, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->fieldIdListType = SvIV(*val);
 							}
@@ -7018,7 +7018,7 @@ rev_ARFilterActionNotify( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionN
 						SV **val;
 						strncpy( k, "subjectText", 255 );
 						val = hv_fetch( h, "subjectText", 11, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->subjectText = strdup( SvPV_nolen(*val) );
 							}
@@ -7033,7 +7033,7 @@ rev_ARFilterActionNotify( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionN
 						SV **val;
 						strncpy( k, "notifyText", 255 );
 						val = hv_fetch( h, "notifyText", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->notifyText = strdup( SvPV_nolen(*val) );
 							}
@@ -7048,7 +7048,7 @@ rev_ARFilterActionNotify( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionN
 						SV **val;
 						strncpy( k, "notifyBehavior", 255 );
 						val = hv_fetch( h, "notifyBehavior", 14, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->notifyBehavior = SvIV(*val);
 							}
@@ -7063,7 +7063,7 @@ rev_ARFilterActionNotify( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionN
 						SV **val;
 						strncpy( k, "notifyMechanismXRef", 255 );
 						val = hv_fetch( h, "notifyMechanismXRef", 19, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->notifyMechanismXRef = SvIV(*val);
 							}
@@ -7078,7 +7078,7 @@ rev_ARFilterActionNotify( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionN
 						SV **val;
 						strncpy( k, "notifyPermission", 255 );
 						val = hv_fetch( h, "notifyPermission", 16, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->notifyPermission = SvIV(*val);
 							}
@@ -7093,7 +7093,7 @@ rev_ARFilterActionNotify( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionN
 						SV **val;
 						strncpy( k, "user", 255 );
 						val = hv_fetch( h, "user", 4, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->user = strdup( SvPV_nolen(*val) );
 							}
@@ -7108,7 +7108,7 @@ rev_ARFilterActionNotify( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionN
 						SV **val;
 						strncpy( k, "notifyPriority", 255 );
 						val = hv_fetch( h, "notifyPriority", 14, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->notifyPriority = SvIV(*val);
 							}
@@ -7123,7 +7123,7 @@ rev_ARFilterActionNotify( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionN
 						SV **val;
 						strncpy( k, "notifyMechanism", 255 );
 						val = hv_fetch( h, "notifyMechanism", 15, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->notifyMechanism = SvIV(*val);
 							}
@@ -7138,7 +7138,7 @@ rev_ARFilterActionNotify( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionN
 						SV **val;
 						strncpy( k, "fieldList", 255 );
 						val = hv_fetch( h, "fieldList", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARInternalIdList( ctrl, h, k, &(p->fieldIdList) );
 							}
@@ -7206,7 +7206,7 @@ rev_ARFilterActionNotifyAdvanced( ARControlStruct *ctrl, HV *h, char *k, ARFilte
 						SV **val;
 						strncpy( k, "replyTo", 255 );
 						val = hv_fetch( h, "replyTo", 7, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->replyTo = strdup( SvPV_nolen(*val) );
 							}
@@ -7221,7 +7221,7 @@ rev_ARFilterActionNotifyAdvanced( ARControlStruct *ctrl, HV *h, char *k, ARFilte
 						SV **val;
 						strncpy( k, "bcc", 255 );
 						val = hv_fetch( h, "bcc", 3, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->bcc = strdup( SvPV_nolen(*val) );
 							}
@@ -7236,7 +7236,7 @@ rev_ARFilterActionNotifyAdvanced( ARControlStruct *ctrl, HV *h, char *k, ARFilte
 						SV **val;
 						strncpy( k, "contentTemplate", 255 );
 						val = hv_fetch( h, "contentTemplate", 15, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->contentTemplate = strdup( SvPV_nolen(*val) );
 							}
@@ -7251,7 +7251,7 @@ rev_ARFilterActionNotifyAdvanced( ARControlStruct *ctrl, HV *h, char *k, ARFilte
 						SV **val;
 						strncpy( k, "cc", 255 );
 						val = hv_fetch( h, "cc", 2, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->cc = strdup( SvPV_nolen(*val) );
 							}
@@ -7266,7 +7266,7 @@ rev_ARFilterActionNotifyAdvanced( ARControlStruct *ctrl, HV *h, char *k, ARFilte
 						SV **val;
 						strncpy( k, "from", 255 );
 						val = hv_fetch( h, "from", 4, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->from = strdup( SvPV_nolen(*val) );
 							}
@@ -7281,7 +7281,7 @@ rev_ARFilterActionNotifyAdvanced( ARControlStruct *ctrl, HV *h, char *k, ARFilte
 						SV **val;
 						strncpy( k, "footerTemplate", 255 );
 						val = hv_fetch( h, "footerTemplate", 14, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->footerTemplate = strdup( SvPV_nolen(*val) );
 							}
@@ -7296,7 +7296,7 @@ rev_ARFilterActionNotifyAdvanced( ARControlStruct *ctrl, HV *h, char *k, ARFilte
 						SV **val;
 						strncpy( k, "organization", 255 );
 						val = hv_fetch( h, "organization", 12, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->organization = strdup( SvPV_nolen(*val) );
 							}
@@ -7311,7 +7311,7 @@ rev_ARFilterActionNotifyAdvanced( ARControlStruct *ctrl, HV *h, char *k, ARFilte
 						SV **val;
 						strncpy( k, "mailboxName", 255 );
 						val = hv_fetch( h, "mailboxName", 11, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->mailboxName = strdup( SvPV_nolen(*val) );
 							}
@@ -7326,7 +7326,7 @@ rev_ARFilterActionNotifyAdvanced( ARControlStruct *ctrl, HV *h, char *k, ARFilte
 						SV **val;
 						strncpy( k, "headerTemplate", 255 );
 						val = hv_fetch( h, "headerTemplate", 14, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->headerTemplate = strdup( SvPV_nolen(*val) );
 							}
@@ -7485,7 +7485,7 @@ rev_ARFilterActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionS
 										SV **val;
 										strncpy( k, "gotoAction", 255 );
 										val = hv_fetch( h, "gotoAction", 10, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARGotoActionStruct( ctrl, h, k, &(p->u.gotoAction) );
 											}
@@ -7521,7 +7521,7 @@ rev_ARFilterActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionS
 										SV **val;
 										strncpy( k, "gotoGuide", 255 );
 										val = hv_fetch( h, "gotoGuide", 9, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.gotoGuide.label = strdup( SvPV_nolen(*val) );
 											}
@@ -7557,7 +7557,7 @@ rev_ARFilterActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionS
 										SV **val;
 										strncpy( k, "notify", 255 );
 										val = hv_fetch( h, "notify", 6, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARFilterActionNotify( ctrl, h, k, &(p->u.notify) );
 											}
@@ -7593,7 +7593,7 @@ rev_ARFilterActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionS
 										SV **val;
 										strncpy( k, "assign_fields", 255 );
 										val = hv_fetch( h, "assign_fields", 13, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARFieldAssignList( ctrl, h, k, &(p->u.fieldList) );
 											}
@@ -7629,7 +7629,7 @@ rev_ARFilterActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionS
 										SV **val;
 										strncpy( k, "log", 255 );
 										val = hv_fetch( h, "log", 3, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.logFile = strdup( SvPV_nolen(*val) );
 											}
@@ -7665,7 +7665,7 @@ rev_ARFilterActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionS
 										SV **val;
 										strncpy( k, "message", 255 );
 										val = hv_fetch( h, "message", 7, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARFilterStatusStruct( ctrl, h, k, &(p->u.message) );
 											}
@@ -7701,7 +7701,7 @@ rev_ARFilterActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionS
 										SV **val;
 										strncpy( k, "fieldp", 255 );
 										val = hv_fetch( h, "fieldp", 6, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARPushFieldsActionStruct( ctrl, h, k, &(p->u.pushFields) );
 											}
@@ -7737,7 +7737,7 @@ rev_ARFilterActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionS
 										SV **val;
 										strncpy( k, "exitGuide", 255 );
 										val = hv_fetch( h, "exitGuide", 9, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARExitGuideStruct( ctrl, h, k, &(p->u.exitGuide) );
 											}
@@ -7773,7 +7773,7 @@ rev_ARFilterActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionS
 										SV **val;
 										strncpy( k, "process", 255 );
 										val = hv_fetch( h, "process", 7, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.process = strdup( SvPV_nolen(*val) );
 											}
@@ -7809,7 +7809,7 @@ rev_ARFilterActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionS
 										SV **val;
 										strncpy( k, "callGuide", 255 );
 										val = hv_fetch( h, "callGuide", 9, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARCallGuideStruct( ctrl, h, k, &(p->u.callGuide) );
 											}
@@ -7845,7 +7845,7 @@ rev_ARFilterActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionS
 										SV **val;
 										strncpy( k, "assign_fields", 255 );
 										val = hv_fetch( h, "assign_fields", 13, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARSetFieldsActionStruct( ctrl, h, k, &(p->u.setFields) );
 											}
@@ -7881,7 +7881,7 @@ rev_ARFilterActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionS
 										SV **val;
 										strncpy( k, "sqlCommand", 255 );
 										val = hv_fetch( h, "sqlCommand", 10, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARSQLStruct( ctrl, h, k, &(p->u.sqlCommand) );
 											}
@@ -7917,7 +7917,7 @@ rev_ARFilterActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARFilterActionS
 										SV **val;
 										strncpy( k, "fieldp", 255 );
 										val = hv_fetch( h, "fieldp", 6, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARPushFieldsList( ctrl, h, k, &(p->u.pushFieldsList) );
 											}
@@ -7997,7 +7997,7 @@ rev_ARGotoActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARGotoActionStruc
 						SV **val;
 						strncpy( k, "fieldIdOrValue", 255 );
 						val = hv_fetch( h, "fieldIdOrValue", 14, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->fieldIdOrValue = SvIV(*val);
 							}
@@ -8012,7 +8012,7 @@ rev_ARGotoActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARGotoActionStruc
 						SV **val;
 						strncpy( k, "tag", 255 );
 						val = hv_fetch( h, "tag", 3, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->tag = SvIV(*val);
 							}
@@ -8080,7 +8080,7 @@ rev_ARGotoGuideLabelStruct( ARControlStruct *ctrl, HV *h, char *k, ARGotoGuideLa
 						SV **val;
 						strncpy( k, "label", 255 );
 						val = hv_fetch( h, "label", 5, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->label = strdup( SvPV_nolen(*val) );
 							}
@@ -8223,7 +8223,7 @@ rev_ARIndexStruct( ARControlStruct *ctrl, HV *h, char *k, ARIndexStruct *p ){
 						SV **val;
 						strncpy( k, "unique", 255 );
 						val = hv_fetch( h, "unique", 6, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->unique = (char) SvIV(*val);
 							}
@@ -8237,7 +8237,7 @@ rev_ARIndexStruct( ARControlStruct *ctrl, HV *h, char *k, ARIndexStruct *p ){
 						SV **val;
 						strncpy( k, "fieldIds", 255 );
 						val = hv_fetch( h, "fieldIds", 8, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								{
 									if( SvTYPE(SvRV(*val)) == SVt_PVAV ){
@@ -8336,7 +8336,7 @@ rev_ARInheritanceMappingStruct( ARControlStruct *ctrl, HV *h, char *k, ARInherit
 						SV **val;
 						strncpy( k, "dataMappingId", 255 );
 						val = hv_fetch( h, "dataMappingId", 13, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->dataMappingId = SvIV(*val);
 							}
@@ -8351,7 +8351,7 @@ rev_ARInheritanceMappingStruct( ARControlStruct *ctrl, HV *h, char *k, ARInherit
 						SV **val;
 						strncpy( k, "referenceMask", 255 );
 						val = hv_fetch( h, "referenceMask", 13, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->referenceMask = SvIV(*val);
 							}
@@ -8366,7 +8366,7 @@ rev_ARInheritanceMappingStruct( ARControlStruct *ctrl, HV *h, char *k, ARInherit
 						SV **val;
 						strncpy( k, "srcSchema", 255 );
 						val = hv_fetch( h, "srcSchema", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->srcSchema, SvPV_nolen(*val), sizeof(p->srcSchema) );
 							}
@@ -8434,7 +8434,7 @@ rev_ARIntegerLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARIntegerLimit
 						SV **val;
 						strncpy( k, "min", 255 );
 						val = hv_fetch( h, "min", 3, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->rangeLow = SvIV(*val);
 							}
@@ -8449,7 +8449,7 @@ rev_ARIntegerLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARIntegerLimit
 						SV **val;
 						strncpy( k, "max", 255 );
 						val = hv_fetch( h, "max", 3, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->rangeHigh = SvIV(*val);
 							}
@@ -8517,7 +8517,7 @@ rev_ARJoinMappingStruct( ARControlStruct *ctrl, HV *h, char *k, ARJoinMappingStr
 						SV **val;
 						strncpy( k, "realId", 255 );
 						val = hv_fetch( h, "realId", 6, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->realId = SvIV(*val);
 							}
@@ -8532,7 +8532,7 @@ rev_ARJoinMappingStruct( ARControlStruct *ctrl, HV *h, char *k, ARJoinMappingStr
 						SV **val;
 						strncpy( k, "schemaIndex", 255 );
 						val = hv_fetch( h, "schemaIndex", 11, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->schemaIndex = SvIV(*val);
 							}
@@ -8600,7 +8600,7 @@ rev_ARJoinSchema( ARControlStruct *ctrl, HV *h, char *k, ARJoinSchema *p ){
 						SV **val;
 						strncpy( k, "memberA", 255 );
 						val = hv_fetch( h, "memberA", 7, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->memberA, SvPV_nolen(*val), sizeof(p->memberA) );
 							}
@@ -8615,7 +8615,7 @@ rev_ARJoinSchema( ARControlStruct *ctrl, HV *h, char *k, ARJoinSchema *p ){
 						SV **val;
 						strncpy( k, "joinQual", 255 );
 						val = hv_fetch( h, "joinQual", 8, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARQualifierStruct( ctrl, h, k, &(p->joinQual) );
 							}
@@ -8630,7 +8630,7 @@ rev_ARJoinSchema( ARControlStruct *ctrl, HV *h, char *k, ARJoinSchema *p ){
 						SV **val;
 						strncpy( k, "option", 255 );
 						val = hv_fetch( h, "option", 6, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->option = SvIV(*val);
 							}
@@ -8645,7 +8645,7 @@ rev_ARJoinSchema( ARControlStruct *ctrl, HV *h, char *k, ARJoinSchema *p ){
 						SV **val;
 						strncpy( k, "memberB", 255 );
 						val = hv_fetch( h, "memberB", 7, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->memberB, SvPV_nolen(*val), sizeof(p->memberB) );
 							}
@@ -8713,7 +8713,7 @@ rev_ARLicenseDateStruct( ARControlStruct *ctrl, HV *h, char *k, ARLicenseDateStr
 						SV **val;
 						strncpy( k, "month", 255 );
 						val = hv_fetch( h, "month", 5, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->month = SvIV(*val);
 							}
@@ -8728,7 +8728,7 @@ rev_ARLicenseDateStruct( ARControlStruct *ctrl, HV *h, char *k, ARLicenseDateStr
 						SV **val;
 						strncpy( k, "day", 255 );
 						val = hv_fetch( h, "day", 3, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->day = SvIV(*val);
 							}
@@ -8743,7 +8743,7 @@ rev_ARLicenseDateStruct( ARControlStruct *ctrl, HV *h, char *k, ARLicenseDateStr
 						SV **val;
 						strncpy( k, "year", 255 );
 						val = hv_fetch( h, "year", 4, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->year = SvIV(*val);
 							}
@@ -8811,7 +8811,7 @@ rev_ARLicenseValidStruct( ARControlStruct *ctrl, HV *h, char *k, ARLicenseValidS
 						SV **val;
 						strncpy( k, "tokenList", 255 );
 						val = hv_fetch( h, "tokenList", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->tokenList = strdup( SvPV_nolen(*val) );
 							}
@@ -8826,7 +8826,7 @@ rev_ARLicenseValidStruct( ARControlStruct *ctrl, HV *h, char *k, ARLicenseValidS
 						SV **val;
 						strncpy( k, "expireDate", 255 );
 						val = hv_fetch( h, "expireDate", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARLicenseDateStruct( ctrl, h, k, &(p->expireDate) );
 							}
@@ -8841,7 +8841,7 @@ rev_ARLicenseValidStruct( ARControlStruct *ctrl, HV *h, char *k, ARLicenseValidS
 						SV **val;
 						strncpy( k, "numLicenses", 255 );
 						val = hv_fetch( h, "numLicenses", 11, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->numLicenses = SvIV(*val);
 							}
@@ -8856,7 +8856,7 @@ rev_ARLicenseValidStruct( ARControlStruct *ctrl, HV *h, char *k, ARLicenseValidS
 						SV **val;
 						strncpy( k, "isDemo", 255 );
 						val = hv_fetch( h, "isDemo", 6, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->isDemo = (char) SvIV(*val);
 							}
@@ -8895,104 +8895,6 @@ rev_ARLicenseValidStruct( ARControlStruct *ctrl, HV *h, char *k, ARLicenseValidS
 
 #if AR_CURRENT_API_VERSION >= 14
 int
-rev_ARMultiSchemaArithOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaArithOpStruct *p ){
-	SV  **val;
-	int i = 0;
-
-	if( !p ){
-		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaArithOpStruct: AR Object param is NULL" );
-		return -1;
-	}
-
-	if( SvTYPE((SV*) h) == SVt_PVHV ){
-
-		// printf( "ARMultiSchemaArithOpStruct: k = <%s>\n", k );
-		if( hv_exists(h,k,strlen(k)) ){
-			val = hv_fetch( h, k, strlen(k), 0 );
-			if( val && *val ){
-				{
-				
-				
-					if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
-						int i = 0, num = 0;
-						HV *h = (HV* ) SvRV((SV*) *val);
-						char k[256];
-						k[255] = '\0';
-				
-				
-					{
-						SV **val;
-						strncpy( k, "operandRight", 255 );
-						val = hv_fetch( h, "operandRight", 12, 0 );
-						if( val	&& *val ){
-							{
-								rev_ARMultiSchemaFieldValueOrArithStruct( ctrl, h, k, &(p->operandRight) );
-							}
-						}else{
-							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"operandRight\"" );
-							return -1;
-						}
-					}
-				
-				
-					{
-						SV **val;
-						strncpy( k, "operandLeft", 255 );
-						val = hv_fetch( h, "operandLeft", 11, 0 );
-						if( val	&& *val ){
-							{
-								rev_ARMultiSchemaFieldValueOrArithStruct( ctrl, h, k, &(p->operandLeft) );
-							}
-						}else{
-							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"operandLeft\"" );
-							return -1;
-						}
-					}
-				
-				
-					{
-						SV **val;
-						strncpy( k, "operation", 255 );
-						val = hv_fetch( h, "operation", 9, 0 );
-						if( val	&& *val ){
-							{
-								p->operation = SvIV(*val);
-							}
-						}else{
-							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"operation\"" );
-							return -1;
-						}
-					}
-				
-				
-					}else{
-						ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaArithOpStruct: hash value is not a hash reference" );
-						return -1;
-					}
-				
-				
-				}
-			}else{
-				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaArithOpStruct: hv_fetch returned null");
-				return -2;
-			}
-		}else{
-			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaArithOpStruct: key doesn't exist");
-			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
-			return -2;
-		}
-	}else{
-		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaArithOpStruct: first argument is not a hash");
-		return -1;
-	}
-
-	return 0;
-}
-#endif
-
-
-#if AR_CURRENT_API_VERSION >= 14
-int
 rev_ARMultiSchemaCurrencyPartStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaCurrencyPartStruct *p ){
 	SV  **val;
 	int i = 0;
@@ -9022,7 +8924,7 @@ rev_ARMultiSchemaCurrencyPartStruct( ARControlStruct *ctrl, HV *h, char *k, ARMu
 						SV **val;
 						strncpy( k, "currencyCode", 255 );
 						val = hv_fetch( h, "currencyCode", 12, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->currencyCode, SvPV_nolen(*val), sizeof(p->currencyCode) );
 							}
@@ -9037,7 +8939,7 @@ rev_ARMultiSchemaCurrencyPartStruct( ARControlStruct *ctrl, HV *h, char *k, ARMu
 						SV **val;
 						strncpy( k, "partTag", 255 );
 						val = hv_fetch( h, "partTag", 7, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->partTag = SvIV(*val);
 							}
@@ -9052,7 +8954,7 @@ rev_ARMultiSchemaCurrencyPartStruct( ARControlStruct *ctrl, HV *h, char *k, ARMu
 						SV **val;
 						strncpy( k, "fieldId", 255 );
 						val = hv_fetch( h, "fieldId", 7, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARMultiSchemaFieldIdStruct( ctrl, h, k, &(p->fieldId) );
 							}
@@ -9166,89 +9068,6 @@ rev_ARMultiSchemaFieldIdList( ARControlStruct *ctrl, HV *h, char *k, ARMultiSche
 
 #if AR_CURRENT_API_VERSION >= 14
 int
-rev_ARMultiSchemaFieldIdStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFieldIdStruct *p ){
-	SV  **val;
-	int i = 0;
-
-	if( !p ){
-		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldIdStruct: AR Object param is NULL" );
-		return -1;
-	}
-
-	if( SvTYPE((SV*) h) == SVt_PVHV ){
-
-		// printf( "ARMultiSchemaFieldIdStruct: k = <%s>\n", k );
-		if( hv_exists(h,k,strlen(k)) ){
-			val = hv_fetch( h, k, strlen(k), 0 );
-			if( val && *val ){
-				{
-				
-				
-					if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
-						int i = 0, num = 0;
-						HV *h = (HV* ) SvRV((SV*) *val);
-						char k[256];
-						k[255] = '\0';
-				
-				
-					{
-						SV **val;
-						strncpy( k, "queryFromAlias", 255 );
-						val = hv_fetch( h, "queryFromAlias", 14, 0 );
-						if( val	&& *val ){
-							{
-								strncpy( p->queryFromAlias, SvPV_nolen(*val), sizeof(p->queryFromAlias) );
-							}
-						}else{
-							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"queryFromAlias\"" );
-							return -1;
-						}
-					}
-				
-				
-					{
-						SV **val;
-						strncpy( k, "fieldId", 255 );
-						val = hv_fetch( h, "fieldId", 7, 0 );
-						if( val	&& *val ){
-							{
-								p->fieldId = SvIV(*val);
-							}
-						}else{
-							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"fieldId\"" );
-							return -1;
-						}
-					}
-				
-				
-					}else{
-						ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldIdStruct: hash value is not a hash reference" );
-						return -1;
-					}
-				
-				
-				}
-			}else{
-				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldIdStruct: hv_fetch returned null");
-				return -2;
-			}
-		}else{
-			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldIdStruct: key doesn't exist");
-			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
-			return -2;
-		}
-	}else{
-		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldIdStruct: first argument is not a hash");
-		return -1;
-	}
-
-	return 0;
-}
-#endif
-
-
-#if AR_CURRENT_API_VERSION >= 14
-int
 rev_ARMultiSchemaFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFieldValueOrArithStruct *p ){
 	SV  **val;
 	int i = 0;
@@ -9337,7 +9156,7 @@ rev_ARMultiSchemaFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k,
 										SV **val;
 										strncpy( k, "currencyField", 255 );
 										val = hv_fetch( h, "currencyField", 13, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.currencyField = MALLOCNN(sizeof(ARMultiSchemaCurrencyPartStruct)); rev_ARMultiSchemaCurrencyPartStruct( ctrl, h, k, p->u.currencyField );
 											}
@@ -9373,7 +9192,7 @@ rev_ARMultiSchemaFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k,
 										SV **val;
 										strncpy( k, "value", 255 );
 										val = hv_fetch( h, "value", 5, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARValueStruct( ctrl, h, k, "dataType", &(p->u.value) );
 											}
@@ -9409,7 +9228,7 @@ rev_ARMultiSchemaFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k,
 										SV **val;
 										strncpy( k, "queryValue", 255 );
 										val = hv_fetch( h, "queryValue", 10, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.valueSetQuery = MALLOCNN(sizeof(ARMultiSchemaValueSetQueryStruct)); rev_ARMultiSchemaValueSetQueryStruct( ctrl, h, k, p->u.valueSetQuery );
 											}
@@ -9445,7 +9264,7 @@ rev_ARMultiSchemaFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k,
 										SV **val;
 										strncpy( k, "fieldId", 255 );
 										val = hv_fetch( h, "fieldId", 7, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARMultiSchemaFieldIdStruct( ctrl, h, k, &(p->u.fieldId) );
 											}
@@ -9481,7 +9300,7 @@ rev_ARMultiSchemaFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k,
 										SV **val;
 										strncpy( k, "arith", 255 );
 										val = hv_fetch( h, "arith", 5, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.arithOp = MALLOCNN(sizeof(ARMultiSchemaArithOpStruct)); rev_ARMultiSchemaArithOpStruct( ctrl, h, k, p->u.arithOp );
 											}
@@ -9517,7 +9336,7 @@ rev_ARMultiSchemaFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k,
 										SV **val;
 										strncpy( k, "valueSet", 255 );
 										val = hv_fetch( h, "valueSet", 8, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARValueList( ctrl, h, k, &(p->u.valueSet) );
 											}
@@ -9553,7 +9372,7 @@ rev_ARMultiSchemaFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k,
 										SV **val;
 										strncpy( k, "statHistory", 255 );
 										val = hv_fetch( h, "statHistory", 11, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARMultiSchemaStatHistoryValue( ctrl, h, k, &(p->u.statHistory) );
 											}
@@ -9631,7 +9450,7 @@ rev_ARMultiSchemaNestedQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARMul
 						SV **val;
 						strncpy( k, "qualifier", 255 );
 						val = hv_fetch( h, "qualifier", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->qualifier = MALLOCNN(sizeof(ARMultiSchemaQualifierStruct)); rev_ARMultiSchemaQualifierStruct( ctrl, h, k, p->qualifier );
 							}
@@ -9646,7 +9465,7 @@ rev_ARMultiSchemaNestedQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARMul
 						SV **val;
 						strncpy( k, "queryFromList", 255 );
 						val = hv_fetch( h, "queryFromList", 13, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARMultiSchemaQueryFromList( ctrl, h, k, &(p->queryFromList) );
 							}
@@ -9661,7 +9480,7 @@ rev_ARMultiSchemaNestedQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARMul
 						SV **val;
 						strncpy( k, "getListFields", 255 );
 						val = hv_fetch( h, "getListFields", 13, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARMultiSchemaFieldIdList( ctrl, h, k, &(p->getListFields) );
 							}
@@ -9783,7 +9602,7 @@ rev_ARMultiSchemaQualifierStruct( ARControlStruct *ctrl, HV *h, char *k, ARMulti
 										SV **val;
 										strncpy( k, "left", 255 );
 										val = hv_fetch( h, "left", 4, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.andor.operandLeft = MALLOCNN(sizeof(ARMultiSchemaQualifierStruct)); rev_ARMultiSchemaQualifierStruct( ctrl, h, k, p->u.andor.operandLeft );
 											}
@@ -9798,7 +9617,7 @@ rev_ARMultiSchemaQualifierStruct( ARControlStruct *ctrl, HV *h, char *k, ARMulti
 										SV **val;
 										strncpy( k, "right", 255 );
 										val = hv_fetch( h, "right", 5, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.andor.operandRight = MALLOCNN(sizeof(ARMultiSchemaQualifierStruct)); rev_ARMultiSchemaQualifierStruct( ctrl, h, k, p->u.andor.operandRight );
 											}
@@ -9834,7 +9653,7 @@ rev_ARMultiSchemaQualifierStruct( ARControlStruct *ctrl, HV *h, char *k, ARMulti
 										SV **val;
 										strncpy( k, "rel_op", 255 );
 										val = hv_fetch( h, "rel_op", 6, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.relOp = MALLOCNN(sizeof(ARMultiSchemaRelOpStruct)); rev_ARMultiSchemaRelOpStruct( ctrl, h, k, p->u.relOp );
 											}
@@ -9870,7 +9689,7 @@ rev_ARMultiSchemaQualifierStruct( ARControlStruct *ctrl, HV *h, char *k, ARMulti
 										SV **val;
 										strncpy( k, "not", 255 );
 										val = hv_fetch( h, "not", 3, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.notQual = MALLOCNN(sizeof(ARMultiSchemaQualifierStruct)); rev_ARMultiSchemaQualifierStruct( ctrl, h, k, p->u.notQual );
 											}
@@ -9906,7 +9725,7 @@ rev_ARMultiSchemaQualifierStruct( ARControlStruct *ctrl, HV *h, char *k, ARMulti
 										SV **val;
 										strncpy( k, "fieldId", 255 );
 										val = hv_fetch( h, "fieldId", 7, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												rev_ARMultiSchemaFieldIdStruct( ctrl, h, k, &(p->u.fieldId) );
 											}
@@ -9942,7 +9761,7 @@ rev_ARMultiSchemaQualifierStruct( ARControlStruct *ctrl, HV *h, char *k, ARMulti
 										SV **val;
 										strncpy( k, "left", 255 );
 										val = hv_fetch( h, "left", 4, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.andor.operandLeft = MALLOCNN(sizeof(ARMultiSchemaQualifierStruct)); rev_ARMultiSchemaQualifierStruct( ctrl, h, k, p->u.andor.operandLeft );
 											}
@@ -9957,7 +9776,7 @@ rev_ARMultiSchemaQualifierStruct( ARControlStruct *ctrl, HV *h, char *k, ARMulti
 										SV **val;
 										strncpy( k, "right", 255 );
 										val = hv_fetch( h, "right", 5, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.andor.operandRight = MALLOCNN(sizeof(ARMultiSchemaQualifierStruct)); rev_ARMultiSchemaQualifierStruct( ctrl, h, k, p->u.andor.operandRight );
 											}
@@ -10151,7 +9970,7 @@ rev_ARMultiSchemaQueryFromStruct( ARControlStruct *ctrl, HV *h, char *k, ARMulti
 										SV **val;
 										strncpy( k, "schemaName", 255 );
 										val = hv_fetch( h, "schemaName", 10, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												strncpy( p->u.schemaName, SvPV_nolen(*val), sizeof(p->u.schemaName) );
 											}
@@ -10187,7 +10006,7 @@ rev_ARMultiSchemaQueryFromStruct( ARControlStruct *ctrl, HV *h, char *k, ARMulti
 										SV **val;
 										strncpy( k, "nestedQuery", 255 );
 										val = hv_fetch( h, "nestedQuery", 11, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.nestedQuery = MALLOCNN(sizeof(ARMultiSchemaNestedQueryStruct)); rev_ARMultiSchemaNestedQueryStruct( ctrl, h, k, p->u.nestedQuery );
 											}
@@ -10223,7 +10042,7 @@ rev_ARMultiSchemaQueryFromStruct( ARControlStruct *ctrl, HV *h, char *k, ARMulti
 										SV **val;
 										strncpy( k, "recursiveQuery", 255 );
 										val = hv_fetch( h, "recursiveQuery", 14, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.recursiveQuery = MALLOCNN(sizeof(ARMultiSchemaRecursiveQueryStruct)); rev_ARMultiSchemaRecursiveQueryStruct( ctrl, h, k, p->u.recursiveQuery );
 											}
@@ -10263,7 +10082,7 @@ rev_ARMultiSchemaQueryFromStruct( ARControlStruct *ctrl, HV *h, char *k, ARMulti
 						SV **val;
 						strncpy( k, "joinType", 255 );
 						val = hv_fetch( h, "joinType", 8, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->joinType = SvIV(*val);
 							}
@@ -10278,13 +10097,12 @@ rev_ARMultiSchemaQueryFromStruct( ARControlStruct *ctrl, HV *h, char *k, ARMulti
 						SV **val;
 						strncpy( k, "joinQual", 255 );
 						val = hv_fetch( h, "joinQual", 8, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->joinQual = MALLOCNN(sizeof(ARMultiSchemaQualifierStruct)); rev_ARMultiSchemaQualifierStruct( ctrl, h, k, p->joinQual );
 							}
 						}else{
-							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"joinQual\"" );
-							return -1;
+							p->joinQual = NULL;
 						}
 					}
 				
@@ -10293,7 +10111,7 @@ rev_ARMultiSchemaQueryFromStruct( ARControlStruct *ctrl, HV *h, char *k, ARMulti
 						SV **val;
 						strncpy( k, "queryFromAlias", 255 );
 						val = hv_fetch( h, "queryFromAlias", 14, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->queryFromAlias, SvPV_nolen(*val), sizeof(p->queryFromAlias) );
 							}
@@ -10361,7 +10179,7 @@ rev_ARMultiSchemaRecursiveQueryStruct( ARControlStruct *ctrl, HV *h, char *k, AR
 						SV **val;
 						strncpy( k, "startQual", 255 );
 						val = hv_fetch( h, "startQual", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->startQual = MALLOCNN(sizeof(ARMultiSchemaQualifierStruct)); rev_ARMultiSchemaQualifierStruct( ctrl, h, k, p->startQual );
 							}
@@ -10376,7 +10194,7 @@ rev_ARMultiSchemaRecursiveQueryStruct( ARControlStruct *ctrl, HV *h, char *k, AR
 						SV **val;
 						strncpy( k, "queryFromList", 255 );
 						val = hv_fetch( h, "queryFromList", 13, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARMultiSchemaQueryFromList( ctrl, h, k, &(p->queryFromList) );
 							}
@@ -10391,7 +10209,7 @@ rev_ARMultiSchemaRecursiveQueryStruct( ARControlStruct *ctrl, HV *h, char *k, AR
 						SV **val;
 						strncpy( k, "recursionQual", 255 );
 						val = hv_fetch( h, "recursionQual", 13, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->recursionQual = MALLOCNN(sizeof(ARMultiSchemaQualifierStruct)); rev_ARMultiSchemaQualifierStruct( ctrl, h, k, p->recursionQual );
 							}
@@ -10406,7 +10224,7 @@ rev_ARMultiSchemaRecursiveQueryStruct( ARControlStruct *ctrl, HV *h, char *k, AR
 						SV **val;
 						strncpy( k, "recursiveSchemaAlias", 255 );
 						val = hv_fetch( h, "recursiveSchemaAlias", 20, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->recursiveSchemaAlias, SvPV_nolen(*val), sizeof(p->recursiveSchemaAlias) );
 							}
@@ -10421,7 +10239,7 @@ rev_ARMultiSchemaRecursiveQueryStruct( ARControlStruct *ctrl, HV *h, char *k, AR
 						SV **val;
 						strncpy( k, "levelsToRetrieve", 255 );
 						val = hv_fetch( h, "levelsToRetrieve", 16, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->levelsToRetrieve = SvIV(*val);
 							}
@@ -10436,7 +10254,7 @@ rev_ARMultiSchemaRecursiveQueryStruct( ARControlStruct *ctrl, HV *h, char *k, AR
 						SV **val;
 						strncpy( k, "getListFields", 255 );
 						val = hv_fetch( h, "getListFields", 13, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARMultiSchemaFieldIdList( ctrl, h, k, &(p->getListFields) );
 							}
@@ -10504,7 +10322,7 @@ rev_ARMultiSchemaRelOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSche
 						SV **val;
 						strncpy( k, "left", 255 );
 						val = hv_fetch( h, "left", 4, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARMultiSchemaFieldValueOrArithStruct( ctrl, h, k, &(p->operandLeft) );
 							}
@@ -10519,7 +10337,7 @@ rev_ARMultiSchemaRelOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSche
 						SV **val;
 						strncpy( k, "right", 255 );
 						val = hv_fetch( h, "right", 5, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARMultiSchemaFieldValueOrArithStruct( ctrl, h, k, &(p->operandRight) );
 							}
@@ -10534,7 +10352,7 @@ rev_ARMultiSchemaRelOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSche
 						SV **val;
 						strncpy( k, "oper", 255 );
 						val = hv_fetch( h, "oper", 4, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								int flag = 0;
 								if( !strcmp(SvPV_nolen(*val),">") ){
@@ -10607,6 +10425,164 @@ rev_ARMultiSchemaRelOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSche
 #endif
 
 
+
+int
+rev_ARMultiSchemaSortList( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaSortList *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaSortList: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARMultiSchemaSortList: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+					{
+						if( SvTYPE(SvRV(*val)) == SVt_PVAV ){
+							int i = 0, num = 0;
+							AV *ar = (AV*) SvRV((SV*) *val);
+				
+							num = av_len(ar) + 1;
+							p->numItems = num;
+							if( num == 0 ) return 0;
+				
+							p->listPtr = (ARMultiSchemaSortStruct*) MALLOCNN( sizeof(ARMultiSchemaSortStruct) * num );
+							/* if( p->listPtr == NULL ){
+								croak( "rev_ARMultiSchemaSortList: malloc error\n" );
+								exit( 1 );
+							} */
+				
+							for( i = 0; i < num; ++i ){
+								SV **item = av_fetch( ar, i, 0 );
+				
+								if( item && *item ){
+									char *k = "_";
+									HV *h = newHV();
+									
+									SvREFCNT_inc( *item );
+				                    hv_store( h, k, strlen(k), *item, 0 );
+				
+									rev_ARMultiSchemaSortStruct( ctrl, h, k, &(p->listPtr[i]) );
+									hv_undef( h );
+								}else{
+									ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaSortList: invalid inner array value" );
+								}
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaSortList: hash value is not an array reference" );
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, k );
+							return -1;
+						}
+					}
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaSortList: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaSortList: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaSortList: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+
+
+
+
+int
+rev_ARMultiSchemaSortStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaSortStruct *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaSortStruct: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARMultiSchemaSortStruct: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+				
+				
+					if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+						int i = 0, num = 0;
+						HV *h = (HV* ) SvRV((SV*) *val);
+						char k[256];
+						k[255] = '\0';
+				
+				
+					{
+						SV **val;
+						strncpy( k, "sortOrder", 255 );
+						val = hv_fetch( h, "sortOrder", 9, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								p->sortOrder = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"sortOrder\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "fieldId", 255 );
+						val = hv_fetch( h, "fieldId", 7, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								rev_ARMultiSchemaFieldIdStruct( ctrl, h, k, &(p->fieldId) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"fieldId\"" );
+							return -1;
+						}
+					}
+				
+				
+					}else{
+						ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaSortStruct: hash value is not a hash reference" );
+						return -1;
+					}
+				
+				
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaSortStruct: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaSortStruct: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaSortStruct: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+
+
+
 #if AR_CURRENT_API_VERSION >= 14
 int
 rev_ARMultiSchemaStatHistoryValue( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaStatHistoryValue *p ){
@@ -10638,7 +10614,7 @@ rev_ARMultiSchemaStatHistoryValue( ARControlStruct *ctrl, HV *h, char *k, ARMult
 						SV **val;
 						strncpy( k, "enumVal", 255 );
 						val = hv_fetch( h, "enumVal", 7, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->enumVal = SvIV(*val);
 							}
@@ -10653,7 +10629,7 @@ rev_ARMultiSchemaStatHistoryValue( ARControlStruct *ctrl, HV *h, char *k, ARMult
 						SV **val;
 						strncpy( k, "queryFromAlias", 255 );
 						val = hv_fetch( h, "queryFromAlias", 14, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->queryFromAlias, SvPV_nolen(*val), sizeof(p->queryFromAlias) );
 							}
@@ -10668,7 +10644,7 @@ rev_ARMultiSchemaStatHistoryValue( ARControlStruct *ctrl, HV *h, char *k, ARMult
 						SV **val;
 						strncpy( k, "userOrTime", 255 );
 						val = hv_fetch( h, "userOrTime", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->userOrTime = SvIV(*val);
 							}
@@ -10736,7 +10712,7 @@ rev_ARMultiSchemaValueSetQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARM
 						SV **val;
 						strncpy( k, "qualifier", 255 );
 						val = hv_fetch( h, "qualifier", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->qualifier = MALLOCNN(sizeof(ARMultiSchemaQualifierStruct)); rev_ARMultiSchemaQualifierStruct( ctrl, h, k, p->qualifier );
 							}
@@ -10751,7 +10727,7 @@ rev_ARMultiSchemaValueSetQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARM
 						SV **val;
 						strncpy( k, "queryFromList", 255 );
 						val = hv_fetch( h, "queryFromList", 13, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARMultiSchemaQueryFromList( ctrl, h, k, &(p->queryFromList) );
 							}
@@ -10766,7 +10742,7 @@ rev_ARMultiSchemaValueSetQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARM
 						SV **val;
 						strncpy( k, "fieldId", 255 );
 						val = hv_fetch( h, "fieldId", 7, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARMultiSchemaFieldIdStruct( ctrl, h, k, &(p->fieldId) );
 							}
@@ -10909,7 +10885,7 @@ rev_AROpenDlgStruct( ARControlStruct *ctrl, HV *h, char *k, AROpenDlgStruct *p )
 						SV **val;
 						strncpy( k, "windowMode", 255 );
 						val = hv_fetch( h, "windowMode", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								int flag = 0;
 								if( !strcmp(SvPV_nolen(*val),"open_search") ){
@@ -10968,7 +10944,7 @@ rev_AROpenDlgStruct( ARControlStruct *ctrl, HV *h, char *k, AROpenDlgStruct *p )
 						SV **val;
 						strncpy( k, "vuiLabel", 255 );
 						val = hv_fetch( h, "vuiLabel", 8, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->vuiLabel, SvPV_nolen(*val), sizeof(p->vuiLabel) );
 							}
@@ -10983,7 +10959,7 @@ rev_AROpenDlgStruct( ARControlStruct *ctrl, HV *h, char *k, AROpenDlgStruct *p )
 						SV **val;
 						strncpy( k, "reportString", 255 );
 						val = hv_fetch( h, "reportString", 12, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->reportString = strdup( SvPV_nolen(*val) );
 							}
@@ -10998,7 +10974,7 @@ rev_AROpenDlgStruct( ARControlStruct *ctrl, HV *h, char *k, AROpenDlgStruct *p )
 						SV **val;
 						strncpy( k, "suppressEmptyList", 255 );
 						val = hv_fetch( h, "suppressEmptyList", 17, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								int flag = 0;
 								if( !strcmp(SvPV_nolen(*val),"true") ){
@@ -11025,7 +11001,7 @@ rev_AROpenDlgStruct( ARControlStruct *ctrl, HV *h, char *k, AROpenDlgStruct *p )
 						SV **val;
 						strncpy( k, "pollinginterval", 255 );
 						val = hv_fetch( h, "pollinginterval", 15, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->pollinginterval = SvIV(*val);
 							}
@@ -11040,7 +11016,7 @@ rev_AROpenDlgStruct( ARControlStruct *ctrl, HV *h, char *k, AROpenDlgStruct *p )
 						SV **val;
 						strncpy( k, "targetLocation", 255 );
 						val = hv_fetch( h, "targetLocation", 14, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->targetLocation = strdup( SvPV_nolen(*val) );
 							}
@@ -11055,7 +11031,7 @@ rev_AROpenDlgStruct( ARControlStruct *ctrl, HV *h, char *k, AROpenDlgStruct *p )
 						SV **val;
 						strncpy( k, "windowMode", 255 );
 						val = hv_fetch( h, "windowMode", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								int flag = 0;
 								if( !strcmp(SvPV_nolen(*val),"open_modify") ){
@@ -11122,7 +11098,7 @@ rev_AROpenDlgStruct( ARControlStruct *ctrl, HV *h, char *k, AROpenDlgStruct *p )
 						SV **val;
 						strncpy( k, "outputValueFieldPairs", 255 );
 						val = hv_fetch( h, "outputValueFieldPairs", 21, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARFieldAssignList( ctrl, h, k, &(p->outputValueFieldPairs) );
 							}
@@ -11137,7 +11113,7 @@ rev_AROpenDlgStruct( ARControlStruct *ctrl, HV *h, char *k, AROpenDlgStruct *p )
 						SV **val;
 						strncpy( k, "query", 255 );
 						val = hv_fetch( h, "query", 5, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARQualifierStruct( ctrl, h, k, &(p->query) );
 							}
@@ -11152,7 +11128,7 @@ rev_AROpenDlgStruct( ARControlStruct *ctrl, HV *h, char *k, AROpenDlgStruct *p )
 						SV **val;
 						strncpy( k, "serverName", 255 );
 						val = hv_fetch( h, "serverName", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->serverName, SvPV_nolen(*val), sizeof(p->serverName) );
 							}
@@ -11167,7 +11143,7 @@ rev_AROpenDlgStruct( ARControlStruct *ctrl, HV *h, char *k, AROpenDlgStruct *p )
 						SV **val;
 						strncpy( k, "message", 255 );
 						val = hv_fetch( h, "message", 7, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARMessageStruct( ctrl, h, k, &(p->msg) );
 							}
@@ -11182,7 +11158,7 @@ rev_AROpenDlgStruct( ARControlStruct *ctrl, HV *h, char *k, AROpenDlgStruct *p )
 						SV **val;
 						strncpy( k, "noMatchContinue", 255 );
 						val = hv_fetch( h, "noMatchContinue", 15, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								int flag = 0;
 								if( !strcmp(SvPV_nolen(*val),"true") ){
@@ -11209,7 +11185,7 @@ rev_AROpenDlgStruct( ARControlStruct *ctrl, HV *h, char *k, AROpenDlgStruct *p )
 						SV **val;
 						strncpy( k, "sortOrderList", 255 );
 						val = hv_fetch( h, "sortOrderList", 13, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARSortList( ctrl, h, k, &(p->sortOrderList) );
 							}
@@ -11224,7 +11200,7 @@ rev_AROpenDlgStruct( ARControlStruct *ctrl, HV *h, char *k, AROpenDlgStruct *p )
 						SV **val;
 						strncpy( k, "inputValueFieldPairs", 255 );
 						val = hv_fetch( h, "inputValueFieldPairs", 20, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARFieldAssignList( ctrl, h, k, &(p->inputValueFieldPairs) );
 							}
@@ -11239,7 +11215,7 @@ rev_AROpenDlgStruct( ARControlStruct *ctrl, HV *h, char *k, AROpenDlgStruct *p )
 						SV **val;
 						strncpy( k, "closeBox", 255 );
 						val = hv_fetch( h, "closeBox", 8, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								int flag = 0;
 								if( !strcmp(SvPV_nolen(*val),"true") ){
@@ -11266,7 +11242,7 @@ rev_AROpenDlgStruct( ARControlStruct *ctrl, HV *h, char *k, AROpenDlgStruct *p )
 						SV **val;
 						strncpy( k, "schemaName", 255 );
 						val = hv_fetch( h, "schemaName", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->schemaName, SvPV_nolen(*val), sizeof(p->schemaName) );
 							}
@@ -11334,7 +11310,7 @@ rev_ARPushFieldsActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARPushField
 						SV **val;
 						strncpy( k, "sampleSchema", 255 );
 						val = hv_fetch( h, "sampleSchema", 12, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->sampleSchema, SvPV_nolen(*val), sizeof(p->sampleSchema) );
 							}
@@ -11349,7 +11325,7 @@ rev_ARPushFieldsActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARPushField
 						SV **val;
 						strncpy( k, "pushFieldsList", 255 );
 						val = hv_fetch( h, "pushFieldsList", 14, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARPushFieldsList( ctrl, h, k, &(p->pushFieldsList) );
 							}
@@ -11364,7 +11340,7 @@ rev_ARPushFieldsActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARPushField
 						SV **val;
 						strncpy( k, "sampleServer", 255 );
 						val = hv_fetch( h, "sampleServer", 12, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->sampleServer, SvPV_nolen(*val), sizeof(p->sampleServer) );
 							}
@@ -11507,7 +11483,7 @@ rev_ARPushFieldsStruct( ARControlStruct *ctrl, HV *h, char *k, ARPushFieldsStruc
 						SV **val;
 						strncpy( k, "assign", 255 );
 						val = hv_fetch( h, "assign", 6, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARAssignStruct( ctrl, h, k, &(p->assign) );
 							}
@@ -11522,7 +11498,7 @@ rev_ARPushFieldsStruct( ARControlStruct *ctrl, HV *h, char *k, ARPushFieldsStruc
 						SV **val;
 						strncpy( k, "field", 255 );
 						val = hv_fetch( h, "field", 5, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARAssignFieldStruct( ctrl, h, k, &(p->field) );
 							}
@@ -11719,7 +11695,7 @@ rev_ARQualifierStruct( ARControlStruct *ctrl, HV *h, char *k, ARQualifierStruct 
 										SV **val;
 										strncpy( k, "left", 255 );
 										val = hv_fetch( h, "left", 4, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.andor.operandLeft = MALLOCNN(sizeof(ARQualifierStruct)); rev_ARQualifierStruct( ctrl, h, k, p->u.andor.operandLeft );
 											}
@@ -11734,7 +11710,7 @@ rev_ARQualifierStruct( ARControlStruct *ctrl, HV *h, char *k, ARQualifierStruct 
 										SV **val;
 										strncpy( k, "right", 255 );
 										val = hv_fetch( h, "right", 5, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.andor.operandRight = MALLOCNN(sizeof(ARQualifierStruct)); rev_ARQualifierStruct( ctrl, h, k, p->u.andor.operandRight );
 											}
@@ -11770,7 +11746,7 @@ rev_ARQualifierStruct( ARControlStruct *ctrl, HV *h, char *k, ARQualifierStruct 
 										SV **val;
 										strncpy( k, "rel_op", 255 );
 										val = hv_fetch( h, "rel_op", 6, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.relOp = MALLOCNN(sizeof(ARRelOpStruct)); rev_ARRelOpStruct( ctrl, h, k, p->u.relOp );
 											}
@@ -11806,7 +11782,7 @@ rev_ARQualifierStruct( ARControlStruct *ctrl, HV *h, char *k, ARQualifierStruct 
 										SV **val;
 										strncpy( k, "not", 255 );
 										val = hv_fetch( h, "not", 3, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.not = MALLOCNN(sizeof(ARQualifierStruct)); rev_ARQualifierStruct( ctrl, h, k, p->u.not );
 											}
@@ -11842,7 +11818,7 @@ rev_ARQualifierStruct( ARControlStruct *ctrl, HV *h, char *k, ARQualifierStruct 
 										SV **val;
 										strncpy( k, "fieldId", 255 );
 										val = hv_fetch( h, "fieldId", 7, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.fieldId = SvIV(*val);
 											}
@@ -11878,7 +11854,7 @@ rev_ARQualifierStruct( ARControlStruct *ctrl, HV *h, char *k, ARQualifierStruct 
 										SV **val;
 										strncpy( k, "left", 255 );
 										val = hv_fetch( h, "left", 4, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.andor.operandLeft = MALLOCNN(sizeof(ARQualifierStruct)); rev_ARQualifierStruct( ctrl, h, k, p->u.andor.operandLeft );
 											}
@@ -11893,7 +11869,7 @@ rev_ARQualifierStruct( ARControlStruct *ctrl, HV *h, char *k, ARQualifierStruct 
 										SV **val;
 										strncpy( k, "right", 255 );
 										val = hv_fetch( h, "right", 5, 0 );
-										if( val	&& *val ){
+										if( val && *val && SvOK(*val) ){
 											{
 												p->u.andor.operandRight = MALLOCNN(sizeof(ARQualifierStruct)); rev_ARQualifierStruct( ctrl, h, k, p->u.andor.operandRight );
 											}
@@ -11973,7 +11949,7 @@ rev_ARQueryValueStruct( ARControlStruct *ctrl, HV *h, char *k, ARQueryValueStruc
 						SV **val;
 						strncpy( k, "qualifier", 255 );
 						val = hv_fetch( h, "qualifier", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->qualifier = MALLOCNN(sizeof(ARQualifierStruct)); rev_ARQualifierStruct( ctrl, h, k, p->qualifier );
 							}
@@ -11988,7 +11964,7 @@ rev_ARQueryValueStruct( ARControlStruct *ctrl, HV *h, char *k, ARQueryValueStruc
 						SV **val;
 						strncpy( k, "multi", 255 );
 						val = hv_fetch( h, "multi", 5, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								int flag = 0;
 								if( !strcmp(SvPV_nolen(*val),"set") ){
@@ -12019,7 +11995,7 @@ rev_ARQueryValueStruct( ARControlStruct *ctrl, HV *h, char *k, ARQueryValueStruc
 						SV **val;
 						strncpy( k, "server", 255 );
 						val = hv_fetch( h, "server", 6, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->server, SvPV_nolen(*val), sizeof(p->server) );
 							}
@@ -12034,7 +12010,7 @@ rev_ARQueryValueStruct( ARControlStruct *ctrl, HV *h, char *k, ARQueryValueStruc
 						SV **val;
 						strncpy( k, "valueField", 255 );
 						val = hv_fetch( h, "valueField", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->valueField = SvIV(*val);
 							}
@@ -12049,7 +12025,7 @@ rev_ARQueryValueStruct( ARControlStruct *ctrl, HV *h, char *k, ARQueryValueStruc
 						SV **val;
 						strncpy( k, "schema", 255 );
 						val = hv_fetch( h, "schema", 6, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->schema, SvPV_nolen(*val), sizeof(p->schema) );
 							}
@@ -12117,7 +12093,7 @@ rev_ARRealLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARRealLimitsStruc
 						SV **val;
 						strncpy( k, "min", 255 );
 						val = hv_fetch( h, "min", 3, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->rangeLow = SvNV(*val);
 							}
@@ -12132,7 +12108,7 @@ rev_ARRealLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARRealLimitsStruc
 						SV **val;
 						strncpy( k, "max", 255 );
 						val = hv_fetch( h, "max", 3, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->rangeHigh = SvNV(*val);
 							}
@@ -12147,7 +12123,7 @@ rev_ARRealLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARRealLimitsStruc
 						SV **val;
 						strncpy( k, "precision", 255 );
 						val = hv_fetch( h, "precision", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->precision = SvIV(*val);
 							}
@@ -12290,7 +12266,7 @@ rev_ARRelOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARRelOpStruct *p ){
 						SV **val;
 						strncpy( k, "left", 255 );
 						val = hv_fetch( h, "left", 4, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARFieldValueOrArithStruct( ctrl, h, k, &(p->operandLeft) );
 							}
@@ -12305,7 +12281,7 @@ rev_ARRelOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARRelOpStruct *p ){
 						SV **val;
 						strncpy( k, "right", 255 );
 						val = hv_fetch( h, "right", 5, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARFieldValueOrArithStruct( ctrl, h, k, &(p->operandRight) );
 							}
@@ -12320,7 +12296,7 @@ rev_ARRelOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARRelOpStruct *p ){
 						SV **val;
 						strncpy( k, "oper", 255 );
 						val = hv_fetch( h, "oper", 4, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								int flag = 0;
 								if( !strcmp(SvPV_nolen(*val),">") ){
@@ -12424,7 +12400,7 @@ rev_ARSQLStruct( ARControlStruct *ctrl, HV *h, char *k, ARSQLStruct *p ){
 						SV **val;
 						strncpy( k, "server", 255 );
 						val = hv_fetch( h, "server", 6, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->server, SvPV_nolen(*val), sizeof(p->server) );
 							}
@@ -12439,7 +12415,7 @@ rev_ARSQLStruct( ARControlStruct *ctrl, HV *h, char *k, ARSQLStruct *p ){
 						SV **val;
 						strncpy( k, "command", 255 );
 						val = hv_fetch( h, "command", 7, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->command = strdup( SvPV_nolen(*val) );
 							}
@@ -12507,7 +12483,7 @@ rev_ARSetFieldsActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARSetFieldsA
 						SV **val;
 						strncpy( k, "sampleSchema", 255 );
 						val = hv_fetch( h, "sampleSchema", 12, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->sampleSchema, SvPV_nolen(*val), sizeof(p->sampleSchema) );
 							}
@@ -12522,7 +12498,7 @@ rev_ARSetFieldsActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARSetFieldsA
 						SV **val;
 						strncpy( k, "sampleServer", 255 );
 						val = hv_fetch( h, "sampleServer", 12, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->sampleServer, SvPV_nolen(*val), sizeof(p->sampleServer) );
 							}
@@ -12537,7 +12513,7 @@ rev_ARSetFieldsActionStruct( ARControlStruct *ctrl, HV *h, char *k, ARSetFieldsA
 						SV **val;
 						strncpy( k, "fieldList", 255 );
 						val = hv_fetch( h, "fieldList", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARFieldAssignList( ctrl, h, k, &(p->fieldList) );
 							}
@@ -12680,7 +12656,7 @@ rev_ARSortStruct( ARControlStruct *ctrl, HV *h, char *k, ARSortStruct *p ){
 						SV **val;
 						strncpy( k, "sortOrder", 255 );
 						val = hv_fetch( h, "sortOrder", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->sortOrder = SvIV(*val);
 							}
@@ -12695,7 +12671,7 @@ rev_ARSortStruct( ARControlStruct *ctrl, HV *h, char *k, ARSortStruct *p ){
 						SV **val;
 						strncpy( k, "fieldId", 255 );
 						val = hv_fetch( h, "fieldId", 7, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->fieldId = SvIV(*val);
 							}
@@ -12838,7 +12814,7 @@ rev_ARTableLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARTableLimitsStr
 						SV **val;
 						strncpy( k, "sampleSchema", 255 );
 						val = hv_fetch( h, "sampleSchema", 12, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->sampleSchema, SvPV_nolen(*val), sizeof(p->sampleSchema) );
 							}
@@ -12853,7 +12829,7 @@ rev_ARTableLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARTableLimitsStr
 						SV **val;
 						strncpy( k, "numColumns", 255 );
 						val = hv_fetch( h, "numColumns", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->numColumns = SvIV(*val);
 							}
@@ -12868,7 +12844,7 @@ rev_ARTableLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARTableLimitsStr
 						SV **val;
 						strncpy( k, "qualifier", 255 );
 						val = hv_fetch( h, "qualifier", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARQualifierStruct( ctrl, h, k, &(p->qualifier) );
 							}
@@ -12883,7 +12859,7 @@ rev_ARTableLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARTableLimitsStr
 						SV **val;
 						strncpy( k, "maxRetrieve", 255 );
 						val = hv_fetch( h, "maxRetrieve", 11, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->maxRetrieve = SvIV(*val);
 							}
@@ -12898,7 +12874,7 @@ rev_ARTableLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARTableLimitsStr
 						SV **val;
 						strncpy( k, "sampleServer", 255 );
 						val = hv_fetch( h, "sampleServer", 12, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->sampleServer, SvPV_nolen(*val), sizeof(p->sampleServer) );
 							}
@@ -12913,7 +12889,7 @@ rev_ARTableLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARTableLimitsStr
 						SV **val;
 						strncpy( k, "server", 255 );
 						val = hv_fetch( h, "server", 6, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->server, SvPV_nolen(*val), sizeof(p->server) );
 							}
@@ -12928,7 +12904,7 @@ rev_ARTableLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARTableLimitsStr
 						SV **val;
 						strncpy( k, "schema", 255 );
 						val = hv_fetch( h, "schema", 6, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->schema, SvPV_nolen(*val), sizeof(p->schema) );
 							}
@@ -13146,7 +13122,7 @@ rev_ARVendorMappingStruct( ARControlStruct *ctrl, HV *h, char *k, ARVendorMappin
 						SV **val;
 						strncpy( k, "fieldName", 255 );
 						val = hv_fetch( h, "fieldName", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->fieldName, SvPV_nolen(*val), sizeof(p->fieldName) );
 							}
@@ -13214,7 +13190,7 @@ rev_ARVendorSchema( ARControlStruct *ctrl, HV *h, char *k, ARVendorSchema *p ){
 						SV **val;
 						strncpy( k, "tableName", 255 );
 						val = hv_fetch( h, "tableName", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->tableName, SvPV_nolen(*val), sizeof(p->tableName) );
 							}
@@ -13229,7 +13205,7 @@ rev_ARVendorSchema( ARControlStruct *ctrl, HV *h, char *k, ARVendorSchema *p ){
 						SV **val;
 						strncpy( k, "vendorName", 255 );
 						val = hv_fetch( h, "vendorName", 10, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->vendorName, SvPV_nolen(*val), sizeof(p->vendorName) );
 							}
@@ -13297,7 +13273,7 @@ rev_ARViewLimits( ARControlStruct *ctrl, HV *h, char *k, ARViewLimits *p ){
 						SV **val;
 						strncpy( k, "maxLength", 255 );
 						val = hv_fetch( h, "maxLength", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->maxLength = SvIV(*val);
 							}
@@ -13365,7 +13341,7 @@ rev_ARViewMappingStruct( ARControlStruct *ctrl, HV *h, char *k, ARViewMappingStr
 						SV **val;
 						strncpy( k, "fieldName", 255 );
 						val = hv_fetch( h, "fieldName", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->fieldName, SvPV_nolen(*val), sizeof(p->fieldName) );
 							}
@@ -13433,7 +13409,7 @@ rev_ARViewSchema( ARControlStruct *ctrl, HV *h, char *k, ARViewSchema *p ){
 						SV **val;
 						strncpy( k, "keyField", 255 );
 						val = hv_fetch( h, "keyField", 8, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->keyField, SvPV_nolen(*val), sizeof(p->keyField) );
 							}
@@ -13448,7 +13424,7 @@ rev_ARViewSchema( ARControlStruct *ctrl, HV *h, char *k, ARViewSchema *p ){
 						SV **val;
 						strncpy( k, "tableName", 255 );
 						val = hv_fetch( h, "tableName", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								strncpy( p->tableName, SvPV_nolen(*val), sizeof(p->tableName) );
 							}
@@ -13516,7 +13492,7 @@ rev_ARWaitStruct( ARControlStruct *ctrl, HV *h, char *k, ARWaitStruct *p ){
 						SV **val;
 						strncpy( k, "continueButtonTitle", 255 );
 						val = hv_fetch( h, "continueButtonTitle", 19, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->continueButtonTitle = strdup( SvPV_nolen(*val) );
 							}
@@ -13584,7 +13560,7 @@ rev_ARXMLEntryReturn( ARControlStruct *ctrl, HV *h, char *k, ARXMLEntryReturn *p
 						SV **val;
 						strncpy( k, "status", 255 );
 						val = hv_fetch( h, "status", 6, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								rev_ARStatusList( ctrl, h, k, &(p->status) );
 							}
@@ -13599,7 +13575,7 @@ rev_ARXMLEntryReturn( ARControlStruct *ctrl, HV *h, char *k, ARXMLEntryReturn *p
 						SV **val;
 						strncpy( k, "outputDoc", 255 );
 						val = hv_fetch( h, "outputDoc", 9, 0 );
-						if( val	&& *val ){
+						if( val && *val && SvOK(*val) ){
 							{
 								p->outputDoc = strdup( SvPV_nolen(*val) );
 							}

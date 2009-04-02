@@ -1894,8 +1894,9 @@ ARMultiSchemaQueryFromStruct => {
 		_data => 'p->joinType',
 	},
 	joinQual => {
-		_type => 'ARMultiSchemaQualifierStruct*',
-		_data => 'p->joinQual',
+		_type    => 'ARMultiSchemaQualifierStruct*',
+		_data    => 'p->joinQual',
+		_default => 'NULL',
 	},
 	_switch => 'p->type',
 	_case    => {
@@ -2093,6 +2094,21 @@ ARMultiSchemaFieldValueOrArithStruct => {
 	},
 },
 
+#ARMultiSchemaArithOpStruct => {
+#	_min_version => '7.5.0',
+#	operation => {
+#		_type => 'unsigned int',
+#		_data => 'p->operation',
+#	},
+#	operandLeft => {
+#		_type => 'ARMultiSchemaFieldValueOrArithStruct',
+#		_data => 'p->operandLeft',
+#	},
+#	operandRight => {
+#		_type => 'ARMultiSchemaFieldValueOrArithStruct',
+#		_data => 'p->operandRight',
+#	},
+#},
 ARMultiSchemaCurrencyPartStruct => {
 	_min_version => '7.5.0',
 	fieldId => {
@@ -2106,32 +2122,6 @@ ARMultiSchemaCurrencyPartStruct => {
 	currencyCode => {
 		_type => 'ARCurrencyCodeType',
 		_data => 'p->currencyCode',
-	},
-},
-ARMultiSchemaFieldIdStruct => {
-	_min_version => '7.5.0',
-	queryFromAlias => {
-		_type => 'ARNameType',
-		_data => 'p->queryFromAlias',
-	},
-	fieldId => {
-		_type => 'ARInternalId',
-		_data => 'p->fieldId',
-	},
-},
-ARMultiSchemaArithOpStruct => {
-	_min_version => '7.5.0',
-	operation => {
-		_type => 'unsigned int',
-		_data => 'p->operation',
-	},
-	operandLeft => {
-		_type => 'ARMultiSchemaFieldValueOrArithStruct',
-		_data => 'p->operandLeft',
-	},
-	operandRight => {
-		_type => 'ARMultiSchemaFieldValueOrArithStruct',
-		_data => 'p->operandRight',
 	},
 },
 ARMultiSchemaValueSetQueryStruct => {
@@ -2170,6 +2160,35 @@ ARMultiSchemaFieldIdList => {
 	_list => 'p->listPtr',
 	_type => 'ARMultiSchemaFieldIdStruct',
 },
+
+ARMultiSchemaSortList => {
+	_num  => 'p->numItems',
+	_list => 'p->listPtr',
+	_type => 'ARMultiSchemaSortStruct',
+},
+ARMultiSchemaSortStruct => {
+	fieldId => {
+		_type => 'ARMultiSchemaFieldIdStruct',
+		_data => 'p->fieldId',
+	},
+	sortOrder => {
+		_type => 'unsigned int',
+		_data => 'p->sortOrder',
+	},
+},
+
+
+#ARMultiSchemaFieldIdStruct => {
+#	_min_version => '7.5.0',
+#	queryFromAlias => {
+#		_type => 'ARNameType',
+#		_data => 'p->queryFromAlias',
+#	},
+#	fieldId => {
+#		_type => 'ARInternalId',
+#		_data => 'p->fieldId',
+#	},
+#},
 
 
 

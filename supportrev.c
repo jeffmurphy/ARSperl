@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.33 2009/03/31 17:41:18 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.34 2009/04/02 18:57:03 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -3657,6 +3657,207 @@ rev_ARArithOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARArithOpStruct *p )
 
 	return 0;
 }
+
+
+
+#if AR_CURRENT_API_VERSION >= 14
+int
+rev_ARMultiSchemaFieldIdStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFieldIdStruct *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldIdStruct: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARMultiSchemaFieldIdStruct: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				if( SvPOK(*val) ){
+					STRLEN len;
+					int i, pos = 0;
+					char *str = SvPV( *val, len );
+
+					for( i = len-1; i >= 0; --i ){
+						if( str[i] == '.' ){
+							pos = i;
+							break;
+						}
+					}
+
+					if( pos == 0 || pos == len-1 ){
+						ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldIdStruct: no fieldId separator found");
+						return -2;
+					}
+					if( pos > AR_MAX_NAME_SIZE ){
+						ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldIdStruct: query alias too long");
+						return -2;
+					}
+
+					strncpy( p->queryFromAlias, str, pos );
+					p->queryFromAlias[pos] = '\0';
+					p->fieldId = atoi( &(str[pos+1]) );
+
+				}else{
+					ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldIdStruct: not a char value");
+					return -2;
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldIdStruct: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldIdStruct: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldIdStruct: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+#endif
+
+
+
+#if AR_CURRENT_API_VERSION >= 14
+int
+rev_ARMultiSchemaArithOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaArithOpStruct *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaArithOpStruct: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARMultiSchemaArithOpStruct: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+				
+				
+					if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+						int i = 0, num = 0;
+						HV *h = (HV* ) SvRV((SV*) *val);
+						char k[256];
+						k[255] = '\0';
+				
+				
+					{
+						SV **val;
+						strncpy( k, "oper", 255 );
+						val = hv_fetch( h, "oper", 4, 0 );
+						if( val	&& *val ){
+							{
+								int flag = 0;
+								if( !strcmp(SvPV_nolen(*val),"/") ){
+									p->operation = AR_ARITH_OP_DIVIDE;
+									flag = 1;
+								}
+								if( !strcmp(SvPV_nolen(*val),"%") ){
+									p->operation = AR_ARITH_OP_MODULO;
+									flag = 1;
+								}
+								if( !strcmp(SvPV_nolen(*val),"+") ){
+									p->operation = AR_ARITH_OP_ADD;
+									flag = 1;
+								}
+								/*
+								if( !strcmp(SvPV_nolen(*val),"-") ){
+									p->operation = AR_ARITH_OP_NEGATE;
+									flag = 1;
+								}
+								*/
+								if( !strcmp(SvPV_nolen(*val),"*") ){
+									p->operation = AR_ARITH_OP_MULTIPLY;
+									flag = 1;
+								}
+								if( !strcmp(SvPV_nolen(*val),"-") ){
+									p->operation = AR_ARITH_OP_SUBTRACT;
+									flag = 1;
+								}
+								if( flag == 0 ){
+									ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,  "rev_ARMultiSchemaArithOpStruct: invalid key value" );
+									ARError_add( AR_RETURN_ERROR, AP_ERR_CONTINUE, SvPV_nolen(*val) );
+								}
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"oper\"" );
+							return -1;
+						}
+					}
+
+
+					{
+						SV **val;
+						strncpy( k, "left", 255 );
+						val = hv_fetch( h, "left", 4, 0 );
+						if( val	&& *val ){
+							{
+								rev_ARMultiSchemaFieldValueOrArithStruct( ctrl, h, k, &(p->operandLeft) );
+							}
+						}else{
+							if( p->operation == AR_ARITH_OP_SUBTRACT ){
+								p->operation = AR_ARITH_OP_NEGATE;
+							}else{
+								ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"left\"" );
+								return -1;
+							}
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "right", 255 );
+						val = hv_fetch( h, "right", 5, 0 );
+						if( val	&& *val ){
+							{
+								rev_ARMultiSchemaFieldValueOrArithStruct( ctrl, h, k, &(p->operandRight) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"right\"" );
+							return -1;
+						}
+					}
+				
+				
+				
+				
+					}else{
+						ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaArithOpStruct: hash value is not a hash reference" );
+						return -1;
+					}
+				
+				
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaArithOpStruct: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaArithOpStruct: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaArithOpStruct: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+#endif
 
 
 

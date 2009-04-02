@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.18 2009/03/31 17:41:18 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.19 2009/04/02 18:57:04 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -139,8 +139,14 @@ rev_ARMessageStruct(ARControlStruct * ctrl,
 EXTERN int rev_ARArchiveInfoStruct( ARControlStruct *ctrl, HV *h, char *k, ARArchiveInfoStruct *p );
 #endif
 
-EXTERN int
-rev_ARArithOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARArithOpStruct *p );
+EXTERN int rev_ARArithOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARArithOpStruct *p );
+
+
+#if AR_CURRENT_API_VERSION >= 14
+EXTERN int rev_ARMultiSchemaFieldIdStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFieldIdStruct *p );
+EXTERN int rev_ARMultiSchemaArithOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaArithOpStruct *p );
+#endif
+
 
 #endif /* __supportrev_h_ */
 

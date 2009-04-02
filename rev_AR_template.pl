@@ -350,7 +350,7 @@ rev_<@ $class @>( ARControlStruct *ctrl, HV *h, char *k, <@ $class @> *p ){
 		SV **val;
 		strncpy( k, "<@ $key2 @>", 255 );
 		val = hv_fetch( h, "<@ $key2 @>", <@ length($key2) @>, 0 );
-		if( val	&& *val ){
+		if( val && *val && SvOK(*val) ){
 @>             perlToStruct( $obj->{$key}, $class, "$LINE_INDENT\t\t\t" );
 		}else{
 @>             if( $obj->{$key}{_default} ){

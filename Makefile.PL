@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.83 2009/04/01 15:04:50 tstapff Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.84 2009/04/02 18:57:03 tstapff Exp $
 #
 # ARSperl Makefile
 #
@@ -55,7 +55,7 @@ $ARSAPI      = "/usr/ar/api";
 #              your version (e.g. for 4.5 you would specify 4.0, NOT
 #	       4.52)
 #
-$ARSVERSION = 7.1;
+$ARSVERSION = 7.5;
 
 # STEP 3 -> Choose whether or not to enable encryption
 #
