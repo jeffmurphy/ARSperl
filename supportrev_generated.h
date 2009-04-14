@@ -271,12 +271,12 @@ EXTERN int rev_ARMultiSchemaRecursiveQueryStruct( ARControlStruct *ctrl, HV *h, 
 #if AR_CURRENT_API_VERSION >= 14
 EXTERN int rev_ARMultiSchemaRelOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaRelOpStruct *p );
 #endif
-
+#if AR_CURRENT_API_VERSION >= 14
 EXTERN int rev_ARMultiSchemaSortList( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaSortList *p );
-
-
+#endif
+#if AR_CURRENT_API_VERSION >= 14
 EXTERN int rev_ARMultiSchemaSortStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaSortStruct *p );
-
+#endif
 #if AR_CURRENT_API_VERSION >= 14
 EXTERN int rev_ARMultiSchemaStatHistoryValue( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaStatHistoryValue *p );
 #endif

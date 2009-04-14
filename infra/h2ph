@@ -73,7 +73,7 @@ while (defined (my $file = next_file())) {
 	open(OUT,">$Dest_dir/$outfile") || die "Can't create $outfile: $!\n";
     }
 
-    print OUT "require '_h2ph_pre.ph';\n\n";
+#    print OUT "require '_h2ph_pre.ph';\n\n";   ### TS, _h2ph_pre.ph is empty anyways
 
     while (defined (local $_ = next_line($file))) {
 	if (s/^\s*\#\s*//) {
@@ -137,7 +137,7 @@ while (defined (my $file = next_file())) {
 		}
 	    } elsif (/^(include|import)\s*[<"](.*)[>"]/) {
 		($incl = $2) =~ s/\.h$/.ph/;
-		print OUT $t,"require '$incl';\n";
+#		print OUT $t,"require '$incl';\n";   ### TS, don't require artypes.ph
 	    } elsif(/^include_next\s*[<"](.*)[>"]/) {
 		($incl = $1) =~ s/\.h$/.ph/;
 		print OUT ($t,

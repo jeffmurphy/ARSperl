@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.84 2009/04/02 18:57:03 tstapff Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.85 2009/04/14 16:58:24 tstapff Exp $
 #
 # ARSperl Makefile
 #
@@ -57,14 +57,25 @@ $ARSAPI      = "/usr/ar/api";
 #
 $ARSVERSION = 7.5;
 
-# STEP 3 -> Choose whether or not to enable encryption
+
+# STEP 3 -> Choose architecture dependent suffix for library names, if necessary
+$ARCHITECTURE = "";
+# $ARCHITECTURE = "hpia32":   # HPUX Itanium 32-bit
+# $ARCHITECTURE = "hpia64":   # HPUX Itanium 64-bit
+# $ARCHITECTURE = "hppa64":   # HPUX PA-RISC 64-bit
+# $ARCHITECTURE = "lx64":   # Linux 64-bit
+# $ARCHITECTURE = "aixp64":   # AIX 64-bit
+# $ARCHITECTURE = "solsp64":   # Solaris 64-bit
+
+
+# STEP 4 -> Choose whether or not to enable encryption
 #
 # 0 -> No encryption library linking
 # 1 -> Link against Remedy's encryption library
 $ENCRYPT = 0;
 
 
-# STEP 4 -> Some additional compilation options
+# STEP 5 -> Some additional compilation options
 #  
 #   Change this only if you have good reason to do so.
 #
@@ -113,7 +124,7 @@ $GNU_WIN = ($^O eq 'MSWin32' || $^O eq 'cygwin') && $Config{'cc'} eq "gcc";
 $AUTODEFINES = " -g ";
 $AUTODEFINES = " -D_WIN32 " if($WINDOWS);
 $AUTODEFINES .= "  -Wno-unused-variable -Wuninitialized " if $Config{'cc'} eq "gcc";
-$AUTODEFINES .= " -D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_WARNINGS " if $WINDOWS && $ENV{ARSPERLTEST_PARAM};
+$AUTODEFINES .= " -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_WARNINGS " if $WINDOWS && $ENV{ARSPERLTEST_PARAM};
 
 $AUTODEFINES .= " -DARSPERL_UNDEF_MALLOC "   if $ADVANCED_CONFIG{UNDEF_PERL_MALLOC};
 $AUTODEFINES .= " -DGETLISTGROUP_OLD_STYLE " if $ADVANCED_CONFIG{GETLISTGROUP_OLD_STYLE};
@@ -128,14 +139,16 @@ foreach my $pm2install (qw{arerrno-h.pm  ar-h.pm  nparm.pm  OOform.pm  OOmsgs.pm
 	$PM->{'ARS/'.$pm2install} = '$(INST_LIBDIR)/ARS/'.$pm2install;
 }
 
+$LARCH = $ARCHITECTURE ? "_".$ARCHITECTURE : "";
+
 
 if ($ARSVERSION >= 6.3) {
-	$ARS_STATIC_LIB = "$ARSAPI/lib/libar.a";
-	$ARS_STATIC_LIB = "$ARSAPI/lib/libar.a $ARSAPI/libarencrypt.a" if $ENCRYPT;
+	$ARS_STATIC_LIB = "$ARSAPI/lib/libar$LARCH.a";
+	$ARS_STATIC_LIB = "$ARSAPI/lib/libar$LARCH.a $ARSAPI/libarencrypt$LARCH.a" if $ENCRYPT;
 	$ARS_LIBS = " -lnsl ";
 }else{
-	$ARS_LIBS = " -lar -lnsl ";
-	$ARS_LIBS = " -lar -larencrypt -lnsl " if $ENCRYPT;
+	$ARS_LIBS = " -lar$LARCH -lnsl ";
+	$ARS_LIBS = " -lar$LARCH -larencrypt$LARCH -lnsl " if $ENCRYPT;
 }
 #$PM->{'ARS/artypes.ph'} = '$(INST_LIBDIR)/ARS/artypes.ph' if $ARSVERSION >= 6.3;
 if ($GNU_WIN) {
@@ -144,10 +157,10 @@ if ($GNU_WIN) {
 	$ARS_LIBS = join(' ', map { '-l' . $_ } @{$ra_arlibs});
 } else {
 	$ARS_LIBS .= " -lpthread ";
-	$ARS_LIBS .= " -licuucbmc -licui18nbmc -libicudatabmc " if $ARSVERSION >= 7.0;
+	$ARS_LIBS .= " -licuucbmc$LARCH -licui18nbmc$LARCH -licudatabmc$LARCH " if $ARSVERSION >= 7.0;
 }
 $AUTODEFINES .= " -DARS32 -DARS452 ";
-if ( ($ARSVERSION >= 5.0) && ($^O eq 'linux') ) {
+if( ($ARSVERSION >= 5.0) && ($^O eq 'linux') && $LARCH !~ /64/ ){
 	$AUTODEFINES .= " -malign-double ";
 }
 
@@ -238,10 +251,10 @@ foreach ("ar", "arerrno") {
 		$rv = system("$Config{'perlpath'} infra/h2ph -d ./ARS < $headerFile > ARS/${_}-h.pm");
 	}
 
-	unlink ('ARS/_h2ph_pre.ph');
-	open (FD, "> ARS/_h2ph_pre.ph") || die "open: $!";
-	print FD "1;\n";
-	close(FD);
+#	unlink ('ARS/_h2ph_pre.ph');
+#	open (FD, "> ARS/_h2ph_pre.ph") || die "open: $!";
+#	print FD "1;\n";
+#	close(FD);
 
 	if((! -e "ARS/${_}-h.pm") || (-z "ARS/${_}-h.pm")) {
 		open (FD, "> ARS/${_}-h.pm") || die "open: $!";
@@ -318,7 +331,7 @@ WriteMakefile(
 # don't fiddle with this
 
               'realclean' => {
-		 'FILES' => 'support.h ARS/ar-h.pm ARS/arerrno-h.pm ARS/_h2ph_pre.ph t/config.cache serverTypeInfoHints.h *~ .purify ' 
+		 'FILES' => 'support.h ARS/ar-h.pm ARS/arerrno-h.pm ARS/_h2ph_pre.ph  t/config.cache serverTypeInfoHints.h *~ .purify ' 
 	      } 
 );
 

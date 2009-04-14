@@ -10425,7 +10425,7 @@ rev_ARMultiSchemaRelOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSche
 #endif
 
 
-
+#if AR_CURRENT_API_VERSION >= 14
 int
 rev_ARMultiSchemaSortList( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaSortList *p ){
 	SV  **val;
@@ -10497,10 +10497,10 @@ rev_ARMultiSchemaSortList( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaS
 
 	return 0;
 }
+#endif
 
 
-
-
+#if AR_CURRENT_API_VERSION >= 14
 int
 rev_ARMultiSchemaSortStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaSortStruct *p ){
 	SV  **val;
@@ -10580,7 +10580,7 @@ rev_ARMultiSchemaSortStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchem
 
 	return 0;
 }
-
+#endif
 
 
 #if AR_CURRENT_API_VERSION >= 14

@@ -2162,11 +2162,13 @@ ARMultiSchemaFieldIdList => {
 },
 
 ARMultiSchemaSortList => {
+	_min_version => '7.5.0',
 	_num  => 'p->numItems',
 	_list => 'p->listPtr',
 	_type => 'ARMultiSchemaSortStruct',
 },
 ARMultiSchemaSortStruct => {
+	_min_version => '7.5.0',
 	fieldId => {
 		_type => 'ARMultiSchemaFieldIdStruct',
 		_data => 'p->fieldId',
