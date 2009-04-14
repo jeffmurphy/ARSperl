@@ -1,4 +1,4 @@
-ARSOOform.pm
+ARS/OOform.pm
 ARS.pm
 ARS.xs
 ARS/CodeTemplate.pm
@@ -26,10 +26,13 @@ supportrev_generated.h
 typemap
 example/00-ReadMe
 example/AddUsersToGroup.pl
+example/ars_DateToJulianDate.pl
+example/ChangePassword.pl
 example/DelUsersFromGroup.pl
 example/Dump_Setup.pl
 example/Dump_Users.pl
 example/Dump_Users_OO.pl
+example/getCharSets.pl
 example/GetCharMenu.pl
 example/GetField.pl
 example/GetFilter.pl
@@ -44,7 +47,6 @@ example/ars_CopyActiveLink.pl
 example/ars_ExecuteProcess.pl
 example/ars_GetControlStructFields.pl
 example/ars_GetEntryBLOB.pl
-example/ars_GetFullTextInfo.pl
 example/ars_GetListContainer.pl
 example/ars_GetListEntry.pl
 example/ars_GetListGroup.pl
@@ -68,6 +70,7 @@ html/manual/ars_APIVersion.html
 html/manual/ars_CreateActiveLink.html
 html/manual/ars_CreateAlertEvent.html
 html/manual/ars_CreateEntry.html
+html/manual/ars_DateToJulianDate.html
 html/manual/ars_DecodeAlertMessage.html
 html/manual/ars_DeleteActiveLink.html
 html/manual/ars_DeleteCharMenu.html
@@ -87,6 +90,7 @@ html/manual/ars_GetActiveLink.html
 html/manual/ars_GetAlertCount.html
 html/manual/ars_GetCharMenu.html
 html/manual/ars_GetCharMenuItems.html
+html/manual/ars_GetClientCharSet.html
 html/manual/ars_GetContainer.html
 html/manual/ars_GetControlStructFields.html
 html/manual/ars_GetCurrentServer.html
@@ -97,7 +101,6 @@ html/manual/ars_GetField.html
 html/manual/ars_GetFieldByName.html
 html/manual/ars_GetFieldTable.html
 html/manual/ars_GetFilter.html
-html/manual/ars_GetFullTextInfo.html
 html/manual/ars_GetListActiveLink.html
 html/manual/ars_GetListAlertUser.html
 html/manual/ars_GetListCharMenu.html
@@ -116,6 +119,7 @@ html/manual/ars_GetListVUI.html
 html/manual/ars_GetMultipleEntries.html
 html/manual/ars_GetProfileInfo.html
 html/manual/ars_GetSchema.html
+html/manual/ars_GetServerCharSet.html
 html/manual/ars_GetServerInfo.html
 html/manual/ars_GetServerStatistics.html
 html/manual/ars_GetVUI.html
@@ -167,7 +171,6 @@ html/manual/ds_getescalation_hash.html
 html/manual/ds_getfilter_acthash.html
 html/manual/ds_getfilter_acthash_notifyhash.html
 html/manual/ds_getfilter_hash.html
-html/manual/ds_getfulltextinfo_hash.html
 html/manual/ds_getlistcontainer_hash.html
 html/manual/ds_getlistgroup_hash.html
 html/manual/ds_getlistsql_hash.html
