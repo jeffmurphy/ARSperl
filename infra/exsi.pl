@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Header: /cvsroot/arsperl/ARSperl/infra/exsi.pl,v 1.4 2009/03/31 17:41:18 tstapff Exp $
+# $Header: /cvsroot/arsperl/ARSperl/infra/exsi.pl,v 1.5 2009/12/14 17:25:34 jeffmurphy Exp $
 #
 # NAME
 #   exsi.pl < ar.h > server_info_type_hints.h
@@ -15,6 +15,9 @@
 #   jcmurphy@jeffmurphy.org
 #
 # $Log: exsi.pl,v $
+# Revision 1.5  2009/12/14 17:25:34  jeffmurphy
+# changed die to warn. due to watch serverinfotypehints is searched, shouldnt affect anything if theres a gap. sf bug id 2914262
+#
 # Revision 1.4  2009/03/31 17:41:18  tstapff
 # arsystem 7.5 port, AR*Image functions
 #
@@ -30,6 +33,7 @@
 #
 
 use strict;
+my $D  = 0;
 
 header();
 
@@ -37,7 +41,7 @@ header();
 my $ct = 0;  # counter for completeness check
 
 while(<>) {
-#	print;
+	print if $D;
 	chomp;
 	
 	# jump thru hoops
@@ -45,7 +49,9 @@ while(<>) {
 	my ($sin, $siv, $sit, $sit2);
 	# name value type type2
 
-	if(/\#define\s+(AR_SERVER_INFO_\S+)\s+(\d+)\s*\/\*\s*(\S+)\s+(\S+)?/) {
+	if(/AR_SERVER_INFO_MAX_ATTACH_SIZE/) {
+		next;
+	}elsif(/\#define\s+(AR_SERVER_INFO_\S+)\s+(\d+)\s*\/\*\s*(\S+)\s+(\S+)?/) {
 		($sin, $siv, $sit, $sit2) = ($1, $2, $3, $4);
 	}elsif(/\#define\s+(AR_SERVER_INFO_\S+)\s+(\d+)\s*$/){
 		($sin, $siv) = ($1, $2);
@@ -56,8 +62,9 @@ while(<>) {
 	}
 
 	if( $sin && $siv && $sit ){
+		print "sin $sin siv $siv sit $sit\n" if $D;
 		++$ct;
-		die "!!! ERROR: Cannot determine type for AR_SERVER_INFO constant $ct !!!" if $siv != $ct;
+		warn "!!! ERROR: Cannot determine type for AR_SERVER_INFO constant $ct !!!" if $siv != $ct;
 
 		next if $sit eq 'deprecated';
 
