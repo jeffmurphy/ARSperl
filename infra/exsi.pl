@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Header: /cvsroot/arsperl/ARSperl/infra/exsi.pl,v 1.5 2009/12/14 17:25:34 jeffmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/infra/exsi.pl,v 1.6 2009/12/14 17:30:56 jeffmurphy Exp $
 #
 # NAME
 #   exsi.pl < ar.h > server_info_type_hints.h
@@ -15,6 +15,9 @@
 #   jcmurphy@jeffmurphy.org
 #
 # $Log: exsi.pl,v $
+# Revision 1.6  2009/12/14 17:30:56  jeffmurphy
+# more fiddling with exsi.pl: removed skip of MAX_ATTACH_SIZE, reworded warning
+#
 # Revision 1.5  2009/12/14 17:25:34  jeffmurphy
 # changed die to warn. due to watch serverinfotypehints is searched, shouldnt affect anything if theres a gap. sf bug id 2914262
 #
@@ -49,9 +52,7 @@ while(<>) {
 	my ($sin, $siv, $sit, $sit2);
 	# name value type type2
 
-	if(/AR_SERVER_INFO_MAX_ATTACH_SIZE/) {
-		next;
-	}elsif(/\#define\s+(AR_SERVER_INFO_\S+)\s+(\d+)\s*\/\*\s*(\S+)\s+(\S+)?/) {
+	if(/\#define\s+(AR_SERVER_INFO_\S+)\s+(\d+)\s*\/\*\s*(\S+)\s+(\S+)?/) {
 		($sin, $siv, $sit, $sit2) = ($1, $2, $3, $4);
 	}elsif(/\#define\s+(AR_SERVER_INFO_\S+)\s+(\d+)\s*$/){
 		($sin, $siv) = ($1, $2);
@@ -64,7 +65,10 @@ while(<>) {
 	if( $sin && $siv && $sit ){
 		print "sin $sin siv $siv sit $sit\n" if $D;
 		++$ct;
-		warn "!!! ERROR: Cannot determine type for AR_SERVER_INFO constant $ct !!!" if $siv != $ct;
+		if ($siv != $ct) {
+			warn "warning: gap in enumeration for $sin expected $ct got $siv. it's OK to ignore this." if $siv != $ct;
+			$ct = $siv;
+		}
 
 		next if $sit eq 'deprecated';
 
@@ -84,6 +88,7 @@ while(<>) {
 		# omg 
 
 		$sit = "int" if $sin eq "AR_SERVER_INFO_MAX_AUDIT_LOG_FILE_SIZE";
+		$sit = "int" if $sin eq "AR_SERVER_INFO_MAX_ATTACH_SIZE";
 		$sit = "char" if $sin eq "AR_SERVER_INFO_MESSAGE_CAT_SCHEMA";
 		$sit = "unsigned long" if $sit eq "ARInternalId";
 		$sit = "unsigned char" if $sin eq "AR_SERVER_INFO_SVR_EVENT_LIST";
