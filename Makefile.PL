@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.85 2009/04/14 16:58:24 tstapff Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.86 2009/12/14 17:31:38 jeffmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -21,14 +21,14 @@ use Cwd;
 
 $debug = 0;
 
-###### There are THREE (3) steps to complete. Complete all of them. ######
+###### There are FOUR (4) steps to complete. Complete all of them. ######
 
 # STEP 1 -> Set the path to your ARS API directory
 
 $ARSAPI      = "/usr/ar/api";
 #$ARSAPI     = "/u1/project/ARSperl/api/sol2/api6.0.1";
 #$ARSAPI     = "/u1/project/ARSperl/api/sol2/api6.3";
-#$ARSAPI     = "/u1/project/ARSperl/api/linux/7.0.1p1";
+#$ARSAPI     = "/u1/project/ARSperl/api/linux/7.1.0p8";
 #$ARSAPI     = "/u1/project/ARSperl/api/sol2/api5.1.1";
 # $ARSAPI     = "/home/jcmurphy/arsperl/api/5.1";
 # $ARSAPI     = q{\\\\ess7\devkits\ars\5.0\fcs\winnt};
@@ -44,7 +44,7 @@ $ARSAPI      = "/usr/ar/api";
 
 # STEP 2 -> Choose your version of ARS FROM THE FOLLOWING LIST
 #
-#                  5.0 6.0 6.01 6.3 7.0 7.1
+#                  5.0 6.0 6.01 6.3 7.0 7.1 7.5
 #
 #           notes
 #            - if there is a maintenace number (e.g. 6.0.1)
