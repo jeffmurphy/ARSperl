@@ -350,7 +350,7 @@ rev_<@ $class @>( ARControlStruct *ctrl, HV *h, char *k, <@ $class @> *p ){
 		SV **val;
 		strncpy( k, "<@ $key2 @>", 255 );
 		val = hv_fetch( h, "<@ $key2 @>", <@ length($key2) @>, 0 );
-		if( val && *val && SvOK(*val) ){
+		if( val && *val && <@ ($obj->{$key}{_type} eq 'ARValueStruct')? '(SvOK(*val) || SvTYPE(*val) == SVt_NULL)' : 'SvOK(*val)' @> ){
 @>             perlToStruct( $obj->{$key}, $class, "$LINE_INDENT\t\t\t" );
 		}else{
 @>             if( $obj->{$key}{_default} ){
@@ -588,7 +588,9 @@ sub findSubKey {
 
 sub versionIf {
 	my( $obj ) = @_;
-	if( $obj->{_min_version} ){
+	if( $obj->{_min_version} && $obj->{_max_version} ){
+		return '#if AR_CURRENT_API_VERSION >= '. $CURRENT_API_VERSION{$obj->{_min_version}} .' && AR_CURRENT_API_VERSION <= '. $CURRENT_API_VERSION{$obj->{_max_version}};
+	}elsif( $obj->{_min_version} ){
 		return '#if AR_CURRENT_API_VERSION >= ' . $CURRENT_API_VERSION{$obj->{_min_version}};
 	}elsif( $obj->{_max_version} ){
 		return '#if AR_CURRENT_API_VERSION <= ' . $CURRENT_API_VERSION{$obj->{_max_version}};

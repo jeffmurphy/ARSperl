@@ -244,14 +244,47 @@ EXTERN int rev_ARLicenseValidStruct( ARControlStruct *ctrl, HV *h, char *k, ARLi
 
 
 
-#if AR_CURRENT_API_VERSION >= 14
+#if AR_CURRENT_API_VERSION >= 14 && AR_CURRENT_API_VERSION <= 14
 EXTERN int rev_ARMultiSchemaCurrencyPartStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaCurrencyPartStruct *p );
+#endif
+#if AR_CURRENT_API_VERSION >= 17
+EXTERN int rev_ARMultiSchemaFieldFuncList( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFieldFuncList *p );
+#endif
+#if AR_CURRENT_API_VERSION >= 17
+EXTERN int rev_ARMultiSchemaFieldFuncStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFieldFuncStruct *p );
+#endif
+#if AR_CURRENT_API_VERSION >= 17
+EXTERN int rev_ARMultiSchemaFieldFuncValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFieldFuncValueOrArithStruct *p );
 #endif
 #if AR_CURRENT_API_VERSION >= 14
 EXTERN int rev_ARMultiSchemaFieldIdList( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFieldIdList *p );
 #endif
 #if AR_CURRENT_API_VERSION >= 14
 EXTERN int rev_ARMultiSchemaFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFieldValueOrArithStruct *p );
+#endif
+#if AR_CURRENT_API_VERSION >= 17
+EXTERN int rev_ARMultiSchemaFuncArithOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFuncArithOpStruct *p );
+#endif
+#if AR_CURRENT_API_VERSION >= 17
+EXTERN int rev_ARMultiSchemaFuncCurrencyPartStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFuncCurrencyPartStruct *p );
+#endif
+#if AR_CURRENT_API_VERSION >= 17
+EXTERN int rev_ARMultiSchemaFuncQualifierStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFuncQualifierStruct *p );
+#endif
+#if AR_CURRENT_API_VERSION >= 17
+EXTERN int rev_ARMultiSchemaFuncQueryFromList( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFuncQueryFromList *p );
+#endif
+#if AR_CURRENT_API_VERSION >= 17
+EXTERN int rev_ARMultiSchemaFuncQueryFromStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFuncQueryFromStruct *p );
+#endif
+#if AR_CURRENT_API_VERSION >= 17
+EXTERN int rev_ARMultiSchemaFuncRelOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFuncRelOpStruct *p );
+#endif
+#if AR_CURRENT_API_VERSION >= 17
+EXTERN int rev_ARMultiSchemaFuncStatHistoryValue( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFuncStatHistoryValue *p );
+#endif
+#if AR_CURRENT_API_VERSION >= 17
+EXTERN int rev_ARMultiSchemaNestedFuncQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaNestedFuncQueryStruct *p );
 #endif
 #if AR_CURRENT_API_VERSION >= 14
 EXTERN int rev_ARMultiSchemaNestedQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaNestedQueryStruct *p );
@@ -264,6 +297,9 @@ EXTERN int rev_ARMultiSchemaQueryFromList( ARControlStruct *ctrl, HV *h, char *k
 #endif
 #if AR_CURRENT_API_VERSION >= 14
 EXTERN int rev_ARMultiSchemaQueryFromStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaQueryFromStruct *p );
+#endif
+#if AR_CURRENT_API_VERSION >= 17
+EXTERN int rev_ARMultiSchemaRecursiveFuncQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaRecursiveFuncQueryStruct *p );
 #endif
 #if AR_CURRENT_API_VERSION >= 14
 EXTERN int rev_ARMultiSchemaRecursiveQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaRecursiveQueryStruct *p );
@@ -279,6 +315,9 @@ EXTERN int rev_ARMultiSchemaSortStruct( ARControlStruct *ctrl, HV *h, char *k, A
 #endif
 #if AR_CURRENT_API_VERSION >= 14
 EXTERN int rev_ARMultiSchemaStatHistoryValue( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaStatHistoryValue *p );
+#endif
+#if AR_CURRENT_API_VERSION >= 17
+EXTERN int rev_ARMultiSchemaValueSetFuncQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaValueSetFuncQueryStruct *p );
 #endif
 #if AR_CURRENT_API_VERSION >= 14
 EXTERN int rev_ARMultiSchemaValueSetQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaValueSetQueryStruct *p );

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Header: /cvsroot/arsperl/ARSperl/infra/exsi.pl,v 1.6 2009/12/14 17:30:56 jeffmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/infra/exsi.pl,v 1.7 2010/09/01 17:18:29 tstapff Exp $
 #
 # NAME
 #   exsi.pl < ar.h > server_info_type_hints.h
@@ -15,6 +15,9 @@
 #   jcmurphy@jeffmurphy.org
 #
 # $Log: exsi.pl,v $
+# Revision 1.7  2010/09/01 17:18:29  tstapff
+# arsystem 7.6.3 port
+#
 # Revision 1.6  2009/12/14 17:30:56  jeffmurphy
 # more fiddling with exsi.pl: removed skip of MAX_ATTACH_SIZE, reworded warning
 #
@@ -66,7 +69,11 @@ while(<>) {
 		print "sin $sin siv $siv sit $sit\n" if $D;
 		++$ct;
 		if ($siv != $ct) {
-			warn "warning: gap in enumeration for $sin expected $ct got $siv. it's OK to ignore this." if $siv != $ct;
+			if( $siv <= 324 ){
+				warn "!!! ERROR: Cannot determine type for AR_SERVER_INFO constant $ct !!!";
+			}else{
+				warn "WARNING: gap in enumeration for $sin expected $ct got $siv. it's OK to ignore this.";
+			}
 			$ct = $siv;
 		}
 
@@ -88,7 +95,6 @@ while(<>) {
 		# omg 
 
 		$sit = "int" if $sin eq "AR_SERVER_INFO_MAX_AUDIT_LOG_FILE_SIZE";
-		$sit = "int" if $sin eq "AR_SERVER_INFO_MAX_ATTACH_SIZE";
 		$sit = "char" if $sin eq "AR_SERVER_INFO_MESSAGE_CAT_SCHEMA";
 		$sit = "unsigned long" if $sit eq "ARInternalId";
 		$sit = "unsigned char" if $sin eq "AR_SERVER_INFO_SVR_EVENT_LIST";
@@ -108,6 +114,13 @@ while(<>) {
 		$sit = "int" if $sin eq "AR_SERVER_INFO_LICENSE_USAGE";
 		$sit = "int" if $sin eq "AR_SERVER_INFO_MAX_CLIENT_MANAGED_TRANSACTIONS";
 		$sit = "int" if $sin eq "AR_SERVER_INFO_CLIENT_MANAGED_TRANSACTION_TIMEOUT";
+
+		$sit = "int" if $sin eq "AR_SERVER_INFO_MAX_ATTACH_SIZE";
+		$sit = "int" if $sin eq "AR_SERVER_INFO_ATRIUM_SSO_AUTHENTICATION";
+
+		$sit = "int" if $sin eq "AR_SERVER_INFO_MFS_TITLE_FIELD_WEIGHT";         # 327
+		$sit = "int" if $sin eq "AR_SERVER_INFO_MFS_ENVIRONMENT_FIELD_WEIGHT";   # 328
+		$sit = "int" if $sin eq "AR_SERVER_INFO_MFS_KEYWORDS_FIELD_WEIGHT";      # 329
 
 		#print "\t/*$sin [$siv] is an $sit*/\n";
 

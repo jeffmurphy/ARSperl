@@ -1382,7 +1382,7 @@ rev_ARCOMValueStruct( ARControlStruct *ctrl, HV *h, char *k, ARCOMValueStruct *p
 										SV **val;
 										strncpy( k, "value", 255 );
 										val = hv_fetch( h, "value", 5, 0 );
-										if( val && *val && SvOK(*val) ){
+										if( val && *val && (SvOK(*val) || SvTYPE(*val) == SVt_NULL) ){
 											{
 												rev_ARValueStruct( ctrl, h, k, "dataType", &(p->u.value) );
 											}
@@ -4337,7 +4337,19 @@ rev_ARDiaryLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARDiaryLimitsStr
 						val = hv_fetch( h, "fullTextOptions", 15, 0 );
 						if( val && *val && SvOK(*val) ){
 							{
-								p->fullTextOptions = SvIV(*val);
+								int flag = 0;
+								if( !strcmp(SvPV_nolen(*val),"indexed") ){
+									p->fullTextOptions = AR_FULLTEXT_OPTIONS_INDEXED;
+									flag = 1;
+								}
+								if( !strcmp(SvPV_nolen(*val),"none") ){
+									p->fullTextOptions = AR_FULLTEXT_OPTIONS_NONE;
+									flag = 1;
+								}
+								if( flag == 0 ){
+									ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,  "rev_ARDiaryLimitsStruct: invalid key value" );
+									ARError_add( AR_RETURN_ERROR, AP_ERR_CONTINUE, SvPV_nolen(*val) );
+								}
 							}
 						}else{
 							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"fullTextOptions\"" );
@@ -6465,7 +6477,7 @@ rev_ARFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldVal
 										SV **val;
 										strncpy( k, "value", 255 );
 										val = hv_fetch( h, "value", 5, 0 );
-										if( val && *val && SvOK(*val) ){
+										if( val && *val && (SvOK(*val) || SvTYPE(*val) == SVt_NULL) ){
 											{
 												rev_ARValueStruct( ctrl, h, k, "dataType", &(p->u.value) );
 											}
@@ -6831,7 +6843,7 @@ rev_ARFieldValueStruct( ARControlStruct *ctrl, HV *h, char *k, ARFieldValueStruc
 						SV **val;
 						strncpy( k, "value", 255 );
 						val = hv_fetch( h, "value", 5, 0 );
-						if( val && *val && SvOK(*val) ){
+						if( val && *val && (SvOK(*val) || SvTYPE(*val) == SVt_NULL) ){
 							{
 								rev_ARValueStruct( ctrl, h, k, "dataType", &(p->value) );
 							}
@@ -8893,7 +8905,7 @@ rev_ARLicenseValidStruct( ARControlStruct *ctrl, HV *h, char *k, ARLicenseValidS
 
 
 
-#if AR_CURRENT_API_VERSION >= 14
+#if AR_CURRENT_API_VERSION >= 14 && AR_CURRENT_API_VERSION <= 14
 int
 rev_ARMultiSchemaCurrencyPartStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaCurrencyPartStruct *p ){
 	SV  **val;
@@ -8983,6 +8995,532 @@ rev_ARMultiSchemaCurrencyPartStruct( ARControlStruct *ctrl, HV *h, char *k, ARMu
 		}
 	}else{
 		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaCurrencyPartStruct: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+#endif
+
+
+#if AR_CURRENT_API_VERSION >= 17
+int
+rev_ARMultiSchemaFieldFuncList( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFieldFuncList *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldFuncList: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARMultiSchemaFieldFuncList: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+					{
+						if( SvTYPE(SvRV(*val)) == SVt_PVAV ){
+							int i = 0, num = 0;
+							AV *ar = (AV*) SvRV((SV*) *val);
+				
+							num = av_len(ar) + 1;
+							p->numItems = num;
+							if( num == 0 ) return 0;
+				
+							p->listPtr = (ARMultiSchemaFieldFuncStruct*) MALLOCNN( sizeof(ARMultiSchemaFieldFuncStruct) * num );
+							/* if( p->listPtr == NULL ){
+								croak( "rev_ARMultiSchemaFieldFuncList: malloc error\n" );
+								exit( 1 );
+							} */
+				
+							for( i = 0; i < num; ++i ){
+								SV **item = av_fetch( ar, i, 0 );
+				
+								if( item && *item ){
+									char *k = "_";
+									HV *h = newHV();
+									
+									SvREFCNT_inc( *item );
+				                    hv_store( h, k, strlen(k), *item, 0 );
+				
+									rev_ARMultiSchemaFieldFuncStruct( ctrl, h, k, &(p->listPtr[i]) );
+									hv_undef( h );
+								}else{
+									ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldFuncList: invalid inner array value" );
+								}
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldFuncList: hash value is not an array reference" );
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, k );
+							return -1;
+						}
+					}
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldFuncList: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldFuncList: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldFuncList: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+#endif
+
+
+#if AR_CURRENT_API_VERSION >= 17
+int
+rev_ARMultiSchemaFieldFuncStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFieldFuncStruct *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldFuncStruct: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARMultiSchemaFieldFuncStruct: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+				
+				
+					if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+						int i = 0, num = 0;
+						HV *h = (HV* ) SvRV((SV*) *val);
+						char k[256];
+						k[255] = '\0';
+				
+				
+					{
+						SV **val;
+						strncpy( k, "funcId", 255 );
+						val = hv_fetch( h, "funcId", 6, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								p->funcId = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"funcId\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "queryFromAlias", 255 );
+						val = hv_fetch( h, "queryFromAlias", 14, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								strncpy( p->queryFromAlias, SvPV_nolen(*val), sizeof(p->queryFromAlias) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"queryFromAlias\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "fieldId", 255 );
+						val = hv_fetch( h, "fieldId", 7, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								p->fieldId = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"fieldId\"" );
+							return -1;
+						}
+					}
+				
+				
+					}else{
+						ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldFuncStruct: hash value is not a hash reference" );
+						return -1;
+					}
+				
+				
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldFuncStruct: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldFuncStruct: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldFuncStruct: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+#endif
+
+
+#if AR_CURRENT_API_VERSION >= 17
+int
+rev_ARMultiSchemaFieldFuncValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFieldFuncValueOrArithStruct *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldFuncValueOrArithStruct: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARMultiSchemaFieldFuncValueOrArithStruct: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+				
+					{
+						char *pcase = NULL;
+						char errText[512];
+				
+						HV *h;
+						SV **hval = NULL;
+						char *k   = NULL;
+						if( SvTYPE(SvRV(*val)) != SVt_PVHV ){
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldFuncValueOrArithStruct: not a hash value" );
+							return -1;
+						}
+						h = (HV* ) SvRV((SV*) *val);
+				
+							if( 0 ){
+				#if AR_CURRENT_API_VERSION >= 9
+							}else if( hv_exists(h,"currencyField",13) ){
+								p->tag = AR_CURRENCY_FLD;
+								k = "currencyField";
+				#endif
+				
+							}else if( hv_exists(h,"value",5) ){
+								p->tag = AR_VALUE;
+								k = "value";
+				
+				
+							}else if( hv_exists(h,"queryValue",10) ){
+								p->tag = AR_VALUE_SET_QUERY;
+								k = "queryValue";
+				
+				
+							}else if( hv_exists(h,"fieldFunc",9) ){
+								p->tag = AR_FIELD;
+								k = "fieldFunc";
+				
+				
+							}else if( hv_exists(h,"arith",5) ){
+								p->tag = AR_ARITHMETIC;
+								k = "arith";
+				
+				
+							}else if( hv_exists(h,"valueSet",8) ){
+								p->tag = AR_VALUE_SET;
+								k = "valueSet";
+				
+				
+							}else if( hv_exists(h,"statHistory",11) ){
+								p->tag = AR_STAT_HISTORY;
+								k = "statHistory";
+				
+							}else{
+							    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldFuncValueOrArithStruct: map error" );
+							}
+				
+				
+							switch( p->tag ){
+				#if AR_CURRENT_API_VERSION >= 9
+							case AR_CURRENCY_FLD:
+								{
+								
+								
+									if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+										int i = 0, num = 0;
+										HV *h = (HV* ) SvRV((SV*) *val);
+										char k[256];
+										k[255] = '\0';
+								
+								
+									{
+										SV **val;
+										strncpy( k, "currencyField", 255 );
+										val = hv_fetch( h, "currencyField", 13, 0 );
+										if( val && *val && SvOK(*val) ){
+											{
+												p->u.currencyField = MALLOCNN(sizeof(ARMultiSchemaFuncCurrencyPartStruct)); rev_ARMultiSchemaFuncCurrencyPartStruct( ctrl, h, k, p->u.currencyField );
+											}
+										}else{
+											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"currencyField\"" );
+											return -1;
+										}
+									}
+								
+								
+									}else{
+										ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldFuncValueOrArithStruct: hash value is not a hash reference" );
+										return -1;
+									}
+								
+								
+								}
+								break;
+				#endif
+				
+							case AR_VALUE:
+								{
+								
+								
+									if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+										int i = 0, num = 0;
+										HV *h = (HV* ) SvRV((SV*) *val);
+										char k[256];
+										k[255] = '\0';
+								
+								
+									{
+										SV **val;
+										strncpy( k, "value", 255 );
+										val = hv_fetch( h, "value", 5, 0 );
+										if( val && *val && (SvOK(*val) || SvTYPE(*val) == SVt_NULL) ){
+											{
+												rev_ARValueStruct( ctrl, h, k, "dataType", &(p->u.value) );
+											}
+										}else{
+											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"value\"" );
+											return -1;
+										}
+									}
+								
+								
+									}else{
+										ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldFuncValueOrArithStruct: hash value is not a hash reference" );
+										return -1;
+									}
+								
+								
+								}
+								break;
+				
+				
+							case AR_VALUE_SET_QUERY:
+								{
+								
+								
+									if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+										int i = 0, num = 0;
+										HV *h = (HV* ) SvRV((SV*) *val);
+										char k[256];
+										k[255] = '\0';
+								
+								
+									{
+										SV **val;
+										strncpy( k, "queryValue", 255 );
+										val = hv_fetch( h, "queryValue", 10, 0 );
+										if( val && *val && SvOK(*val) ){
+											{
+												p->u.valueSetQuery = MALLOCNN(sizeof(ARMultiSchemaValueSetFuncQueryStruct)); rev_ARMultiSchemaValueSetFuncQueryStruct( ctrl, h, k, p->u.valueSetQuery );
+											}
+										}else{
+											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"queryValue\"" );
+											return -1;
+										}
+									}
+								
+								
+									}else{
+										ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldFuncValueOrArithStruct: hash value is not a hash reference" );
+										return -1;
+									}
+								
+								
+								}
+								break;
+				
+				
+							case AR_FIELD:
+								{
+								
+								
+									if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+										int i = 0, num = 0;
+										HV *h = (HV* ) SvRV((SV*) *val);
+										char k[256];
+										k[255] = '\0';
+								
+								
+									{
+										SV **val;
+										strncpy( k, "fieldFunc", 255 );
+										val = hv_fetch( h, "fieldFunc", 9, 0 );
+										if( val && *val && SvOK(*val) ){
+											{
+												rev_ARMultiSchemaFieldFuncStruct( ctrl, h, k, &(p->u.fieldFunc) );
+											}
+										}else{
+											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"fieldFunc\"" );
+											return -1;
+										}
+									}
+								
+								
+									}else{
+										ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldFuncValueOrArithStruct: hash value is not a hash reference" );
+										return -1;
+									}
+								
+								
+								}
+								break;
+				
+				
+							case AR_ARITHMETIC:
+								{
+								
+								
+									if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+										int i = 0, num = 0;
+										HV *h = (HV* ) SvRV((SV*) *val);
+										char k[256];
+										k[255] = '\0';
+								
+								
+									{
+										SV **val;
+										strncpy( k, "arith", 255 );
+										val = hv_fetch( h, "arith", 5, 0 );
+										if( val && *val && SvOK(*val) ){
+											{
+												p->u.arithOp = MALLOCNN(sizeof(ARMultiSchemaFuncArithOpStruct)); rev_ARMultiSchemaFuncArithOpStruct( ctrl, h, k, p->u.arithOp );
+											}
+										}else{
+											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"arith\"" );
+											return -1;
+										}
+									}
+								
+								
+									}else{
+										ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldFuncValueOrArithStruct: hash value is not a hash reference" );
+										return -1;
+									}
+								
+								
+								}
+								break;
+				
+				
+							case AR_VALUE_SET:
+								{
+								
+								
+									if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+										int i = 0, num = 0;
+										HV *h = (HV* ) SvRV((SV*) *val);
+										char k[256];
+										k[255] = '\0';
+								
+								
+									{
+										SV **val;
+										strncpy( k, "valueSet", 255 );
+										val = hv_fetch( h, "valueSet", 8, 0 );
+										if( val && *val && SvOK(*val) ){
+											{
+												rev_ARValueList( ctrl, h, k, &(p->u.valueSet) );
+											}
+										}else{
+											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"valueSet\"" );
+											return -1;
+										}
+									}
+								
+								
+									}else{
+										ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldFuncValueOrArithStruct: hash value is not a hash reference" );
+										return -1;
+									}
+								
+								
+								}
+								break;
+				
+				
+							case AR_STAT_HISTORY:
+								{
+								
+								
+									if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+										int i = 0, num = 0;
+										HV *h = (HV* ) SvRV((SV*) *val);
+										char k[256];
+										k[255] = '\0';
+								
+								
+									{
+										SV **val;
+										strncpy( k, "statHistory", 255 );
+										val = hv_fetch( h, "statHistory", 11, 0 );
+										if( val && *val && SvOK(*val) ){
+											{
+												rev_ARMultiSchemaFuncStatHistoryValue( ctrl, h, k, &(p->u.statHistory) );
+											}
+										}else{
+											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"statHistory\"" );
+											return -1;
+										}
+									}
+								
+								
+									}else{
+										ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldFuncValueOrArithStruct: hash value is not a hash reference" );
+										return -1;
+									}
+								
+								
+								}
+								break;
+				
+							default:
+								sprintf( errText, "rev_ARMultiSchemaFieldFuncValueOrArithStruct: invalid switch value %d", p->tag );
+								ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, errText );
+							}
+				
+					}
+				
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldFuncValueOrArithStruct: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldFuncValueOrArithStruct: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldFuncValueOrArithStruct: first argument is not a hash");
 		return -1;
 	}
 
@@ -9099,7 +9637,7 @@ rev_ARMultiSchemaFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k,
 						h = (HV* ) SvRV((SV*) *val);
 				
 							if( 0 ){
-				#if AR_CURRENT_API_VERSION >= 9
+				#if AR_CURRENT_API_VERSION >= 17
 							}else if( hv_exists(h,"currencyField",13) ){
 								p->tag = AR_CURRENCY_FLD;
 								k = "currencyField";
@@ -9109,11 +9647,11 @@ rev_ARMultiSchemaFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k,
 								p->tag = AR_VALUE;
 								k = "value";
 				
-				
+				#if AR_CURRENT_API_VERSION >= 17
 							}else if( hv_exists(h,"queryValue",10) ){
 								p->tag = AR_VALUE_SET_QUERY;
 								k = "queryValue";
-				
+				#endif
 				
 							}else if( hv_exists(h,"fieldId",7) ){
 								p->tag = AR_FIELD;
@@ -9129,18 +9667,18 @@ rev_ARMultiSchemaFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k,
 								p->tag = AR_VALUE_SET;
 								k = "valueSet";
 				
-				
+				#if AR_CURRENT_API_VERSION >= 17
 							}else if( hv_exists(h,"statHistory",11) ){
 								p->tag = AR_STAT_HISTORY;
 								k = "statHistory";
-				
+				#endif
 							}else{
 							    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldValueOrArithStruct: map error" );
 							}
 				
 				
 							switch( p->tag ){
-				#if AR_CURRENT_API_VERSION >= 9
+				#if AR_CURRENT_API_VERSION >= 17
 							case AR_CURRENCY_FLD:
 								{
 								
@@ -9158,7 +9696,7 @@ rev_ARMultiSchemaFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k,
 										val = hv_fetch( h, "currencyField", 13, 0 );
 										if( val && *val && SvOK(*val) ){
 											{
-												p->u.currencyField = MALLOCNN(sizeof(ARMultiSchemaCurrencyPartStruct)); rev_ARMultiSchemaCurrencyPartStruct( ctrl, h, k, p->u.currencyField );
+												p->u.currencyField = MALLOCNN(sizeof(ARMultiSchemaFuncCurrencyPartStruct)); rev_ARMultiSchemaFuncCurrencyPartStruct( ctrl, h, k, p->u.currencyField );
 											}
 										}else{
 											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"currencyField\"" );
@@ -9192,7 +9730,7 @@ rev_ARMultiSchemaFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k,
 										SV **val;
 										strncpy( k, "value", 255 );
 										val = hv_fetch( h, "value", 5, 0 );
-										if( val && *val && SvOK(*val) ){
+										if( val && *val && (SvOK(*val) || SvTYPE(*val) == SVt_NULL) ){
 											{
 												rev_ARValueStruct( ctrl, h, k, "dataType", &(p->u.value) );
 											}
@@ -9212,7 +9750,7 @@ rev_ARMultiSchemaFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k,
 								}
 								break;
 				
-				
+				#if AR_CURRENT_API_VERSION >= 17
 							case AR_VALUE_SET_QUERY:
 								{
 								
@@ -9230,7 +9768,7 @@ rev_ARMultiSchemaFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k,
 										val = hv_fetch( h, "queryValue", 10, 0 );
 										if( val && *val && SvOK(*val) ){
 											{
-												p->u.valueSetQuery = MALLOCNN(sizeof(ARMultiSchemaValueSetQueryStruct)); rev_ARMultiSchemaValueSetQueryStruct( ctrl, h, k, p->u.valueSetQuery );
+												p->u.valueSetQuery = MALLOCNN(sizeof(ARMultiSchemaValueSetFuncQueryStruct)); rev_ARMultiSchemaValueSetFuncQueryStruct( ctrl, h, k, p->u.valueSetQuery );
 											}
 										}else{
 											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"queryValue\"" );
@@ -9247,7 +9785,7 @@ rev_ARMultiSchemaFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k,
 								
 								}
 								break;
-				
+				#endif
 				
 							case AR_FIELD:
 								{
@@ -9356,7 +9894,7 @@ rev_ARMultiSchemaFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k,
 								}
 								break;
 				
-				
+				#if AR_CURRENT_API_VERSION >= 17
 							case AR_STAT_HISTORY:
 								{
 								
@@ -9374,7 +9912,7 @@ rev_ARMultiSchemaFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k,
 										val = hv_fetch( h, "statHistory", 11, 0 );
 										if( val && *val && SvOK(*val) ){
 											{
-												rev_ARMultiSchemaStatHistoryValue( ctrl, h, k, &(p->u.statHistory) );
+												rev_ARMultiSchemaFuncStatHistoryValue( ctrl, h, k, &(p->u.statHistory) );
 											}
 										}else{
 											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"statHistory\"" );
@@ -9391,7 +9929,7 @@ rev_ARMultiSchemaFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k,
 								
 								}
 								break;
-				
+				#endif
 							default:
 								sprintf( errText, "rev_ARMultiSchemaFieldValueOrArithStruct: invalid switch value %d", p->tag );
 								ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, errText );
@@ -9411,6 +9949,1173 @@ rev_ARMultiSchemaFieldValueOrArithStruct( ARControlStruct *ctrl, HV *h, char *k,
 		}
 	}else{
 		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFieldValueOrArithStruct: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+#endif
+
+
+#if AR_CURRENT_API_VERSION >= 17
+int
+rev_ARMultiSchemaFuncArithOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFuncArithOpStruct *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncArithOpStruct: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARMultiSchemaFuncArithOpStruct: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+				
+				
+					if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+						int i = 0, num = 0;
+						HV *h = (HV* ) SvRV((SV*) *val);
+						char k[256];
+						k[255] = '\0';
+				
+				
+					{
+						SV **val;
+						strncpy( k, "operandRight", 255 );
+						val = hv_fetch( h, "operandRight", 12, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								rev_ARMultiSchemaFieldFuncValueOrArithStruct( ctrl, h, k, &(p->operandRight) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"operandRight\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "operandLeft", 255 );
+						val = hv_fetch( h, "operandLeft", 11, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								rev_ARMultiSchemaFieldFuncValueOrArithStruct( ctrl, h, k, &(p->operandLeft) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"operandLeft\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "operation", 255 );
+						val = hv_fetch( h, "operation", 9, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								p->operation = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"operation\"" );
+							return -1;
+						}
+					}
+				
+				
+					}else{
+						ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncArithOpStruct: hash value is not a hash reference" );
+						return -1;
+					}
+				
+				
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncArithOpStruct: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncArithOpStruct: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncArithOpStruct: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+#endif
+
+
+#if AR_CURRENT_API_VERSION >= 17
+int
+rev_ARMultiSchemaFuncCurrencyPartStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFuncCurrencyPartStruct *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncCurrencyPartStruct: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARMultiSchemaFuncCurrencyPartStruct: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+				
+				
+					if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+						int i = 0, num = 0;
+						HV *h = (HV* ) SvRV((SV*) *val);
+						char k[256];
+						k[255] = '\0';
+				
+				
+					{
+						SV **val;
+						strncpy( k, "currencyCode", 255 );
+						val = hv_fetch( h, "currencyCode", 12, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								strncpy( p->currencyCode, SvPV_nolen(*val), sizeof(p->currencyCode) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"currencyCode\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "partTag", 255 );
+						val = hv_fetch( h, "partTag", 7, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								p->partTag = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"partTag\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "fieldFunc", 255 );
+						val = hv_fetch( h, "fieldFunc", 9, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								rev_ARMultiSchemaFieldFuncStruct( ctrl, h, k, &(p->fieldFunc) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"fieldFunc\"" );
+							return -1;
+						}
+					}
+				
+				
+					}else{
+						ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncCurrencyPartStruct: hash value is not a hash reference" );
+						return -1;
+					}
+				
+				
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncCurrencyPartStruct: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncCurrencyPartStruct: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncCurrencyPartStruct: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+#endif
+
+
+#if AR_CURRENT_API_VERSION >= 17
+int
+rev_ARMultiSchemaFuncQualifierStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFuncQualifierStruct *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQualifierStruct: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARMultiSchemaFuncQualifierStruct: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+				
+					{
+						char *pcase = NULL;
+						char errText[512];
+				
+						HV *h;
+						SV **hval = NULL;
+						char *k   = NULL;
+						if( SvTYPE(SvRV(*val)) != SVt_PVHV ){
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQualifierStruct: not a hash value" );
+							return -1;
+						}
+						h = (HV* ) SvRV((SV*) *val);
+				
+						hval = hv_fetch( h, "oper", 4, 0 );
+				
+							if( hval && *hval ){
+								pcase = SvPV_nolen(*hval);
+								if( 0 ){
+				
+								}else if( !strcmp(pcase,"and") ){
+									p->operation = AR_COND_OP_AND;                 
+				
+				
+								}else if( !strcmp(pcase,"external") ){
+									p->operation = AR_COND_OP_FROM_FIELD;                 
+				
+				
+								}else if( !strcmp(pcase,"not") ){
+									p->operation = AR_COND_OP_NOT;                 
+				
+				
+								}else if( !strcmp(pcase,"or") ){
+									p->operation = AR_COND_OP_OR;                 
+				
+				
+								}else if( !strcmp(pcase,"rel_op") ){
+									p->operation = AR_COND_OP_REL_OP;                 
+				
+								}else{
+									ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQualifierStruct: key doesn't exist");
+									ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, pcase );
+									return -2;
+								}
+							}else{
+								ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQualifierStruct: hv_fetch (hval) returned null");
+								return -2;
+							}
+				
+				
+							switch( p->operation ){
+				
+							case AR_COND_OP_AND:
+								{
+								
+								
+									if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+										int i = 0, num = 0;
+										HV *h = (HV* ) SvRV((SV*) *val);
+										char k[256];
+										k[255] = '\0';
+								
+								
+									{
+										SV **val;
+										strncpy( k, "left", 255 );
+										val = hv_fetch( h, "left", 4, 0 );
+										if( val && *val && SvOK(*val) ){
+											{
+												p->u.andor.operandLeft = MALLOCNN(sizeof(ARMultiSchemaFuncQualifierStruct)); rev_ARMultiSchemaFuncQualifierStruct( ctrl, h, k, p->u.andor.operandLeft );
+											}
+										}else{
+											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"left\"" );
+											return -1;
+										}
+									}
+								
+								
+									{
+										SV **val;
+										strncpy( k, "right", 255 );
+										val = hv_fetch( h, "right", 5, 0 );
+										if( val && *val && SvOK(*val) ){
+											{
+												p->u.andor.operandRight = MALLOCNN(sizeof(ARMultiSchemaFuncQualifierStruct)); rev_ARMultiSchemaFuncQualifierStruct( ctrl, h, k, p->u.andor.operandRight );
+											}
+										}else{
+											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"right\"" );
+											return -1;
+										}
+									}
+								
+								
+									}else{
+										ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQualifierStruct: hash value is not a hash reference" );
+										return -1;
+									}
+								
+								
+								}
+								break;
+				
+				
+							case AR_COND_OP_REL_OP:
+								{
+								
+								
+									if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+										int i = 0, num = 0;
+										HV *h = (HV* ) SvRV((SV*) *val);
+										char k[256];
+										k[255] = '\0';
+								
+								
+									{
+										SV **val;
+										strncpy( k, "rel_op", 255 );
+										val = hv_fetch( h, "rel_op", 6, 0 );
+										if( val && *val && SvOK(*val) ){
+											{
+												p->u.relOp = MALLOCNN(sizeof(ARMultiSchemaFuncRelOpStruct)); rev_ARMultiSchemaFuncRelOpStruct( ctrl, h, k, p->u.relOp );
+											}
+										}else{
+											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"rel_op\"" );
+											return -1;
+										}
+									}
+								
+								
+									}else{
+										ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQualifierStruct: hash value is not a hash reference" );
+										return -1;
+									}
+								
+								
+								}
+								break;
+				
+				
+							case AR_COND_OP_NOT:
+								{
+								
+								
+									if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+										int i = 0, num = 0;
+										HV *h = (HV* ) SvRV((SV*) *val);
+										char k[256];
+										k[255] = '\0';
+								
+								
+									{
+										SV **val;
+										strncpy( k, "not", 255 );
+										val = hv_fetch( h, "not", 3, 0 );
+										if( val && *val && SvOK(*val) ){
+											{
+												p->u.notQual = MALLOCNN(sizeof(ARMultiSchemaFuncQualifierStruct)); rev_ARMultiSchemaFuncQualifierStruct( ctrl, h, k, p->u.notQual );
+											}
+										}else{
+											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"not\"" );
+											return -1;
+										}
+									}
+								
+								
+									}else{
+										ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQualifierStruct: hash value is not a hash reference" );
+										return -1;
+									}
+								
+								
+								}
+								break;
+				
+				
+							case AR_COND_OP_FROM_FIELD:
+								{
+								
+								
+									if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+										int i = 0, num = 0;
+										HV *h = (HV* ) SvRV((SV*) *val);
+										char k[256];
+										k[255] = '\0';
+								
+								
+									{
+										SV **val;
+										strncpy( k, "fieldFunc", 255 );
+										val = hv_fetch( h, "fieldFunc", 9, 0 );
+										if( val && *val && SvOK(*val) ){
+											{
+												rev_ARMultiSchemaFieldFuncStruct( ctrl, h, k, &(p->u.fieldFunc) );
+											}
+										}else{
+											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"fieldFunc\"" );
+											return -1;
+										}
+									}
+								
+								
+									}else{
+										ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQualifierStruct: hash value is not a hash reference" );
+										return -1;
+									}
+								
+								
+								}
+								break;
+				
+				
+							case AR_COND_OP_OR:
+								{
+								
+								
+									if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+										int i = 0, num = 0;
+										HV *h = (HV* ) SvRV((SV*) *val);
+										char k[256];
+										k[255] = '\0';
+								
+								
+									{
+										SV **val;
+										strncpy( k, "left", 255 );
+										val = hv_fetch( h, "left", 4, 0 );
+										if( val && *val && SvOK(*val) ){
+											{
+												p->u.andor.operandLeft = MALLOCNN(sizeof(ARMultiSchemaFuncQualifierStruct)); rev_ARMultiSchemaFuncQualifierStruct( ctrl, h, k, p->u.andor.operandLeft );
+											}
+										}else{
+											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"left\"" );
+											return -1;
+										}
+									}
+								
+								
+									{
+										SV **val;
+										strncpy( k, "right", 255 );
+										val = hv_fetch( h, "right", 5, 0 );
+										if( val && *val && SvOK(*val) ){
+											{
+												p->u.andor.operandRight = MALLOCNN(sizeof(ARMultiSchemaFuncQualifierStruct)); rev_ARMultiSchemaFuncQualifierStruct( ctrl, h, k, p->u.andor.operandRight );
+											}
+										}else{
+											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"right\"" );
+											return -1;
+										}
+									}
+								
+								
+									}else{
+										ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQualifierStruct: hash value is not a hash reference" );
+										return -1;
+									}
+								
+								
+								}
+								break;
+				
+							case AR_COND_OP_NONE:
+								break;
+							default:
+								sprintf( errText, "rev_ARMultiSchemaFuncQualifierStruct: invalid switch value %d", p->operation );
+								ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, errText );
+							}
+				
+					}
+				
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQualifierStruct: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQualifierStruct: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQualifierStruct: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+#endif
+
+
+#if AR_CURRENT_API_VERSION >= 17
+int
+rev_ARMultiSchemaFuncQueryFromList( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFuncQueryFromList *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQueryFromList: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARMultiSchemaFuncQueryFromList: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+					{
+						if( SvTYPE(SvRV(*val)) == SVt_PVAV ){
+							int i = 0, num = 0;
+							AV *ar = (AV*) SvRV((SV*) *val);
+				
+							num = av_len(ar) + 1;
+							p->numItems = num;
+							if( num == 0 ) return 0;
+				
+							p->listPtr = (ARMultiSchemaFuncQueryFromStruct*) MALLOCNN( sizeof(ARMultiSchemaFuncQueryFromStruct) * num );
+							/* if( p->listPtr == NULL ){
+								croak( "rev_ARMultiSchemaFuncQueryFromList: malloc error\n" );
+								exit( 1 );
+							} */
+				
+							for( i = 0; i < num; ++i ){
+								SV **item = av_fetch( ar, i, 0 );
+				
+								if( item && *item ){
+									char *k = "_";
+									HV *h = newHV();
+									
+									SvREFCNT_inc( *item );
+				                    hv_store( h, k, strlen(k), *item, 0 );
+				
+									rev_ARMultiSchemaFuncQueryFromStruct( ctrl, h, k, &(p->listPtr[i]) );
+									hv_undef( h );
+								}else{
+									ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQueryFromList: invalid inner array value" );
+								}
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQueryFromList: hash value is not an array reference" );
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, k );
+							return -1;
+						}
+					}
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQueryFromList: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQueryFromList: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQueryFromList: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+#endif
+
+
+#if AR_CURRENT_API_VERSION >= 17
+int
+rev_ARMultiSchemaFuncQueryFromStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFuncQueryFromStruct *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQueryFromStruct: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARMultiSchemaFuncQueryFromStruct: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+				
+					{
+						char *pcase = NULL;
+						char errText[512];
+				
+						HV *h;
+						SV **hval = NULL;
+						char *k   = NULL;
+						if( SvTYPE(SvRV(*val)) != SVt_PVHV ){
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQueryFromStruct: not a hash value" );
+							return -1;
+						}
+						h = (HV* ) SvRV((SV*) *val);
+				
+							if( 0 ){
+				
+							}else if( hv_exists(h,"name",4) ){
+								p->type = AR_MULTI_SCHEMA_SCHEMA_NAME;
+								k = "name";
+				
+				
+							}else if( hv_exists(h,"extRef",6) ){
+								p->type = AR_MULTI_SCHEMA_NESTED_QUERY;
+								k = "extRef";
+				
+				
+							}else if( hv_exists(h,"extRef",6) ){
+								p->type = AR_MULTI_SCHEMA_RECURSIVE_QUERY;
+								k = "extRef";
+				
+							}else{
+							    ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQueryFromStruct: map error" );
+							}
+				
+				
+							switch( p->type ){
+				
+							case AR_MULTI_SCHEMA_SCHEMA_NAME:
+								{
+								
+								
+									if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+										int i = 0, num = 0;
+										HV *h = (HV* ) SvRV((SV*) *val);
+										char k[256];
+										k[255] = '\0';
+								
+								
+									{
+										SV **val;
+										strncpy( k, "name", 255 );
+										val = hv_fetch( h, "name", 4, 0 );
+										if( val && *val && SvOK(*val) ){
+											{
+												strncpy( p->u.schemaName, SvPV_nolen(*val), sizeof(p->u.schemaName) );
+											}
+										}else{
+											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"name\"" );
+											return -1;
+										}
+									}
+								
+								
+									}else{
+										ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQueryFromStruct: hash value is not a hash reference" );
+										return -1;
+									}
+								
+								
+								}
+								break;
+				
+				
+							case AR_MULTI_SCHEMA_NESTED_QUERY:
+								{
+								
+								
+									if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+										int i = 0, num = 0;
+										HV *h = (HV* ) SvRV((SV*) *val);
+										char k[256];
+										k[255] = '\0';
+								
+								
+									{
+										SV **val;
+										strncpy( k, "extRef", 255 );
+										val = hv_fetch( h, "extRef", 6, 0 );
+										if( val && *val && SvOK(*val) ){
+											{
+												p->u.nestedQuery = MALLOCNN(sizeof(ARMultiSchemaNestedFuncQueryStruct)); rev_ARMultiSchemaNestedFuncQueryStruct( ctrl, h, k, p->u.nestedQuery );
+											}
+										}else{
+											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"extRef\"" );
+											return -1;
+										}
+									}
+								
+								
+									}else{
+										ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQueryFromStruct: hash value is not a hash reference" );
+										return -1;
+									}
+								
+								
+								}
+								break;
+				
+				
+							case AR_MULTI_SCHEMA_RECURSIVE_QUERY:
+								{
+								
+								
+									if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+										int i = 0, num = 0;
+										HV *h = (HV* ) SvRV((SV*) *val);
+										char k[256];
+										k[255] = '\0';
+								
+								
+									{
+										SV **val;
+										strncpy( k, "extRef", 255 );
+										val = hv_fetch( h, "extRef", 6, 0 );
+										if( val && *val && SvOK(*val) ){
+											{
+												p->u.recursiveQuery = MALLOCNN(sizeof(ARMultiSchemaRecursiveFuncQueryStruct)); rev_ARMultiSchemaRecursiveFuncQueryStruct( ctrl, h, k, p->u.recursiveQuery );
+											}
+										}else{
+											ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"extRef\"" );
+											return -1;
+										}
+									}
+								
+								
+									}else{
+										ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQueryFromStruct: hash value is not a hash reference" );
+										return -1;
+									}
+								
+								
+								}
+								break;
+				
+							default:
+								sprintf( errText, "rev_ARMultiSchemaFuncQueryFromStruct: invalid switch value %d", p->type );
+								ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, errText );
+							}
+				
+					}
+				
+				
+				
+					if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+						int i = 0, num = 0;
+						HV *h = (HV* ) SvRV((SV*) *val);
+						char k[256];
+						k[255] = '\0';
+				
+				
+					{
+						SV **val;
+						strncpy( k, "joinType", 255 );
+						val = hv_fetch( h, "joinType", 8, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								p->joinType = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"joinType\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "joinQual", 255 );
+						val = hv_fetch( h, "joinQual", 8, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								p->joinQual = MALLOCNN(sizeof(ARMultiSchemaQualifierStruct)); rev_ARMultiSchemaQualifierStruct( ctrl, h, k, p->joinQual );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"joinQual\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "queryFromAlias", 255 );
+						val = hv_fetch( h, "queryFromAlias", 14, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								strncpy( p->queryFromAlias, SvPV_nolen(*val), sizeof(p->queryFromAlias) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"queryFromAlias\"" );
+							return -1;
+						}
+					}
+				
+				
+					}else{
+						ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQueryFromStruct: hash value is not a hash reference" );
+						return -1;
+					}
+				
+				
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQueryFromStruct: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQueryFromStruct: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncQueryFromStruct: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+#endif
+
+
+#if AR_CURRENT_API_VERSION >= 17
+int
+rev_ARMultiSchemaFuncRelOpStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFuncRelOpStruct *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncRelOpStruct: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARMultiSchemaFuncRelOpStruct: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+				
+				
+					if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+						int i = 0, num = 0;
+						HV *h = (HV* ) SvRV((SV*) *val);
+						char k[256];
+						k[255] = '\0';
+				
+				
+					{
+						SV **val;
+						strncpy( k, "operandRight", 255 );
+						val = hv_fetch( h, "operandRight", 12, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								rev_ARMultiSchemaFieldFuncValueOrArithStruct( ctrl, h, k, &(p->operandRight) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"operandRight\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "operandLeft", 255 );
+						val = hv_fetch( h, "operandLeft", 11, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								rev_ARMultiSchemaFieldFuncValueOrArithStruct( ctrl, h, k, &(p->operandLeft) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"operandLeft\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "operation", 255 );
+						val = hv_fetch( h, "operation", 9, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								p->operation = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"operation\"" );
+							return -1;
+						}
+					}
+				
+				
+					}else{
+						ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncRelOpStruct: hash value is not a hash reference" );
+						return -1;
+					}
+				
+				
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncRelOpStruct: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncRelOpStruct: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncRelOpStruct: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+#endif
+
+
+#if AR_CURRENT_API_VERSION >= 17
+int
+rev_ARMultiSchemaFuncStatHistoryValue( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaFuncStatHistoryValue *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncStatHistoryValue: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARMultiSchemaFuncStatHistoryValue: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+				
+				
+					if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+						int i = 0, num = 0;
+						HV *h = (HV* ) SvRV((SV*) *val);
+						char k[256];
+						k[255] = '\0';
+				
+				
+					{
+						SV **val;
+						strncpy( k, "funcId", 255 );
+						val = hv_fetch( h, "funcId", 6, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								p->funcId = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"funcId\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "enumVal", 255 );
+						val = hv_fetch( h, "enumVal", 7, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								p->enumVal = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"enumVal\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "queryFromAlias", 255 );
+						val = hv_fetch( h, "queryFromAlias", 14, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								strncpy( p->queryFromAlias, SvPV_nolen(*val), sizeof(p->queryFromAlias) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"queryFromAlias\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "userOrTime", 255 );
+						val = hv_fetch( h, "userOrTime", 10, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								p->userOrTime = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"userOrTime\"" );
+							return -1;
+						}
+					}
+				
+				
+					}else{
+						ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncStatHistoryValue: hash value is not a hash reference" );
+						return -1;
+					}
+				
+				
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncStatHistoryValue: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncStatHistoryValue: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaFuncStatHistoryValue: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+#endif
+
+
+#if AR_CURRENT_API_VERSION >= 17
+int
+rev_ARMultiSchemaNestedFuncQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaNestedFuncQueryStruct *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaNestedFuncQueryStruct: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARMultiSchemaNestedFuncQueryStruct: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+				
+				
+					if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+						int i = 0, num = 0;
+						HV *h = (HV* ) SvRV((SV*) *val);
+						char k[256];
+						k[255] = '\0';
+				
+				
+					{
+						SV **val;
+						strncpy( k, "groupBy", 255 );
+						val = hv_fetch( h, "groupBy", 7, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								rev_ARMultiSchemaFieldIdList( ctrl, h, k, &(p->groupBy) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"groupBy\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "qualifier", 255 );
+						val = hv_fetch( h, "qualifier", 9, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								p->qualifier = MALLOCNN(sizeof(ARMultiSchemaQualifierStruct)); rev_ARMultiSchemaQualifierStruct( ctrl, h, k, p->qualifier );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"qualifier\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "queryFromList", 255 );
+						val = hv_fetch( h, "queryFromList", 13, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								rev_ARMultiSchemaFuncQueryFromList( ctrl, h, k, &(p->queryFromList) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"queryFromList\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "getListFuncs", 255 );
+						val = hv_fetch( h, "getListFuncs", 12, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								rev_ARMultiSchemaFieldFuncList( ctrl, h, k, &(p->getListFuncs) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"getListFuncs\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "having", 255 );
+						val = hv_fetch( h, "having", 6, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								p->having = MALLOCNN(sizeof(ARMultiSchemaFuncQualifierStruct)); rev_ARMultiSchemaFuncQualifierStruct( ctrl, h, k, p->having );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"having\"" );
+							return -1;
+						}
+					}
+				
+				
+					}else{
+						ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaNestedFuncQueryStruct: hash value is not a hash reference" );
+						return -1;
+					}
+				
+				
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaNestedFuncQueryStruct: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaNestedFuncQueryStruct: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaNestedFuncQueryStruct: first argument is not a hash");
 		return -1;
 	}
 
@@ -10148,6 +11853,179 @@ rev_ARMultiSchemaQueryFromStruct( ARControlStruct *ctrl, HV *h, char *k, ARMulti
 #endif
 
 
+#if AR_CURRENT_API_VERSION >= 17
+int
+rev_ARMultiSchemaRecursiveFuncQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaRecursiveFuncQueryStruct *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaRecursiveFuncQueryStruct: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARMultiSchemaRecursiveFuncQueryStruct: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+				
+				
+					if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+						int i = 0, num = 0;
+						HV *h = (HV* ) SvRV((SV*) *val);
+						char k[256];
+						k[255] = '\0';
+				
+				
+					{
+						SV **val;
+						strncpy( k, "recursionQual", 255 );
+						val = hv_fetch( h, "recursionQual", 13, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								p->recursionQual = MALLOCNN(sizeof(ARMultiSchemaQualifierStruct)); rev_ARMultiSchemaQualifierStruct( ctrl, h, k, p->recursionQual );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"recursionQual\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "recursiveSchemaAlias", 255 );
+						val = hv_fetch( h, "recursiveSchemaAlias", 20, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								strncpy( p->recursiveSchemaAlias, SvPV_nolen(*val), sizeof(p->recursiveSchemaAlias) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"recursiveSchemaAlias\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "having", 255 );
+						val = hv_fetch( h, "having", 6, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								p->having = MALLOCNN(sizeof(ARMultiSchemaFuncQualifierStruct)); rev_ARMultiSchemaFuncQualifierStruct( ctrl, h, k, p->having );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"having\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "levelsToRetrieve", 255 );
+						val = hv_fetch( h, "levelsToRetrieve", 16, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								p->levelsToRetrieve = SvIV(*val);
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"levelsToRetrieve\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "startQual", 255 );
+						val = hv_fetch( h, "startQual", 9, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								p->startQual = MALLOCNN(sizeof(ARMultiSchemaQualifierStruct)); rev_ARMultiSchemaQualifierStruct( ctrl, h, k, p->startQual );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"startQual\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "groupBy", 255 );
+						val = hv_fetch( h, "groupBy", 7, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								rev_ARMultiSchemaFieldIdList( ctrl, h, k, &(p->groupBy) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"groupBy\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "queryFromList", 255 );
+						val = hv_fetch( h, "queryFromList", 13, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								rev_ARMultiSchemaFuncQueryFromList( ctrl, h, k, &(p->queryFromList) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"queryFromList\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "getListFuncs", 255 );
+						val = hv_fetch( h, "getListFuncs", 12, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								rev_ARMultiSchemaFieldFuncList( ctrl, h, k, &(p->getListFuncs) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"getListFuncs\"" );
+							return -1;
+						}
+					}
+				
+				
+					}else{
+						ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaRecursiveFuncQueryStruct: hash value is not a hash reference" );
+						return -1;
+					}
+				
+				
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaRecursiveFuncQueryStruct: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaRecursiveFuncQueryStruct: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaRecursiveFuncQueryStruct: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+#endif
+
+
 #if AR_CURRENT_API_VERSION >= 14
 int
 rev_ARMultiSchemaRecursiveQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaRecursiveQueryStruct *p ){
@@ -10673,6 +12551,134 @@ rev_ARMultiSchemaStatHistoryValue( ARControlStruct *ctrl, HV *h, char *k, ARMult
 		}
 	}else{
 		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaStatHistoryValue: first argument is not a hash");
+		return -1;
+	}
+
+	return 0;
+}
+#endif
+
+
+#if AR_CURRENT_API_VERSION >= 17
+int
+rev_ARMultiSchemaValueSetFuncQueryStruct( ARControlStruct *ctrl, HV *h, char *k, ARMultiSchemaValueSetFuncQueryStruct *p ){
+	SV  **val;
+	int i = 0;
+
+	if( !p ){
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaValueSetFuncQueryStruct: AR Object param is NULL" );
+		return -1;
+	}
+
+	if( SvTYPE((SV*) h) == SVt_PVHV ){
+
+		// printf( "ARMultiSchemaValueSetFuncQueryStruct: k = <%s>\n", k );
+		if( hv_exists(h,k,strlen(k)) ){
+			val = hv_fetch( h, k, strlen(k), 0 );
+			if( val && *val ){
+				{
+				
+				
+					if( SvTYPE(SvRV(*val)) == SVt_PVHV ){
+						int i = 0, num = 0;
+						HV *h = (HV* ) SvRV((SV*) *val);
+						char k[256];
+						k[255] = '\0';
+				
+				
+					{
+						SV **val;
+						strncpy( k, "groupBy", 255 );
+						val = hv_fetch( h, "groupBy", 7, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								rev_ARMultiSchemaFieldIdList( ctrl, h, k, &(p->groupBy) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"groupBy\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "qualifier", 255 );
+						val = hv_fetch( h, "qualifier", 9, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								p->qualifier = MALLOCNN(sizeof(ARMultiSchemaQualifierStruct)); rev_ARMultiSchemaQualifierStruct( ctrl, h, k, p->qualifier );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"qualifier\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "queryFromList", 255 );
+						val = hv_fetch( h, "queryFromList", 13, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								rev_ARMultiSchemaFuncQueryFromList( ctrl, h, k, &(p->queryFromList) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"queryFromList\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "fieldId", 255 );
+						val = hv_fetch( h, "fieldId", 7, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								rev_ARMultiSchemaFieldIdStruct( ctrl, h, k, &(p->fieldId) );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"fieldId\"" );
+							return -1;
+						}
+					}
+				
+				
+					{
+						SV **val;
+						strncpy( k, "having", 255 );
+						val = hv_fetch( h, "having", 6, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								p->having = MALLOCNN(sizeof(ARMultiSchemaFuncQualifierStruct)); rev_ARMultiSchemaFuncQualifierStruct( ctrl, h, k, p->having );
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"having\"" );
+							return -1;
+						}
+					}
+				
+				
+					}else{
+						ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaValueSetFuncQueryStruct: hash value is not a hash reference" );
+						return -1;
+					}
+				
+				
+				}
+			}else{
+				ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaValueSetFuncQueryStruct: hv_fetch returned null");
+				return -2;
+			}
+		}else{
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, "rev_ARMultiSchemaValueSetFuncQueryStruct: key doesn't exist");
+			ARError_add(AR_RETURN_WARNING, AP_ERR_GENERAL, k );
+			return -2;
+		}
+	}else{
+		ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL, "rev_ARMultiSchemaValueSetFuncQueryStruct: first argument is not a hash");
 		return -1;
 	}
 

@@ -3500,10 +3500,16 @@ ARGetFieldCached(ARControlStruct * ctrl, ARNameType schema, ARInternalId id,
 		 unsigned int *fieldOption,
 #endif
 		 ARValueStruct * defaultVal,
+#if AR_CURRENT_API_VERSION >= 17
+		 ARPermissionList * assignedGroupList,
+#endif
 		 ARPermissionList * perm, ARFieldLimitStruct * limit,
 		 ARDisplayInstanceList * display,
 		 char **help, ARTimestamp * timestamp,
 	       ARNameType owner, ARNameType lastChanged, char **changeDiary,
+#if AR_CURRENT_API_VERSION >= 17
+		 ARPropList   * objPropList,
+#endif
 		 ARStatusList * Status)
 {
 	int             ret;
@@ -3513,7 +3519,15 @@ ARGetFieldCached(ARControlStruct * ctrl, ARNameType schema, ARInternalId id,
 	ARNameType      my_fieldName;
 	char            field_string[20];
 
-#if AR_CURRENT_API_VERSION >= 12
+#if AR_CURRENT_API_VERSION >= 17
+	/* cache fieldName and dataType */
+	if (fieldMap || option || createMode || fieldOption || defaultVal || assignedGroupList || perm || limit ||
+	    display || help || timestamp || owner || lastChanged || changeDiary || objPropList) {
+		(void) ARError_add(ARSPERL_TRACEBACK, 1,
+			 "ARGetFieldCached: uncached parameter requested.");
+		goto cache_fail;
+	}
+#elif AR_CURRENT_API_VERSION >= 12
 	/* cache fieldName and dataType */
 	if (fieldMap || option || createMode || fieldOption || defaultVal || perm || limit ||
 	    display || help || timestamp || owner || lastChanged || changeDiary) {
@@ -3575,7 +3589,13 @@ ARGetFieldCached(ARControlStruct * ctrl, ARNameType schema, ARInternalId id,
 
 cache_fail:;
 
-#if AR_CURRENT_API_VERSION >= 12
+
+#if AR_CURRENT_API_VERSION >= 17
+	ret = ARGetField(ctrl, schema, id, my_fieldName, fieldMap, &my_dataType,
+			 option, createMode, fieldOption, defaultVal, assignedGroupList, perm, limit,
+			 display, help, timestamp, owner, lastChanged,
+			 changeDiary, objPropList, Status);
+#elif AR_CURRENT_API_VERSION >= 12
 	ret = ARGetField(ctrl, schema, id, my_fieldName, fieldMap, &my_dataType,
 			 option, createMode, fieldOption, defaultVal, perm, limit,
 			 display, help, timestamp, owner, lastChanged,
@@ -3759,6 +3779,9 @@ fieldcache_load_schema( ARControlStruct *ctrl, char *schema, ARInternalIdList *g
 		NULL,        /* fieldOption */
 #endif
 		NULL,        /* defaultVal */
+#if AR_CURRENT_API_VERSION >= 17
+		NULL,        /* assginedGrouList */
+#endif
 		NULL,        /* permissions */
 		NULL,        /* limit */
 		NULL,        /* dInstanceList */
@@ -3767,6 +3790,9 @@ fieldcache_load_schema( ARControlStruct *ctrl, char *schema, ARInternalIdList *g
 		NULL,        /* owner */
 		NULL,        /* lastChanged */
 		NULL,        /* changeDiary */
+#if AR_CURRENT_API_VERSION >= 17
+		NULL,        /* objPropListList */
+#endif
 		&status );
 #ifdef PROFILE
 	((ars_ctrl *)control)->queries++;

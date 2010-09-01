@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.36 2009/03/31 17:41:17 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/support-h.template,v 1.37 2010/09/01 17:18:29 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -339,7 +339,6 @@ static struct {
   unsigned int number;
   char *name;
 } SignalTypeMap[] = {
-  { 0, NULL },
 /*SIGNALTYPEMAP*/
   { TYPEMAP_LAST, NULL }
 };
@@ -467,10 +466,16 @@ EXTERN int ARGetFieldCached( ARControlStruct *, ARNameType, ARInternalId,
 		     unsigned int *, 
 #endif
 		     ARValueStruct *,
+#if AR_CURRENT_API_VERSION >= 17
+		     ARPermissionList *assignedGroupList,
+#endif
 		     ARPermissionList *, ARFieldLimitStruct *,
 		     ARDisplayInstanceList *,
 		     char **, ARTimestamp *,
 		     ARNameType, ARNameType, char **,
+#if AR_CURRENT_API_VERSION >= 17
+			 ARPropList *objPropList,
+#endif
 		     ARStatusList *);
 
 EXTERN HV *fieldcache_get_schema_fields( ARControlStruct *ctrl, char *form_name, int load_if_incomplete );

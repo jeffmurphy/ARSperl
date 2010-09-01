@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.86 2009/12/14 17:31:38 jeffmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.87 2010/09/01 17:18:29 tstapff Exp $
 #
 # ARSperl Makefile
 #
@@ -44,7 +44,7 @@ $ARSAPI      = "/usr/ar/api";
 
 # STEP 2 -> Choose your version of ARS FROM THE FOLLOWING LIST
 #
-#                  5.0 6.0 6.01 6.3 7.0 7.1 7.5
+#                  5.0 6.0 6.01 6.3 7.0 7.1 7.5 7.6
 #
 #           notes
 #            - if there is a maintenace number (e.g. 6.0.1)
@@ -55,7 +55,7 @@ $ARSAPI      = "/usr/ar/api";
 #              your version (e.g. for 4.5 you would specify 4.0, NOT
 #	       4.52)
 #
-$ARSVERSION = 7.5;
+$ARSVERSION = 7.6;
 
 
 # STEP 3 -> Choose architecture dependent suffix for library names, if necessary

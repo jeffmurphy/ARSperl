@@ -15,6 +15,7 @@
 	'7.0.1' => '12',
 	'7.1.0' => '13',
 	'7.5.0' => '14',
+	'7.6.3' => '17',
 );
 
 $CTRL_PREFIX = '_';
@@ -159,6 +160,10 @@ ARDiaryLimitsStruct => {
 	fullTextOptions => {
 		_type => 'unsigned int',
 		_data => 'p->fullTextOptions',
+		_map  => {
+			AR_FULLTEXT_OPTIONS_NONE    => 'none',
+			AR_FULLTEXT_OPTIONS_INDEXED => 'indexed',
+		},
 	},
 },
 AREnumLimitsStruct => {
@@ -2067,8 +2072,16 @@ ARMultiSchemaFieldValueOrArithStruct => {
 			},
 		},
 		AR_STAT_HISTORY => {
+			_max_version => '7.5.0',
 			statHistory => {
 				_type => 'ARMultiSchemaStatHistoryValue',
+				_data => 'p->u.statHistory',
+			},
+		},
+		AR_STAT_HISTORY => {
+			_min_version => '7.6.3',
+			statHistory => {
+				_type => 'ARMultiSchemaFuncStatHistoryValue',
 				_data => 'p->u.statHistory',
 			},
 		},
@@ -2080,14 +2093,30 @@ ARMultiSchemaFieldValueOrArithStruct => {
 		},
 		AR_CURRENCY_FLD => {
 			_min_version => '5.1.0',
+			_max_version => '7.5.0',
 			currencyField => {
 				_type => 'ARMultiSchemaCurrencyPartStruct*',
 				_data => 'p->u.currencyField',
 			},
 		},
+		AR_CURRENCY_FLD => {
+			_min_version => '7.6.3',
+			currencyField => {
+				_type => 'ARMultiSchemaFuncCurrencyPartStruct*',
+				_data => 'p->u.currencyField',
+			},
+		},
 		AR_VALUE_SET_QUERY => {
+			_max_version => '7.5.0',
 			queryValue => {
 				_type => 'ARMultiSchemaValueSetQueryStruct*',
+				_data => 'p->u.valueSetQuery',
+			},			
+		},
+		AR_VALUE_SET_QUERY => {
+			_min_version => '7.6.3',
+			queryValue => {
+				_type => 'ARMultiSchemaValueSetFuncQueryStruct*',
 				_data => 'p->u.valueSetQuery',
 			},			
 		},
@@ -2111,6 +2140,7 @@ ARMultiSchemaFieldValueOrArithStruct => {
 #},
 ARMultiSchemaCurrencyPartStruct => {
 	_min_version => '7.5.0',
+	_max_version => '7.5.0',
 	fieldId => {
 		_type => 'ARMultiSchemaFieldIdStruct',
 		_data => 'p->fieldId',
@@ -2178,6 +2208,319 @@ ARMultiSchemaSortStruct => {
 		_data => 'p->sortOrder',
 	},
 },
+
+ARMultiSchemaFuncStatHistoryValue => {
+	_min_version => '7.6.3',
+	queryFromAlias => {
+		_type => 'ARNameType',
+		_data => 'p->queryFromAlias',
+	},
+	enumVal => {
+		_type => 'unsigned long',
+		_data => 'p->enumVal',
+	},
+	userOrTime => {
+		_type => 'unsigned int',
+		_data => 'p->userOrTime',
+	},
+	funcId => {
+		_type => 'int',
+		_data => 'p->funcId',
+	},
+},
+ARMultiSchemaFuncCurrencyPartStruct => {
+	_min_version => '7.6.3',
+	fieldFunc => {
+		_type => 'ARMultiSchemaFieldFuncStruct',
+		_data => 'p->fieldFunc',
+	},
+	partTag => {
+		_type => 'unsigned int',
+		_data => 'p->partTag',
+	},
+	currencyCode => {
+		_type => 'ARCurrencyCodeType',
+		_data => 'p->currencyCode',
+	},
+},
+ARMultiSchemaValueSetFuncQueryStruct => {
+	_min_version => '7.6.3',
+	queryFromList => {
+		_type => 'ARMultiSchemaFuncQueryFromList',
+		_data => 'p->queryFromList',
+	},
+	fieldId => {
+		_type => 'ARMultiSchemaFieldIdStruct',
+		_data => 'p->fieldId',
+	},
+	qualifier => {
+		_type => 'ARMultiSchemaQualifierStruct*',
+		_data => 'p->qualifier',
+	},
+	groupBy => {
+		_type => 'ARMultiSchemaFieldIdList',
+		_data => 'p->groupBy',
+	},
+	having => {
+		_type => 'ARMultiSchemaFuncQualifierStruct*',
+		_data => 'p->having',
+	},
+},
+ARMultiSchemaFuncQueryFromList => {
+	_min_version => '7.6.3',
+	_num  => 'p->numItems',
+	_list => 'p->listPtr',
+	_type => 'ARMultiSchemaFuncQueryFromStruct',
+},
+ARMultiSchemaFuncQueryFromStruct => {
+	_min_version => '7.6.3',
+	queryFromAlias => {
+		_type => 'ARNameType',
+		_data => 'p->queryFromAlias',
+	},
+	joinType => {
+		_type => 'unsigned int',
+		_data => 'p->joinType',
+	},
+	joinQual => {
+		_type => 'ARMultiSchemaQualifierStruct*',
+		_data => 'p->joinQual',
+	},
+	_switch => 'p->type',
+	_case => {
+		AR_MULTI_SCHEMA_SCHEMA_NAME => {
+			'name' => {
+				_type => 'ARNameType',
+				_data => 'p->u.schemaName',
+			},
+		},
+		AR_MULTI_SCHEMA_NESTED_QUERY => {
+			'extRef' => {
+				_type => 'ARMultiSchemaNestedFuncQueryStruct*',
+				_data => 'p->u.nestedQuery',
+			},
+		},
+		AR_MULTI_SCHEMA_RECURSIVE_QUERY => {
+			'extRef' => {
+				_type => 'ARMultiSchemaRecursiveFuncQueryStruct*',
+				_data => 'p->u.recursiveQuery',
+			},
+		},
+	},
+},
+ARMultiSchemaFuncQualifierStruct => {
+	_min_version => '7.6.3',
+	_switch => 'p->operation',
+	_map => [ 'oper', {
+		AR_COND_OP_AND => 'and',
+		AR_COND_OP_OR  => 'or',
+		AR_COND_OP_NOT => 'not',
+		AR_COND_OP_REL_OP     => 'rel_op',
+		AR_COND_OP_FROM_FIELD => 'external',
+	} ],
+	_case => {
+		AR_COND_OP_NONE => {
+			_default => 1,
+		},
+		AR_COND_OP_AND  => {
+			left => {
+				_type => 'ARMultiSchemaFuncQualifierStruct*',
+				_data => 'p->u.andor.operandLeft',
+			},
+			right => {
+				_type => 'ARMultiSchemaFuncQualifierStruct*',
+				_data => 'p->u.andor.operandRight',
+			},
+		},
+		AR_COND_OP_OR => {
+			left => {
+				_type => 'ARMultiSchemaFuncQualifierStruct*',
+				_data => 'p->u.andor.operandLeft',
+			},
+			right => {
+				_type => 'ARMultiSchemaFuncQualifierStruct*',
+				_data => 'p->u.andor.operandRight',
+			},
+		},
+		AR_COND_OP_NOT => {
+			'not' => {
+				_type => 'ARMultiSchemaFuncQualifierStruct*',
+				_data => 'p->u.notQual',
+			},
+		},
+		AR_COND_OP_REL_OP => {
+			rel_op => {
+				_type => 'ARMultiSchemaFuncRelOpStruct*',
+				_data => 'p->u.relOp',
+			},
+		},
+		AR_COND_OP_FROM_FIELD => {
+			fieldFunc => {
+				_type => 'ARMultiSchemaFieldFuncStruct',
+				_data => 'p->u.fieldFunc',
+			},
+		},
+	},
+},
+ARMultiSchemaNestedFuncQueryStruct => {
+	_min_version => '7.6.3',
+	queryFromList => {
+		_type => 'ARMultiSchemaFuncQueryFromList',
+		_data => 'p->queryFromList',
+	},
+	getListFuncs => {
+		_type => 'ARMultiSchemaFieldFuncList',
+		_data => 'p->getListFuncs',
+	},
+	qualifier => {
+		_type => 'ARMultiSchemaQualifierStruct*',
+		_data => 'p->qualifier',
+	},
+	groupBy => {
+		_type => 'ARMultiSchemaFieldIdList',
+		_data => 'p->groupBy',
+	},
+	having => {
+		_type => 'ARMultiSchemaFuncQualifierStruct*',
+		_data => 'p->having',
+	},
+},
+ARMultiSchemaFieldFuncList => {
+	_min_version => '7.6.3',
+	_num  => 'p->numItems',
+	_list => 'p->listPtr',
+	_type => 'ARMultiSchemaFieldFuncStruct',
+},
+ARMultiSchemaFieldFuncStruct => {
+	_min_version => '7.6.3',
+	queryFromAlias => {
+		_type => 'ARNameType',
+		_data => 'p->queryFromAlias',
+	},
+	fieldId => {
+		_type => 'ARInternalId',
+		_data => 'p->fieldId',
+	},
+	funcId => {
+		_type => 'int',
+		_data => 'p->funcId',
+	},
+},
+ARMultiSchemaFuncRelOpStruct => {
+	_min_version => '7.6.3',
+	operation => {
+		_type => 'unsigned int',
+		_data => 'p->operation',
+	},
+	operandLeft => {
+		_type => 'ARMultiSchemaFieldFuncValueOrArithStruct',
+		_data => 'p->operandLeft',
+	},
+	operandRight => {
+		_type => 'ARMultiSchemaFieldFuncValueOrArithStruct',
+		_data => 'p->operandRight',
+	},
+},
+ARMultiSchemaRecursiveFuncQueryStruct => {
+	_min_version => '7.6.3',
+	recursiveSchemaAlias => {
+		_type => 'ARNameType',
+		_data => 'p->recursiveSchemaAlias',
+	},
+	queryFromList => {
+		_type => 'ARMultiSchemaFuncQueryFromList',
+		_data => 'p->queryFromList',
+	},
+	getListFuncs => {
+		_type => 'ARMultiSchemaFieldFuncList',
+		_data => 'p->getListFuncs',
+	},
+	startQual => {
+		_type => 'ARMultiSchemaQualifierStruct*',
+		_data => 'p->startQual',
+	},
+	recursionQual => {
+		_type => 'ARMultiSchemaQualifierStruct*',
+		_data => 'p->recursionQual',
+	},
+	levelsToRetrieve => {
+		_type => 'int',
+		_data => 'p->levelsToRetrieve',
+	},
+	groupBy => {
+		_type => 'ARMultiSchemaFieldIdList',
+		_data => 'p->groupBy',
+	},
+	having => {
+		_type => 'ARMultiSchemaFuncQualifierStruct*',
+		_data => 'p->having',
+	},
+},
+ARMultiSchemaFieldFuncValueOrArithStruct => {
+	_min_version => '7.6.3',
+	_switch => 'p->tag',
+	_case => {
+		AR_FIELD => {
+			fieldFunc => {
+				_type => 'ARMultiSchemaFieldFuncStruct',
+				_data => 'p->u.fieldFunc',
+			},
+		},
+		AR_VALUE => {
+			value => {
+				_type => 'ARValueStruct',
+				_data => 'p->u.value',
+			},
+		},
+		AR_ARITHMETIC => {
+			arith => {
+				_type => 'ARMultiSchemaFuncArithOpStruct*',
+				_data => 'p->u.arithOp',
+			},
+		},
+		AR_STAT_HISTORY => {
+			statHistory => {
+				_type => 'ARMultiSchemaFuncStatHistoryValue',
+				_data => 'p->u.statHistory',
+			},
+		},
+		AR_VALUE_SET => {
+			valueSet => {
+				_type => 'ARValueList',
+				_data => 'p->u.valueSet',
+			},
+		},
+		AR_CURRENCY_FLD => {
+			_min_version => '5.1.0',
+			currencyField => {
+				_type => 'ARMultiSchemaFuncCurrencyPartStruct*',
+				_data => 'p->u.currencyField',
+			},
+		},
+		AR_VALUE_SET_QUERY => {
+			queryValue => {
+				_type => 'ARMultiSchemaValueSetFuncQueryStruct*',
+				_data => 'p->u.valueSetQuery',
+			},			
+		},
+	},
+},
+ARMultiSchemaFuncArithOpStruct => {
+	_min_version => '7.6.3',
+	operation => {
+		_type => 'unsigned int',
+		_data => 'p->operation',
+	},
+	operandLeft => {
+		_type => 'ARMultiSchemaFieldFuncValueOrArithStruct',
+		_data => 'p->operandLeft',
+	},
+	operandRight => {
+		_type => 'ARMultiSchemaFieldFuncValueOrArithStruct',
+		_data => 'p->operandRight',
+	},
+},
+
 
 
 #ARMultiSchemaFieldIdStruct => {
