@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.126 2010/09/01 17:18:29 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/ARS.xs,v 1.127 2011/07/29 13:05:27 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -3867,19 +3867,27 @@ ars_GetServerInfo(ctrl, ...)
 	     for(i = 0; i < AR_MAX_SERVER_INFO_USED ; i++) {
 	        /* we'll exclude ones that can't be retrieved to avoid errors */
 	        switch(i+1) {
-	        case AR_SERVER_INFO_DB_PASSWORD:
-		   break;
+	           case AR_SERVER_INFO_DB_PASSWORD:
+#if AR_CURRENT_API_VERSION < 17
+	           case 332:
+	           case 331:
+	           case 330:
+	           case 329:
+	           case 328:
+	           case 327:
+	           case 326:
+	           case 325:
+#endif
+	           break;
 	        default:
 	           rlist[count++] = i+1;
 	        }
-             }
-	  } 
-	  else if(items > AR_MAX_SERVER_INFO_USED + 1) {
+         }
+	  }else if(items > AR_MAX_SERVER_INFO_USED + 1) {
 	    ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
-	  }
-	  else { /* user has asked for specific ones */
+	  }else { /* user has asked for specific ones */
 	     for(i = 1 ; i < items ; i++) {
-		rlist[count++] = SvIV(ST(i));
+	        rlist[count++] = SvIV(ST(i));
 	     }
 	  }
 	  if(count > 0) {
@@ -5868,7 +5876,7 @@ ars_CreateActiveLink(ctrl, alDefRef)
 					    helpText, owner, changeDiary, 
 					    &objPropList,
 #if AR_CURRENT_API_VERSION >= 14
-						NULL,         /* errorActlinkOptions, reserved for future use */
+						0,            /* errorActlinkOptions, reserved for future use */
 						NULL,         /* errorActlinkName,    reserved for future use */
 #endif
 #if AR_CURRENT_API_VERSION >= 17
@@ -6847,7 +6855,7 @@ ars_SetImage(ctrl, name, objDefRef)
 	  ARAccessNameType       owner;
 	  char                  *ownerPtr    = NULL;
 	  char                  *changeDiary = CPNULL;
-	  ARPropList            *objPropList;
+	  ARPropList            *objPropList = NULL;
 	  char                  *objectModificationLogLabel = NULL;
 	  
 	  RETVAL = 0; /* assume error */
@@ -7015,7 +7023,12 @@ ars_MergeEntry(ctrl, schema, mergeType, ...)
 	  	}
 	  }
 
-	  ret = ARMergeEntry(ctrl, schema, &fieldList, mergeType, entryId, &status);
+	  ret = ARMergeEntry(ctrl, schema, &fieldList, mergeType, 
+#if AR_CURRENT_API_VERSION >= 18
+			NULL,     /* ARQualifier *query            */
+			0,        /* unsigned int multimatchOption */
+#endif
+			entryId, &status);
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
 #endif	  

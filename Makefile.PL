@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.87 2010/09/01 17:18:29 tstapff Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.88 2011/07/29 13:05:27 tstapff Exp $
 #
 # ARSperl Makefile
 #
@@ -25,7 +25,8 @@ $debug = 0;
 
 # STEP 1 -> Set the path to your ARS API directory
 
-$ARSAPI      = "/usr/ar/api";
+$ARSAPI      = "C:/Replication/Remedy/7.6.4";
+#$ARSAPI      = "/usr/ar/api";
 #$ARSAPI     = "/u1/project/ARSperl/api/sol2/api6.0.1";
 #$ARSAPI     = "/u1/project/ARSperl/api/sol2/api6.3";
 #$ARSAPI     = "/u1/project/ARSperl/api/linux/7.1.0p8";

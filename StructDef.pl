@@ -16,6 +16,7 @@
 	'7.1.0' => '13',
 	'7.5.0' => '14',
 	'7.6.3' => '17',
+	'7.6.4' => '18',
 );
 
 $CTRL_PREFIX = '_';
@@ -155,6 +156,25 @@ ARCharLimitsStruct => {
 			AR_FULLTEXT_OPTIONS_INDEXED => 'indexed',
 		},
 	},
+	lengthUnits => {
+		_min_version => '7.5.0',
+		_type => 'unsigned int',
+		_data => 'p->lengthUnits',
+		_map  => {
+			AR_LENGTH_UNIT_BYTE => 'byte',
+			AR_LENGTH_UNIT_CHAR => 'char',
+		},
+	},
+	storageOptionForCLOB => {
+		_min_version => '7.5.0',
+		_type => 'unsigned int',
+		_data => 'p->storageOptionForCLOB',
+		_map  => {
+			AR_STORE_OPT_DEF    => 'default',
+			AR_STORE_OPT_INROW  => 'inrow',
+			AR_STORE_OPT_OUTROW => 'outrow',
+		},
+	},
 },
 ARDiaryLimitsStruct => {
 	fullTextOptions => {
@@ -278,6 +298,15 @@ ARDisplayLimits => {
 	maxLength => {
 		_type => 'unsigned int',
 		_data => 'p->maxLength',
+	},
+	lengthUnits => {
+		_min_version => '7.5.0',
+		_type => 'unsigned int',
+		_data => 'p->lengthUnits',
+		_map  => {
+			AR_LENGTH_UNIT_BYTE => 'byte',
+			AR_LENGTH_UNIT_CHAR => 'char',
+		},
 	},
 },
 ARDateLimitsStruct => {

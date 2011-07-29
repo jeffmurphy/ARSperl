@@ -1726,6 +1726,33 @@ rev_ARCharLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharLimitsStruc
 						char k[256];
 						k[255] = '\0';
 				
+				#if AR_CURRENT_API_VERSION >= 14
+					{
+						SV **val;
+						strncpy( k, "lengthUnits", 255 );
+						val = hv_fetch( h, "lengthUnits", 11, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								int flag = 0;
+								if( !strcmp(SvPV_nolen(*val),"char") ){
+									p->lengthUnits = AR_LENGTH_UNIT_CHAR;
+									flag = 1;
+								}
+								if( !strcmp(SvPV_nolen(*val),"byte") ){
+									p->lengthUnits = AR_LENGTH_UNIT_BYTE;
+									flag = 1;
+								}
+								if( flag == 0 ){
+									ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,  "rev_ARCharLimitsStruct: invalid key value" );
+									ARError_add( AR_RETURN_ERROR, AP_ERR_CONTINUE, SvPV_nolen(*val) );
+								}
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"lengthUnits\"" );
+							return -1;
+						}
+					}
+				#endif
 				
 					{
 						SV **val;
@@ -1802,6 +1829,37 @@ rev_ARCharLimitsStruct( ARControlStruct *ctrl, HV *h, char *k, ARCharLimitsStruc
 						}
 					}
 				
+				#if AR_CURRENT_API_VERSION >= 14
+					{
+						SV **val;
+						strncpy( k, "storageOptionForCLOB", 255 );
+						val = hv_fetch( h, "storageOptionForCLOB", 20, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								int flag = 0;
+								if( !strcmp(SvPV_nolen(*val),"inrow") ){
+									p->storageOptionForCLOB = AR_STORE_OPT_INROW;
+									flag = 1;
+								}
+								if( !strcmp(SvPV_nolen(*val),"default") ){
+									p->storageOptionForCLOB = AR_STORE_OPT_DEF;
+									flag = 1;
+								}
+								if( !strcmp(SvPV_nolen(*val),"outrow") ){
+									p->storageOptionForCLOB = AR_STORE_OPT_OUTROW;
+									flag = 1;
+								}
+								if( flag == 0 ){
+									ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,  "rev_ARCharLimitsStruct: invalid key value" );
+									ARError_add( AR_RETURN_ERROR, AP_ERR_CONTINUE, SvPV_nolen(*val) );
+								}
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"storageOptionForCLOB\"" );
+							return -1;
+						}
+					}
+				#endif
 				
 					{
 						SV **val;
@@ -4410,6 +4468,33 @@ rev_ARDisplayLimits( ARControlStruct *ctrl, HV *h, char *k, ARDisplayLimits *p )
 						char k[256];
 						k[255] = '\0';
 				
+				#if AR_CURRENT_API_VERSION >= 14
+					{
+						SV **val;
+						strncpy( k, "lengthUnits", 255 );
+						val = hv_fetch( h, "lengthUnits", 11, 0 );
+						if( val && *val && SvOK(*val) ){
+							{
+								int flag = 0;
+								if( !strcmp(SvPV_nolen(*val),"char") ){
+									p->lengthUnits = AR_LENGTH_UNIT_CHAR;
+									flag = 1;
+								}
+								if( !strcmp(SvPV_nolen(*val),"byte") ){
+									p->lengthUnits = AR_LENGTH_UNIT_BYTE;
+									flag = 1;
+								}
+								if( flag == 0 ){
+									ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL,  "rev_ARDisplayLimits: invalid key value" );
+									ARError_add( AR_RETURN_ERROR, AP_ERR_CONTINUE, SvPV_nolen(*val) );
+								}
+							}
+						}else{
+							ARError_add( AR_RETURN_ERROR, AP_ERR_GENERAL, "hv_fetch error: key \"lengthUnits\"" );
+							return -1;
+						}
+					}
+				#endif
 				
 					{
 						SV **val;

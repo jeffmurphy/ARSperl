@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:	ARS
-version:	1.92
+version:	1.93
 abstract:	ARSperl is an integration kit for Perl 5 and the BMC Remedy ARS System
 license:	perl
 author:

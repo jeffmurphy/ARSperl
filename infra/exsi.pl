@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Header: /cvsroot/arsperl/ARSperl/infra/exsi.pl,v 1.7 2010/09/01 17:18:29 tstapff Exp $
+# $Header: /cvsroot/arsperl/ARSperl/infra/exsi.pl,v 1.8 2011/07/29 13:05:28 tstapff Exp $
 #
 # NAME
 #   exsi.pl < ar.h > server_info_type_hints.h
@@ -15,8 +15,8 @@
 #   jcmurphy@jeffmurphy.org
 #
 # $Log: exsi.pl,v $
-# Revision 1.7  2010/09/01 17:18:29  tstapff
-# arsystem 7.6.3 port
+# Revision 1.8  2011/07/29 13:05:28  tstapff
+# arsystem 7.6.4 port
 #
 # Revision 1.6  2009/12/14 17:30:56  jeffmurphy
 # more fiddling with exsi.pl: removed skip of MAX_ATTACH_SIZE, reworded warning
@@ -45,29 +45,47 @@ header();
 
 
 my $ct = 0;  # counter for completeness check
+my $apiVersion;
 
 while(<>) {
 	print if $D;
 	chomp;
 	
+	$apiVersion = $1 if /#define\s+AR_CURRENT_API_VERSION\s+(\d+)/;
+
 	# jump thru hoops
 
 	my ($sin, $siv, $sit, $sit2);
 	# name value type type2
 
-	if(/\#define\s+(AR_SERVER_INFO_\S+)\s+(\d+)\s*\/\*\s*(\S+)\s+(\S+)?/) {
-		($sin, $siv, $sit, $sit2) = ($1, $2, $3, $4);
-	}elsif(/\#define\s+(AR_SERVER_INFO_\S+)\s+(\d+)\s*$/){
-		($sin, $siv) = ($1, $2);
-		$_ = <>;
-		if( /^\s*\/\*\s+(\S+)\s+(\S+)?/) {
-			($sit, $sit2) = ($1, $2);
+	while( 1 ){
+		if(/\#define\s+(AR_SERVER_INFO_\S+)\s+(\d+)\s*\/\*\s*(\w+)[-;(\s]+(\S+)?/) {
+			($sin, $siv, $sit, $sit2) = ($1, $2, $3, $4);
+#			print STDERR "\$sin <", $sin, ">  \$siv <", $siv, ">  \$sit <", $sit, ">  \$sit2 <", $sit2, ">\n";  # _DEBUG_
+		}elsif(/\#define\s+(AR_SERVER_INFO_\S+)\s+(\d+)\s*$/){
+			($sin, $siv) = ($1, $2);
+			$_ = <>;
+			if( /^\s*\/\*\s+(\S+)\s+(\S+)?/) {
+				($sit, $sit2) = ($1, $2);
+			}else{
+				next;
+			}
 		}
+		last;
 	}
 
-	if( $sin && $siv && $sit ){
+	if( defined $sin && defined $siv && defined $sit ){
 		print "sin $sin siv $siv sit $sit\n" if $D;
-		++$ct;
+		if( $apiVersion == 14 && $ct == 324 ){
+			$ct += 9;
+		}elsif( $apiVersion >= 17 && $ct == 326 ){
+			$ct += 4;
+		}elsif( $apiVersion >= 17 && $ct == 339 ){
+			$ct += 2;
+		}else{
+			++$ct;
+		}
+#		print STDERR "($ct) sin $sin siv $siv sit $sit\n";
 		if ($siv != $ct) {
 			if( $siv <= 324 ){
 				warn "!!! ERROR: Cannot determine type for AR_SERVER_INFO constant $ct !!!";
@@ -121,6 +139,8 @@ while(<>) {
 		$sit = "int" if $sin eq "AR_SERVER_INFO_MFS_TITLE_FIELD_WEIGHT";         # 327
 		$sit = "int" if $sin eq "AR_SERVER_INFO_MFS_ENVIRONMENT_FIELD_WEIGHT";   # 328
 		$sit = "int" if $sin eq "AR_SERVER_INFO_MFS_KEYWORDS_FIELD_WEIGHT";      # 329
+
+		$sit = "int" if $sin eq "AR_SERVER_INFO_OVERLAY_MODE";                   # 341
 
 		#print "\t/*$sin [$siv] is an $sit*/\n";
 

@@ -2036,7 +2036,15 @@ perl_expandARCharMenuStruct(ARControlStruct * ctrl,
 
 	if (in->menuType != AR_CHAR_MENU_LIST) {
 		DBG( ("input menu is not a LIST, calling ARExpandCharMenu\n") );
-		ret = ARExpandCharMenu(ctrl, in, &menu, &status);
+		ret = ARExpandCharMenu(ctrl, in, 
+#if AR_CURRENT_API_VERSION >= 18
+			0,      /* maxRetrieve */
+#endif
+			&menu,
+#if AR_CURRENT_API_VERSION >= 18
+			NULL,   /* numMatches */
+#endif
+			&status);
 		DBG( ("ARECM ret=%d\n", ret) );
 		if (ARError(ret, status)) {
 			FreeARCharMenuStruct(&menu, FALSE);
@@ -2190,6 +2198,29 @@ perl_ARFieldLimitStruct(ARControlStruct * ctrl, ARFieldLimitStruct * in)
 			break;
 		}
 
+#if AR_CURRENT_API_VERSION >= 14
+		switch (in->u.charLimits.lengthUnits) {
+		case AR_LENGTH_UNIT_BYTE:
+			hv_store(hash,  "lengthUnits", strlen("lengthUnits") , newSVpv("byte", 0), 0);
+			break;
+		case AR_LENGTH_UNIT_CHAR:
+			hv_store(hash,  "lengthUnits", strlen("lengthUnits") , newSVpv("char", 0), 0);
+			break;
+		}
+
+		switch (in->u.charLimits.storageOptionForCLOB) {
+		case AR_STORE_OPT_DEF:
+			hv_store(hash,  "storageOptionForCLOB", strlen("storageOptionForCLOB") , newSVpv("default", 0), 0);
+			break;
+		case AR_STORE_OPT_INROW:
+			hv_store(hash,  "storageOptionForCLOB", strlen("storageOptionForCLOB") , newSVpv("inrow", 0), 0);
+			break;
+		case AR_STORE_OPT_OUTROW:
+			hv_store(hash,  "storageOptionForCLOB", strlen("storageOptionForCLOB") , newSVpv("outrow", 0), 0);
+			break;
+		}
+#endif
+
 		return newRV_noinc((SV *) hash);
 
 	case AR_DATA_TYPE_DIARY:
@@ -2305,6 +2336,17 @@ perl_ARFieldLimitStruct(ARControlStruct * ctrl, ARFieldLimitStruct * in)
 
 	case AR_DATA_TYPE_DISPLAY:
 		hv_store(hash,  "maxLength", strlen("maxLength") , newSViv(in->u.displayLimits.maxLength), 0);
+#if AR_API_VERSION >= 14
+		switch (in->u.charLimits.lengthUnits) {
+		case AR_LENGTH_UNIT_BYTE:
+			hv_store(hash,  "lengthUnits", strlen("lengthUnits") , newSVpv("byte", 0), 0);
+			break;
+		case AR_LENGTH_UNIT_CHAR:
+			hv_store(hash,  "lengthUnits", strlen("lengthUnits") , newSVpv("char", 0), 0);
+			break;
+		}
+#endif
+
 		return newRV_noinc((SV *) hash);
 #endif
 

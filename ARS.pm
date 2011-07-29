@@ -110,7 +110,7 @@ ars_GetListImage ars_GetImage ars_CreateImage ars_SetImage ars_DeleteImage
 ars_GetListEntryWithMultiSchemaFields
 );
 
-$ARS::VERSION   = '1.92';
+$ARS::VERSION   = '1.93';
 $ARS::DEBUGGING = 0;
 
 $ARS::logging_file_ptr = 0;
