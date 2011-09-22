@@ -1,4 +1,4 @@
-released=xx/xx/xxx version=1.93
+released=08/01/2011 version=1.93
 TS  fixed exsi.pl enumeration gap problem
 TS  added lengthUnits,storageOptionForCLOB attributes to ARCharLimitsStruct,ARDisplayLimits
 TS  fixed ars_GetServerInfo() keys 325-332 problem

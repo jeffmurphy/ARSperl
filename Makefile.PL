@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.88 2011/07/29 13:05:27 tstapff Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.89 2011/09/22 13:29:06 jeffmurphy Exp $
 #
 # ARSperl Makefile
 #
@@ -29,7 +29,7 @@ $ARSAPI      = "C:/Replication/Remedy/7.6.4";
 #$ARSAPI      = "/usr/ar/api";
 #$ARSAPI     = "/u1/project/ARSperl/api/sol2/api6.0.1";
 #$ARSAPI     = "/u1/project/ARSperl/api/sol2/api6.3";
-#$ARSAPI     = "/u1/project/ARSperl/api/linux/7.1.0p8";
+#$ARSAPI     = "/jeff/project/ARSperl/api/linux/7.1";
 #$ARSAPI     = "/u1/project/ARSperl/api/sol2/api5.1.1";
 # $ARSAPI     = "/home/jcmurphy/arsperl/api/5.1";
 # $ARSAPI     = q{\\\\ess7\devkits\ars\5.0\fcs\winnt};
