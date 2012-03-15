@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.34 2009/04/02 18:57:03 tstapff Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.35 2012/03/15 16:13:29 jeffmurphy Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -2674,6 +2674,9 @@ strncasecmp(char *s1, char *s2, size_t n)
 	return (i == n)? 0 : *p1 - *p2;
 }
 
+#endif
+
+#if defined(_WIN32)
 char*
 arsperl_strdup( char *s1 ){
 	char *p1;
