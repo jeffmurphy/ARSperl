@@ -42,7 +42,7 @@ $ARSAPI      = "C:/Replication/Remedy/7.6.4";
 # $ARSAPI      = q{c:\Progra~1\ARSystem6.3\Arserver\Api};
 # $ARSAPI     = q{\\\\ess7\devkits\ars\6.3\current\winnt};
 
-# STEP 2 -> Choose your version of ARS FROM THE FOLLOWING LIST
+# STEP 2 (!!! skip this -- it's obsolete) ## -> Choose your version of ARS FROM THE FOLLOWING LIST
 #
 #                  5.0 6.0 6.01 6.3 7.0 7.1 7.5 7.6
 #
@@ -55,7 +55,7 @@ $ARSAPI      = "C:/Replication/Remedy/7.6.4";
 #              your version (e.g. for 4.5 you would specify 4.0, NOT
 #	       4.52)
 #
-$ARSVERSION = 7.6;
+#$ARSVERSION = 7.6;
 
 
 # STEP 3 -> Choose architecture dependent suffix for library names, if necessary
@@ -115,7 +115,8 @@ my $ra_arlibs = findArLibs($ARSAPI);
 # use Data::Dumper;
 # print "found ar libraries: ", Dumper($ra_arlibs);
 
-
+$ARAPIVERSION = findAPIVersion($ARSAPI);
+$ARSVERSION = ARSVersionString($ARAPIVERSION);
 
 $WINDOWS = $^O eq 'MSWin32';
 $GNU_WIN = ($^O eq 'MSWin32' || $^O eq 'cygwin') && $Config{'cc'} eq "gcc";
@@ -142,7 +143,7 @@ foreach my $pm2install (qw{arerrno-h.pm  ar-h.pm  nparm.pm  OOform.pm  OOmsgs.pm
 $LARCH = $ARCHITECTURE ? "_".$ARCHITECTURE : "";
 
 
-if ($ARSVERSION >= 6.3) {
+if ($ARAPIVERSION >= ARS_VERSION_63) {
 	$ARS_STATIC_LIB = "$ARSAPI/lib/libar$LARCH.a";
 	$ARS_LIBS = "-larencrypt$LARCH -lcrypto_BMC_FIPS$LARCH " if $ENCRYPT;
 	$ARS_LIBS .= " -lnsl ";
@@ -150,17 +151,17 @@ if ($ARSVERSION >= 6.3) {
 	$ARS_LIBS = " -lar$LARCH -lnsl ";
 	$ARS_LIBS = " -lar$LARCH -larencrypt$LARCH -lnsl " if $ENCRYPT;
 }
-#$PM->{'ARS/artypes.ph'} = '$(INST_LIBDIR)/ARS/artypes.ph' if $ARSVERSION >= 6.3;
+
 if ($GNU_WIN) {
 	$ARS_LIBS = join(' ', map { "$ARSAPI/lib/" . $_ } @{$ra_arlibs});
 } elsif ($WINDOWS) {
 	$ARS_LIBS = join(' ', map { '-l' . $_ } @{$ra_arlibs});
 } else {
 	$ARS_LIBS .= " -lpthread ";
-	$ARS_LIBS .= " -licuucbmc$LARCH -licui18nbmc$LARCH -licudatabmc$LARCH " if $ARSVERSION >= 7.0;
+	$ARS_LIBS .= " -licuucbmc$LARCH -licui18nbmc$LARCH -licudatabmc$LARCH " if $ARAPIVERSION >= ARS_VERSION_70;
 }
 $AUTODEFINES .= " -DARS32 -DARS452 ";
-if( ($ARSVERSION >= 5.0) && ($^O eq 'linux') && $LARCH !~ /64/ ){
+if( ($ARAPIVERSION >= ARS_VERSION_50) && ($^O eq 'linux') && $LARCH !~ /64/ ){
 	$AUTODEFINES .= " -malign-double ";
 }
 
@@ -236,7 +237,7 @@ foreach ("ar", "arerrno") {
 
 	# arsystem <= 6.0.3 doesnt have artypes.h
 
-	next if ( ($ARSVERSION < 6.03) && /^artypes$/ );
+	next if ( ($ARAPIVERSION < ARS_VERSION_63) && /^artypes$/ );
 
 	die "couldn't find $headerFile" if (! -e $headerFile);
 
@@ -267,9 +268,10 @@ foreach ("ar", "arerrno") {
 }
 
 print "Configuring with options:\n";
-printf "\tARSVERSION  = %.2f\n", $ARSVERSION;
-print "\tARSAPI      = $ARSAPI\n";
-print "\tAUTODEFINES = $AUTODEFINES\n";
+print "\tARSAPI        = $ARSAPI\n";
+print "\tARSVERSION    = $ARSVERSION\n";
+print "\tARAPIVERSION  = $ARAPIVERSION\n";
+print "\tAUTODEFINES   = $AUTODEFINES\n";
 
 #$PM->{'ARS/_h2ph_pre.ph'} = '$(INST_LIBDIR)/ARS/_h2ph_pre.ph';
 
@@ -884,3 +886,42 @@ sub findArLibs {
   return \@libs;
 }
 
+sub ARS_VERSION_45  {  7; }
+sub ARS_VERSION_50  {  8; }
+sub ARS_VERSION_51  {  9; }
+sub ARS_VERSION_60  { 10; }
+sub ARS_VERSION_63  { 11; }
+sub ARS_VERSION_70  { 12; }
+sub ARS_VERSION_71  { 13; }
+sub ARS_VERSION_75  { 14; }
+sub ARS_VERSION_760 { 15; }
+sub ARS_VERSION_762 { 16; }
+sub ARS_VERSION_763 { 17; }
+sub ARS_VERSION_764 { 18; }
+sub ARS_VERSION_80  { 19; }
+sub ARS_VERSION_81  { 20; }
+## @Devs: set the following constant always to the latest version supported by ARSPerl
+sub ARS_MAX_API { ARS_VERSION_81; }
+
+sub ARSVersionString {
+	my $APIVersionID = shift;
+	my $api2Version = {
+		&ARS_VERSION_45 => '4.5',
+		&ARS_VERSION_50 => '5.0',
+		&ARS_VERSION_51 => '5.1',
+		&ARS_VERSION_60 => '6.0',
+		&ARS_VERSION_63 => '6.3',
+		&ARS_VERSION_70 => '7.0',
+		&ARS_VERSION_71 => '7.1',
+		&ARS_VERSION_75 => '7.5',
+		&ARS_VERSION_760 => '7.6',
+		&ARS_VERSION_762 => '7.6',
+		&ARS_VERSION_763 => '7.6.03',
+		&ARS_VERSION_764 => '7.6.04',
+		&ARS_VERSION_80 => '8.0',
+		&ARS_VERSION_81 => '8.1',
+	};
+	if ($APIVersionID > ARS_MAX_API) { return "Unsupported API-Version: (using " . $api2Version{ARS_MAX_API} . ")"; }
+	if (!$APIVersionID || $APIVersionID < ARS_VERSION_45) { return "Unsupported API version!"; }
+	return $api2Version->{$APIVersionID};
+};
