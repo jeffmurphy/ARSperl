@@ -144,8 +144,8 @@ $LARCH = $ARCHITECTURE ? "_".$ARCHITECTURE : "";
 
 if ($ARSVERSION >= 6.3) {
 	$ARS_STATIC_LIB = "$ARSAPI/lib/libar$LARCH.a";
-	$ARS_STATIC_LIB = "$ARSAPI/lib/libar$LARCH.a $ARSAPI/libarencrypt$LARCH.a" if $ENCRYPT;
-	$ARS_LIBS = " -lnsl ";
+	$ARS_LIBS = "-larencrypt$LARCH -lcrypto_BMC_FIPS$LARCH " if $ENCRYPT;
+	$ARS_LIBS .= " -lnsl ";
 }else{
 	$ARS_LIBS = " -lar$LARCH -lnsl ";
 	$ARS_LIBS = " -lar$LARCH -larencrypt$LARCH -lnsl " if $ENCRYPT;
@@ -615,7 +615,7 @@ sub GenerateSupportDotH {
 	    print "\tProcessing AR_SERVER_INFO codes..\n";
 	    my($code, $line);
 	    foreach $line (grep (/^\#define\s+AR_SERVER_INFO.*/, @arh)) {
-		$code = (split(/\s/, $line))[1];
+		$code = (split(/\s+/, $line))[1];
 
 		print "\t\t$code\n" if $debug;
 		$code =~ /^AR_SERVER_INFO_(\w+)/;
