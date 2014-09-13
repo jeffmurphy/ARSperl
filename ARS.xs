@@ -7564,12 +7564,21 @@ ars_SetSessionConfiguration( ctrl, variableId, value )
 		ARStatusList     status;
 		ARValueStruct    variableValue;
 		int	             ret;
+		char             numToCharBuf[32];
 
 		(void) ARError_reset();
 		Zero(&status, 1, ARStatusList);
 
 		variableValue.dataType = AR_DATA_TYPE_INTEGER;
 		variableValue.u.intVal = value;
+		
+		if (variableId == 12 || variableId == 13)
+		{
+			// just a quick and dirty solution because those variables need to be characters
+			sprintf(numToCharBuf, "%ld", value);
+			variableValue.dataType = AR_DATA_TYPE_CHAR;
+			variableValue.u.charVal = numToCharBuf;
+		}
 
 		ret = ARSetSessionConfiguration( ctrl, variableId, &variableValue, &status );
 
@@ -8129,6 +8138,38 @@ ars_CreateAlertEvent(ctrl,user,alertText,priority,sourceTag,serverName,formName,
 #else
 	  (void) ARError_add(AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
 			"CreateAlertEvent() is only available in ARSystem >= 5.0");
+#endif
+	}
+	OUTPUT:
+	RETVAL
+
+SV *
+ars_GetSessionConfiguration(ctrl,variableId)
+	ARControlStruct* ctrl
+	unsigned int variableId
+	CODE:
+	{
+#if AR_EXPORT_VERSION >= 6
+		int              ret = 0;
+		ARStatusList     status;
+		ARValueStruct    varValue;
+		Zero(&status, 1, ARStatusList);
+		Zero(&varValue, 1, ARValueStruct);
+		
+		ret = ARGetSessionConfiguration(ctrl, variableId, &varValue, &status);
+		
+		if( !ARError(ret, status) ) {
+			RETVAL = perl_ARValueStruct(ctrl, &varValue);
+		}
+		else
+		{
+			RETVAL = &PL_sv_undef;
+		}
+		FreeARValueStruct(&varValue, FALSE);
+#else /* < 5.0 */
+	  XPUSHs(sv_2mortal(newSViv(0))); /* ERR */
+	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"GetSessionConfiguration() is only available in ARSystem >= 5.0");
 #endif
 	}
 	OUTPUT:
