@@ -145,7 +145,7 @@ revTypeName(TypeMapStruct *t, char *type)
 }
 
 /* ROUTINE
- *   strcpyHVal(hash, key, buffer, bufferLen)
+ *   strcpyHVal(hash, key, buffer, bufferLen - 1)
  *
  * DESCRIPTION
  *   given a hash (HV *), a key, a pre-allocated buffer and
@@ -153,8 +153,10 @@ revTypeName(TypeMapStruct *t, char *type)
  *   (assuming it is a string value [PV]) and place it in the buffer.
  *
  * NOTES
- *   if value of hash is truncate at len bytes if it exceeds len.
- *   b, once filled in, will be null terminated.
+ *   The value of hash is truncate at len bytes if it exceeds len.
+ *   buffer, once filled in, will be null terminated. Thus the 
+ *   bufferLen should be the real length minus 1, because the
+ *   address at buffer[bufferLen] is set to zero all the time.
  *
  * RETURNS
  *    0 on success
@@ -624,8 +626,8 @@ rev_ARDisplayStruct(ARControlStruct * ctrl, HV * h, ARDisplayStruct * d)
 	int             rv = 0, rv2 = 0;
 	char            buf[1024];
 
-	rv += strcpyHVal(h, "displayTag", d->displayTag, sizeof(ARNameType));
-	rv += strcpyHVal(h, "label", d->label, sizeof(ARNameType));
+	rv += strcpyHVal(h, "displayTag", d->displayTag, AR_MAX_NAME_SIZE);
+	rv += strcpyHVal(h, "label", d->label, AR_MAX_NAME_SIZE);
 	rv += intcpyHVal(h, "x", &(d->x));
 	rv += intcpyHVal(h, "y", &(d->y));
 	rv += uintcpyHVal(h, "length", &(d->length));
@@ -637,7 +639,7 @@ rev_ARDisplayStruct(ARControlStruct * ctrl, HV * h, ARDisplayStruct * d)
 	 * "option" will be either "VISIBLE" or "HIDDEN" default: Visible
 	 */
 
-	if ((rv2 = strcpyHVal(h, "option", buf, sizeof(buf))) == 0) {
+	if ((rv2 = strcpyHVal(h, "option", buf, sizeof(buf)-1)) == 0) {
 		if (strncasecmp(buf, "HIDDEN", sizeof(buf)) == 0)
 			d->option = AR_DISPLAY_OPT_HIDDEN;
 		else
@@ -649,7 +651,7 @@ rev_ARDisplayStruct(ARControlStruct * ctrl, HV * h, ARDisplayStruct * d)
 	 * "labelLocation" will be either "Left" or "Top" default: Left
 	 */
 
-	if ((rv2 = strcpyHVal(h, "labelLocation", buf, sizeof(buf))) == 0) {
+	if ((rv2 = strcpyHVal(h, "labelLocation", buf, sizeof(buf)-1)) == 0) {
 		if (strncasecmp(buf, "Top", sizeof(buf)) == 0)
 			d->labelLocation = AR_DISPLAY_LABEL_TOP;
 		else
@@ -662,7 +664,7 @@ rev_ARDisplayStruct(ARControlStruct * ctrl, HV * h, ARDisplayStruct * d)
 	 * BUTTON default: NONE
 	 */
 
-	if ((rv2 = strcpyHVal(h, "type", buf, sizeof(buf))) == 0) {
+	if ((rv2 = strcpyHVal(h, "type", buf, sizeof(buf)-1)) == 0) {
 		if (strncasecmp(buf, "TEXT", sizeof(buf)) == 0)
 			d->type = AR_DISPLAY_TYPE_TEXT;
 		else if (strncasecmp(buf, "NUMTEXT", sizeof(buf)) == 0)
@@ -1197,7 +1199,7 @@ rev_ARAssignSQLStruct(ARControlStruct * ctrl, HV * h, char *k, ARAssignSQLStruct
 	}
 	/* copy the key values into the buffer */
 
-	rv += strcpyHVal(hr, "server", s->server, AR_MAX_SERVER_SIZE + 1);
+	rv += strcpyHVal(hr, "server", s->server, AR_MAX_SERVER_SIZE);
 
 	/*
 	svp = hv_fetch(hr,  "sqlCommand", strlen("sqlCommand") , 0);
@@ -1761,8 +1763,8 @@ rev_ARAssignFieldStruct_helper(ARControlStruct * ctrl, HV * h, ARAssignFieldStru
 			    "rev_ARAssignFieldStruct_helper: required hash key not found");
 		return -1;
 	}
-	strcpyHVal(h, "server", m->server, AR_MAX_SERVER_SIZE + 1);
-	strcpyHVal(h, "schema", m->schema, sizeof(ARNameType));
+	strcpyHVal(h, "server", m->server, AR_MAX_SERVER_SIZE);
+	strcpyHVal(h, "schema", m->schema, AR_MAX_NAME_SIZE);
 
 	if (hv_exists(h, "fieldId", 7)) {
 		m->tag = AR_FIELD;
@@ -2562,7 +2564,7 @@ rev_ARActiveLinkMacroStruct_helper(ARControlStruct * ctrl,
 	    hv_exists(h,  "macroText", strlen("macroText") ) &&
 	    hv_exists(h,  "macroName", strlen("macroName") )) {
 
-		rv += strcpyHVal(h, "macroName", m->macroName, sizeof(ARNameType));
+		rv += strcpyHVal(h, "macroName", m->macroName, AR_MAX_NAME_SIZE);
 		rv += strmakHVal(h, "macroText", &(m->macroText));
 		rv += rev_ARMacroParmList(ctrl, h, "macroParms", &(m->macroParms));
 

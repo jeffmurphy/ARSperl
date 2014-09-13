@@ -4062,7 +4062,7 @@ ars_CreateCharMenu( ctrl, menuDefRef, removeFlag=TRUE )
 			croak("usage: ars_CreateCharMenu(...)");
 		}
 
-		rv += strcpyHVal( menuDef, "name", name, sizeof(ARNameType) );
+		rv += strcpyHVal( menuDef, "name", name, AR_MAX_NAME_SIZE );
 
 		/* rv += uintcpyHVal( menuDef, "refreshCode", &type ); */
 		rv += strmakHVal( menuDef, "refreshCode", &refreshCodeStr );
@@ -4791,7 +4791,7 @@ ars_CreateSchema( ctrl, schemaDefRef )
 			croak("usage: ars_CreateSchema(...)");
 		}
 
-		rv += strcpyHVal( schemaDef, "name", name, sizeof(ARNameType) );
+		rv += strcpyHVal( schemaDef, "name", name, AR_MAX_NAME_SIZE );
 
 		compoundSchema.schemaType = AR_SCHEMA_REGULAR;
 		pSvTemp = hv_fetch( schemaDef, "schema", strlen("schema") , 0 );
@@ -5435,7 +5435,7 @@ ars_CreateContainer( ctrl, containerDefRef, removeFlag=TRUE )
 			croak("usage: ars_CreateContainer(...)");
 		}
 
-		rv += strcpyHVal( containerDef, "name", name, sizeof(ARNameType) );
+		rv += strcpyHVal( containerDef, "name", name, AR_MAX_NAME_SIZE );
 
 		/* rv += uintcpyHVal( containerDef, "type", &type ); */
 		rv += strmakHVal( containerDef, "type", &typeStr );
@@ -5806,11 +5806,11 @@ ars_CreateActiveLink(ctrl, alDefRef)
 		 */
 
 		rv  = 0;
-		rv += strcpyHVal( alDef, "name", name, sizeof(ARNameType));
+		rv += strcpyHVal( alDef, "name", name, AR_MAX_NAME_SIZE);
 #if AR_EXPORT_VERSION >= 5
 		rv += rev_ARNameList( ctrl, alDef, "schemaList", schemaList.u.schemaList );
 #else
-		rv += strcpyHVal( alDef, "schema", schema, sizeof(ARNameType));
+		rv += strcpyHVal( alDef, "schema", schema, AR_MAX_NAME_SIZE);
 #endif
 		rv += uintcpyHVal( alDef, "order", &order);
 		rv += rev_ARInternalIdList(ctrl, alDef, "groupList", &groupList);
@@ -5818,8 +5818,7 @@ ars_CreateActiveLink(ctrl, alDefRef)
 		rv += uintcpyHVal( alDef, "enable", &enable);
 
 		if(hv_exists(alDef,  "owner", strlen("owner") ))
-			rv += strcpyHVal( alDef, "owner", owner, 
-					sizeof(ARAccessNameType));
+			rv += strcpyHVal( alDef, "owner", owner, AR_MAX_ACCESS_NAME_SIZE);
 		else
 			strncpy(owner, ctrl->user, sizeof(ARAccessNameType));
 
@@ -6005,7 +6004,7 @@ ars_SetActiveLink(ctrl, name, objDefRef)
 		}
 
 		if(hv_exists(objDef,  "owner", strlen("owner") )){
-			rv += strcpyHVal( objDef, "owner", owner, sizeof(ARAccessNameType));
+			rv += strcpyHVal( objDef, "owner", owner, AR_MAX_ACCESS_NAME_SIZE);
 			ownerPtr = owner;
 		}
 
@@ -6166,15 +6165,14 @@ ars_CreateFilter(ctrl, objDefRef)
 		 */
 
 		rv  = 0;
-		rv += strcpyHVal( objDef, "name", name, sizeof(ARNameType));
+		rv += strcpyHVal( objDef, "name", name, AR_MAX_NAME_SIZE);
 		rv += rev_ARNameList( ctrl, objDef, "schemaList", schemaList.u.schemaList );
 		rv += uintcpyHVal( objDef, "order", &order);
 		rv += uintcpyHVal( objDef, "opSet", &opSet);
 		rv += uintcpyHVal( objDef, "enable", &enable);
 		
 		if(hv_exists(objDef,  "owner", strlen("owner") ))
-			rv += strcpyHVal( objDef, "owner", owner, 
-					sizeof(ARAccessNameType));
+			rv += strcpyHVal( objDef, "owner", owner, AR_MAX_ACCESS_NAME_SIZE);
 		else
 			strncpy(owner, ctrl->user, sizeof(ARAccessNameType));
 		
@@ -6204,7 +6202,7 @@ ars_CreateFilter(ctrl, objDefRef)
 			rv += uintcpyHVal( objDef, "errorFilterOptions", &errorFilterOptions );
 
 		if( hv_exists(objDef, "errorFilterName", strlen("errorFilterName")) )
-			rv += strcpyHVal( objDef, "errorFilterName", errorFilterName, sizeof(ARNameType) );
+			rv += strcpyHVal( objDef, "errorFilterName", errorFilterName, AR_MAX_NAME_SIZE );
 #endif
 
 		/* at this point all datastructures (hopefully) are 
@@ -6335,7 +6333,7 @@ ars_SetFilter(ctrl, name, objDefRef)
 		}
 
 		if(hv_exists(objDef,  "owner", strlen("owner") )){
-			rv += strcpyHVal( objDef, "owner", owner, sizeof(ARAccessNameType));
+			rv += strcpyHVal( objDef, "owner", owner, AR_MAX_ACCESS_NAME_SIZE);
 			ownerPtr = owner;
 		}
 
@@ -6372,7 +6370,7 @@ ars_SetFilter(ctrl, name, objDefRef)
 		}
 
 		if(hv_exists(objDef, "errorFilterName", strlen("errorFilterName") )){
-			rv += strcpyHVal( objDef, "errorFilterName", errorFilterName, sizeof(ARNameType));
+			rv += strcpyHVal( objDef, "errorFilterName", errorFilterName, AR_MAX_NAME_SIZE);
 			errorFilterNamePtr = errorFilterName;
 		}
 #endif
@@ -6483,7 +6481,7 @@ ars_CreateEscalation(ctrl, objDefRef)
 		 */
 
 		rv  = 0;
-		rv += strcpyHVal( objDef, "name", name, sizeof(ARNameType));
+		rv += strcpyHVal( objDef, "name", name, AR_MAX_NAME_SIZE);
 		rv += rev_ARNameList( ctrl, objDef, "schemaList", schemaList.u.schemaList );
 		rv += uintcpyHVal( objDef, "enable", &enable);
 
@@ -6505,8 +6503,7 @@ ars_CreateEscalation(ctrl, objDefRef)
 		}
 
 		if(hv_exists(objDef,  "owner", strlen("owner") ))
-			rv += strcpyHVal( objDef, "owner", owner, 
-					sizeof(ARAccessNameType));
+			rv += strcpyHVal( objDef, "owner", owner, AR_MAX_ACCESS_NAME_SIZE);
 		else
 			strncpy(owner, ctrl->user, sizeof(ARAccessNameType));
 
@@ -6653,7 +6650,7 @@ ars_SetEscalation(ctrl, name, objDefRef)
 		}
 
 		if(hv_exists(objDef,  "owner", strlen("owner") )){
-			rv += strcpyHVal( objDef, "owner", owner, sizeof(ARAccessNameType));
+			rv += strcpyHVal( objDef, "owner", owner, AR_MAX_ACCESS_NAME_SIZE);
 			ownerPtr = owner;
 		}
 
@@ -6766,7 +6763,7 @@ ars_CreateImage(ctrl, objDefRef)
 		 */
 
 		rv  = 0;
-		rv += strcpyHVal( objDef, "name", name, sizeof(ARNameType));
+		rv += strcpyHVal( objDef, "name", name, AR_MAX_NAME_SIZE);
 		rv += rev_ARImageDataStruct( ctrl, objDef, "imageData", &imageBuf );
 		rv += strmakHVal( objDef, "imageType", &imageType);
 
@@ -6774,8 +6771,7 @@ ars_CreateImage(ctrl, objDefRef)
 			rv += strmakHVal( objDef, "description", &description);
 		
 		if(hv_exists(objDef,  "owner", strlen("owner") ))
-			rv += strcpyHVal( objDef, "owner", owner, 
-					sizeof(ARAccessNameType));
+			rv += strcpyHVal( objDef, "owner", owner, AR_MAX_ACCESS_NAME_SIZE);
 		else
 			strncpy(owner, ctrl->user, sizeof(ARAccessNameType));
 		
@@ -6882,7 +6878,7 @@ ars_SetImage(ctrl, name, objDefRef)
 			newNamePtr = newName;
 		}
 		if(hv_exists(objDef,  "owner", strlen("owner") )){
-			rv += strcpyHVal( objDef, "owner", owner, sizeof(ARAccessNameType));
+			rv += strcpyHVal( objDef, "owner", owner, AR_MAX_ACCESS_NAME_SIZE);
 			ownerPtr = owner;
 		}
 
