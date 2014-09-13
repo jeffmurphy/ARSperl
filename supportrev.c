@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.35 2012/03/15 16:13:29 jeffmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.34 2009/04/02 18:57:03 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -102,8 +102,13 @@ rev_ARAssignList_helper(ARControlStruct * ctrl,
 
 #if AR_EXPORT_VERSION >= 3
 static int 
+#if AR_CURRENT_API_VERSION >= 14
+rev_ARByteListStr2Type(ARControlStruct * ctrl,
+		       char *ts, ARULong32 *tv);
+#else
 rev_ARByteListStr2Type(ARControlStruct * ctrl,
 		       char *ts, unsigned long *tv);
+#endif
 static int 
 rev_ARCoordList_helper(ARControlStruct * ctrl,
 		       HV * h, ARCoordList * m, int idx);
@@ -391,7 +396,11 @@ uintcpyHVal(HV * h, char *k, unsigned int *b)
  */
 
 int
+#if AR_CURRENT_API_VERSION >= 14
+longcpyHVal(HV * h, char *k, ARLong32 *b)
+#else
 longcpyHVal(HV * h, char *k, long *b)
+#endif
 {
 	SV            **val;
 
@@ -400,7 +409,11 @@ longcpyHVal(HV * h, char *k, long *b)
 			val = hv_fetch(h,  k, strlen(k) , 0);
 			if (val && *val) {
 				if (SvIOK(*val)) {
+#if AR_CURRENT_API_VERSION >= 14
+					*b = (ARLong32) SvIV(*val);
+#else
 					*b = (long) SvIV(*val);
+#endif
 					return 0;
 				} else
 					ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
@@ -422,7 +435,11 @@ longcpyHVal(HV * h, char *k, long *b)
 }
 
 int
+#if AR_CURRENT_API_VERSION >= 14
+ulongcpyHVal(HV * h, char *k, ARULong32 *b)
+#else
 ulongcpyHVal(HV * h, char *k, unsigned long *b)
+#endif
 {
 	SV            **val;
 
@@ -431,7 +448,11 @@ ulongcpyHVal(HV * h, char *k, unsigned long *b)
 			val = hv_fetch(h,  k, strlen(k) , 0);
 			if (val && *val) {
 				if (SvIOK(*val)) {
+#if AR_CURRENT_API_VERSION >= 14
+					*b = (ARULong32) SvIV(*val);
+#else
 					*b = (unsigned long) SvIV(*val);
+#endif
 					return 0;
 				} else
 					ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
@@ -1554,7 +1575,11 @@ rev_ARByteList(ARControlStruct * ctrl, HV * h, char *k, ARByteList * b)
 }
 
 static int
+#if AR_CURRENT_API_VERSION >= 14
+rev_ARByteListStr2Type(ARControlStruct * ctrl, char *ts, ARULong32 *tv)
+#else
 rev_ARByteListStr2Type(ARControlStruct * ctrl, char *ts, unsigned long *tv)
+#endif
 {
 	int             i = 0;
 
@@ -2674,9 +2699,6 @@ strncasecmp(char *s1, char *s2, size_t n)
 	return (i == n)? 0 : *p1 - *p2;
 }
 
-#endif
-
-#if defined(_WIN32)
 char*
 arsperl_strdup( char *s1 ){
 	char *p1;

@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.20 2012/03/15 16:13:29 jeffmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.h,v 1.19 2009/04/02 18:57:04 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -49,8 +49,13 @@ EXTERN int strmakHVal( HV *h, char *k, char **b);
 EXTERN int intcpyHVal( HV *h, char *k, int *b);
 EXTERN int uintcpyHVal( HV *h, char *k, unsigned int *b);
 EXTERN int boolcpyHVal( HV *h, char *k, ARBoolean *b);
+#if AR_CURRENT_API_VERSION >= 14
+EXTERN int longcpyHVal( HV *h, char *k, ARLong32 *b);
+EXTERN int ulongcpyHVal( HV *h, char *k, ARULong32 *b);
+#else
 EXTERN int longcpyHVal( HV *h, char *k, long *b);
 EXTERN int ulongcpyHVal( HV *h, char *k, unsigned long *b);
+#endif
 EXTERN int rev_ARDisplayList(ARControlStruct *ctrl, 
 			     HV *h, char *k, ARDisplayList *d);
 EXTERN int rev_ARDisplayStruct(ARControlStruct *ctrl, 
@@ -110,10 +115,6 @@ EXTERN int rev_ARAssignSQLStruct(ARControlStruct *ctrl,
 EXTERN int strcasecmp(char *s1, char *s2);
 
 EXTERN int strncasecmp(char *s1, char *s2, size_t n);
-
-#endif /* def _WIN32 */
-
-#if defined(_WIN32) 
 
 EXTERN char* arsperl_strdup( char *s1 );
 

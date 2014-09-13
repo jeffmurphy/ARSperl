@@ -364,7 +364,7 @@ EXTERN unsigned int strsrch(register char *s, register char c);
 EXTERN char        *strappend(char *b, char *a);
 
 EXTERN int          ARError_reset();
-EXTERN int          ARError_add( unsigned int type, long num, char *text);
+EXTERN int          ARError_add( int type, long num, char *text);
 EXTERN int          ARError( int returncode, ARStatusList status);
 #if AR_EXPORT_VERSION < 6
 EXTERN int          NTError( int returncode, NTStatusList status);
