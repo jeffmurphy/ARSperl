@@ -26,39 +26,9 @@ $debug = 0;
 # STEP 1 -> Set the path to your ARS API directory
 
 $ARSAPI      = "C:/Replication/Remedy/7.6.4";
-#$ARSAPI      = "/usr/ar/api";
-#$ARSAPI     = "/u1/project/ARSperl/api/sol2/api6.0.1";
-#$ARSAPI     = "/u1/project/ARSperl/api/sol2/api6.3";
-#$ARSAPI     = "/u1/project/ARSperl/api/sol2/api5.1.1";
-# $ARSAPI     = "/home/jcmurphy/arsperl/api/5.1";
-# $ARSAPI     = q{\\\\ess7\devkits\ars\5.0\fcs\winnt};
-# $ARSAPI     = q{\\\\ess7\devkits\ars\5.0.1\fcs\winnt};
-# $ARSAPI     = q{\\\\ess7\devkits\ars\5.1\fcs\winnt};
-# $ARSAPI     = q{\\\\ess7\devkits\ars\5.1.1\fcs\winnt};
-# $ARSAPI     = q{\\\\ess7\devkits\ars\5.1.2\fcs\winnt};
-# $ARSAPI     = q{\\\\ess7\devkits\ars\6.0\fcs\winnt};
-# $ARSAPI      = q{c:\Progra~1\ARSystem6.0.1\Arserver\Api};
-# $ARSAPI      = q{c:\Program Files\ARSystem6.0.1\Arserver\Api};
-# $ARSAPI      = q{c:\Progra~1\ARSystem6.3\Arserver\Api};
-# $ARSAPI     = q{\\\\ess7\devkits\ars\6.3\current\winnt};
-
-# STEP 2 (!!! skip this -- it's obsolete) ## -> Choose your version of ARS FROM THE FOLLOWING LIST
-#
-#                  5.0 6.0 6.01 6.3 7.0 7.1 7.5 7.6
-#
-#           notes
-#            - if there is a maintenace number (e.g. 6.0.1)
-#              then use "6.01" NOT "6.0.1"
-#            - ONLY use the choices listed above. note that
-#              not all versions are on the list. specify the
-#              version that is closest to yours without exceeding
-#              your version (e.g. for 4.5 you would specify 4.0, NOT
-#	       4.52)
-#
-#$ARSVERSION = 7.6;
 
 
-# STEP 3 -> Choose architecture dependent suffix for library names, if necessary
+# STEP 2 -> Choose architecture dependent suffix for library names, if necessary
 $ARCHITECTURE = "";
 #$ARCHITECTURE = "hpia32";   # HPUX Itanium 32-bit
 #$ARCHITECTURE = "hpia64";   # HPUX Itanium 64-bit
@@ -68,14 +38,14 @@ $ARCHITECTURE = "";
 #$ARCHITECTURE = "solsp64";  # Solaris 64-bit
 
 
-# STEP 4 -> Choose whether or not to enable encryption
+# STEP 3 -> Choose whether or not to enable encryption
 #
 # 0 -> No encryption library linking
 # 1 -> Link against Remedy's encryption library
 $ENCRYPT = 0;
 
 
-# STEP 5 -> Some additional compilation options
+# STEP 4 -> Some additional compilation options
 #  
 #   Change this only if you have good reason to do so.
 #
@@ -88,16 +58,6 @@ $ENCRYPT = 0;
 	# (see the manual page of ars_GetListGroup for a more specific description)
 	GETLISTGROUP_OLD_STYLE  => 0,
 );
-
-
-# my $AR_API_VERSION = findAPIVersion($ARSAPI);
-# print "found API Version: $AR_API_VERSION\n";
-# my $SERVER_VERSION = serverReleaseFromAPIVersion($AR_API_VERSION);
-# unless ($SERVER_VERSION) {
-#   die "couldn't derive a server version from API version: $AR_API_VERSION\n";
-# }
-# print "derived server version from ar.h: $SERVER_VERSION\n";
-
 
 
 ##############################
@@ -273,6 +233,7 @@ print "\tARSVERSION    = $ARSVERSION\n";
 print "\tARAPIVERSION  = $ARAPIVERSION\n";
 print "\tAUTODEFINES   = $AUTODEFINES\n";
 
+die "FATAL: couldn't detect a supported api version!" if ($ARAPIVERSION eq "");
 #$PM->{'ARS/_h2ph_pre.ph'} = '$(INST_LIBDIR)/ARS/_h2ph_pre.ph';
 
 WriteMakefile(
