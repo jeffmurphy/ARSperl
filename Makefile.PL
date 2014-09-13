@@ -60,12 +60,12 @@ $ARSAPI      = "C:/Replication/Remedy/7.6.4";
 
 # STEP 3 -> Choose architecture dependent suffix for library names, if necessary
 $ARCHITECTURE = "";
-# $ARCHITECTURE = "hpia32":   # HPUX Itanium 32-bit
-# $ARCHITECTURE = "hpia64":   # HPUX Itanium 64-bit
-# $ARCHITECTURE = "hppa64":   # HPUX PA-RISC 64-bit
-# $ARCHITECTURE = "lx64":   # Linux 64-bit
-# $ARCHITECTURE = "aixp64":   # AIX 64-bit
-# $ARCHITECTURE = "solsp64":   # Solaris 64-bit
+#$ARCHITECTURE = "hpia32";   # HPUX Itanium 32-bit
+#$ARCHITECTURE = "hpia64";   # HPUX Itanium 64-bit
+#$ARCHITECTURE = "hppa64";   # HPUX PA-RISC 64-bit
+#$ARCHITECTURE = "lx64";     # Linux 64-bit
+#$ARCHITECTURE = "aixp64";   # AIX 64-bit
+#$ARCHITECTURE = "solsp64";  # Solaris 64-bit
 
 
 # STEP 4 -> Choose whether or not to enable encryption
