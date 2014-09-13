@@ -2831,6 +2831,9 @@ ars_GetListImage(ctrl,schema=NULL,changedSince=0,imageType=NULL)
 	    		    schemaListPtr,
 	    		    changedSince,
 	    		    imageType,
+#if AR_CURRENT_API_VERSION >= 19
+	    		    &propList, // at the moment we don't want to search for specific properties
+#endif
 	    		    &nameList,
 	    		    &status );
 	  }else{

@@ -82,6 +82,12 @@ while(<>) {
 			$ct += 4;
 		}elsif( $apiVersion >= 17 && $ct == 339 ){
 			$ct += 2;
+		}elsif( $apiVersion >= 20 && $ct == 358 ){
+			$ct += 22;
+		}elsif( $apiVersion >= 20 && $ct == 384 ){
+			$ct += 2;
+		}elsif( $apiVersion >= 20 && $ct == 398 ){
+			$ct += 3;
 		}else{
 			++$ct;
 		}
@@ -162,6 +168,7 @@ sub typemap {
 		  'long'    => 'AR_DATA_TYPE_INTEGER',
 		  'real'    => 'AR_DATA_TYPE_REAL',
 		  'char'    => 'AR_DATA_TYPE_CHAR',
+		  'String'  => 'AR_DATA_TYPE_CHAR',
 		  'diary'   => 'AR_DATA_TYPE_DIARY',
 		  'enum'    => 'AR_DATA_TYPE_ENUM',
 		  'time'    => 'AR_DATA_TYPE_TIME',

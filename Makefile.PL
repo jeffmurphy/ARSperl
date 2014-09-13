@@ -193,7 +193,7 @@ push(@extras, CAPI => 'TRUE') if ($] >= 5.005       &&
                                    ($Config{archname} =~ /-multi-thread\b/i))
                                  );
 push(@extras, LDDLFLAGS => " -Wl,--exclude-symbols,\177arapi71_NULL_THUNK_DATA ") if $^O eq 'cygwin';
-push(@extras, LDDLFLAGS => $Config{'lddlflags'}." -Wl,-Bsymbolic ") if ($LARCH =~ /64/ && $Config{'cc'} eq "gcc");
+push(@extras, LDDLFLAGS => $Config{'lddlflags'}." -Wl,-Bsymbolic ") if ($LARCH =~ /64/ && $Config{'cc'} =~ /gcc/);
 
 if( $WINDOWS ){
   $ARS_LDPATH = qq{-L"$ARSAPI/lib"};
