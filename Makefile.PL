@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.89 2011/09/22 13:29:06 jeffmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.88 2011/07/29 13:05:27 tstapff Exp $
 #
 # ARSperl Makefile
 #
@@ -29,7 +29,6 @@ $ARSAPI      = "C:/Replication/Remedy/7.6.4";
 #$ARSAPI      = "/usr/ar/api";
 #$ARSAPI     = "/u1/project/ARSperl/api/sol2/api6.0.1";
 #$ARSAPI     = "/u1/project/ARSperl/api/sol2/api6.3";
-#$ARSAPI     = "/jeff/project/ARSperl/api/linux/7.1";
 #$ARSAPI     = "/u1/project/ARSperl/api/sol2/api5.1.1";
 # $ARSAPI     = "/home/jcmurphy/arsperl/api/5.1";
 # $ARSAPI     = q{\\\\ess7\devkits\ars\5.0\fcs\winnt};
@@ -194,7 +193,7 @@ push(@extras, CAPI => 'TRUE') if ($] >= 5.005       &&
                                    ($Config{archname} =~ /-multi-thread\b/i))
                                  );
 push(@extras, LDDLFLAGS => " -Wl,--exclude-symbols,\177arapi71_NULL_THUNK_DATA ") if $^O eq 'cygwin';
-
+push(@extras, LDDLFLAGS => $Config{'lddlflags'}." -Wl,-Bsymbolic ") if ($LARCH =~ /64/ && $Config{'cc'} eq "gcc");
 
 if( $WINDOWS ){
   $ARS_LDPATH = qq{-L"$ARSAPI/lib"};
