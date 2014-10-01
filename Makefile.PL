@@ -148,13 +148,25 @@ produces correct syntax (it's missing a close-parenthesis)\n";
 	sleep 5;
 }
 
+if ($LARCH =~ /64/) {
+	if ($Config{'cc'} =~ /cc/) {
+		$REDUCE_SYMBOL_SCOPE = 1;
+	}
+	else {
+		print "\n\nWARNING: Because of symbol name collisions (both -- perl and arapi -- use the xdr-functions),\n" .
+		      "         it is necessary to reduce the symbol scope to symbols declared within the DSO.\n" .
+		      "         ARSPerl wasn't tested on '$Config{'cc'}', if you run into trouble during 'make test'\n" .
+		      "         please contact the developer/maintainer!\n\n";
+	}
+}
+
 push(@extras, CAPI => 'TRUE') if ($] >= 5.005       &&
                                   $^O eq 'MSWin32'  && 
 				  (($Config{archname} =~ /-object\b/i) ||
                                    ($Config{archname} =~ /-multi-thread\b/i))
                                  );
 push(@extras, LDDLFLAGS => " -Wl,--exclude-symbols,\177arapi71_NULL_THUNK_DATA ") if $^O eq 'cygwin';
-push(@extras, LDDLFLAGS => $Config{'lddlflags'}." -Wl,-Bsymbolic ") if ($LARCH =~ /64/ && $Config{'cc'} =~ /gcc/);
+push(@extras, LDDLFLAGS => $Config{'lddlflags'}." -Wl,-Bsymbolic ") if ($REDUCE_SYMBOL_SCOPE);
 
 if( $WINDOWS ){
   $ARS_LDPATH = qq{-L"$ARSAPI/lib"};
