@@ -324,9 +324,13 @@ ars_Login(server, username, password, lang=NULL, authString=NULL, tcpport=0, rpc
 			HV *h;
 
 			if( (items - staticParams) % 2 ){
-			    (void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
-	      			AP_FREE(ctrl); /* invalid, cleanup */
-	      			goto ar_login_end;
+				(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
+#ifdef PROFILE
+				AP_FREE(ctrl); /* invalid, cleanup */
+#else
+				safefree(ctrl);
+#endif
+				goto ar_login_end;
 			}
 
 			h = newHV();			
@@ -367,7 +371,11 @@ ars_Login(server, username, password, lang=NULL, authString=NULL, tcpport=0, rpc
 			DBG( ("ARInitialization failed %d\n", ret) );
 			ARTermination(ctrl, &status);
 			ARError(ret, status);
+#ifdef PROFILE
 			AP_FREE(ctrl);
+#else
+			safefree(ctrl);
+#endif
 			goto ar_login_end;
 		}
 
@@ -387,7 +395,12 @@ ars_Login(server, username, password, lang=NULL, authString=NULL, tcpport=0, rpc
 	  		if (ARError( ret, status)) {
 				ARTermination(ctrl, &status);
 				ARError(ret, status);
-	    			AP_FREE(ctrl); /* invalid, cleanup */
+#ifdef PROFILE
+				AP_FREE(ctrl); /* invalid, cleanup */
+#else
+				safefree(ctrl);
+#endif
+				
 				DBG( ("ARGetListServer failed %d\n", ret) );
 	   			goto ar_login_end;
 	  		}
@@ -397,8 +410,12 @@ ars_Login(server, username, password, lang=NULL, authString=NULL, tcpport=0, rpc
 	     			(void) ARError_add( AR_RETURN_ERROR, AP_ERR_NO_SERVERS);
 				ARTermination(ctrl, &status);
 				ARError(ret, status);
-	      			AP_FREE(ctrl); /* invalid, cleanup */
-	      			goto ar_login_end;
+#ifdef PROFILE
+				AP_FREE(ctrl); /* invalid, cleanup */
+#else
+				safefree(ctrl);
+#endif
+				goto ar_login_end;
 	    		}
 	    		server = serverList.nameList[0];
 			DBG( ("changing s_ok to 0, picked server %s\n",
@@ -416,7 +433,11 @@ ars_Login(server, username, password, lang=NULL, authString=NULL, tcpport=0, rpc
 			DBG( ("ARSetServerPort failed %d\n", ret) );
 			ARTermination(ctrl, &status);
 			ARError(ret, status);
+#ifdef PROFILE
 			AP_FREE(ctrl);
+#else
+			safefree(ctrl);
+#endif
 			RETVAL = NULL;
  			goto ar_login_end;
 		}
@@ -428,7 +449,11 @@ ars_Login(server, username, password, lang=NULL, authString=NULL, tcpport=0, rpc
 			DBG( ("ARVerifyUser failed %d\n", ret) );
 			ARTermination(ctrl, &status);
 			ARError(ret, status);
+#ifdef PROFILE
 			AP_FREE(ctrl); /* invalid, cleanup */
+#else
+			safefree(ctrl);
+#endif
 			RETVAL = NULL;
 	  	} else {
 	  		RETVAL = ctrl; /* valid, return ctrl struct */
