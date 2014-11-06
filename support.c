@@ -4840,5 +4840,13 @@ perl_ARLicenseValidStruct( ARControlStruct *ctrl, ARLicenseValidStruct *p ){
 	return ret;
 }
 
+// this function is a workaround to free memory returned by ARAPI, e.g. the buffer returned by ARExport
+void arsperl_FreeARTextString(char* buf)
+{
+	ARLocStruct ls;
+	ls.locType = AR_LOC_FILENAME;
+	ls.u.filename = buf;
+	FreeARLocStruct(&ls, FALSE);
+}
 
 

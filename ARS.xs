@@ -800,8 +800,8 @@ ars_CreateEntry(ctrl,schema,...)
 	    } else {
 	      RETVAL = newSVpv( entryId, strlen(entryId) );
 	    }
-	    FreeARFieldValueList(&fieldList, FALSE);
-	    if( getFieldIds.internalIdList != NULL ) FreeARInternalIdList(&getFieldIds,FALSE);
+			AP_FREE(fieldList.fieldValueList);
+	    if( getFieldIds.internalIdList != NULL ) AP_FREE(getFieldIds.internalIdList);
 	  }
 	}
 	OUTPUT:
@@ -825,7 +825,7 @@ ars_DeleteEntry(ctrl,schema,entry_id)
 	  if(perl_BuildEntryList(ctrl, &entryList, entry_id) != 0)
 		goto delete_fail;
 	  ret = ARDeleteEntry(ctrl, schema, &entryList, 0, &status);
-	  FreeAREntryIdList(&entryList, FALSE);
+	  if (entryList.entryIdList) AP_FREE(entryList.entryIdList);
 #else /* ARS 2 */
 	  RETVAL = 0; /* assume error */
 	  if(!entry_id || !*entry_id) {
@@ -914,8 +914,16 @@ ars_GetEntryBLOB(ctrl,schema,entry_id,field_id,locType,locFile=NULL)
 				XPUSHs(sv_2mortal(newSViv(1)));
 		} else
 			XPUSHs(&PL_sv_undef);
-		FreeAREntryIdList(&entryList, FALSE);
-		FreeARLocStruct(&loc, FALSE);
+		if (entryList.entryIdList) AP_FREE(entryList.entryIdList);
+		switch (loc.locType)
+		{
+		case AR_LOC_FILENAME:
+			AP_FREE(loc.u.filename);
+			break;
+		case AR_LOC_BUFFER:
+			FreeARLocStruct(&loc, FALSE);
+			break;
+		}
 #else /* pre ARS-4.0 */
 		(void) ARError_add(AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
 			"ars_GetEntryBLOB() is only available > ARS4.x");
@@ -960,7 +968,7 @@ ars_GetEntry(ctrl,schema,entry_id,...)
 		goto get_entry_end;
 
 	  ret = ARGetEntry(ctrl, schema, &entryList, &idList, &fieldList, &status);
-	  FreeAREntryIdList(&entryList,FALSE);
+		if (entryList.entryIdList) AP_FREE(entryList.entryIdList);
 #else /* ARS 2 */
 	  if(!entry_id || !*entry_id) {
 		ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_EID);
@@ -985,7 +993,7 @@ ars_GetEntry(ctrl,schema,entry_id,...)
 	  }
 	  FreeARFieldValueList(&fieldList,FALSE);
 	get_entry_cleanup:;
-	  FreeARInternalIdList(&idList, FALSE);
+	  if (idList.internalIdList) AP_FREE(idList.internalIdList);
 	get_entry_end:;
 	}
 
@@ -1415,13 +1423,13 @@ ars_GetContainer(control,name)
 	    FreeARReferenceList(&references,FALSE);
 	    FreeARPropList(&objPropList, FALSE);
 	    if(helpText)
-	      	AP_FREE(helpText);
+	      	arsperl_FreeARTextString(helpText);
 	    if(changeDiary)
-	      	AP_FREE(changeDiary);
+	      	arsperl_FreeARTextString(changeDiary);
 	    if(label)
-	      	AP_FREE(label);
+	      	arsperl_FreeARTextString(label);
 	    if(description)
-	      	AP_FREE(description);
+	      	arsperl_FreeARTextString(description);
 	  }
 	}
 	OUTPUT:
@@ -1582,8 +1590,8 @@ ars_GetActiveLink(ctrl,name)
 	    FreeARActiveLinkActionList(&elseList,FALSE);
 	    FreeARWorkflowConnectStruct(&schemaList, FALSE);
 	    FreeARPropList(&objPropList, FALSE);
-	    if(helpText) AP_FREE(helpText);
-	    if(changeDiary) AP_FREE(changeDiary);
+	    if(helpText) arsperl_FreeARTextString(helpText);
+	    if(changeDiary) arsperl_FreeARTextString(changeDiary);
 	  
 	    }else{
       XSRETURN_UNDEF;
@@ -2528,7 +2536,7 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	  }
 
 	  ret = ARSetEntry(ctrl, schema, &entryList, &fieldList, getTime, option, &status);
-	  FreeAREntryIdList(&entryList, FALSE);
+	  if (entryList.entryIdList) AP_FREE(entryList.entryIdList);
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
 #endif
@@ -2536,7 +2544,7 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	    RETVAL = 1;
 	  }
 	set_entry_end:;
-	  FreeARFieldValueList(&fieldList, FALSE);
+	  if (fieldList.fieldValueList) AP_FREE(fieldList.fieldValueList);
 	set_entry_exit:;
 	}
 	OUTPUT:
@@ -2620,8 +2628,8 @@ ars_Export(ctrl,displayTag,vuiType,...)
 				RETVAL = newSVpv(buf, 0);
 			}
 		} 
-		if(buf) AP_FREE(buf);
-		FreeARStructItemList(&structItems, FALSE);
+		if(buf) arsperl_FreeARTextString(buf);
+		AP_FREE(structItems.structItemList);
 	}
 	OUTPUT:
 	RETVAL
@@ -2693,7 +2701,11 @@ ars_Import(ctrl,importOption=AR_IMPORT_OPT_CREATE,importBuf,...)
 		} else {
 			RETVAL = 0;
 		}
-		FreeARStructItemList(structItems, TRUE);
+		if (structItems != NULL)
+		{
+			AP_FREE(structItems->structItemList);
+			AP_FREE(structItems);
+		}
 	}
 	OUTPUT:
 	RETVAL
@@ -3393,10 +3405,10 @@ ars_GetEscalation(ctrl, name)
 	     FreeARWorkflowConnectStruct(&schemaList, FALSE);
 	     FreeARPropList(&objPropList, FALSE);
 	     if(helpText) {
-	       	AP_FREE(helpText);
+	       	arsperl_FreeARTextString(helpText);
 	     }
 	     if(changeDiary) {
-	       	AP_FREE(changeDiary);
+	       	arsperl_FreeARTextString(changeDiary);
 	     }
 	  }else{
 	   XSRETURN_UNDEF;
@@ -4924,25 +4936,25 @@ ars_CreateSchema( ctrl, schemaDefRef )
 			RETVAL = 0;
 		}
 
-	    if( helpText != NULL ){
+		if( helpText != NULL ){
 			AP_FREE( helpText );
 		}
-	    if( changeDiary != NULL ){
+		if( changeDiary != NULL ){
 			AP_FREE( changeDiary );
 		}
-		FreeARCompoundSchema( &compoundSchema, FALSE );
-		FreeARPermissionList( &groupList, FALSE );
-		FreeARInternalIdList( &admingrpList, FALSE );
-		FreeAREntryListFieldList( &getListFields, FALSE );
-		FreeARSortList( &sortList, FALSE );
-		FreeARIndexList( &indexList, FALSE );
+		FreeARCompoundSchema( &compoundSchema, FALSE ); // TODO: we need our own free routine
+		AP_FREE(groupList.permissionList);
+		AP_FREE(admingrpList.internalIdList);
+		AP_FREE(getListFields.fieldsList);
+		AP_FREE(sortList.sortList);
+		AP_FREE(indexList.indexList);
 #if AR_EXPORT_VERSION >= 8L
 		if( archiveInfo != NULL ){
-			FreeARArchiveInfoStruct( archiveInfo, TRUE );
+			FreeARArchiveInfoStruct( archiveInfo, TRUE ); // TODO: we need our own free routine
 		}
 #endif
 		if( objPropList != NULL ){
-			FreeARPropList( objPropList, TRUE );
+			FreeARPropList( objPropList, TRUE ); // TODO: we need our own free routine
 		}
 #else /* < 5.0 */
 	  XPUSHs(sv_2mortal(newSViv(0))); /* ERR */
@@ -7063,7 +7075,7 @@ ars_MergeEntry(ctrl, schema, mergeType, ...)
 	  }
 
 	merge_entry_end:;
-	FreeARFieldValueList(&fieldList, FALSE);
+	if (fieldList.fieldValueList) AP_FREE(fieldList.fieldValueList);
 	merge_entry_exit:;
 	}
 	OUTPUT:
@@ -8247,6 +8259,7 @@ DESTROY(qual)
 	ARQualifierStruct *	qual
 	CODE:
 	{
-		DBG( ("arqualifierstruct destructor\n") );
-		FreeARQualifierStruct(qual, TRUE);
+		DBG( ("arqualifierstruct destructor (%p)\n", qual) );
+		FreeARQualifierStruct(qual, FALSE);
+		AP_FREE(qual);
 	}
