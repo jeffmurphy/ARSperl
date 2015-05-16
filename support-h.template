@@ -364,7 +364,7 @@ EXTERN unsigned int strsrch(register char *s, register char c);
 EXTERN char        *strappend(char *b, char *a);
 
 EXTERN int          ARError_reset();
-EXTERN int          ARError_add( unsigned int type, long num, char *text);
+EXTERN int          ARError_add( int type, long num, char *text);
 EXTERN int          ARError( int returncode, ARStatusList status);
 #if AR_EXPORT_VERSION < 6
 EXTERN int          NTError( int returncode, NTStatusList status);
@@ -592,20 +592,27 @@ EXTERN SV *perl_ARLicenseValidStruct( ARControlStruct *ctrl, ARLicenseValidStruc
 int  compmem(MEMCAST *m1, MEMCAST *m2, int size);
 int  copymem(MEMCAST *m1, MEMCAST *m2, int size);
 
+void arsperl_FreeARTextString(char* buf);
 
 #ifndef ARSPERL_MALLOCDEBUG
 # define AMALLOCNN(DST,SIZE,TYPE) { DST = (TYPE *)mallocnn(SIZE * sizeof(TYPE)); }
 # define MALLOCNN(X) mallocnn(X) 
 #else /* we want to debug memory allocations */
+# define AMALLOCNN(DST,SIZE,TYPE) { DST = (TYPE *)debug_mallocnn(SIZE * sizeof(TYPE), __FILE__, __FUNCTION__, __LINE__); }
 # define MALLOCNN(X) debug_mallocnn(X, __FILE__, __FUNCTION__, __LINE__) 
 #endif /* malloc debugging */
 
 #ifndef ARSPERL_FREEDEBUG
-# ifdef _WIN32
-#  define AP_FREE(X) win32_free(X)
-# else
+// *** <JLS17_win32_free> ***
+// I don't get why we need to use a different free-function on win32, but on the same time the MALLOCNN macro above is the same on all platforms?
+// Normally I'd expect if we use a different free-function then we'll be using a different malloc-function as well, but that's not the case here!
+// So I'm going to disable the following lines for now and stick to the normal free function until I understand the reason.
+//# ifdef _WIN32
+//#  define AP_FREE(X) win32_free(X)
+//# else
 #  define AP_FREE(X) free(X)
-# endif
+//# endif
+// *** </JLS17_win32_free> ***
 #else
 # define AP_FREE(X) debug_free(X, __FILE__, __FUNCTION__, __LINE__)
 #endif /* free debugging */

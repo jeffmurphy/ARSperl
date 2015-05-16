@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #
-# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.89 2011/09/22 13:29:06 jeffmurphy Exp $
+# $Header: /cvsroot/arsperl/ARSperl/Makefile.PL,v 1.88 2011/07/29 13:05:27 tstapff Exp $
 #
 # ARSperl Makefile
 #
@@ -26,57 +26,26 @@ $debug = 0;
 # STEP 1 -> Set the path to your ARS API directory
 
 $ARSAPI      = "C:/Replication/Remedy/7.6.4";
-#$ARSAPI      = "/usr/ar/api";
-#$ARSAPI     = "/u1/project/ARSperl/api/sol2/api6.0.1";
-#$ARSAPI     = "/u1/project/ARSperl/api/sol2/api6.3";
-#$ARSAPI     = "/jeff/project/ARSperl/api/linux/7.1";
-#$ARSAPI     = "/u1/project/ARSperl/api/sol2/api5.1.1";
-# $ARSAPI     = "/home/jcmurphy/arsperl/api/5.1";
-# $ARSAPI     = q{\\\\ess7\devkits\ars\5.0\fcs\winnt};
-# $ARSAPI     = q{\\\\ess7\devkits\ars\5.0.1\fcs\winnt};
-# $ARSAPI     = q{\\\\ess7\devkits\ars\5.1\fcs\winnt};
-# $ARSAPI     = q{\\\\ess7\devkits\ars\5.1.1\fcs\winnt};
-# $ARSAPI     = q{\\\\ess7\devkits\ars\5.1.2\fcs\winnt};
-# $ARSAPI     = q{\\\\ess7\devkits\ars\6.0\fcs\winnt};
-# $ARSAPI      = q{c:\Progra~1\ARSystem6.0.1\Arserver\Api};
-# $ARSAPI      = q{c:\Program Files\ARSystem6.0.1\Arserver\Api};
-# $ARSAPI      = q{c:\Progra~1\ARSystem6.3\Arserver\Api};
-# $ARSAPI     = q{\\\\ess7\devkits\ars\6.3\current\winnt};
-
-# STEP 2 -> Choose your version of ARS FROM THE FOLLOWING LIST
-#
-#                  5.0 6.0 6.01 6.3 7.0 7.1 7.5 7.6
-#
-#           notes
-#            - if there is a maintenace number (e.g. 6.0.1)
-#              then use "6.01" NOT "6.0.1"
-#            - ONLY use the choices listed above. note that
-#              not all versions are on the list. specify the
-#              version that is closest to yours without exceeding
-#              your version (e.g. for 4.5 you would specify 4.0, NOT
-#	       4.52)
-#
-$ARSVERSION = 7.6;
 
 
-# STEP 3 -> Choose architecture dependent suffix for library names, if necessary
+# STEP 2 -> Choose architecture dependent suffix for library names, if necessary
 $ARCHITECTURE = "";
-# $ARCHITECTURE = "hpia32":   # HPUX Itanium 32-bit
-# $ARCHITECTURE = "hpia64":   # HPUX Itanium 64-bit
-# $ARCHITECTURE = "hppa64":   # HPUX PA-RISC 64-bit
-# $ARCHITECTURE = "lx64":   # Linux 64-bit
-# $ARCHITECTURE = "aixp64":   # AIX 64-bit
-# $ARCHITECTURE = "solsp64":   # Solaris 64-bit
+#$ARCHITECTURE = "hpia32";   # HPUX Itanium 32-bit
+#$ARCHITECTURE = "hpia64";   # HPUX Itanium 64-bit
+#$ARCHITECTURE = "hppa64";   # HPUX PA-RISC 64-bit
+#$ARCHITECTURE = "lx64";     # Linux 64-bit
+#$ARCHITECTURE = "aixp64";   # AIX 64-bit
+#$ARCHITECTURE = "solsp64";  # Solaris 64-bit
 
 
-# STEP 4 -> Choose whether or not to enable encryption
+# STEP 3 -> Choose whether or not to enable encryption
 #
 # 0 -> No encryption library linking
 # 1 -> Link against Remedy's encryption library
 $ENCRYPT = 0;
 
 
-# STEP 5 -> Some additional compilation options
+# STEP 4 -> Some additional compilation options
 #  
 #   Change this only if you have good reason to do so.
 #
@@ -89,16 +58,6 @@ $ENCRYPT = 0;
 	# (see the manual page of ars_GetListGroup for a more specific description)
 	GETLISTGROUP_OLD_STYLE  => 0,
 );
-
-
-# my $AR_API_VERSION = findAPIVersion($ARSAPI);
-# print "found API Version: $AR_API_VERSION\n";
-# my $SERVER_VERSION = serverReleaseFromAPIVersion($AR_API_VERSION);
-# unless ($SERVER_VERSION) {
-#   die "couldn't derive a server version from API version: $AR_API_VERSION\n";
-# }
-# print "derived server version from ar.h: $SERVER_VERSION\n";
-
 
 
 ##############################
@@ -116,7 +75,8 @@ my $ra_arlibs = findArLibs($ARSAPI);
 # use Data::Dumper;
 # print "found ar libraries: ", Dumper($ra_arlibs);
 
-
+$ARAPIVERSION = findAPIVersion($ARSAPI);
+$ARSVERSION = ARSVersionString($ARAPIVERSION);
 
 $WINDOWS = $^O eq 'MSWin32';
 $GNU_WIN = ($^O eq 'MSWin32' || $^O eq 'cygwin') && $Config{'cc'} eq "gcc";
@@ -143,25 +103,25 @@ foreach my $pm2install (qw{arerrno-h.pm  ar-h.pm  nparm.pm  OOform.pm  OOmsgs.pm
 $LARCH = $ARCHITECTURE ? "_".$ARCHITECTURE : "";
 
 
-if ($ARSVERSION >= 6.3) {
+if ($ARAPIVERSION >= ARS_VERSION_63) {
 	$ARS_STATIC_LIB = "$ARSAPI/lib/libar$LARCH.a";
-	$ARS_STATIC_LIB = "$ARSAPI/lib/libar$LARCH.a $ARSAPI/libarencrypt$LARCH.a" if $ENCRYPT;
-	$ARS_LIBS = " -lnsl ";
+	$ARS_LIBS = "-larencrypt$LARCH -lcrypto_BMC_FIPS$LARCH " if $ENCRYPT;
+	$ARS_LIBS .= " -lnsl ";
 }else{
 	$ARS_LIBS = " -lar$LARCH -lnsl ";
 	$ARS_LIBS = " -lar$LARCH -larencrypt$LARCH -lnsl " if $ENCRYPT;
 }
-#$PM->{'ARS/artypes.ph'} = '$(INST_LIBDIR)/ARS/artypes.ph' if $ARSVERSION >= 6.3;
+
 if ($GNU_WIN) {
 	$ARS_LIBS = join(' ', map { "$ARSAPI/lib/" . $_ } @{$ra_arlibs});
 } elsif ($WINDOWS) {
 	$ARS_LIBS = join(' ', map { '-l' . $_ } @{$ra_arlibs});
 } else {
 	$ARS_LIBS .= " -lpthread ";
-	$ARS_LIBS .= " -licuucbmc$LARCH -licui18nbmc$LARCH -licudatabmc$LARCH " if $ARSVERSION >= 7.0;
+	$ARS_LIBS .= " -licuucbmc$LARCH -licui18nbmc$LARCH -licudatabmc$LARCH " if $ARAPIVERSION >= ARS_VERSION_70;
 }
 $AUTODEFINES .= " -DARS32 -DARS452 ";
-if( ($ARSVERSION >= 5.0) && ($^O eq 'linux') && $LARCH !~ /64/ ){
+if( ($ARAPIVERSION >= ARS_VERSION_50) && ($^O eq 'linux') && $LARCH !~ /64/ ){
 	$AUTODEFINES .= " -malign-double ";
 }
 
@@ -188,13 +148,25 @@ produces correct syntax (it's missing a close-parenthesis)\n";
 	sleep 5;
 }
 
+if ($LARCH =~ /64/) {
+	if ($Config{'cc'} =~ /cc/) {
+		$REDUCE_SYMBOL_SCOPE = 1;
+	}
+	else {
+		print "\n\nWARNING: Because of symbol name collisions (both -- perl and arapi -- use the xdr-functions),\n" .
+		      "         it is necessary to reduce the symbol scope to symbols declared within the DSO.\n" .
+		      "         ARSPerl wasn't tested on '$Config{'cc'}', if you run into trouble during 'make test'\n" .
+		      "         please contact the developer/maintainer!\n\n";
+	}
+}
+
 push(@extras, CAPI => 'TRUE') if ($] >= 5.005       &&
                                   $^O eq 'MSWin32'  && 
 				  (($Config{archname} =~ /-object\b/i) ||
                                    ($Config{archname} =~ /-multi-thread\b/i))
                                  );
 push(@extras, LDDLFLAGS => " -Wl,--exclude-symbols,\177arapi71_NULL_THUNK_DATA ") if $^O eq 'cygwin';
-
+push(@extras, LDDLFLAGS => $Config{'lddlflags'}." -Wl,-Bsymbolic ") if ($REDUCE_SYMBOL_SCOPE);
 
 if( $WINDOWS ){
   $ARS_LDPATH = qq{-L"$ARSAPI/lib"};
@@ -237,7 +209,7 @@ foreach ("ar", "arerrno") {
 
 	# arsystem <= 6.0.3 doesnt have artypes.h
 
-	next if ( ($ARSVERSION < 6.03) && /^artypes$/ );
+	next if ( ($ARAPIVERSION < ARS_VERSION_63) && /^artypes$/ );
 
 	die "couldn't find $headerFile" if (! -e $headerFile);
 
@@ -268,10 +240,12 @@ foreach ("ar", "arerrno") {
 }
 
 print "Configuring with options:\n";
-printf "\tARSVERSION  = %.2f\n", $ARSVERSION;
-print "\tARSAPI      = $ARSAPI\n";
-print "\tAUTODEFINES = $AUTODEFINES\n";
+print "\tARSAPI        = $ARSAPI\n";
+print "\tARSVERSION    = $ARSVERSION\n";
+print "\tARAPIVERSION  = $ARAPIVERSION\n";
+print "\tAUTODEFINES   = $AUTODEFINES\n";
 
+die "FATAL: couldn't detect a supported api version!" if ($ARAPIVERSION eq "");
 #$PM->{'ARS/_h2ph_pre.ph'} = '$(INST_LIBDIR)/ARS/_h2ph_pre.ph';
 
 WriteMakefile(
@@ -616,7 +590,7 @@ sub GenerateSupportDotH {
 	    print "\tProcessing AR_SERVER_INFO codes..\n";
 	    my($code, $line);
 	    foreach $line (grep (/^\#define\s+AR_SERVER_INFO.*/, @arh)) {
-		$code = (split(/\s/, $line))[1];
+		$code = (split(/\s+/, $line))[1];
 
 		print "\t\t$code\n" if $debug;
 		$code =~ /^AR_SERVER_INFO_(\w+)/;
@@ -885,3 +859,42 @@ sub findArLibs {
   return \@libs;
 }
 
+sub ARS_VERSION_45  {  7; }
+sub ARS_VERSION_50  {  8; }
+sub ARS_VERSION_51  {  9; }
+sub ARS_VERSION_60  { 10; }
+sub ARS_VERSION_63  { 11; }
+sub ARS_VERSION_70  { 12; }
+sub ARS_VERSION_71  { 13; }
+sub ARS_VERSION_75  { 14; }
+sub ARS_VERSION_760 { 15; }
+sub ARS_VERSION_762 { 16; }
+sub ARS_VERSION_763 { 17; }
+sub ARS_VERSION_764 { 18; }
+sub ARS_VERSION_80  { 19; }
+sub ARS_VERSION_81  { 20; }
+## @Devs: set the following constant always to the latest version supported by ARSPerl
+sub ARS_MAX_API { ARS_VERSION_81; }
+
+sub ARSVersionString {
+	my $APIVersionID = shift;
+	my $api2Version = {
+		&ARS_VERSION_45 => '4.5',
+		&ARS_VERSION_50 => '5.0',
+		&ARS_VERSION_51 => '5.1',
+		&ARS_VERSION_60 => '6.0',
+		&ARS_VERSION_63 => '6.3',
+		&ARS_VERSION_70 => '7.0',
+		&ARS_VERSION_71 => '7.1',
+		&ARS_VERSION_75 => '7.5',
+		&ARS_VERSION_760 => '7.6',
+		&ARS_VERSION_762 => '7.6',
+		&ARS_VERSION_763 => '7.6.03',
+		&ARS_VERSION_764 => '7.6.04',
+		&ARS_VERSION_80 => '8.0',
+		&ARS_VERSION_81 => '8.1',
+	};
+	if ($APIVersionID > ARS_MAX_API) { return "Unsupported API-Version: (using " . $api2Version{ARS_MAX_API} . ")"; }
+	if (!$APIVersionID || $APIVersionID < ARS_VERSION_45) { return "Unsupported API version!"; }
+	return $api2Version->{$APIVersionID};
+};

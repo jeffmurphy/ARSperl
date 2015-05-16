@@ -1,5 +1,5 @@
 /*
-$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.35 2012/03/15 16:13:29 jeffmurphy Exp $
+$Header: /cvsroot/arsperl/ARSperl/supportrev.c,v 1.34 2009/04/02 18:57:03 tstapff Exp $
 
     ARSperl - An ARS v2 - v5 / Perl5 Integration Kit
 
@@ -102,8 +102,13 @@ rev_ARAssignList_helper(ARControlStruct * ctrl,
 
 #if AR_EXPORT_VERSION >= 3
 static int 
+#if AR_CURRENT_API_VERSION >= 14
+rev_ARByteListStr2Type(ARControlStruct * ctrl,
+		       char *ts, ARULong32 *tv);
+#else
 rev_ARByteListStr2Type(ARControlStruct * ctrl,
 		       char *ts, unsigned long *tv);
+#endif
 static int 
 rev_ARCoordList_helper(ARControlStruct * ctrl,
 		       HV * h, ARCoordList * m, int idx);
@@ -140,7 +145,7 @@ revTypeName(TypeMapStruct *t, char *type)
 }
 
 /* ROUTINE
- *   strcpyHVal(hash, key, buffer, bufferLen)
+ *   strcpyHVal(hash, key, buffer, bufferLen - 1)
  *
  * DESCRIPTION
  *   given a hash (HV *), a key, a pre-allocated buffer and
@@ -148,8 +153,10 @@ revTypeName(TypeMapStruct *t, char *type)
  *   (assuming it is a string value [PV]) and place it in the buffer.
  *
  * NOTES
- *   if value of hash is truncate at len bytes if it exceeds len.
- *   b, once filled in, will be null terminated.
+ *   The value of hash is truncate at len bytes if it exceeds len.
+ *   buffer, once filled in, will be null terminated. Thus the 
+ *   bufferLen should be the real length minus 1, because the
+ *   address at buffer[bufferLen] is set to zero all the time.
  *
  * RETURNS
  *    0 on success
@@ -391,7 +398,11 @@ uintcpyHVal(HV * h, char *k, unsigned int *b)
  */
 
 int
+#if AR_CURRENT_API_VERSION >= 14
+longcpyHVal(HV * h, char *k, ARLong32 *b)
+#else
 longcpyHVal(HV * h, char *k, long *b)
+#endif
 {
 	SV            **val;
 
@@ -400,7 +411,11 @@ longcpyHVal(HV * h, char *k, long *b)
 			val = hv_fetch(h,  k, strlen(k) , 0);
 			if (val && *val) {
 				if (SvIOK(*val)) {
+#if AR_CURRENT_API_VERSION >= 14
+					*b = (ARLong32) SvIV(*val);
+#else
 					*b = (long) SvIV(*val);
+#endif
 					return 0;
 				} else
 					ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
@@ -422,7 +437,11 @@ longcpyHVal(HV * h, char *k, long *b)
 }
 
 int
+#if AR_CURRENT_API_VERSION >= 14
+ulongcpyHVal(HV * h, char *k, ARULong32 *b)
+#else
 ulongcpyHVal(HV * h, char *k, unsigned long *b)
+#endif
 {
 	SV            **val;
 
@@ -431,7 +450,11 @@ ulongcpyHVal(HV * h, char *k, unsigned long *b)
 			val = hv_fetch(h,  k, strlen(k) , 0);
 			if (val && *val) {
 				if (SvIOK(*val)) {
+#if AR_CURRENT_API_VERSION >= 14
+					*b = (ARULong32) SvIV(*val);
+#else
 					*b = (unsigned long) SvIV(*val);
+#endif
 					return 0;
 				} else
 					ARError_add(AR_RETURN_ERROR, AP_ERR_GENERAL,
@@ -603,8 +626,8 @@ rev_ARDisplayStruct(ARControlStruct * ctrl, HV * h, ARDisplayStruct * d)
 	int             rv = 0, rv2 = 0;
 	char            buf[1024];
 
-	rv += strcpyHVal(h, "displayTag", d->displayTag, sizeof(ARNameType));
-	rv += strcpyHVal(h, "label", d->label, sizeof(ARNameType));
+	rv += strcpyHVal(h, "displayTag", d->displayTag, AR_MAX_NAME_SIZE);
+	rv += strcpyHVal(h, "label", d->label, AR_MAX_NAME_SIZE);
 	rv += intcpyHVal(h, "x", &(d->x));
 	rv += intcpyHVal(h, "y", &(d->y));
 	rv += uintcpyHVal(h, "length", &(d->length));
@@ -616,7 +639,7 @@ rev_ARDisplayStruct(ARControlStruct * ctrl, HV * h, ARDisplayStruct * d)
 	 * "option" will be either "VISIBLE" or "HIDDEN" default: Visible
 	 */
 
-	if ((rv2 = strcpyHVal(h, "option", buf, sizeof(buf))) == 0) {
+	if ((rv2 = strcpyHVal(h, "option", buf, sizeof(buf)-1)) == 0) {
 		if (strncasecmp(buf, "HIDDEN", sizeof(buf)) == 0)
 			d->option = AR_DISPLAY_OPT_HIDDEN;
 		else
@@ -628,7 +651,7 @@ rev_ARDisplayStruct(ARControlStruct * ctrl, HV * h, ARDisplayStruct * d)
 	 * "labelLocation" will be either "Left" or "Top" default: Left
 	 */
 
-	if ((rv2 = strcpyHVal(h, "labelLocation", buf, sizeof(buf))) == 0) {
+	if ((rv2 = strcpyHVal(h, "labelLocation", buf, sizeof(buf)-1)) == 0) {
 		if (strncasecmp(buf, "Top", sizeof(buf)) == 0)
 			d->labelLocation = AR_DISPLAY_LABEL_TOP;
 		else
@@ -641,7 +664,7 @@ rev_ARDisplayStruct(ARControlStruct * ctrl, HV * h, ARDisplayStruct * d)
 	 * BUTTON default: NONE
 	 */
 
-	if ((rv2 = strcpyHVal(h, "type", buf, sizeof(buf))) == 0) {
+	if ((rv2 = strcpyHVal(h, "type", buf, sizeof(buf)-1)) == 0) {
 		if (strncasecmp(buf, "TEXT", sizeof(buf)) == 0)
 			d->type = AR_DISPLAY_TYPE_TEXT;
 		else if (strncasecmp(buf, "NUMTEXT", sizeof(buf)) == 0)
@@ -1176,7 +1199,7 @@ rev_ARAssignSQLStruct(ARControlStruct * ctrl, HV * h, char *k, ARAssignSQLStruct
 	}
 	/* copy the key values into the buffer */
 
-	rv += strcpyHVal(hr, "server", s->server, AR_MAX_SERVER_SIZE + 1);
+	rv += strcpyHVal(hr, "server", s->server, AR_MAX_SERVER_SIZE);
 
 	/*
 	svp = hv_fetch(hr,  "sqlCommand", strlen("sqlCommand") , 0);
@@ -1554,7 +1577,11 @@ rev_ARByteList(ARControlStruct * ctrl, HV * h, char *k, ARByteList * b)
 }
 
 static int
+#if AR_CURRENT_API_VERSION >= 14
+rev_ARByteListStr2Type(ARControlStruct * ctrl, char *ts, ARULong32 *tv)
+#else
 rev_ARByteListStr2Type(ARControlStruct * ctrl, char *ts, unsigned long *tv)
+#endif
 {
 	int             i = 0;
 
@@ -1736,8 +1763,8 @@ rev_ARAssignFieldStruct_helper(ARControlStruct * ctrl, HV * h, ARAssignFieldStru
 			    "rev_ARAssignFieldStruct_helper: required hash key not found");
 		return -1;
 	}
-	strcpyHVal(h, "server", m->server, AR_MAX_SERVER_SIZE + 1);
-	strcpyHVal(h, "schema", m->schema, sizeof(ARNameType));
+	strcpyHVal(h, "server", m->server, AR_MAX_SERVER_SIZE);
+	strcpyHVal(h, "schema", m->schema, AR_MAX_NAME_SIZE);
 
 	if (hv_exists(h, "fieldId", 7)) {
 		m->tag = AR_FIELD;
@@ -2537,7 +2564,7 @@ rev_ARActiveLinkMacroStruct_helper(ARControlStruct * ctrl,
 	    hv_exists(h,  "macroText", strlen("macroText") ) &&
 	    hv_exists(h,  "macroName", strlen("macroName") )) {
 
-		rv += strcpyHVal(h, "macroName", m->macroName, sizeof(ARNameType));
+		rv += strcpyHVal(h, "macroName", m->macroName, AR_MAX_NAME_SIZE);
 		rv += strmakHVal(h, "macroText", &(m->macroText));
 		rv += rev_ARMacroParmList(ctrl, h, "macroParms", &(m->macroParms));
 
@@ -2674,9 +2701,6 @@ strncasecmp(char *s1, char *s2, size_t n)
 	return (i == n)? 0 : *p1 - *p2;
 }
 
-#endif
-
-#if defined(_WIN32)
 char*
 arsperl_strdup( char *s1 ){
 	char *p1;

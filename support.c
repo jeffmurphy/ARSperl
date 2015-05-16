@@ -100,7 +100,7 @@ debug_mallocnn(int s, char *file, char *func, int line)
 void
 debug_free(void *p, char *file, char *func, int line)
 {
-	printf("free(0x%X) called from %s::%s(), line %d\n", (unsigned int) p,
+	printf("free(0x%X) called from %s::%s(), line %d\n", (unsigned long) p,
 	       file ? file : "UNKNOWN",
 	       func ? func : "UNKNOWN",
 	       line);
@@ -129,7 +129,7 @@ set_logging_file_ptr( FILE* ptr )
 {
 	SV  *file_ptr;
 	file_ptr = get_sv( "ARS::logging_file_ptr", TRUE );
-	sv_setiv( file_ptr, (int)ptr );
+	sv_setiv( file_ptr, (long)ptr );
 }
 
 
@@ -225,7 +225,7 @@ ARError_reset()
 }
 
 int
-ARError_add(unsigned int type, long num, char *text)
+ARError_add(int type, long num, char *text)
 {
 	SV            **numItems, **messageType, **messageNum, **messageText;
 	AV             *a;
@@ -3867,7 +3867,8 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 	HV             *hash;
 	SV            **fetch, *type, *val, **fetch2;
 	char           *bytelist;
-	unsigned int    len, i;
+	unsigned int    i;
+	STRLEN len;
 
 	out->dataType = dataType;
 	if (!SvOK(in)) {
@@ -3929,7 +3930,7 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 						return -1;
 					}
 					type = *fetch;
-					if (!(SvOK(type) && SvTYPE(type) != SVt_RV)) {
+					if (!(SvOK(type) && SvTYPE(type) < SVt_PVAV)) {
 						ARError_add(AR_RETURN_ERROR, AP_ERR_BYTE_LIST);
 						return -1;
 					}
@@ -3939,7 +3940,7 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 						return -1;
 					}
 					val = *fetch;
-					if (!(SvOK(val) && SvTYPE(val) != SVt_RV)) {
+					if (!(SvOK(val) && SvTYPE(val) < SVt_PVAV)) {
 						ARError_add(AR_RETURN_ERROR, AP_ERR_BYTE_LIST);
 						return -1;
 					}
@@ -3990,7 +3991,7 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 						"Must specify 'size' key.");
 						return -1;
 					}
-					if (!(SvOK(*fetch) && SvTYPE(*fetch) != SVt_RV)) {
+					if (!(SvOK(*fetch) && SvTYPE(*fetch) < SVt_PVAV)) {
 						AP_FREE(attachp);
 						ARError_add(AR_RETURN_ERROR, AP_ERR_ATTACH,
 							    "'size' key does not map to scalar value.");
@@ -4034,7 +4035,7 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 						char           *filename;
 						STRLEN          filenamelen;
 
-						if (!(SvOK(*fetch) && SvTYPE(*fetch) != SVt_RV)) {
+						if (!(SvOK(*fetch) && SvTYPE(*fetch) < SVt_PVAV)) {
 							AP_FREE(attachp);
 							ARError_add(AR_RETURN_ERROR, AP_ERR_ATTACH,
 								    "'file' key does not map to scalar value.");
@@ -4063,7 +4064,7 @@ sv_to_ARValue(ARControlStruct * ctrl, SV * in, unsigned int dataType,
 
 					else {
 					        STRLEN __len; /* dummy variable */
-						if (!(SvOK(*fetch2) && SvTYPE(*fetch2) != SVt_RV)) {
+						if (!(SvOK(*fetch2) && SvTYPE(*fetch2) < SVt_PVAV)) {
 							AP_FREE(attachp);
 							ARError_add(AR_RETURN_ERROR, AP_ERR_ATTACH,
 								    "'buffer' key does not map to scalar value.");
@@ -4150,7 +4151,7 @@ sv_to_ARCurrencyStruct(ARControlStruct *ctrl, SV *in, ARCurrencyStruct *out)
 				return -1;
 			}
 			val = *fetch;
-			if(!(SvOK(val) && SvTYPE(val) != SVt_RV)) {
+			if(!(SvOK(val) && SvTYPE(val) < SVt_PVAV)) {
 				ARError_add(AR_RETURN_ERROR, AP_ERR_CURRENCY_STRUCT);
 				return -1;
 			}
@@ -4186,7 +4187,7 @@ sv_to_ARCurrencyStruct(ARControlStruct *ctrl, SV *in, ARCurrencyStruct *out)
 				return -1;
 			}
 			fl = *fetch; 
-			if(!(SvOK(fl) && SvTYPE(fl) == SVt_RV)) {
+			if(!(SvOK(fl) && SvTYPE(fl) < SVt_PVAV)) {
 				ARError_add(AR_RETURN_ERROR, 80029, "Bad currency struct: funcList is not a reference");
 				return -1;
 			}
@@ -4213,7 +4214,7 @@ sv_to_ARCurrencyStruct(ARControlStruct *ctrl, SV *in, ARCurrencyStruct *out)
 					ARError_add(AR_RETURN_ERROR, 80029, "Bad currency struct: error fetching funcList item");
 					return -1;
 				}
-				if(!(SvOK(*fetch) && SvTYPE(*fetch) == SVt_RV)) {
+				if(!(SvOK(*fetch) && SvTYPE(*fetch) < SVt_PVAV)) {
 					ARError_add(AR_RETURN_ERROR, 80029, "Bad currency struct: error fetching funcList item");
 					return -1;
 				}
@@ -4231,7 +4232,7 @@ sv_to_ARCurrencyStruct(ARControlStruct *ctrl, SV *in, ARCurrencyStruct *out)
 					return -1;
 				}
 				val = *fetch;
-				if(!(SvOK(val) && SvTYPE(val) != SVt_RV)) {
+				if(!(SvOK(val) && SvTYPE(val) < SVt_PVAV)) {
 					ARError_add(AR_RETURN_ERROR, 80029, "Bad currency struct: 'value' in funcList item has unexpected type");
 					return -1;
 				}
@@ -4839,5 +4840,13 @@ perl_ARLicenseValidStruct( ARControlStruct *ctrl, ARLicenseValidStruct *p ){
 	return ret;
 }
 
+// this function is a workaround to free memory returned by ARAPI, e.g. the buffer returned by ARExport
+void arsperl_FreeARTextString(char* buf)
+{
+	ARLocStruct ls;
+	ls.locType = AR_LOC_FILENAME;
+	ls.u.filename = buf;
+	FreeARLocStruct(&ls, FALSE);
+}
 
 

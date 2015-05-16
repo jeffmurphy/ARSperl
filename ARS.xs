@@ -324,9 +324,13 @@ ars_Login(server, username, password, lang=NULL, authString=NULL, tcpport=0, rpc
 			HV *h;
 
 			if( (items - staticParams) % 2 ){
-			    (void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
-	      			AP_FREE(ctrl); /* invalid, cleanup */
-	      			goto ar_login_end;
+				(void) ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_ARGS);
+#ifdef PROFILE
+				AP_FREE(ctrl); /* invalid, cleanup */
+#else
+				safefree(ctrl);
+#endif
+				goto ar_login_end;
 			}
 
 			h = newHV();			
@@ -367,7 +371,11 @@ ars_Login(server, username, password, lang=NULL, authString=NULL, tcpport=0, rpc
 			DBG( ("ARInitialization failed %d\n", ret) );
 			ARTermination(ctrl, &status);
 			ARError(ret, status);
+#ifdef PROFILE
 			AP_FREE(ctrl);
+#else
+			safefree(ctrl);
+#endif
 			goto ar_login_end;
 		}
 
@@ -387,7 +395,12 @@ ars_Login(server, username, password, lang=NULL, authString=NULL, tcpport=0, rpc
 	  		if (ARError( ret, status)) {
 				ARTermination(ctrl, &status);
 				ARError(ret, status);
-	    			AP_FREE(ctrl); /* invalid, cleanup */
+#ifdef PROFILE
+				AP_FREE(ctrl); /* invalid, cleanup */
+#else
+				safefree(ctrl);
+#endif
+				
 				DBG( ("ARGetListServer failed %d\n", ret) );
 	   			goto ar_login_end;
 	  		}
@@ -397,8 +410,12 @@ ars_Login(server, username, password, lang=NULL, authString=NULL, tcpport=0, rpc
 	     			(void) ARError_add( AR_RETURN_ERROR, AP_ERR_NO_SERVERS);
 				ARTermination(ctrl, &status);
 				ARError(ret, status);
-	      			AP_FREE(ctrl); /* invalid, cleanup */
-	      			goto ar_login_end;
+#ifdef PROFILE
+				AP_FREE(ctrl); /* invalid, cleanup */
+#else
+				safefree(ctrl);
+#endif
+				goto ar_login_end;
 	    		}
 	    		server = serverList.nameList[0];
 			DBG( ("changing s_ok to 0, picked server %s\n",
@@ -416,7 +433,11 @@ ars_Login(server, username, password, lang=NULL, authString=NULL, tcpport=0, rpc
 			DBG( ("ARSetServerPort failed %d\n", ret) );
 			ARTermination(ctrl, &status);
 			ARError(ret, status);
+#ifdef PROFILE
 			AP_FREE(ctrl);
+#else
+			safefree(ctrl);
+#endif
 			RETVAL = NULL;
  			goto ar_login_end;
 		}
@@ -428,7 +449,11 @@ ars_Login(server, username, password, lang=NULL, authString=NULL, tcpport=0, rpc
 			DBG( ("ARVerifyUser failed %d\n", ret) );
 			ARTermination(ctrl, &status);
 			ARError(ret, status);
+#ifdef PROFILE
 			AP_FREE(ctrl); /* invalid, cleanup */
+#else
+			safefree(ctrl);
+#endif
 			RETVAL = NULL;
 	  	} else {
 	  		RETVAL = ctrl; /* valid, return ctrl struct */
@@ -775,8 +800,8 @@ ars_CreateEntry(ctrl,schema,...)
 	    } else {
 	      RETVAL = newSVpv( entryId, strlen(entryId) );
 	    }
-	    FreeARFieldValueList(&fieldList, FALSE);
-	    if( getFieldIds.internalIdList != NULL ) FreeARInternalIdList(&getFieldIds,FALSE);
+			AP_FREE(fieldList.fieldValueList);
+	    if( getFieldIds.internalIdList != NULL ) AP_FREE(getFieldIds.internalIdList);
 	  }
 	}
 	OUTPUT:
@@ -800,7 +825,7 @@ ars_DeleteEntry(ctrl,schema,entry_id)
 	  if(perl_BuildEntryList(ctrl, &entryList, entry_id) != 0)
 		goto delete_fail;
 	  ret = ARDeleteEntry(ctrl, schema, &entryList, 0, &status);
-	  FreeAREntryIdList(&entryList, FALSE);
+	  if (entryList.entryIdList) AP_FREE(entryList.entryIdList);
 #else /* ARS 2 */
 	  RETVAL = 0; /* assume error */
 	  if(!entry_id || !*entry_id) {
@@ -889,8 +914,16 @@ ars_GetEntryBLOB(ctrl,schema,entry_id,field_id,locType,locFile=NULL)
 				XPUSHs(sv_2mortal(newSViv(1)));
 		} else
 			XPUSHs(&PL_sv_undef);
-		FreeAREntryIdList(&entryList, FALSE);
-		FreeARLocStruct(&loc, FALSE);
+		if (entryList.entryIdList) AP_FREE(entryList.entryIdList);
+		switch (loc.locType)
+		{
+		case AR_LOC_FILENAME:
+			AP_FREE(loc.u.filename);
+			break;
+		case AR_LOC_BUFFER:
+			FreeARLocStruct(&loc, FALSE);
+			break;
+		}
 #else /* pre ARS-4.0 */
 		(void) ARError_add(AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
 			"ars_GetEntryBLOB() is only available > ARS4.x");
@@ -935,7 +968,7 @@ ars_GetEntry(ctrl,schema,entry_id,...)
 		goto get_entry_end;
 
 	  ret = ARGetEntry(ctrl, schema, &entryList, &idList, &fieldList, &status);
-	  FreeAREntryIdList(&entryList,FALSE);
+		if (entryList.entryIdList) AP_FREE(entryList.entryIdList);
 #else /* ARS 2 */
 	  if(!entry_id || !*entry_id) {
 		ARError_add( AR_RETURN_ERROR, AP_ERR_BAD_EID);
@@ -960,7 +993,7 @@ ars_GetEntry(ctrl,schema,entry_id,...)
 	  }
 	  FreeARFieldValueList(&fieldList,FALSE);
 	get_entry_cleanup:;
-	  FreeARInternalIdList(&idList, FALSE);
+	  if (idList.internalIdList) AP_FREE(idList.internalIdList);
 	get_entry_end:;
 	}
 
@@ -1390,13 +1423,13 @@ ars_GetContainer(control,name)
 	    FreeARReferenceList(&references,FALSE);
 	    FreeARPropList(&objPropList, FALSE);
 	    if(helpText)
-	      	AP_FREE(helpText);
+	      	arsperl_FreeARTextString(helpText);
 	    if(changeDiary)
-	      	AP_FREE(changeDiary);
+	      	arsperl_FreeARTextString(changeDiary);
 	    if(label)
-	      	AP_FREE(label);
+	      	arsperl_FreeARTextString(label);
 	    if(description)
-	      	AP_FREE(description);
+	      	arsperl_FreeARTextString(description);
 	  }
 	}
 	OUTPUT:
@@ -1557,8 +1590,8 @@ ars_GetActiveLink(ctrl,name)
 	    FreeARActiveLinkActionList(&elseList,FALSE);
 	    FreeARWorkflowConnectStruct(&schemaList, FALSE);
 	    FreeARPropList(&objPropList, FALSE);
-	    if(helpText) AP_FREE(helpText);
-	    if(changeDiary) AP_FREE(changeDiary);
+	    if(helpText) arsperl_FreeARTextString(helpText);
+	    if(changeDiary) arsperl_FreeARTextString(changeDiary);
 	  
 	    }else{
       XSRETURN_UNDEF;
@@ -2503,7 +2536,7 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	  }
 
 	  ret = ARSetEntry(ctrl, schema, &entryList, &fieldList, getTime, option, &status);
-	  FreeAREntryIdList(&entryList, FALSE);
+	  if (entryList.entryIdList) AP_FREE(entryList.entryIdList);
 #ifdef PROFILE
 	  ((ars_ctrl *)ctrl)->queries++;
 #endif
@@ -2511,7 +2544,7 @@ ars_SetEntry(ctrl,schema,entry_id,getTime,...)
 	    RETVAL = 1;
 	  }
 	set_entry_end:;
-	  FreeARFieldValueList(&fieldList, FALSE);
+	  if (fieldList.fieldValueList) AP_FREE(fieldList.fieldValueList);
 	set_entry_exit:;
 	}
 	OUTPUT:
@@ -2595,8 +2628,8 @@ ars_Export(ctrl,displayTag,vuiType,...)
 				RETVAL = newSVpv(buf, 0);
 			}
 		} 
-		if(buf) AP_FREE(buf);
-		FreeARStructItemList(&structItems, FALSE);
+		if(buf) arsperl_FreeARTextString(buf);
+		AP_FREE(structItems.structItemList);
 	}
 	OUTPUT:
 	RETVAL
@@ -2668,7 +2701,11 @@ ars_Import(ctrl,importOption=AR_IMPORT_OPT_CREATE,importBuf,...)
 		} else {
 			RETVAL = 0;
 		}
-		FreeARStructItemList(structItems, TRUE);
+		if (structItems != NULL)
+		{
+			AP_FREE(structItems->structItemList);
+			AP_FREE(structItems);
+		}
 	}
 	OUTPUT:
 	RETVAL
@@ -2831,6 +2868,9 @@ ars_GetListImage(ctrl,schema=NULL,changedSince=0,imageType=NULL)
 	    		    schemaListPtr,
 	    		    changedSince,
 	    		    imageType,
+#if AR_CURRENT_API_VERSION >= 19
+	    		    &propList, // at the moment we don't want to search for specific properties
+#endif
 	    		    &nameList,
 	    		    &status );
 	  }else{
@@ -3365,10 +3405,10 @@ ars_GetEscalation(ctrl, name)
 	     FreeARWorkflowConnectStruct(&schemaList, FALSE);
 	     FreeARPropList(&objPropList, FALSE);
 	     if(helpText) {
-	       	AP_FREE(helpText);
+	       	arsperl_FreeARTextString(helpText);
 	     }
 	     if(changeDiary) {
-	       	AP_FREE(changeDiary);
+	       	arsperl_FreeARTextString(changeDiary);
 	     }
 	  }else{
 	   XSRETURN_UNDEF;
@@ -4059,7 +4099,7 @@ ars_CreateCharMenu( ctrl, menuDefRef, removeFlag=TRUE )
 			croak("usage: ars_CreateCharMenu(...)");
 		}
 
-		rv += strcpyHVal( menuDef, "name", name, sizeof(ARNameType) );
+		rv += strcpyHVal( menuDef, "name", name, AR_MAX_NAME_SIZE );
 
 		/* rv += uintcpyHVal( menuDef, "refreshCode", &type ); */
 		rv += strmakHVal( menuDef, "refreshCode", &refreshCodeStr );
@@ -4788,7 +4828,7 @@ ars_CreateSchema( ctrl, schemaDefRef )
 			croak("usage: ars_CreateSchema(...)");
 		}
 
-		rv += strcpyHVal( schemaDef, "name", name, sizeof(ARNameType) );
+		rv += strcpyHVal( schemaDef, "name", name, AR_MAX_NAME_SIZE );
 
 		compoundSchema.schemaType = AR_SCHEMA_REGULAR;
 		pSvTemp = hv_fetch( schemaDef, "schema", strlen("schema") , 0 );
@@ -4896,25 +4936,25 @@ ars_CreateSchema( ctrl, schemaDefRef )
 			RETVAL = 0;
 		}
 
-	    if( helpText != NULL ){
+		if( helpText != NULL ){
 			AP_FREE( helpText );
 		}
-	    if( changeDiary != NULL ){
+		if( changeDiary != NULL ){
 			AP_FREE( changeDiary );
 		}
-		FreeARCompoundSchema( &compoundSchema, FALSE );
-		FreeARPermissionList( &groupList, FALSE );
-		FreeARInternalIdList( &admingrpList, FALSE );
-		FreeAREntryListFieldList( &getListFields, FALSE );
-		FreeARSortList( &sortList, FALSE );
-		FreeARIndexList( &indexList, FALSE );
+		FreeARCompoundSchema( &compoundSchema, FALSE ); // TODO: we need our own free routine
+		AP_FREE(groupList.permissionList);
+		AP_FREE(admingrpList.internalIdList);
+		AP_FREE(getListFields.fieldsList);
+		AP_FREE(sortList.sortList);
+		AP_FREE(indexList.indexList);
 #if AR_EXPORT_VERSION >= 8L
 		if( archiveInfo != NULL ){
-			FreeARArchiveInfoStruct( archiveInfo, TRUE );
+			FreeARArchiveInfoStruct( archiveInfo, TRUE ); // TODO: we need our own free routine
 		}
 #endif
 		if( objPropList != NULL ){
-			FreeARPropList( objPropList, TRUE );
+			FreeARPropList( objPropList, TRUE ); // TODO: we need our own free routine
 		}
 #else /* < 5.0 */
 	  XPUSHs(sv_2mortal(newSViv(0))); /* ERR */
@@ -5432,7 +5472,7 @@ ars_CreateContainer( ctrl, containerDefRef, removeFlag=TRUE )
 			croak("usage: ars_CreateContainer(...)");
 		}
 
-		rv += strcpyHVal( containerDef, "name", name, sizeof(ARNameType) );
+		rv += strcpyHVal( containerDef, "name", name, AR_MAX_NAME_SIZE );
 
 		/* rv += uintcpyHVal( containerDef, "type", &type ); */
 		rv += strmakHVal( containerDef, "type", &typeStr );
@@ -5803,11 +5843,11 @@ ars_CreateActiveLink(ctrl, alDefRef)
 		 */
 
 		rv  = 0;
-		rv += strcpyHVal( alDef, "name", name, sizeof(ARNameType));
+		rv += strcpyHVal( alDef, "name", name, AR_MAX_NAME_SIZE);
 #if AR_EXPORT_VERSION >= 5
 		rv += rev_ARNameList( ctrl, alDef, "schemaList", schemaList.u.schemaList );
 #else
-		rv += strcpyHVal( alDef, "schema", schema, sizeof(ARNameType));
+		rv += strcpyHVal( alDef, "schema", schema, AR_MAX_NAME_SIZE);
 #endif
 		rv += uintcpyHVal( alDef, "order", &order);
 		rv += rev_ARInternalIdList(ctrl, alDef, "groupList", &groupList);
@@ -5815,8 +5855,7 @@ ars_CreateActiveLink(ctrl, alDefRef)
 		rv += uintcpyHVal( alDef, "enable", &enable);
 
 		if(hv_exists(alDef,  "owner", strlen("owner") ))
-			rv += strcpyHVal( alDef, "owner", owner, 
-					sizeof(ARAccessNameType));
+			rv += strcpyHVal( alDef, "owner", owner, AR_MAX_ACCESS_NAME_SIZE);
 		else
 			strncpy(owner, ctrl->user, sizeof(ARAccessNameType));
 
@@ -6002,7 +6041,7 @@ ars_SetActiveLink(ctrl, name, objDefRef)
 		}
 
 		if(hv_exists(objDef,  "owner", strlen("owner") )){
-			rv += strcpyHVal( objDef, "owner", owner, sizeof(ARAccessNameType));
+			rv += strcpyHVal( objDef, "owner", owner, AR_MAX_ACCESS_NAME_SIZE);
 			ownerPtr = owner;
 		}
 
@@ -6163,15 +6202,14 @@ ars_CreateFilter(ctrl, objDefRef)
 		 */
 
 		rv  = 0;
-		rv += strcpyHVal( objDef, "name", name, sizeof(ARNameType));
+		rv += strcpyHVal( objDef, "name", name, AR_MAX_NAME_SIZE);
 		rv += rev_ARNameList( ctrl, objDef, "schemaList", schemaList.u.schemaList );
 		rv += uintcpyHVal( objDef, "order", &order);
 		rv += uintcpyHVal( objDef, "opSet", &opSet);
 		rv += uintcpyHVal( objDef, "enable", &enable);
 		
 		if(hv_exists(objDef,  "owner", strlen("owner") ))
-			rv += strcpyHVal( objDef, "owner", owner, 
-					sizeof(ARAccessNameType));
+			rv += strcpyHVal( objDef, "owner", owner, AR_MAX_ACCESS_NAME_SIZE);
 		else
 			strncpy(owner, ctrl->user, sizeof(ARAccessNameType));
 		
@@ -6201,7 +6239,7 @@ ars_CreateFilter(ctrl, objDefRef)
 			rv += uintcpyHVal( objDef, "errorFilterOptions", &errorFilterOptions );
 
 		if( hv_exists(objDef, "errorFilterName", strlen("errorFilterName")) )
-			rv += strcpyHVal( objDef, "errorFilterName", errorFilterName, sizeof(ARNameType) );
+			rv += strcpyHVal( objDef, "errorFilterName", errorFilterName, AR_MAX_NAME_SIZE );
 #endif
 
 		/* at this point all datastructures (hopefully) are 
@@ -6332,7 +6370,7 @@ ars_SetFilter(ctrl, name, objDefRef)
 		}
 
 		if(hv_exists(objDef,  "owner", strlen("owner") )){
-			rv += strcpyHVal( objDef, "owner", owner, sizeof(ARAccessNameType));
+			rv += strcpyHVal( objDef, "owner", owner, AR_MAX_ACCESS_NAME_SIZE);
 			ownerPtr = owner;
 		}
 
@@ -6369,7 +6407,7 @@ ars_SetFilter(ctrl, name, objDefRef)
 		}
 
 		if(hv_exists(objDef, "errorFilterName", strlen("errorFilterName") )){
-			rv += strcpyHVal( objDef, "errorFilterName", errorFilterName, sizeof(ARNameType));
+			rv += strcpyHVal( objDef, "errorFilterName", errorFilterName, AR_MAX_NAME_SIZE);
 			errorFilterNamePtr = errorFilterName;
 		}
 #endif
@@ -6480,7 +6518,7 @@ ars_CreateEscalation(ctrl, objDefRef)
 		 */
 
 		rv  = 0;
-		rv += strcpyHVal( objDef, "name", name, sizeof(ARNameType));
+		rv += strcpyHVal( objDef, "name", name, AR_MAX_NAME_SIZE);
 		rv += rev_ARNameList( ctrl, objDef, "schemaList", schemaList.u.schemaList );
 		rv += uintcpyHVal( objDef, "enable", &enable);
 
@@ -6502,8 +6540,7 @@ ars_CreateEscalation(ctrl, objDefRef)
 		}
 
 		if(hv_exists(objDef,  "owner", strlen("owner") ))
-			rv += strcpyHVal( objDef, "owner", owner, 
-					sizeof(ARAccessNameType));
+			rv += strcpyHVal( objDef, "owner", owner, AR_MAX_ACCESS_NAME_SIZE);
 		else
 			strncpy(owner, ctrl->user, sizeof(ARAccessNameType));
 
@@ -6650,7 +6687,7 @@ ars_SetEscalation(ctrl, name, objDefRef)
 		}
 
 		if(hv_exists(objDef,  "owner", strlen("owner") )){
-			rv += strcpyHVal( objDef, "owner", owner, sizeof(ARAccessNameType));
+			rv += strcpyHVal( objDef, "owner", owner, AR_MAX_ACCESS_NAME_SIZE);
 			ownerPtr = owner;
 		}
 
@@ -6763,7 +6800,7 @@ ars_CreateImage(ctrl, objDefRef)
 		 */
 
 		rv  = 0;
-		rv += strcpyHVal( objDef, "name", name, sizeof(ARNameType));
+		rv += strcpyHVal( objDef, "name", name, AR_MAX_NAME_SIZE);
 		rv += rev_ARImageDataStruct( ctrl, objDef, "imageData", &imageBuf );
 		rv += strmakHVal( objDef, "imageType", &imageType);
 
@@ -6771,8 +6808,7 @@ ars_CreateImage(ctrl, objDefRef)
 			rv += strmakHVal( objDef, "description", &description);
 		
 		if(hv_exists(objDef,  "owner", strlen("owner") ))
-			rv += strcpyHVal( objDef, "owner", owner, 
-					sizeof(ARAccessNameType));
+			rv += strcpyHVal( objDef, "owner", owner, AR_MAX_ACCESS_NAME_SIZE);
 		else
 			strncpy(owner, ctrl->user, sizeof(ARAccessNameType));
 		
@@ -6879,7 +6915,7 @@ ars_SetImage(ctrl, name, objDefRef)
 			newNamePtr = newName;
 		}
 		if(hv_exists(objDef,  "owner", strlen("owner") )){
-			rv += strcpyHVal( objDef, "owner", owner, sizeof(ARAccessNameType));
+			rv += strcpyHVal( objDef, "owner", owner, AR_MAX_ACCESS_NAME_SIZE);
 			ownerPtr = owner;
 		}
 
@@ -7039,7 +7075,7 @@ ars_MergeEntry(ctrl, schema, mergeType, ...)
 	  }
 
 	merge_entry_end:;
-	FreeARFieldValueList(&fieldList, FALSE);
+	if (fieldList.fieldValueList) AP_FREE(fieldList.fieldValueList);
 	merge_entry_exit:;
 	}
 	OUTPUT:
@@ -7561,12 +7597,21 @@ ars_SetSessionConfiguration( ctrl, variableId, value )
 		ARStatusList     status;
 		ARValueStruct    variableValue;
 		int	             ret;
+		char             numToCharBuf[32];
 
 		(void) ARError_reset();
 		Zero(&status, 1, ARStatusList);
 
 		variableValue.dataType = AR_DATA_TYPE_INTEGER;
 		variableValue.u.intVal = value;
+		
+		if (variableId == 12 || variableId == 13)
+		{
+			// just a quick and dirty solution because those variables need to be characters
+			sprintf(numToCharBuf, "%ld", value);
+			variableValue.dataType = AR_DATA_TYPE_CHAR;
+			variableValue.u.charVal = numToCharBuf;
+		}
 
 		ret = ARSetSessionConfiguration( ctrl, variableId, &variableValue, &status );
 
@@ -8131,6 +8176,38 @@ ars_CreateAlertEvent(ctrl,user,alertText,priority,sourceTag,serverName,formName,
 	OUTPUT:
 	RETVAL
 
+SV *
+ars_GetSessionConfiguration(ctrl,variableId)
+	ARControlStruct* ctrl
+	unsigned int variableId
+	CODE:
+	{
+#if AR_EXPORT_VERSION >= 6
+		int              ret = 0;
+		ARStatusList     status;
+		ARValueStruct    varValue;
+		Zero(&status, 1, ARStatusList);
+		Zero(&varValue, 1, ARValueStruct);
+		
+		ret = ARGetSessionConfiguration(ctrl, variableId, &varValue, &status);
+		
+		if( !ARError(ret, status) ) {
+			RETVAL = perl_ARValueStruct(ctrl, &varValue);
+		}
+		else
+		{
+			RETVAL = &PL_sv_undef;
+		}
+		FreeARValueStruct(&varValue, FALSE);
+#else /* < 5.0 */
+	  XPUSHs(sv_2mortal(newSViv(0))); /* ERR */
+	  (void) ARError_add( AR_RETURN_ERROR, AP_ERR_DEPRECATED, 
+			"GetSessionConfiguration() is only available in ARSystem >= 5.0");
+#endif
+	}
+	OUTPUT:
+	RETVAL
+
 #
 # Destructors for Blessed C structures
 #
@@ -8182,6 +8259,7 @@ DESTROY(qual)
 	ARQualifierStruct *	qual
 	CODE:
 	{
-		DBG( ("arqualifierstruct destructor\n") );
-		FreeARQualifierStruct(qual, TRUE);
+		DBG( ("arqualifierstruct destructor (%p)\n", qual) );
+		FreeARQualifierStruct(qual, FALSE);
+		AP_FREE(qual);
 	}

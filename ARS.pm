@@ -108,6 +108,8 @@ ars_GetAlertCount ars_RegisterForAlerts ars_DeregisterForAlerts ars_GetListAlert
 ars_DecodeAlertMessage ars_CreateAlertEvent ars_VerifyUser
 ars_GetListImage ars_GetImage ars_CreateImage ars_SetImage ars_DeleteImage
 ars_GetListEntryWithMultiSchemaFields
+ars_GetSessionConfiguration
+ars_SetOverlayGroup ars_SwitchToBestPracticeMode ars_SwitchToBaseMode
 );
 
 $ARS::VERSION   = '1.93';
@@ -472,6 +474,22 @@ sub ars_encodeStatusHistory {
 		push @sh, $hr->{USER} ? "$hr->{TIME}\cD$hr->{USER}" : "";
 	}
 	join "\cC", @sh;
+}
+
+sub ars_SetOverlayGroup {
+	my ($ctrl, $value) = (shift, shift);
+	ars_SetSessionConfiguration($ctrl, 12, $value);
+	ars_SetSessionConfiguration($ctrl, 13, $value);
+}
+
+sub ars_SwitchToBaseMode {
+	my $ctrl = shift;
+	ars_SetOverlayGroup($ctrl, 0);
+}
+
+sub ars_SwitchToBestPracticeMode {
+	my $ctrl = shift;
+	ars_SetOverlayGroup($ctrl, 1);
 }
 
 # As of ARS4.0, these routines (which call ARInitialization and ARTermination)
