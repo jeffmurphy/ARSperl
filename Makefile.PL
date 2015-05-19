@@ -251,6 +251,14 @@ die "FATAL: couldn't detect a supported api version!" if ($ARAPIVERSION eq "");
 WriteMakefile(
 	      'NAME'	=> 'ARS',
 	      'VERSION_FROM' => 'ARS.pm',
+	      'DISTNAME' => 'ARSperl',
+	      'LICENSE'  => 'artistic_1',
+	      'META_MERGE' => {
+	        resources => {
+	          repository => 'https://github.com/jeffmurphy/ARSperl',
+	          bugtracker => 'https://github.com/jeffmurphy/ARSperl/issues',
+	        },
+	      },
 	      'LIBS'	=> $GNU_WIN ? [""] : ["${ARS_LDPATH} ${ARS_LIBS}"],
 	      'MYEXTLIB' => $WINDOWS ? ($GNU_WIN ? $ARS_LIBS : '') : $ARS_STATIC_LIB,
 	      'OBJECT' => q[ARS$(OBJ_EXT) support$(OBJ_EXT) supportrev$(OBJ_EXT) supportrev_generated$(OBJ_EXT) ],
