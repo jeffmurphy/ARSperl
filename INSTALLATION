@@ -36,15 +36,17 @@ You will need to have these already installed:
    o  ARS 5.x, 6.x, 7.x, or 8.x API libraries and includes (header files).
    o  Perl 5.x with the dynamic loading option compiled in.
 
-Please see:  https://rrr.se/cgi/index?pg=arapi   for a pre-packaged archive of API libraries
+Please see:  https://rrr.se/cgi/index?pg=arapi   
+for a pre-packaged archive of API libraries
 (it is also possible to pull all of this together on your own if you have access
 to /opt/bmc/ARSystem on your ARS server)
 
 Note for Linux 64-bit:
-The expansion of the rrr.se targzip's will result in a directory similar to "api764sp5linux"
-depending on the version of the API. The actual AR System libraries as provided by Remedy
-need to be found by the linker in the lib subdirectory of the $ARSAPI variable and with
-shortened names as follows.
+The expansion of the rrr.se targzip's will result in a directory similar to 
+"api764sp5linux" depending on the version of the API. The actual AR System 
+libraries as provided by Remedy need to be found by the linker in the lib 
+subdirectory of the $ARSAPI variable value set in Makefile.PL and with shortened 
+names as follows.
 
 Example:
 
