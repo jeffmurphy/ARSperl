@@ -107,3 +107,58 @@ The first command will construct a Makefile.
 The second comand will compile the source files.
 The third command might require special (i.e. root) access if your
 perl distribution is not owned by your userid.
+
+
+BUILDING ON WINDOWS WITH STRAWBERRY PERL
+
+Compiling ARSperl for Windows 32-bit & 64-bit Strawberry Perl
+=============================================================
+
+1) Download ARSPerl source and unpack
+
+2) Download and install 32 or 64-bit Strawberry perl from strawberryperl.com
+
+3) Download desired ARS API files from RRR and unpack 
+   (https://rrr.se/cgi/index?pg=arapi)
+
+4) Edit Makefile.PL, and update $ARSAPI to indicate where ARS API files have 
+   been unpacked
+
+5) If compiling for 64-bit, the following lines need updating in Makefile.PL 
+   as well:
+ 
+      $ARS_LIBS = join(' ', map { "$ARSAPI/lib/" . $_ } @{$ra_arlibs});
+
+      change to:
+
+      $ARS_LIBS = join(' ', map { "$ARSAPI/lib64/" . $_ } @{$ra_arlibs});
+     
+
+      $ARS_LDPATH = qq{-L"$ARSAPI/lib"};
+
+      change to:
+
+      $ARS_LDPATH = qq{-L"$ARSAPI/lib64"};
+
+
+      my $ar_lib_dir = join('/', $path_to_api_dir, 'lib');
+
+      change to:
+
+      my $ar_lib_dir = join('/', $path_to_api_dir, 'lib64');
+    
+6) cd to ARSPerl directory and run perl Makefile.PL
+
+7) dmake
+
+8) If desired (and able!), run dmake test
+
+9) dmake install
+
+10) Prior to using the compiled ARSPerl, update %PATH% first.
+
+   %PATH% update notes:
+   -    32-bit: Add the bin and lib directories from where the ARS API files 
+        were unpacked
+   -    64-bit: Add the lib64 directory from where the ARS API files were 
+        unpacked
