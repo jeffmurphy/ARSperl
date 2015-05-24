@@ -15,11 +15,10 @@ previous versions of arsperl and may require altering of some arsperl
 scripts.
 
 
-Released: 05/22/2015 Version: 1.94
+Released: 05/22/2015 Version: 2.00
 
 
- (JL)   Linux 64bit is working using GCC - Windows 64bit with Strawberry 
-        Perl/GCC
+ (JL)   Linux 64-bit is working using GCC
 
  (JL)   Compiling using ARAPI 8.0 / 8.1 possible
 

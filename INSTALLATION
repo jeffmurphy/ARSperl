@@ -109,10 +109,9 @@ The third command might require special (i.e. root) access if your
 perl distribution is not owned by your userid.
 
 
-BUILDING ON WINDOWS WITH STRAWBERRY PERL
-
-Compiling ARSperl for Windows 32-bit & 64-bit Strawberry Perl
-=============================================================
+BUILDING ON WINDOWS WITH STRAWBERRY PERL  
+(Note to Windows Developers: While this is the correct procedure, it will not 
+yet provide a stable 64-bit module)
 
 1) Download ARSPerl source and unpack
 
