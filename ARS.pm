@@ -112,7 +112,7 @@ ars_GetSessionConfiguration
 ars_SetOverlayGroup ars_SwitchToBestPracticeMode ars_SwitchToBaseMode
 );
 
-$ARS::VERSION   = '1.93';
+$ARS::VERSION   = '2.00';
 $ARS::DEBUGGING = 0;
 
 $ARS::logging_file_ptr = 0;
