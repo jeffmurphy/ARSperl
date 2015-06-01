@@ -16,9 +16,9 @@
 use strict;
 use FileHandle;
 use vars qw{$opt_t $opt_f};
-require 'getopts.pl';
+use Getopt::Std;
 
-Getopts('tf:');
+getopts('tf:');
 
 my ($html) = defined($opt_t)?0:1;
 
@@ -67,6 +67,7 @@ sub spewHTML {
   
 	while(<$f>) {
 		chomp;
+		s/\r//g;
 
 		if(/^$/) {
 			print "</table></td></tr></table>\n\n<P>\n\n";
@@ -145,6 +146,7 @@ sub spewTXT {
 		s/<[\/]{0,1}BR>/\ /gi;
 		s/&gt;/>/g;
 		s/&lt;/</g;
+		s/\r//g;
 
 		if(/^$/) {
 			print "\n\n";
@@ -187,6 +189,7 @@ sub headerHTML {
  <tr><td>JWM</td><td>=</td><td>Joel Murphy {jmurphy at buffalo.edu}</td></tr>
  <tr><td>TS</td><td>=</td><td>Thilo Stapff {tstapff at sourceforge.net}</td></tr>
  <tr><td>CL</td><td>=</td><td>Chris Leach {Chris.Leach at kaz-group.com}</td></tr>
+ <tr><td>JL</td><td>=</td><td>John Luthgers {jls17 at gmx.net}</td></tr>
  </table>
  <P>
  The following lists the changes that have been made
@@ -214,6 +217,7 @@ JCM = Jeff Murphy    <jcmurphy at buffalo.edu>
 JWM = Joel Murphy    <jmurphy at buffalo.edu>
 TS  = Thilo Stapff   <tstapff at sourceforge.net>
 CL  = Chris Leach    <Chris.Leach at kaz-group.com>
+JL  = John Luthgers  <jls17 at gmx.net>
 
 Note: items preceeded by a '!' denoted changes that are incompatible with
 previous versions of arsperl and may require altering of some arsperl

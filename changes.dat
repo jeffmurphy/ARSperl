@@ -1,3 +1,11 @@
+released=05/27/2015 version=2.00
+JL  Linux 64-bit is working using GCC
+JL  Compiling using ARAPI 8.0 / 8.1 possible
+JL  added new functions: ars_GetSessionConfiguration, ars_SetOverlayGroup, ars_SwitchToBestPracticeMode and ars_SwitchToBaseMode
+JL  automatic API-Version detection in Makefile.PL
+JL  dropped support to compile ARSperl using ARAPI below version 4.5
+JL  small bugfixes
+
 released=08/01/2011 version=1.93
 TS  fixed exsi.pl enumeration gap problem
 TS  added lengthUnits,storageOptionForCLOB attributes to ARCharLimitsStruct,ARDisplayLimits
