@@ -263,7 +263,7 @@ WriteMakefile(
 	      'MYEXTLIB' => $WINDOWS ? ($GNU_WIN ? $ARS_LIBS : '') : $ARS_STATIC_LIB,
 	      'OBJECT' => q[ARS$(OBJ_EXT) support$(OBJ_EXT) supportrev$(OBJ_EXT) supportrev_generated$(OBJ_EXT) ],
 	      'INC'	=> "${INCLUDES}",
-	
+	       macro	=> { TARFLAGS   => "--format=ustar -c -v -f" },
 	      'PM' => $PM,
 
 	      ($] >= 5.005 ?    ## Add these new keywords supported since 5.005
