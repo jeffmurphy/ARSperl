@@ -129,7 +129,7 @@ set_logging_file_ptr( FILE* ptr )
 {
 	SV  *file_ptr;
 	file_ptr = get_sv( "ARS::logging_file_ptr", TRUE );
-	sv_setiv( file_ptr, (long)ptr );
+	sv_setiv( file_ptr, (uintptr_r)ptr );
 }
 
 
